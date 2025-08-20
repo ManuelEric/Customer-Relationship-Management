@@ -8,18 +8,65 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property string $lead_id
+ * @property string $main_lead
+ * @property string|null $sub_lead
+ * @property string|null $type
+ * @property int $is_online
+ * @property string|null $description
+ * @property int $score
+ * @property int|null $department_id
+ * @property string|null $color_code
+ * @property string|null $note
+ * @property int $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Collection<int, \App\Models\UserClient> $client
+ * @property-read int|null $client_count
+ * @property-read Collection<int, \App\Models\ClientEvent> $clientEvent
+ * @property-read int|null $client_event_count
+ * @property-read Collection<int, \App\Models\ClientProgram> $clientProgram
+ * @property-read int|null $client_program_count
+ * @property-read \App\Models\Department|null $department
+ * @property-read mixed $department_name
+ * @property-read mixed $lead_name
+ * @property-read \App\Models\Department|null $mainLead
+ *
+ * @method static \Database\Factories\LeadFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereColorCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereDepartmentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereIsOnline($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereLeadId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereMainLead($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereScore($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereSubLead($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Lead extends Model
 {
     use HasFactory;
 
     protected $table = 'tbl_lead';
+
     protected $primaryKey = 'lead_id';
+
     protected $keyType = 'string';
 
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'lead_id',
@@ -39,7 +86,7 @@ class Lead extends Model
         });
     }
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -70,7 +117,7 @@ class Lead extends Model
     {
         // Custom logic before creating the model
 
-        $model = static::query()->create($attributes);
+        $model = parent::create($attributes);
 
         // Custom logic after creating the model
 
@@ -82,13 +129,13 @@ class Lead extends Model
 
     public static function getColorCodeAttribute()
     {
-        return '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        return '#'.str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
     }
-    
+
     protected function departmentName(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $this->department_id !== null ? $this->department->dept_name : null
+            get: fn ($value) => $this->department_id !== null ? $this->department->dept_name : null
         );
     }
 
@@ -97,33 +144,32 @@ class Lead extends Model
         if ($this->sub_lead != null) {
 
             return Attribute::make(
-                get: fn ($value) => $this->main_lead . ' : ' . $this->sub_lead,
+                get: fn ($value) => $this->main_lead.' : '.$this->sub_lead,
             );
         }
-            
-            
+
         return Attribute::make(
             get: fn ($value) => $this->main_lead,
         );
-        
+
     }
 
     public static function whereLeadId($id)
     {
-        if (is_array($id) && empty($id)) return new Collection;
+        if (is_array($id) && empty($id)) {
+            return collect(); // empty collection
+        }
 
-        $instance = new static;
-
-        return $instance->newQuery()->where('lead_id', $id)->first();
+        return static::query()->where('lead_id', $id)->first();
     }
 
     public static function whereLeadName($name)
     {
-        if (is_array($name) && empty($name)) return new Collection;
+        if (is_array($name) && empty($name)) {
+            return collect();
+        }
 
-        $instance = new static;
-
-        return $instance->newQuery()->whereRaw('lower(main_lead) = ?', [$name])->first();
+        return static::query()->whereRaw('lower(main_lead) = ?', [strtolower($name)])->first();
     }
 
     public function client()

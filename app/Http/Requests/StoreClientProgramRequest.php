@@ -12,15 +12,16 @@ use App\Models\Program;
 use App\Models\User;
 use App\Models\UserClient;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
 class StoreClientProgramRequest extends FormRequest
 {
-
     private ClientRepositoryInterface $clientRepository;
+
     private ProgramRepositoryInterface $programRepository;
+
     private ClientProgramRepositoryInterface $clientProgramRepository;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -41,11 +42,10 @@ class StoreClientProgramRequest extends FormRequest
     }
 
     public function __construct(
-        ClientRepositoryInterface $clientRepository, 
-        ProgramRepositoryInterface $programRepository, 
+        ClientRepositoryInterface $clientRepository,
+        ProgramRepositoryInterface $programRepository,
         ClientProgramRepositoryInterface $clientProgramRepository,
-        )
-    {                                    
+    ) {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
         $this->clientProgramRepository = $clientProgramRepository;
@@ -84,31 +84,29 @@ class StoreClientProgramRequest extends FormRequest
         $hasInvoice = isset($clientProg->invoice) ? $clientProg->invoice()->count() : 0;
         $hasReceipt = isset($clientProg->invoice->receipt) ? $clientProg->invoice->receipt()->count() : 0;
 
-        # when program name is admission mentoring and status is pending
+        // when program name is admission mentoring and status is pending
         switch ($this->input('status')) {
-            
-            # pending
+
+            // pending
             case 0:
 
                 if (in_array($this->input('prog_id'), $admission_prog_id)) {
                     $rules = $this->store_admission_pending($isMentee);
-                }
-                elseif (in_array($this->input('prog_id'), haystack: $tutoring_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) || in_array($this->input('prog_id'), $competition_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) ) {
+                } elseif (in_array($this->input('prog_id'), haystack: $tutoring_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) || in_array($this->input('prog_id'), $competition_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id)) {
                     $rules = $this->store_tutoring_pending($isMentee);
-                }
-                elseif (in_array($this->input('prog_id'), $satact_prog_id)) {
+                } elseif (in_array($this->input('prog_id'), $satact_prog_id)) {
                     $rules = $this->store_satact_pending($isMentee);
-                }
-                else {
+                } else {
                     $rules = [
                         'prog_id' => [
                             'required',
                             'exists:tbl_prog,prog_id',
                             function ($attribute, $value, $fail) use ($isMentee) {
                                 $program = $this->programRepository->getProgramById($value);
-                                if ($program->prog_scope == "mentee" && $isMentee == 0)
-                                    $fail("This program is for mentee only");
-                            }
+                                if ($program->prog_scope == 'mentee' && $isMentee == 0) {
+                                    $fail('This program is for mentee only');
+                                }
+                            },
                         ],
                         'lead_id' => 'required',
                         // 'referral_code' => 'required_if:lead_id,LS005',
@@ -119,7 +117,7 @@ class StoreClientProgramRequest extends FormRequest
                         'empl_id' => [
                             'required',
                             function ($attribute, $value, $fail) {
-                                if (!User::with('roles')->whereHas('roles', function ($q) {
+                                if (! User::with('roles')->whereHas('roles', function ($q) {
                                     $q->where('role_name', 'Employee');
                                 })->find($value)) {
                                     $fail('The submitted pic was invalid employee');
@@ -131,9 +129,9 @@ class StoreClientProgramRequest extends FormRequest
 
                 break;
 
-            # success
+                // success
             case 1:
-                
+
                 if (in_array($this->input('prog_id'), $admission_prog_id)) {
 
                     $rules = $this->store_admission_success($isMentee, $studentId);
@@ -145,28 +143,30 @@ class StoreClientProgramRequest extends FormRequest
                             $studentId = $this->route('student');
                             $student = UserClient::find($studentId);
 
-                            if (($student->mail == NULL || $student->mail == '') && ($student->phone == NULL || $student->phone == ''))
+                            if (($student->mail == null || $student->mail == '') && ($student->phone == null || $student->phone == '')) {
                                 $fail('Not able to change status to success. Please complete student\'s email and phone number.');
-    
-                            if ($student->parents()->count() == 0)
-                                $fail('Not able to change status to success. Please complete the parent\'s information');
+                            }
 
-                            if (isset($clientProg) && $clientProg->status == 3) 
+                            if ($student->parents()->count() == 0) {
+                                $fail('Not able to change status to success. Please complete the parent\'s information');
+                            }
+
+                            if (isset($clientProg) && $clientProg->status == 3) {
                                 $fail('Not able to change status to success. This activities has marked as "refunded" ');
-    
-                        }
+                            }
+
+                        },
                     ];
 
-                } elseif (in_array($this->input('prog_id'), $tutoring_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) || in_array($this->input('prog_id'), $competition_prog_id) || in_array($this->input('prog_id'), $skillset_tutoring_prog_id)){
+                } elseif (in_array($this->input('prog_id'), $tutoring_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) || in_array($this->input('prog_id'), $competition_prog_id) || in_array($this->input('prog_id'), $skillset_tutoring_prog_id)) {
                     $rules = $this->store_tutoring_success($isMentee);
-                }elseif (in_array($this->input('prog_id'), $satact_prog_id)){
+                } elseif (in_array($this->input('prog_id'), $satact_prog_id)) {
                     $rules = $this->store_satact_success($isMentee, $studentId);
                 }
 
-                
                 break;
 
-            # failed
+                // failed
             case 2:
                 $rules = [
                     'prog_id' => [
@@ -174,9 +174,10 @@ class StoreClientProgramRequest extends FormRequest
                         'exists:tbl_prog,prog_id',
                         function ($attribute, $value, $fail) use ($isMentee) {
                             $program = $this->programRepository->getProgramById($value);
-                            if ($program->prog_scope == "mentee" && $isMentee == 0)
-                                $fail("This program is for mentee only");
-                        }
+                            if ($program->prog_scope == 'mentee' && $isMentee == 0) {
+                                $fail('This program is for mentee only');
+                            }
+                        },
                     ],
                     'lead_id' => 'required',
                     // 'referral_code' => 'required_if:lead_id,LS005',
@@ -185,12 +186,14 @@ class StoreClientProgramRequest extends FormRequest
                     'eduf_lead_id' => 'required_if:lead_id,LS018',
                     'kol_lead_id' => [
                         function ($attribute, $value, $fail) {
-                            if ($this->input('lead_id') == 'kol' && empty($value))
+                            if ($this->input('lead_id') == 'kol' && empty($value)) {
                                 $fail('The KOL name field is required');
+                            }
 
-                            if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                            if (! Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) {
                                 $fail('The KOL name is invalid');
-                        }
+                            }
+                        },
                     ],
                     'partner_id' => 'required_if:lead_id,LS010',
                     'first_discuss_date' => 'required|date',
@@ -199,7 +202,7 @@ class StoreClientProgramRequest extends FormRequest
                     'empl_id' => [
                         'required', 'required',
                         function ($attribute, $value, $fail) {
-                            if (!User::with('roles')->whereHas('roles', function ($q) {
+                            if (! User::with('roles')->whereHas('roles', function ($q) {
                                 $q->where('role_name', 'Employee');
                             })->find($value)) {
                                 $fail('The submitted pic was invalid employee');
@@ -213,7 +216,7 @@ class StoreClientProgramRequest extends FormRequest
                 ];
                 break;
 
-            # refund
+                // refund
             case 3:
                 $rules = [
                     'prog_id' => [
@@ -221,9 +224,10 @@ class StoreClientProgramRequest extends FormRequest
                         'exists:tbl_prog,prog_id',
                         function ($attribute, $value, $fail) use ($isMentee) {
                             $program = $this->programRepository->getProgramById($value);
-                            if ($program->prog_scope == "mentee" && $isMentee == 0)
-                                $fail("This program is for mentee only");
-                        }
+                            if ($program->prog_scope == 'mentee' && $isMentee == 0) {
+                                $fail('This program is for mentee only');
+                            }
+                        },
                     ],
                     'lead_id' => 'required',
                     // 'referral_code' => 'required_if:lead_id,LS005',
@@ -232,12 +236,14 @@ class StoreClientProgramRequest extends FormRequest
                     'eduf_lead_id' => 'required_if:lead_id,LS018',
                     'kol_lead_id' => [
                         function ($attribute, $value, $fail) {
-                            if ($this->input('lead_id') == 'kol' && empty($value))
+                            if ($this->input('lead_id') == 'kol' && empty($value)) {
                                 $fail('The KOL name field is required');
+                            }
 
-                            if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                            if (! Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) {
                                 $fail('The KOL name is invalid');
-                        }
+                            }
+                        },
                     ],
                     'partner_id' => 'required_if:lead_id,LS010',
                     'first_discuss_date' => 'required|date',
@@ -247,14 +253,15 @@ class StoreClientProgramRequest extends FormRequest
                         'in:0,1,2,3',
                         function ($attribute, $value, $fail) use ($hasInvoice, $hasReceipt) {
 
-                            if ((int)$hasInvoice > 0 && (int)$hasReceipt == 0) 
-                                $fail("Looks like this program has not been paid");
-                        }
+                            if ((int) $hasInvoice > 0 && (int) $hasReceipt == 0) {
+                                $fail('Looks like this program has not been paid');
+                            }
+                        },
                     ],
                     'empl_id' => [
                         'required', 'required',
                         function ($attribute, $value, $fail) {
-                            if (!User::with('roles')->whereHas('roles', function ($q) {
+                            if (! User::with('roles')->whereHas('roles', function ($q) {
                                 $q->where('role_name', 'Employee');
                             })->find($value)) {
                                 $fail('The submitted pic was invalid employee');
@@ -270,7 +277,7 @@ class StoreClientProgramRequest extends FormRequest
                 break;
         }
 
-        if ($this->input('lead_id') != "kol") {
+        if ($this->input('lead_id') != 'kol') {
             $rules['lead_id'] = 'required|exists:tbl_lead,lead_id';
         }
 
@@ -285,9 +292,10 @@ class StoreClientProgramRequest extends FormRequest
                 'exists:tbl_prog,prog_id',
                 function ($attribute, $value, $fail) use ($isMentee) {
                     $program = $this->programRepository->getProgramById($value);
-                    if ($program->prog_scope == "mentee" && $isMentee == 0)
-                        $fail("This program is for mentee only");
-                }
+                    if ($program->prog_scope == 'mentee' && $isMentee == 0) {
+                        $fail('This program is for mentee only');
+                    }
+                },
             ],
             'lead_id' => 'required',
             // 'referral_code' => 'required_if:lead_id,LS005',
@@ -296,12 +304,14 @@ class StoreClientProgramRequest extends FormRequest
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
-                    if ($this->input('lead_id') == 'kol' && empty($value))
+                    if ($this->input('lead_id') == 'kol' && empty($value)) {
                         $fail('The KOL name field is required');
+                    }
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                    if (! Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) {
                         $fail('The KOL name is invalid');
-                }
+                    }
+                },
             ],
             'partner_id' => 'required_if:lead_id,LS010',
             'first_discuss_date' => 'required|date',
@@ -312,8 +322,8 @@ class StoreClientProgramRequest extends FormRequest
             'pend_mentor_ic' => [
                 'nullable',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -322,18 +332,19 @@ class StoreClientProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
                     }
                 },
-            ]
+            ],
         ];
 
-        if ($this->input('pend_assessmentsent_date') != NULL)
+        if ($this->input('pend_assessmentsent_date') != null) {
             $rules['pend_initconsult_date'] .= '|before_or_equal:pend_assessmentsent_date';
-        
+        }
+
         return $rules;
     }
 
@@ -341,13 +352,14 @@ class StoreClientProgramRequest extends FormRequest
     {
         $validate = [
             'prog_id' => [
-                'required', 
+                'required',
                 'exists:tbl_prog,prog_id',
                 function ($attribute, $value, $fail) use ($isMentee) {
                     $program = $this->programRepository->getProgramById($value);
-                    if ($program->prog_scope == "mentee" && $isMentee == 0)
-                        $fail("This program is for mentee only");
-                }
+                    if ($program->prog_scope == 'mentee' && $isMentee == 0) {
+                        $fail('This program is for mentee only');
+                    }
+                },
             ],
             'lead_id' => 'required',
             // 'referral_code' => 'required_if:lead_id,LS005',
@@ -356,12 +368,14 @@ class StoreClientProgramRequest extends FormRequest
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
-                    if ($this->input('lead_id') == 'kol' && empty($value))
+                    if ($this->input('lead_id') == 'kol' && empty($value)) {
                         $fail('The KOL name field is required');
+                    }
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                    if (! Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) {
                         $fail('The KOL name is invalid');
-                }
+                    }
+                },
             ],
             'partner_id' => 'required_if:lead_id,LS010',
             'first_discuss_date' => 'required|date',
@@ -370,7 +384,7 @@ class StoreClientProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -379,7 +393,7 @@ class StoreClientProgramRequest extends FormRequest
             ],
             'success_date' => 'required_if:status,1|after_or_equal:assessmentsent_date',
             'initconsult_date' => 'required',
-            'assessmentsent_date' => 'required', # update v1.4 : <= 1.3 required
+            'assessmentsent_date' => 'required', // update v1.4 : <= 1.3 required
             'mentoring_prog_end_date' => 'required|date|after_or_equal:success_date',
             'total_uni' => 'required|numeric',
             'total_foreign_currency' => 'required|numeric',
@@ -387,8 +401,8 @@ class StoreClientProgramRequest extends FormRequest
             'total_idr' => 'required|numeric',
             'supervising_mentor' => [
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -397,9 +411,9 @@ class StoreClientProgramRequest extends FormRequest
                 // 'different:profile_building_mentor,aplication_strategy_mentor,writing_mentor',
             ],
             'profile_building_mentor' => [
-                function ($attribute, $value, $fail) use ($studentId) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
+                function ($attribute, $value, $fail) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -415,9 +429,9 @@ class StoreClientProgramRequest extends FormRequest
                 // 'different:supervising_mentor,aplication_strategy_mentor,writing_mentor'
             ],
             'subject_specialist_mentor' => [
-                function ($attribute, $value, $fail) use ($studentId) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
+                function ($attribute, $value, $fail) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -427,12 +441,12 @@ class StoreClientProgramRequest extends FormRequest
                     //     $fail('The choosen backup mentor has already exist');
                     // }
                 },
-                'nullable'
+                'nullable',
             ],
             'aplication_strategy_mentor' => [
-                function ($attribute, $value, $fail) use ($studentId) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
+                function ($attribute, $value, $fail) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -448,9 +462,9 @@ class StoreClientProgramRequest extends FormRequest
                 // 'different:supervising_mentor,profile_building_mentor,writing_mentor'
             ],
             'writing_mentor' => [
-                function ($attribute, $value, $fail) use ($studentId) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
+                function ($attribute, $value, $fail) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -467,8 +481,8 @@ class StoreClientProgramRequest extends FormRequest
             ],
             'mentor_ic' => [
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -476,21 +490,22 @@ class StoreClientProgramRequest extends FormRequest
                 'required_if:status,1',
             ],
             'installment_notes' => 'nullable',
-            'agreement' => 'nullable', #mimes:pdf
+            'agreement' => 'nullable', // mimes:pdf
             'prog_running_status' => 'required',
         ];
 
-        # if client program will be created
+        // if client program will be created
         if ($this->isMethod('POST')) {
             $validate['agreement'] = 'required|mimes:pdf';
         }
 
-        # if client program will be updated and the agreement still nullable
+        // if client program will be updated and the agreement still nullable
         if ($this->isMethod('PUT')) {
             $clientprog_id = $this->route('program');
             $clientProg = ClientProgram::whereClientProgramId($clientprog_id);
-            if ($clientProg->agreement == 'NULL')
+            if ($clientProg->agreement == 'NULL') {
                 $validate['agreement'] = 'required|mimes:pdf';
+            }
         }
 
         return $validate;
@@ -500,15 +515,17 @@ class StoreClientProgramRequest extends FormRequest
     {
         $main_prog_name = MainProg::find($this->input('main_prog'))->prog_name;
         $main_prog = Str::of($main_prog_name)->replace(' ', '-')->lower();
+
         return [
             'prog_id' => [
                 'required',
                 'exists:tbl_prog,prog_id',
                 function ($attribute, $value, $fail) use ($isMentee) {
                     $program = $this->programRepository->getProgramById($value);
-                    if ($program->prog_scope == "mentee" && $isMentee == 0)
-                        $fail("This program is for mentee only");
-                }
+                    if ($program->prog_scope == 'mentee' && $isMentee == 0) {
+                        $fail('This program is for mentee only');
+                    }
+                },
             ],
             'lead_id' => 'required',
             // 'referral_code' => 'required_if:lead_id,LS005',
@@ -517,12 +534,14 @@ class StoreClientProgramRequest extends FormRequest
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
-                    if ($this->input('lead_id') == 'kol' && empty($value))
+                    if ($this->input('lead_id') == 'kol' && empty($value)) {
                         $fail('The KOL name field is required');
+                    }
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                    if (! Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) {
                         $fail('The KOL name is invalid');
-                }
+                    }
+                },
             ],
             'partner_id' => 'required_if:lead_id,LS010',
             'first_discuss_date' => 'required|date',
@@ -532,7 +551,7 @@ class StoreClientProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -542,17 +561,17 @@ class StoreClientProgramRequest extends FormRequest
             'package.'.$main_prog.'.0' => [
                 function ($attribute, $value, $fail) {
                     // required only for tutoring program
-                    if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
+                    if (Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null) {
                         $fail('The package field is required');
                     }
-                }
+                },
             ],
             'curriculum.0' => [
                 function ($attribute, $value, $fail) {
-                    if ( MainProg::where('id', $this->input('main_prog'))->first()->prog_name == 'Subject Tutoring' && $value == null) {
+                    if (MainProg::where('id', $this->input('main_prog'))->first()->prog_name == 'Subject Tutoring' && $value == null) {
                         $fail('The curriculum field is required');
                     }
-                }
+                },
             ],
         ];
     }
@@ -569,9 +588,10 @@ class StoreClientProgramRequest extends FormRequest
                 'exists:tbl_prog,prog_id',
                 function ($attribute, $value, $fail) use ($isMentee) {
                     $program = $this->programRepository->getProgramById($value);
-                    if ($program->prog_scope == "mentee" && $isMentee == 0)
-                        $fail("This program is for mentee only");
-                }
+                    if ($program->prog_scope == 'mentee' && $isMentee == 0) {
+                        $fail('This program is for mentee only');
+                    }
+                },
             ],
             'lead_id' => 'required',
             // 'referral_code' => 'required_if:lead_id,LS005',
@@ -580,12 +600,14 @@ class StoreClientProgramRequest extends FormRequest
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
-                    if ($this->input('lead_id') == 'kol' && empty($value))
+                    if ($this->input('lead_id') == 'kol' && empty($value)) {
                         $fail('The KOL name field is required');
+                    }
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                    if (! Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) {
                         $fail('The KOL name is invalid');
-                }
+                    }
+                },
             ],
             'partner_id' => 'required_if:lead_id,LS010',
             'first_discuss_date' => 'required|date',
@@ -594,7 +616,7 @@ class StoreClientProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -611,7 +633,7 @@ class StoreClientProgramRequest extends FormRequest
                 'required_if:status,1',
                 function ($attribute, $value, $fail) {
 
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Tutor');
                     })->find($value)) {
                         $fail('The submitted tutor was invalid tutor');
@@ -622,17 +644,17 @@ class StoreClientProgramRequest extends FormRequest
             'package.'.$main_prog.'.1' => [
                 function ($attribute, $value, $fail) {
                     // required only for tutoring program
-                    if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
+                    if (Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null) {
                         $fail('The package field is required');
                     }
-                }
+                },
             ],
             'curriculum.1' => [
                 function ($attribute, $value, $fail) {
-                    if ( MainProg::where('id', $this->input('main_prog'))->first()->prog_name == 'Subject Tutoring' && $value == null) {
+                    if (MainProg::where('id', $this->input('main_prog'))->first()->prog_name == 'Subject Tutoring' && $value == null) {
                         $fail('The curriculum field is required');
                     }
-                }
+                },
             ],
         ];
 
@@ -645,6 +667,7 @@ class StoreClientProgramRequest extends FormRequest
         // }
 
         $rules = array_merge($rules, $extended_rules);
+
         return $rules;
     }
 
@@ -652,15 +675,17 @@ class StoreClientProgramRequest extends FormRequest
     {
         $main_prog_name = MainProg::find($this->input('main_prog'))->prog_name;
         $main_prog = Str::of($main_prog_name)->replace(' ', '-')->lower();
+
         return [
             'prog_id' => [
                 'required',
                 'exists:tbl_prog,prog_id',
                 function ($attribute, $value, $fail) use ($isMentee) {
                     $program = $this->programRepository->getProgramById($value);
-                    if ($program->prog_scope == "mentee" && $isMentee == 0)
-                        $fail("This program is for mentee only");
-                }
+                    if ($program->prog_scope == 'mentee' && $isMentee == 0) {
+                        $fail('This program is for mentee only');
+                    }
+                },
             ],
             'lead_id' => 'required',
             // 'referral_code' => 'required_if:lead_id,LS005',
@@ -669,12 +694,14 @@ class StoreClientProgramRequest extends FormRequest
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
-                    if ($this->input('lead_id') == 'kol' && empty($value))
+                    if ($this->input('lead_id') == 'kol' && empty($value)) {
                         $fail('The KOL name field is required');
+                    }
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                    if (! Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) {
                         $fail('The KOL name is invalid');
-                }
+                    }
+                },
             ],
             'partner_id' => 'required_if:lead_id,LS010',
             'first_discuss_date' => 'required|date',
@@ -683,7 +710,7 @@ class StoreClientProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -693,12 +720,12 @@ class StoreClientProgramRequest extends FormRequest
             'package' => [
                 function ($attribute, $value, $fail) {
                     // required only for tutoring program
-                    if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
+                    if (Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null) {
                         $fail('The package field is required');
                     }
-                }
+                },
             ],
-            'test_date' => 'required|date'
+            'test_date' => 'required|date',
         ];
     }
 
@@ -706,15 +733,17 @@ class StoreClientProgramRequest extends FormRequest
     {
         $main_prog_name = MainProg::find($this->input('main_prog'))->prog_name;
         $main_prog = Str::of($main_prog_name)->replace(' ', '-')->lower();
+
         return [
             'prog_id' => [
-                'required', 
+                'required',
                 'exists:tbl_prog,prog_id',
                 function ($attribute, $value, $fail) use ($isMentee) {
                     $program = $this->programRepository->getProgramById($value);
-                    if ($program->prog_scope == "mentee" && $isMentee == 0)
-                        $fail("This program is for mentee only");
-                }
+                    if ($program->prog_scope == 'mentee' && $isMentee == 0) {
+                        $fail('This program is for mentee only');
+                    }
+                },
             ],
             'lead_id' => 'required',
             // 'referral_code' => 'required_if:lead_id,LS005',
@@ -723,12 +752,14 @@ class StoreClientProgramRequest extends FormRequest
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
-                    if ($this->input('lead_id') == 'kol' && empty($value))
+                    if ($this->input('lead_id') == 'kol' && empty($value)) {
                         $fail('The KOL name field is required');
+                    }
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                    if (! Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) {
                         $fail('The KOL name is invalid');
-                }
+                    }
+                },
             ],
             'partner_id' => 'required_if:lead_id,LS010',
             'first_discuss_date' => 'required|date',
@@ -737,7 +768,7 @@ class StoreClientProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -754,7 +785,7 @@ class StoreClientProgramRequest extends FormRequest
                 'required_if:status,1',
                 function ($attribute, $value, $fail) {
 
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Tutor');
                     })->find($value)) {
                         $fail('The submitted tutor was invalid tutor');
@@ -763,9 +794,9 @@ class StoreClientProgramRequest extends FormRequest
             ],
             'tutor_2' => [
                 'nullable',
-                function ($attribute, $value, $fail) use ($studentId) {
+                function ($attribute, $value, $fail) {
 
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Tutor');
                     })->find($value)) {
                         $fail('The submitted tutor was invalid tutor');
@@ -784,10 +815,10 @@ class StoreClientProgramRequest extends FormRequest
             'package.'.$main_prog.'-sat.1' => [
                 function ($attribute, $value, $fail) {
                     // required only for tutoring program
-                    if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
+                    if (Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null) {
                         $fail('The package field is required');
                     }
-                }
+                },
             ],
         ];
     }

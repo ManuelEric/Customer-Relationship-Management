@@ -4,17 +4,15 @@ namespace App\Repositories;
 
 use App\Interfaces\MenuRepositoryInterface;
 use App\Models\Department;
-use App\Models\MainMenus;
-use Illuminate\Support\Collection;
 use App\Models\Menu;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 class MenuRepository implements MenuRepositoryInterface
 {
     public function getMenu()
     {
-        $collection = new Collection();
+        $collection = new Collection;
         $menus = Menu::join('tbl_main_menus', 'tbl_main_menus.id', '=', 'tbl_menus.mainmenu_id')
             ->select([
                 'tbl_main_menus.mainmenu_name',
@@ -34,12 +32,12 @@ class MenuRepository implements MenuRepositoryInterface
                 'menu_id' => $menu->menu_id,
                 'mainmenu_id' => $menu->main_menu_id,
 
-                # there is exception for trash mainmenu
-                # because mainmenu_name and submenu has different names
-                # so in order to make it equal then we need to change trash into recycle
-                # otherwise the menu won't selected when it should be selected
-                'mainmenu_name' => $menu->mainmenu_name == "Trash" ? "Recycle" : $menu->mainmenu_name,
-                'submenu_name' => $menu->submenu_name, 
+                // there is exception for trash mainmenu
+                // because mainmenu_name and submenu has different names
+                // so in order to make it equal then we need to change trash into recycle
+                // otherwise the menu won't selected when it should be selected
+                'mainmenu_name' => $menu->mainmenu_name == 'Trash' ? 'Recycle' : $menu->mainmenu_name,
+                'submenu_name' => $menu->submenu_name,
                 'submenu_link' => $menu->submenu_link,
                 'copy' => true,
                 'export' => true,
@@ -53,24 +51,28 @@ class MenuRepository implements MenuRepositoryInterface
     public function getUserAccess($userId)
     {
         $user = User::where('id', $userId)->first();
+
         return $user->access_menus;
     }
 
     public function getUserAccessById($userId, $menuId)
     {
         $user = User::where('id', $userId)->first();
+
         return $user->access_menus()->where('tbl_menus.id', $menuId)->first();
     }
 
     public function getDepartmentAccess($departmentId)
     {
         $department = Department::find($departmentId);
+
         return $department->access_menus;
     }
 
     public function getDepartmentAccessByMenuId($departmentId, $menuId)
     {
         $department = Department::find($departmentId);
+
         return $department->access_menus()->where('tbl_menus.id', $menuId)->first();
     }
 
@@ -82,14 +84,16 @@ class MenuRepository implements MenuRepositoryInterface
         $param = $newDetails['param'];
         $user = User::where('id', $userId)->first();
 
-        # check if the menu has on user
+        // check if the menu has on user
 
-        if ($user->access_menus()->where('menu_id', $menu_id)->first() && ($copy === true || $export === true))
+        if ($user->access_menus()->where('menu_id', $menu_id)->first() && ($copy === true || $export === true)) {
             $user->access_menus()->updateExistingPivot($menu_id, ['copy' => $copy, 'export' => $export]);
+        }
         // else if ($param == 'copy' || $param == 'export')
         //     $user->access_menus()->attach($menu_id, ['copy' => $copy, 'export' => $export]);
-        else
+        else {
             $user->access_menus()->syncWithoutDetaching([['menu_id' => $menu_id, 'copy' => $copy, 'export' => $export]]);
+        }
 
         return $user->access_menus;
     }
@@ -103,12 +107,13 @@ class MenuRepository implements MenuRepositoryInterface
         $department = Department::find($departmentId);
 
         // if ($menu_id && $copy === false && $export === false)
-        if ($department->access_menus()->where('menu_id', $menu_id)->first() && $copy === true || $export === true)
+        if ($department->access_menus()->where('menu_id', $menu_id)->first() && $copy === true || $export === true) {
             $department->access_menus()->updateExistingPivot($menu_id, ['copy' => $copy, 'export' => $export]);
-        else if ($param == 'copy' || $param == 'export') 
-            $department->access_menus()->attach($menu_id, ['copy' => $copy, 'export' => $export]);  
-        else
+        } elseif ($param == 'copy' || $param == 'export') {
+            $department->access_menus()->attach($menu_id, ['copy' => $copy, 'export' => $export]);
+        } else {
             $department->access_menus()->syncWithoutDetaching($menu_id, ['copy' => $copy, 'export' => $export]);
+        }
 
         return $department->access_menus;
     }
@@ -117,6 +122,7 @@ class MenuRepository implements MenuRepositoryInterface
     {
         $user = User::where('id', $userId)->first();
         $user->access_menus()->detach($deletedDetails);
+
         return $user->access_menus;
     }
 
@@ -124,6 +130,7 @@ class MenuRepository implements MenuRepositoryInterface
     {
         $department = Department::find($departmentId);
         $department->access_menus()->detach($deletedDetails);
+
         return $department->access_menus;
     }
 }

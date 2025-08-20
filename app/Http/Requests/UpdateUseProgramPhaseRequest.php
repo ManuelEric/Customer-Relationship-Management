@@ -16,7 +16,7 @@ class UpdateUseProgramPhaseRequest extends FormRequest
             'mentee_id' => $this->route('mentee'),
             'phase_detail_id' => $this->route('phase_detail'),
             'phase_lib_id' => $this->route('phase_lib') == 'null' ? null : $this->route('phase_lib'),
-            'use' => (double)$this->use
+            'use' => (float) $this->use,
         ]);
     }
 
@@ -31,8 +31,8 @@ class UpdateUseProgramPhaseRequest extends FormRequest
 
         throw new HttpResponseException(
             response()->json([
-                'message' => "",
-                'errors' => $errors
+                'message' => '',
+                'errors' => $errors,
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
@@ -48,7 +48,7 @@ class UpdateUseProgramPhaseRequest extends FormRequest
             'mentee_id' => 'required|exists:tbl_client,id',
             'phase_detail_id' => 'required|exists:phase_details,id',
             'type' => 'required|in:increment,update,decrement',
-            'use' => 'required|min:0'
+            'use' => 'required|min:0',
         ];
     }
 }

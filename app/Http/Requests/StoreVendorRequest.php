@@ -32,7 +32,7 @@ class StoreVendorRequest extends FormRequest
             'vendor_size' => 'nullable',
             'vendor_unitprice' => 'required|numeric',
             'vendor_processingtime' => 'nullable',
-            'vendor_notes' => 'nullable'
+            'vendor_notes' => 'nullable',
         ];
     }
 }

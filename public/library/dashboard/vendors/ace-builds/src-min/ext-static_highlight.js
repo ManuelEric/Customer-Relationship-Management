@@ -5,4 +5,3 @@ define("ace/ext/static_highlight",["require","exports","module","ace/edit_sessio
                         }
                     });
                 })();
-            

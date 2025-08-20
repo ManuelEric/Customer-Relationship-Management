@@ -21,7 +21,6 @@ class StoreCurriculumRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-
     public function rules()
     {
         return $this->isMethod('POST') ? $this->store() : $this->update();
@@ -32,7 +31,7 @@ class StoreCurriculumRequest extends FormRequest
         return [
             'name' => 'required|string|max:50|unique:tbl_curriculum,name',
         ];
-           
+
     }
 
     protected function update()

@@ -199,7 +199,7 @@
 
                             <div class="col-md-12 my-2">
                                 <label>Title <sup class="text-danger">*</sup></label>
-                                <input type="text" class="form-control form-control-sm rounded" name="title" 
+                                <input type="text" class="form-control form-control-sm rounded" name="title"
                                     value="{{ isset($edufair->title) ? $edufair->title : old('title') }}" {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                                 @error('title')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -415,7 +415,7 @@
                                 </div>
                             </div>
                         </form>
-                        
+
                     </div>
                 </div>
             </div>
@@ -536,10 +536,10 @@
                         $('#reviewer_name').val(data.reviewer_name).trigger('change')
                         $('#score').val(data.score).trigger('change')
                         review_editor.setData(data.review)
-                        
+
                         let url = "{{ url('master/edufair/') }}/" + data.eduf_id + "/review/" + data.id
                         $('#formReview').attr('action', url)
-                        
+
                         let html = '{{ method_field('PUT') }}'
                         $('.put').html(html);
                     })

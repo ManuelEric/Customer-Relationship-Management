@@ -4,10 +4,8 @@ namespace App\Console\Commands;
 
 use App\Interfaces\FollowupRepositoryInterface;
 use App\Services\User\UserService;
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -28,6 +26,7 @@ class SendReminderFollowupClientCommand extends Command
     protected $description = 'Send reminder to Sales Team regarding the followup schedule per client';
 
     private FollowupRepositoryInterface $followupRepository;
+
     private UserService $userService;
 
     public function __construct(FollowupRepositoryInterface $followupRepository, UserService $userService)
@@ -37,24 +36,25 @@ class SendReminderFollowupClientCommand extends Command
         $this->userService = $userService;
     }
 
-    # Purpose:
-    # Get data followup client schedule by date
-    # Send mail reminder followup to pic
+    // Purpose:
+    // Get data followup client schedule by date
+    // Send mail reminder followup to pic
     public function handle()
     {
         $timer_start = Carbon::now();
-        
+
         $requested_date = date('Y-m-d');
         $list_followup_schedule = $this->followupRepository->getAllFollowupClientScheduleByDate($requested_date);
         $progress_bar = $this->output->createProgressBar($list_followup_schedule->count());
-        
+
         $params = [];
-        
+
         if ($list_followup_schedule->count() == 0) {
             $this->info('No followup schedules were found.');
+
             return Command::SUCCESS;
         }
-        
+
         $progress_bar->start();
         $this->userService->snSendMailReminderFollowup($list_followup_schedule);
 

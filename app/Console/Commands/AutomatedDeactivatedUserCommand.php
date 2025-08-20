@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 class AutomatedDeactivatedUserCommand extends Command
 {
     private UserRepositoryInterface $userRepository;
+
     /**
      * The name and signature of the console command.
      *
@@ -26,12 +27,12 @@ class AutomatedDeactivatedUserCommand extends Command
     public function __construct(UserRepositoryInterface $userRepository)
     {
         parent::__construct();
-        $this->userRepository = $userRepository;        
+        $this->userRepository = $userRepository;
     }
-    
-    # Purpose: 
-    # get all users 
-    # Update status tbl_user_type_detail to 0 (inactive) when end date < today
+
+    // Purpose:
+    // get all users
+    // Update status tbl_user_type_detail to 0 (inactive) when end date < today
     public function handle()
     {
         $today = date('Y-m-d');
@@ -39,11 +40,12 @@ class AutomatedDeactivatedUserCommand extends Command
         foreach ($users as $user) {
 
             $user->user_type()->where('tbl_user_type_detail.user_type_id', 2)->where('tbl_user_type_detail.end_date', '<', $today)->update([
-                'tbl_user_type_detail.status' => 0, 
-                'tbl_user_type_detail.deactivated_at' => Carbon::now()
+                'tbl_user_type_detail.status' => 0,
+                'tbl_user_type_detail.deactivated_at' => Carbon::now(),
             ]);
 
         }
+
         return Command::SUCCESS;
     }
 }

@@ -9,7 +9,6 @@ use DataTables;
 
 class SchoolDetailRepository implements SchoolDetailRepositoryInterface
 {
-
     public function getAllSchoolDetailDataTables($schoolId)
     {
         return datatables::eloquent(SchoolDetail::where('sch_id', $schoolId)->get())->make(true);
@@ -53,7 +52,7 @@ class SchoolDetailRepository implements SchoolDetailRepositoryInterface
         return tap(SchoolDetail::find($schoolDetailId))->update($newDetails);
     }
 
-    # CRM
+    // CRM
     public function getAllSchoolDetailFromCRM()
     {
         return V1SchoolDetail::all();

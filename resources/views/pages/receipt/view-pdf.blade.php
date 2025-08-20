@@ -10,8 +10,8 @@
                     onclick="enableSelector(event)"></i></button>
         </div>
         <div class="tool">
-            
-            <button class="btn btn-light btn-sm" 
+
+            <button class="btn btn-light btn-sm"
             @if (isset($attachment))
                 onclick="savePDF('print','{{$attachment->attachment}}')">
             @else

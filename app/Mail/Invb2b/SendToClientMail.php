@@ -3,7 +3,6 @@
 namespace App\Mail\Invb2b;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
@@ -16,10 +15,13 @@ class SendToClientMail extends Mailable
     use Queueable, SerializesModels;
 
     public $data;
+
     public $s3path;
+
     public $filename;
+
     public $view;
-    
+
     /**
      * Create a new message instance.
      */
@@ -47,9 +49,10 @@ class SendToClientMail extends Mailable
      */
     public function content(): Content
     {
-        if (!view()->exists($this->view)) {
+        if (! view()->exists($this->view)) {
             throw new \Exception("The view '{$this->view}' does not exist.");
         }
+
         // view : 'pages.invoice.'.$this->module['segment'].'.mail.client-view'
         return new Content(
             view: $this->view,
@@ -67,7 +70,7 @@ class SendToClientMail extends Mailable
         return [
             Attachment::fromStorageDisk('s3', $this->s3path)
                 ->as($this->filename) // Optional: Specify the file name seen by the recipient
-                ->withMime('application/pdf') // Optional: Specify MIME type if not auto-detected
+                ->withMime('application/pdf'), // Optional: Specify MIME type if not auto-detected
         ];
     }
 }

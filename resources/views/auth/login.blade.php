@@ -31,7 +31,7 @@
                                         <i class="bi bi-box-arrow-in-right me-1"></i>
                                         LOG IN
                                     </h3>
-                                    
+
                                     <div class="my-3">
                                         <label for="">Email</label>
                                         <input type="text" class="form-control @error('email') is-invalid @enderror"

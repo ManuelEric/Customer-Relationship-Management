@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\Mail;
 class SendReminderInvoiceProgramToPartnerCommand extends Command
 {
     use CurrencyTrait;
+
     private InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     private GeneralMailLogRepositoryInterface $generalMailLogRepository;
 
     public function __construct(InvoiceB2bRepositoryInterface $invoiceB2bRepository, GeneralMailLogRepositoryInterface $generalMailLogRepository)
@@ -26,6 +28,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->generalMailLogRepository = $generalMailLogRepository;
     }
+
     /**
      * The name and signature of the console command.
      *
@@ -55,8 +58,9 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
 
         $invoice_master = $this->invoiceB2bRepository->getAllDueDateInvoicePartnerProgram(7);
 
-        if (count($invoice_master) == 0) 
+        if (count($invoice_master) == 0) {
             return Command::SUCCESS;
+        }
 
         $progressBar = $this->output->createProgressBar($invoice_master->count());
         $progressBar->start();
@@ -65,40 +69,43 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
         try {
 
             foreach ($invoice_master as $data) {
-    
+
                 // meaning, invoices need to be signed before processed to partner
-                if($data->sign_status != 'signed')
+                if ($data->sign_status != 'signed') {
                     continue;
-    
+                }
+
                 $invoiceB2bId = $data->invb2b_id;
                 $logExist = $this->generalMailLogRepository->getStatus($invoiceB2bId);
                 $pic_email = $data->pic_mail;
-    
+
                 $partner_name = $data->partnership_name;
                 $partner_pics = $data->partner_prog->corp->pic;
-    
+
                 if ($partner_pics->count() == 0) {
-                    # collect data parents that have no email
+                    // collect data parents that have no email
                     $partner_have_no_pic[] = [
                         'partner_name' => $partner_name,
                     ];
+
                     continue;
                 }
 
                 foreach ($partner_pics as $partner_pic) {
-                    if($partner_pic->is_pic == 1){
+                    if ($partner_pic->is_pic == 1) {
                         $partner_pic_name = $partner_pic->pic_name;
                         $partner_pic_mail = $partner_pic->pic_mail;
                     }
                 }
-    
+
                 $cc = [env('FINANCE_CC')];
-    
-                if ($pic_email !== NULL)
+
+                if ($pic_email !== null) {
                     array_push($cc, $pic_email);
-    
+                }
+
                 try {
-    
+
                     Mail::to($partner_pic_mail, $partner_pic_name)->cc($cc)->queue(new InvoiceReminderToPartner([
                         'invoiceb2b_id' => $invoiceB2bId,
                         'partner_pic' => $partner_pic_name,
@@ -112,45 +119,44 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
                         'currency' => $data->currency,
                         'invoiceb2b' => $data,
                     ]));
-    
+
                 } catch (Exception $e) {
-    
+
                     Log::error("[CRON - SEND REMINDER INVOICE PROGRAM TO PARTNER] Email to {$partner_pic_mail} failed.");
-                    $this->error($e->getMessage() . ' | Line ' . $e->getLine());
+                    $this->error($e->getMessage().' | Line '.$e->getLine());
+
                     return Command::FAILURE;
                 }
-    
-                $this->info('Invoice reminder has been sent to ' . $partner_pic_mail);
 
-                # update reminded count to 1
+                $this->info('Invoice reminder has been sent to '.$partner_pic_mail);
+
+                // update reminded count to 1
                 $data->reminded = 1;
                 $data->save();
-    
-                # remove from mail log if the identifier mail has been successfully sent
-                if ($logExist)
+
+                // remove from mail log if the identifier mail has been successfully sent
+                if ($logExist) {
                     $this->generalMailLogRepository->removeLog($invoiceB2bId);
-    
+                }
+
                 $progressBar->advance();
             }
 
-
-    
-    
             // will send email also to finance team
             // when some recipient/clients cannot received the email
-            if (count($partner_have_no_pic) > 0 && !$logExist) {
-    
+            if (count($partner_have_no_pic) > 0 && ! $logExist) {
+
                 try {
-    
+
                     Mail::to(env('FINANCE_CC'), env('FINANCE_NAME'))->cc(env('PARTNERSHIP_MAIL'))->queue(new ReportToFinanceTeam([
                         'view' => 'pages.invoice.corporate-program.mail.reminder-finance',
                         'with' => [
                             'finance_name' => env('FINANCE_NAME'),
                             'partner_have_no_pic' => $partner_have_no_pic,
-                        ]
+                        ],
                     ]));
-    
-                    # create mail log
+
+                    // create mail log
                     $this->generalMailLogRepository->createLog([
                         'identifier' => $invoiceB2bId,
                         'category' => 'invoice',
@@ -158,13 +164,14 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
                         'description' => json_encode([
                             'finance_name' => env('FINANCE_NAME'),
                             'partner_have_no_pic' => $partner_have_no_pic,
-                        ])
+                        ]),
                     ]);
                     $this->info('report sent to finance & partnership team');
-    
+
                 } catch (Exception $e) {
-                    Log::error('Failed to send info to finance team cause by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
-                    $this->error($e->getMessage() . ' | Line ' . $e->getLine());
+                    Log::error('Failed to send info to finance team cause by : '.$e->getMessage().' | Line '.$e->getLine());
+                    $this->error($e->getMessage().' | Line '.$e->getLine());
+
                     return Command::FAILURE;
                 }
             }
@@ -172,15 +179,16 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
         } catch (Exception $e) {
             DB::rollBack();
             Log::error("[CRON - SEND REMINDER INVOICE PROGRAM TO PARTNER] Email reminder has failure. Error: {$e->getMessage()} on file {$e->getFile()} line {$e->getLine()}");
+
             return Command::FAILURE;
         }
 
-
         $progressBar->finish();
-        
+
         $timer_end = Carbon::now();
         $progress_time = $timer_start->diffInSeconds($timer_end);
         Log::info("[CRON - SEND REMINDER INVOICE TO PARTNER] works. It tooks {$progress_time} seconds.");
+
         return Command::SUCCESS;
     }
 }

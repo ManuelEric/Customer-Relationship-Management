@@ -10,7 +10,7 @@
                     <span class="input-group-text" id="basic-addon1">
                         Rp
                     </span>
-                    <input type="number" name="inv_price_idr" id="not_session_idr_price" class="form-control" {{ $disabled }} 
+                    <input type="number" name="inv_price_idr" id="not_session_idr_price" class="form-control" {{ $disabled }}
                         oninput="checkNotSessionIDR()" value="{{ isset($invoice->inv_price_idr) ? $invoice->inv_price_idr : old('inv_price_idr') }}">
                 </div>
                 @error('inv_price_idr')

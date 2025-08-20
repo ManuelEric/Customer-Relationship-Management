@@ -58,7 +58,7 @@
                                         <select name="major[]" id="" class="select w-100">
                                             <option data-placeholder="true"></option>
                                             @foreach ($majors as $major)
-                                                <option value="{{ $major->id }}" @selected($education->pivot->major_id == $major->id)>{{ $major->name }}</option>                                
+                                                <option value="{{ $major->id }}" @selected($education->pivot->major_id == $major->id)>{{ $major->name }}</option>
                                             @endforeach
                                         </select>
                                         @error('major.'.$loop->index)
@@ -117,7 +117,7 @@
                                     <select name="major[]" id="" class="select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($majors as $major)
-                                            <option value="{{ $major->id }}" @selected(old('major.'.$i) == $major->id)>{{ $major->name }}</option>                                
+                                            <option value="{{ $major->id }}" @selected(old('major.'.$i) == $major->id)>{{ $major->name }}</option>
                                         @endforeach
                                     </select>
                                     @error('major.'.$i)
@@ -170,7 +170,7 @@
                             <select name="major[]" id="" class="select w-100">
                                 <option data-placeholder="true"></option>
                                 @foreach ($majors as $major)
-                                    <option value="{{ $major->id }}">{{ $major->name }}</option>                                
+                                    <option value="{{ $major->id }}">{{ $major->name }}</option>
                                 @endforeach
                             </select>
                             @error('major.0')
@@ -232,7 +232,7 @@
                         '<select name="major[]" id="" class="select w-100">' +
                         '<option data-placeholder="true"></option>' +
                         @foreach ($majors as $major)
-                            '<option value="{{ $major->id }}">{{ $major->name }}</option>' +                            
+                            '<option value="{{ $major->id }}">{{ $major->name }}</option>' +
                         @endforeach
                         '</select>' +
                         @error('major')

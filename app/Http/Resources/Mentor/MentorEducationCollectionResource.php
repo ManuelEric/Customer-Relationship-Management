@@ -16,10 +16,9 @@ class MentorEducationCollectionResource extends ResourceCollection
     public function toArray(Request $request): array
     {
         $return = [];
-        foreach ($this->collection as $single)
-        {
+        foreach ($this->collection as $single) {
             $return[] = [
-                'id' => $single->pivot->id ?? null, 
+                'id' => $single->pivot->id ?? null,
                 'university' => $single->univ_name ?? null,
                 'major' => $single->major_name ?? null,
                 'degree' => $single->pivot->degree ?? null,

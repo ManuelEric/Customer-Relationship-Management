@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface IndustryRepositoryInterface 
+interface IndustryRepositoryInterface
 {
     public function rnGetAllIndustries();
 }

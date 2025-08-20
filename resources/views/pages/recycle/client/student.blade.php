@@ -253,7 +253,7 @@
                     cache: true
                 }
             });
-            
+
             $('#selectReason').select2({
                 dropdownParent: $('#hotLeadModal'),
                 placeholder: "Select value",

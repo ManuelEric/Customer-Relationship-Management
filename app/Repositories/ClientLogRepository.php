@@ -5,11 +5,9 @@ namespace App\Repositories;
 use App\Interfaces\ClientLogRepositoryInterface;
 use App\Models\ClientLog;
 use App\Models\ClientProgram;
-use App\Models\UserClient;
 use Illuminate\Support\Carbon;
-use DataTables;
 
-class ClientLogRepository implements ClientLogRepositoryInterface 
+class ClientLogRepository implements ClientLogRepositoryInterface
 {
     public function getClientLogByClientUUID($clientUUID)
     {
@@ -30,7 +28,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
      * Query for summary
      */
 
-    # Unfiltered
+    // Unfiltered
     public function queryUnfilteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
     {
         return ClientLog::onlinePaidUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
@@ -51,7 +49,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return ClientLog::referralFromExistingClientsUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
     }
 
-    # Filtered
+    // Filtered
     public function queryFilteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
     {
         return ClientLog::onlinePaidFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
@@ -72,7 +70,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return ClientLog::referralFromExistingClientsFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
     }
 
-    # Potential
+    // Potential
     public function queryPotentialOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
     {
         return ClientLog::onlinePaidPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
@@ -93,7 +91,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return ClientLog::referralFromExistingClientsPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
     }
 
-    # Deal
+    // Deal
     public function queryDealOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
     {
         return ClientLog::onlinePaidDealLeads($start_date, $end_date);
@@ -114,7 +112,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return ClientLog::referralFromExistingClientsDealLeads($start_date, $end_date);
     }
 
-    # Agreement
+    // Agreement
     public function queryAgreementOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
     {
         return ClientLog::onlinePaidAgreement()->whereBetween('created_at', [$start_date, $end_date]);
@@ -135,7 +133,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return ClientLog::referralFromExistingClientsAgreement()->whereBetween('created_at', [$start_date, $end_date]);
     }
 
-    # Payment
+    // Payment
     public function queryPaymentOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
     {
         return ClientLog::onlinePaidPaymentLeads($start_date, $end_date)->whereBetween('created_at', [$start_date, $end_date]);
@@ -145,7 +143,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     {
         return ClientLog::onlineOrganicPaymentLeads($start_date, $end_date)->whereBetween('created_at', [$start_date, $end_date]);
     }
-    
+
     public function queryPaymentOfflineLeads(Carbon $start_date, Carbon $end_date)
     {
         return ClientLog::offlinePaymentLeads($start_date, $end_date)->whereBetween('created_at', [$start_date, $end_date]);
@@ -158,243 +156,249 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     /**
      * Summary of unfilteredOnlinePaidLeads
-     * @param \Illuminate\Support\Carbon $start_date
-     * @param \Illuminate\Support\Carbon $end_date
+     *
      * @return int
      */
-    public function unfilteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Array
+    public function unfilteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = $this->queryUnfilteredOnlinePaidLeads($start_date, $end_date);
+
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray(),
         ];
     }
-    
-    public function unfilteredOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Array
+
+    public function unfilteredOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = $this->queryUnfilteredOnlineOrganicLeads($start_date, $end_date);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function unfilteredOfflineLeads(Carbon $start_date, Carbon $end_date): Array
+    public function unfilteredOfflineLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = $this->queryUnfilteredOfflineLeads($start_date, $end_date);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function unfilteredReferralLeads(Carbon $start_date, Carbon $end_date): Array
+    public function unfilteredReferralLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = $this->queryUnfilteredReferralLeads($start_date, $end_date);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
-    
+
     /**
      * Summary of filteredOnlinePaidLeads
-     * @param \Illuminate\Support\Carbon $start_date
-     * @param \Illuminate\Support\Carbon $end_date
+     *
      * @return int
      */
-    public function filteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Array
+    public function filteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = $this->queryFilteredOnlinePaidLeads($start_date, $end_date);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function filteredOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Array
+    public function filteredOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = $this->queryFilteredOnlineOrganicLeads($start_date, $end_date);
-        return [
-            $query->get()->count(),
-            $query->pluck('client_id')->toArray()
-        ]; 
-    }
 
-    public function filteredOfflineLeads(Carbon $start_date, Carbon $end_date): Array
-    {
-        $query = $this->queryFilteredOfflineLeads($start_date, $end_date);
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function filteredReferralSales(Carbon $start_date, Carbon $end_date): Array
+    public function filteredOfflineLeads(Carbon $start_date, Carbon $end_date): array
     {
-        $query = $this->queryFilteredReferralSales($start_date, $end_date);
+        $query = $this->queryFilteredOfflineLeads($start_date, $end_date);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
+        ];
+    }
+
+    public function filteredReferralSales(Carbon $start_date, Carbon $end_date): array
+    {
+        $query = $this->queryFilteredReferralSales($start_date, $end_date);
+
+        return [
+            $query->get()->count(),
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
     /**
      * Summary of potentialOnlinePaidLeads
-     * @param \Illuminate\Support\Carbon $start_date
-     * @param \Illuminate\Support\Carbon $end_date
+     *
      * @return int
      */
-    public function potentialOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Array
+    public function potentialOnlinePaidLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = $this->queryPotentialOnlinePaidLeads($start_date, $end_date);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function potentialOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Array
+    public function potentialOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = $this->queryPotentialOnlineOrganicLeads($start_date, $end_date);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function potentialOfflineLeads(Carbon $start_date, Carbon $end_date): Array
+    public function potentialOfflineLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = $this->queryPotentialOfflineLeads($start_date, $end_date);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id' )->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function potentialReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): Array
+    public function potentialReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = $this->queryPotentialReferralExistingClientLeads($start_date, $end_date);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
     /**
      * Deal
-     * @param \Illuminate\Support\Carbon $start_date
-     * @param \Illuminate\Support\Carbon $end_date
-     * @return int
      */
-    public function dealOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Int
+    public function dealOnlinePaidLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryDealOnlinePaidLeads($start_date, $end_date)->get()->count();
     }
 
-    public function dealOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Int
+    public function dealOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryDealOnlineOrganicLeads($start_date, $end_date)->get()->count();
     }
 
-    public function dealOfflineLeads(Carbon $start_date, Carbon $end_date): Int
+    public function dealOfflineLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryDealOfflineLeads($start_date, $end_date)->get()->count();
     }
 
-    public function dealReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): Int
+    public function dealReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryDealReferralExistingClientLeads($start_date, $end_date)->get()->count();
     }
 
     /**
      * Agreement
-     * @param \Illuminate\Support\Carbon $start_date
-     * @param \Illuminate\Support\Carbon $end_date
-     * @return int
      */
-    public function agreementOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Int
+    public function agreementOnlinePaidLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryAgreementOnlinePaidLeads($start_date, $end_date)->get()->count();
     }
 
-    public function agreementOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Int
+    public function agreementOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryAgreementOnlineOrganicLeads($start_date, $end_date)->get()->count();
     }
 
-    public function agreementOfflineLeads(Carbon $start_date, Carbon $end_date): Int
+    public function agreementOfflineLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryAgreementOfflineLeads($start_date, $end_date)->get()->count();
     }
 
-    public function agreementReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): Int
+    public function agreementReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryAgreementReferralExistingClientLeads($start_date, $end_date)->get()->count();
     }
 
     /**
      * Payment
-     * @param \Illuminate\Support\Carbon $start_date
-     * @param \Illuminate\Support\Carbon $end_date
-     * @return int
      */
-    public function paymentOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Int
+    public function paymentOnlinePaidLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryPaymentOnlinePaidLeads($start_date, $end_date)->get()->count();
     }
 
-    public function paymentOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Int
+    public function paymentOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryPaymentOnlineOrganicLeads($start_date, $end_date)->get()->count();
     }
-    public function paymentOfflineLeads(Carbon $start_date, Carbon $end_date): Int
+
+    public function paymentOfflineLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryPaymentOfflineLeads($start_date, $end_date)->get()->count();
     }
-    public function paymentReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): Int
+
+    public function paymentReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): int
     {
         return $this->queryPaymentReferralExistingClientLeads($start_date, $end_date)->get()->count();
     }
 
     /**
-     *  Data by Product category 
+     *  Data by Product category
      *  Mentoring
-     * 
+     *
      *
      * Potential Leads
      */
-    public function mentoringOnlinePaidPotentialLeads(Carbon $start_date, Carbon $end_date): Array
+    public function mentoringOnlinePaidPotentialLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = ClientLog::mentoring()->onlinePaid()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date]);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function mentoringOnlineOrganicPotentialLeads(Carbon $start_date, Carbon $end_date): Array
+    public function mentoringOnlineOrganicPotentialLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = ClientLog::mentoring()->onlineOrganic()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date]);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function mentoringOfflinePotentialLeads(Carbon $start_date, Carbon $end_date): Array
+    public function mentoringOfflinePotentialLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = ClientLog::mentoring()->offline()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date]);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function mentoringReferralPotentialLeads(Carbon $start_date, Carbon $end_date): Array
+    public function mentoringReferralPotentialLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = ClientLog::mentoring()->referral()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date]);
+
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray(),
@@ -403,213 +407,224 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     /**
      *  Assessment Form
-     * 
      */
-    public function mentoringOnlinePaidAssessmentForm(Carbon $start_date, Carbon $end_date): Array
+    public function mentoringOnlinePaidAssessmentForm(Carbon $start_date, Carbon $end_date): array
     {
         // $potentials = $this->mentoringOnlinePaidPotentialLeads($start_date, $end_date)[1];
         // $query = ClientLog::mentoring()->onlinePaid()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
         $query = ClientLog::onlinePaid()->tookAssessment($start_date, $end_date)->groupBy('clientprog_id');
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function mentoringOnlineOrganicAssessmentForm(Carbon $start_date, Carbon $end_date): Array
+    public function mentoringOnlineOrganicAssessmentForm(Carbon $start_date, Carbon $end_date): array
     {
         // $potentials = $this->mentoringOnlineOrganicPotentialLeads($start_date, $end_date)[1];
         // $query = ClientLog::mentoring()->onlineOrganic()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
         $query = ClientLog::onlineOrganic()->tookAssessment($start_date, $end_date)->groupBy('clientprog_id');
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function mentoringOfflineAssessmentForm(Carbon $start_date, Carbon $end_date): Array
+    public function mentoringOfflineAssessmentForm(Carbon $start_date, Carbon $end_date): array
     {
         // $potentials = $this->mentoringOfflinePotentialLeads($start_date, $end_date)[1];
         // $query = ClientLog::offline()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
         $query = ClientLog::tookAssessment($start_date, $end_date)->groupBy('clientprog_id');
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function mentoringReferralAssessmentForm(Carbon $start_date, Carbon $end_date): Array
+    public function mentoringReferralAssessmentForm(Carbon $start_date, Carbon $end_date): array
     {
         // $potentials = $this->mentoringReferralPotentialLeads($start_date, $end_date)[1];
         // $query = ClientLog::mentoring()->referral()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
         $query = ClientLog::referral()->tookAssessment($start_date, $end_date)->groupBy('clientprog_id');
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
     /**
      * Initial Consult (IC)
      */
-    //! perlu where IN potential utk assessment, ic, ia
-    public function mentoringOnlinePaidIC(Carbon $start_date, Carbon $end_date): Array
+    // ! perlu where IN potential utk assessment, ic, ia
+    public function mentoringOnlinePaidIC(Carbon $start_date, Carbon $end_date): array
     {
         $potentials = $this->mentoringOnlinePaidPotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::mentoring()->onlinePaid()->initialConsult()->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
-    public function mentoringOnlineOrganicIC(Carbon $start_date, Carbon $end_date): Array
+
+    public function mentoringOnlineOrganicIC(Carbon $start_date, Carbon $end_date): array
     {
         $potentials = $this->mentoringOnlineOrganicPotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::mentoring()->onlineOrganic()->initialConsult()->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
-    public function mentoringOfflineIC(Carbon $start_date, Carbon $end_date): Array
+
+    public function mentoringOfflineIC(Carbon $start_date, Carbon $end_date): array
     {
         $potentials = $this->mentoringOfflinePotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::mentoring()->offline()->initialConsult()->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
-    public function mentoringReferralIC(Carbon $start_date, Carbon $end_date): Array
+
+    public function mentoringReferralIC(Carbon $start_date, Carbon $end_date): array
     {
         $potentials = $this->mentoringReferralPotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::mentoring()->referral()->initialConsult()->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
     /**
      * Initial Assessment (IAR/IA)
      */
-    public function mentoringOnlinePaidIA(Carbon $start_date, Carbon $end_date): Int
+    public function mentoringOnlinePaidIA(Carbon $start_date, Carbon $end_date): int
     {
         $potentials = $this->mentoringOnlinePaidPotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::mentoring()->onlinePaid()->initialAssessment()->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return $query->get()->count();
     }
-    public function mentoringOnlineOrganicIA(Carbon $start_date, Carbon $end_date): Int
+
+    public function mentoringOnlineOrganicIA(Carbon $start_date, Carbon $end_date): int
     {
         $potentials = $this->mentoringOnlineOrganicPotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::mentoring()->onlineOrganic()->initialAssessment()->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return $query->get()->count();
     }
-    public function mentoringOfflineIA(Carbon $start_date, Carbon $end_date): Int
+
+    public function mentoringOfflineIA(Carbon $start_date, Carbon $end_date): int
     {
         $potentials = $this->mentoringOfflinePotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::mentoring()->offline()->initialAssessment()->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return $query->get()->count();
     }
-    public function mentoringReferralIA(Carbon $start_date, Carbon $end_date): Int
+
+    public function mentoringReferralIA(Carbon $start_date, Carbon $end_date): int
     {
         $potentials = $this->mentoringReferralPotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::mentoring()->referral()->initialAssessment()->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return $query->get()->count();
     }
 
     /**
      * Deal
      */
-    public function mentoringOnlinePaidDeal(Carbon $start_date, Carbon $end_date): Int
+    public function mentoringOnlinePaidDeal(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->onlinePaid()->dealLeads($start_date, $end_date)->get()->count();
     }
 
-    public function mentoringOnlineOrganicDeal(Carbon $start_date, Carbon $end_date): Int
+    public function mentoringOnlineOrganicDeal(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->onlineOrganic()->dealLeads($start_date, $end_date)->get()->count();
     }
-    
-    public function mentoringOfflineDeal(Carbon $start_date, Carbon $end_date): Int
+
+    public function mentoringOfflineDeal(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->offline()->dealLeads($start_date, $end_date)->get()->count();
     }
-    
-    public function mentoringReferralDeal(Carbon $start_date, Carbon $end_date): Int
+
+    public function mentoringReferralDeal(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->referral()->dealLeads($start_date, $end_date)->get()->count();
     }
-    
 
     /**
      * Agreement
+     *
      * @return void
      */
-    public function mentoringOnlinePaidAgreement(Carbon $start_date, Carbon $end_date): Int
+    public function mentoringOnlinePaidAgreement(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->onlinePaid()->hasAgreement($start_date, $end_date)->get()->count();
     }
-    
-    public function mentoringOnlineOrganicAgreement(Carbon $start_date, Carbon $end_date): Int
+
+    public function mentoringOnlineOrganicAgreement(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->onlineOrganic()->hasAgreement($start_date, $end_date)->get()->count();
     }
-    
-    public function mentoringOfflineAgreement(Carbon $start_date, Carbon $end_date): Int
+
+    public function mentoringOfflineAgreement(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->offline()->hasAgreement($start_date, $end_date)->get()->count();
     }
-    
-    public function mentoringReferralAgreement(Carbon $start_date, Carbon $end_date): Int
+
+    public function mentoringReferralAgreement(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->referral()->hasAgreement($start_date, $end_date)->get()->count();
     }
-    
 
     /**
      * Payment
      */
-    public function mentoringOnlinePaidPayment(Carbon $start_date, Carbon $end_date): Int
+    public function mentoringOnlinePaidPayment(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->onlinePaid()->alreadyPaidTheProgram($start_date, $end_date)->get()->count();
     }
 
-    public function mentoringOnlineOrganicPayment(Carbon $start_date, Carbon $end_date): Int
+    public function mentoringOnlineOrganicPayment(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->onlineOrganic()->alreadyPaidTheProgram($start_date, $end_date)->get()->count();
     }
 
-    public function mentoringOfflinePayment(Carbon $start_date, Carbon $end_date): Int
+    public function mentoringOfflinePayment(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->offline()->alreadyPaidTheProgram($start_date, $end_date)->get()->count();
     }
 
-    public function mentoringReferralPayment(Carbon $start_date, Carbon $end_date): Int
+    public function mentoringReferralPayment(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::mentoring()->referral()->alreadyPaidTheProgram($start_date, $end_date)->get()->count();
     }
 
-
-
     /**
-     * 
      *  Data by Sales
      *  Mentoring
-     * 
-     * 
      */
     public function mentoringPotentialLeadsTotalToDate(Carbon $start_date, Carbon $end_date)
     {
         $query = ClientLog::with([
-                'client_program' => function ($query) {
-                    $query->with([
-                        'internalPic' => function ($sub) {
-                            $sub->select('id', 'first_name', 'last_name');
-                        },
-                    ])->select('clientprog_id', 'client_id', 'empl_id');
-                },
-            ])->mentoring()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date]);
+            'client_program' => function ($query) {
+                $query->with([
+                    'internalPic' => function ($sub) {
+                        $sub->select('id', 'first_name', 'last_name');
+                    },
+                ])->select('clientprog_id', 'client_id', 'empl_id');
+            },
+        ])->mentoring()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date]);
         $potentials = $query->get();
 
         $mapped = $potentials->map(function ($item) {
@@ -622,7 +637,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 'unique_key' => $item->unique_key,
                 'lead_source' => $item->lead_source,
                 'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at
+                'updated_at' => $item->updated_at,
             ];
         });
 
@@ -631,7 +646,6 @@ class ClientLogRepository implements ClientLogRepositoryInterface
             $mapped->groupBy('pic_id'),
         ];
     }
-    
 
     /**
      * Assessment Form
@@ -639,16 +653,16 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     public function mentoringAssessmentFormTotalToDate($potentials, Carbon $start_date, Carbon $end_date)
     {
         $query = ClientLog::with([
-                'client_program' => function ($query) {
-                    $query->with([
-                        'internalPic' => function ($sub) {
-                            $sub->select('id', 'first_name', 'last_name');
-                        },
-                    ])->select('clientprog_id', 'client_id', 'empl_id');
-                },
-            ])->mentoring()->potentialLeadsByProduct()->whereHas('master_client', function ($query) use ($start_date, $end_date) {
-                $query->where('took_ia', 1)->whereBetween('took_ia_date', [$start_date, $end_date]);
-            })->whereIn('client_id', $potentials);
+            'client_program' => function ($query) {
+                $query->with([
+                    'internalPic' => function ($sub) {
+                        $sub->select('id', 'first_name', 'last_name');
+                    },
+                ])->select('clientprog_id', 'client_id', 'empl_id');
+            },
+        ])->mentoring()->potentialLeadsByProduct()->whereHas('master_client', function ($query) use ($start_date, $end_date) {
+            $query->where('took_ia', 1)->whereBetween('took_ia_date', [$start_date, $end_date]);
+        })->whereIn('client_id', $potentials);
         $assessment = $query->get();
 
         $mapped = $assessment->map(function ($item) {
@@ -661,16 +675,15 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 'unique_key' => $item->unique_key,
                 'lead_source' => $item->lead_source,
                 'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at
+                'updated_at' => $item->updated_at,
             ];
         });
 
         return [
             $query->pluck('client_id')->toArray(),
-            $mapped->groupBy('pic_id')
+            $mapped->groupBy('pic_id'),
         ];
     }
-    
 
     /**
      * Initial Consult
@@ -678,16 +691,16 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     public function mentoringICTotalToDate($potentials, Carbon $start_date, Carbon $end_date)
     {
         $query = ClientLog::with([
-                'client_program' => function ($query)  {
-                    $query->with([
-                        'internalPic' => function ($sub) {
-                            $sub->select('id', 'first_name', 'last_name');
-                        },
-                    ])->select('clientprog_id', 'client_id', 'empl_id');
-                },
-            ])->mentoring()->potentialLeadsByProduct()->whereIn('client_id', $potentials)->whereHas('client_program', function ($sub) use ($start_date, $end_date) {
-                $sub->whereBetween('initconsult_date', [$start_date, $end_date]);
-            });
+            'client_program' => function ($query) {
+                $query->with([
+                    'internalPic' => function ($sub) {
+                        $sub->select('id', 'first_name', 'last_name');
+                    },
+                ])->select('clientprog_id', 'client_id', 'empl_id');
+            },
+        ])->mentoring()->potentialLeadsByProduct()->whereIn('client_id', $potentials)->whereHas('client_program', function ($sub) use ($start_date, $end_date) {
+            $sub->whereBetween('initconsult_date', [$start_date, $end_date]);
+        });
 
         $ic = $query->get();
 
@@ -701,16 +714,15 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 'unique_key' => $item->unique_key,
                 'lead_source' => $item->lead_source,
                 'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at
+                'updated_at' => $item->updated_at,
             ];
         });
 
         return [
             $query->pluck('client_id')->toArray(),
-            $mapped->groupBy('pic_id')
+            $mapped->groupBy('pic_id'),
         ];
     }
-    
 
     /**
      * Initial Assessment Request IAR / IA
@@ -718,14 +730,14 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     public function mentoringIATotalToDate($potentials, Carbon $start_date, Carbon $end_date)
     {
         $ic = ClientLog::with([
-            'client_program' => function ($query)  use ($start_date, $end_date) {
+            'client_program' => function ($query) {
                 $query->with([
                     'internalPic' => function ($sub) {
                         $sub->select('id', 'first_name', 'last_name');
                     },
                 ])->select('clientprog_id', 'client_id', 'empl_id');
             },
-        ])->mentoring()->potentialLeadsByProduct()->whereIn('client_id', $potentials)->whereHas('client_program', function ($sub) use ($start_date, $end_date){
+        ])->mentoring()->potentialLeadsByProduct()->whereIn('client_id', $potentials)->whereHas('client_program', function ($sub) use ($start_date, $end_date) {
             $sub->whereBetween('assessmentsent_date', [$start_date, $end_date]);
         })->get();
 
@@ -739,13 +751,12 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 'unique_key' => $item->unique_key,
                 'lead_source' => $item->lead_source,
                 'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at
+                'updated_at' => $item->updated_at,
             ];
         });
 
         return $mapped->groupBy('pic_id');
     }
-    
 
     /**
      * Deal
@@ -753,8 +764,8 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     public function mentoringDealTotalToDate(Carbon $start_date, Carbon $end_date)
     {
         $deal = ClientProgram::whereHas('program.main_prog', function ($query) {
-                $query->where('prog_name', 'Admissions Mentoring');
-            })->
+            $query->where('prog_name', 'Admissions Mentoring');
+        })->
             whereIn('status', [1, 4])->
             whereBetween('success_date', [$start_date, $end_date])->
             success()->
@@ -763,13 +774,12 @@ class ClientLogRepository implements ClientLogRepositoryInterface
             return [
                 'pic_id' => $item->internalPic->id,
                 'pic_name' => $item->internalPic->full_name,
-                'clientprogram_id' => $item->clientprog_id
+                'clientprogram_id' => $item->clientprog_id,
             ];
         });
 
         return $mapped->groupBy('pic_id');
     }
-    
 
     /**
      * Agreement
@@ -777,19 +787,18 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     public function mentoringAgreementTotalToDate(Carbon $start_date, Carbon $end_date)
     {
         $agreement = ClientProgram::whereHas('program.main_prog', function ($query) {
-                $query->where('prog_name', 'Admissions Mentoring');
-            })->whereBetween('agreement_uploaded_at', [$start_date, $end_date])->get();
+            $query->where('prog_name', 'Admissions Mentoring');
+        })->whereBetween('agreement_uploaded_at', [$start_date, $end_date])->get();
         $mapped = $agreement->map(function ($item) {
             return [
                 'pic_id' => $item->internalPic->id,
                 'pic_name' => $item->internalPic->full_name,
-                'clientprogram_id' => $item->clientprog_id
+                'clientprogram_id' => $item->clientprog_id,
             ];
         });
 
         return $mapped->groupBy('pic_id');
     }
-    
 
     /**
      * Payment
@@ -797,8 +806,8 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     public function mentoringPaymentTotalToDate(Carbon $start_date, Carbon $end_date)
     {
         $payment = ClientProgram::with([
-                'invoice.firstReceipt'
-            ])->
+            'invoice.firstReceipt',
+        ])->
             whereHas('program.main_prog', function ($query) {
                 $query->where('prog_name', 'Admissions Mentoring');
             })->
@@ -819,41 +828,46 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     /**
      * leads of tutoring
+     *
      * @return int
      */
-    public function tutoringOnlinePaidPotentialLeads(Carbon $start_date, Carbon $end_date): Array
+    public function tutoringOnlinePaidPotentialLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = ClientLog::tutoring()->onlinePaid()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date]);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function tutoringOnlineOrganicPotentialLeads(Carbon $start_date, Carbon $end_date): Array
+    public function tutoringOnlineOrganicPotentialLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = ClientLog::tutoring()->onlineOrganic()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date]);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function tutoringOfflinePotentialLeads(Carbon $start_date, Carbon $end_date): Array
+    public function tutoringOfflinePotentialLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = ClientLog::tutoring()->offline()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date]);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
-    public function tutoringReferralPotentialLeads(Carbon $start_date, Carbon $end_date): Array
+    public function tutoringReferralPotentialLeads(Carbon $start_date, Carbon $end_date): array
     {
         $query = ClientLog::tutoring()->referral()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date]);
+
         return [
             $query->get()->count(),
-            $query->pluck('client_id')->toArray()
+            $query->pluck('client_id')->toArray(),
         ];
     }
 
@@ -861,6 +875,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     {
         $potentials = $this->tutoringOnlinePaidPotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::tutoring()->onlinePaid()->trialDate($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return $query->get()->count();
     }
 
@@ -868,6 +883,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     {
         $potentials = $this->tutoringOnlineOrganicPotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::tutoring()->onlineOrganic()->trialDate($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return $query->get()->count();
     }
 
@@ -875,6 +891,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     {
         $potentials = $this->tutoringOfflinePotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::tutoring()->offline()->trialDate($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return $query->get()->count();
     }
 
@@ -882,6 +899,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     {
         $potentials = $this->tutoringReferralPotentialLeads($start_date, $end_date)[1];
         $query = ClientLog::tutoring()->referral()->trialDate($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+
         return $query->get()->count();
     }
 
@@ -926,11 +944,8 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     }
 
     /**
-     * 
      *  Data by Sales
      *  Tutoring
-     * 
-     * 
      */
     public function tutoringPotentialLeadsTotalToDate(Carbon $start_date, Carbon $end_date)
     {
@@ -955,7 +970,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 'unique_key' => $item->unique_key,
                 'lead_source' => $item->lead_source,
                 'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at
+                'updated_at' => $item->updated_at,
             ];
         });
 
@@ -987,7 +1002,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 'unique_key' => $item->unique_key,
                 'lead_source' => $item->lead_source,
                 'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at
+                'updated_at' => $item->updated_at,
             ];
         });
 
@@ -1006,7 +1021,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
             return [
                 'pic_id' => $item->internalPic->id,
                 'pic_name' => $item->internalPic->full_name,
-                'clientprogram_id' => $item->clientprog_id
+                'clientprogram_id' => $item->clientprog_id,
             ];
         });
 
@@ -1016,7 +1031,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     public function tutoringPaymentTotalToDate(Carbon $start_date, Carbon $end_date)
     {
         $payment = ClientProgram::with([
-            'invoice.firstReceipt'
+            'invoice.firstReceipt',
         ])->
         whereHas('program.main_prog', function ($query) {
             $query->where('prog_name', 'Academic & Test Preparation');
@@ -1035,74 +1050,73 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
         return $mapped->groupBy('pic_id');
     }
-    
+
     /**
      * leads of gip
-     * @return int
      */
-    public function gipOnlinePaidPotentialLeads(Carbon $start_date, Carbon $end_date): Int
+    public function gipOnlinePaidPotentialLeads(Carbon $start_date, Carbon $end_date): int
     {
         return ClientLog::GIP()->onlinePaid()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date])->get()->count();
     }
 
-    public function gipOnlineOrganicPotentialLeads(Carbon $start_date, Carbon $end_date): Int
+    public function gipOnlineOrganicPotentialLeads(Carbon $start_date, Carbon $end_date): int
     {
         return ClientLog::GIP()->onlineOrganic()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date])->get()->count();
     }
 
-    public function gipOfflinePotentialLeads(Carbon $start_date, Carbon $end_date): Int
+    public function gipOfflinePotentialLeads(Carbon $start_date, Carbon $end_date): int
     {
         return ClientLog::GIP()->offline()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date])->get()->count();
     }
 
-    public function gipReferralPotentialLeads(Carbon $start_date, Carbon $end_date): Int
+    public function gipReferralPotentialLeads(Carbon $start_date, Carbon $end_date): int
     {
         return ClientLog::GIP()->referral()->potentialLeadsByProduct()->whereBetween('created_at', [$start_date, $end_date])->get()->count();
     }
 
-    public function gipOnlinePaidDeal(Carbon $start_date, Carbon $end_date): Int
+    public function gipOnlinePaidDeal(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::GIP()->onlinePaid()->dealLeads($start_date, $end_date)->get()->count();
     }
 
-    public function gipOnlineOrganicDeal(Carbon $start_date, Carbon $end_date): Int
+    public function gipOnlineOrganicDeal(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::GIP()->onlineOrganic()->dealLeads($start_date, $end_date)->get()->count();
     }
 
-    public function gipOfflineDeal(Carbon $start_date, Carbon $end_date): Int
+    public function gipOfflineDeal(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::GIP()->offline()->dealLeads($start_date, $end_date)->get()->count();
     }
 
-    public function gipReferralDeal(Carbon $start_date, Carbon $end_date): Int
+    public function gipReferralDeal(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::GIP()->referral()->dealLeads($start_date, $end_date)->get()->count();
     }
 
-    public function gipOnlinePaidPayment(Carbon $start_date, Carbon $end_date): Int
+    public function gipOnlinePaidPayment(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::GIP()->onlinePaid()->alreadyPaidTheProgram($start_date, $end_date)->get()->count();
     }
-    public function gipOnlineOrganicPayment(Carbon $start_date, Carbon $end_date): Int
+
+    public function gipOnlineOrganicPayment(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::GIP()->onlineOrganic()->alreadyPaidTheProgram($start_date, $end_date)->get()->count();
     }
-    public function gipOfflinePayment(Carbon $start_date, Carbon $end_date): Int
+
+    public function gipOfflinePayment(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::GIP()->offline()->alreadyPaidTheProgram($start_date, $end_date)->get()->count();
     }
-    public function gipReferralPayment(Carbon $start_date, Carbon $end_date): Int
+
+    public function gipReferralPayment(Carbon $start_date, Carbon $end_date): int
     {
         return ClientProgram::GIP()->referral()->alreadyPaidTheProgram($start_date, $end_date)->get()->count();
     }
 
     /**
-     * 
      *  Data by Sales
      *  Tutoring
-     * 
-     * 
      */
     public function gipPotentialLeadsTotalToDate(Carbon $start_date, Carbon $end_date)
     {
@@ -1118,15 +1132,15 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
         $mapped = $potentials->map(function ($item) {
             return [
-                'pic_id' => $item->client_program->internalPic->id ?? NULL,
-                'pic_name' => $item->client_program->internalPic->full_name ?? NULL,
+                'pic_id' => $item->client_program->internalPic->id ?? null,
+                'pic_name' => $item->client_program->internalPic->full_name ?? null,
                 'clientprogram_id' => $item->client_program->clientprog_id,
                 'client_id' => $item->client_id,
                 'category' => $item->category,
                 'unique_key' => $item->unique_key,
                 'lead_source' => $item->lead_source,
                 'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at
+                'updated_at' => $item->updated_at,
             ];
         });
 
@@ -1145,7 +1159,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
             return [
                 'pic_id' => $item->internalPic->id,
                 'pic_name' => $item->internalPic->full_name,
-                'clientprogram_id' => $item->clientprog_id
+                'clientprogram_id' => $item->clientprog_id,
             ];
         });
 
@@ -1155,7 +1169,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     public function gipPaymentTotalToDate(Carbon $start_date, Carbon $end_date)
     {
         $payment = ClientProgram::with([
-            'invoice.firstReceipt'
+            'invoice.firstReceipt',
         ])->
         whereHas('program.sub_prog', function ($query) {
             $query->where('sub_prog_name', 'Global Immersion Program');
@@ -1175,11 +1189,11 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return $mapped->groupBy('pic_id');
     }
 
-    public function getDetailLeadTracking(String $type, Carbon $start_date, Carbon $end_date, ?array $search = [])
+    public function getDetailLeadTracking(string $type, Carbon $start_date, Carbon $end_date, ?array $search = [])
     {
-        
+
         switch ($type) {
-            # Unfiltered
+            // Unfiltered
             case 'unfiltered_leads_online_paid':
                 $clients = $this->queryUnfilteredOnlinePaidLeads($start_date, $end_date)->search($search)->get();
                 break;
@@ -1193,7 +1207,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 $clients = $this->queryUnfilteredReferralLeads($start_date, $end_date)->search($search)->get();
                 break;
 
-            # Filtered
+                // Filtered
             case 'filtered_leads_online_paid':
                 $clients = $this->queryFilteredOnlinePaidLeads($start_date, $end_date)->search($search)->get();
                 break;
@@ -1207,7 +1221,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 $clients = $this->queryFilteredReferralSales($start_date, $end_date)->search($search)->get();
                 break;
 
-            # Potential
+                // Potential
             case 'potential_leads_online_paid':
                 $clients = $this->queryPotentialOnlinePaidLeads($start_date, $end_date)->search($search)->get();
                 break;
@@ -1221,7 +1235,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 $clients = $this->queryPotentialReferralExistingClientLeads($start_date, $end_date)->search($search)->get();
                 break;
 
-            # Deal
+                // Deal
             case 'deal_online_paid':
                 $clients = $this->queryDealOnlinePaidLeads($start_date, $end_date)->search($search)->get();
                 break;
@@ -1235,7 +1249,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 $clients = $this->queryDealReferralExistingClientLeads($start_date, $end_date)->search($search)->get();
                 break;
 
-            # Payment
+                // Payment
             case 'payment_online_paid':
                 $clients = $this->queryPaymentOnlinePaidLeads($start_date, $end_date)->search($search)->get();
                 break;
@@ -1253,8 +1267,8 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 return abort(404);
                 break;
         }
-        
-        $mapped = $clients->map(function ($item) use($start_date, $end_date){
+
+        $mapped = $clients->map(function ($item) use ($start_date, $end_date) {
             return [
                 'id' => $item->id,
                 'client_id' => $item->client_id,
@@ -1265,7 +1279,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 'school_name' => $item->master_client->school->sch_name ?? null,
                 'lead_source' => $item->client_program ? $item->client_program->conversion_lead ?? null : $item->master_client->lead_source ?? null,
                 'utm_content' => $item->master_client?->utm_content ?? null,
-                'interest_program' => count($item->master_client->interestPrograms) > 0 ? $item->master_client->interestPrograms->where('pivot.updated_at', '>=', $start_date . ' 00:00:00')->where('pivot.updated_at', '<=', $end_date . ' 23:59:59')->last()->program_name ?? null : null,
+                'interest_program' => count($item->master_client->interestPrograms) > 0 ? $item->master_client->interestPrograms->where('pivot.updated_at', '>=', $start_date.' 00:00:00')->where('pivot.updated_at', '<=', $end_date.' 23:59:59')->last()->program_name ?? null : null,
                 'program_name' => $item->client_program ? $item->client_program->program->program_name ?? null : '-',
                 'lead_from_division' => $item->lead_source_log->note ?? null,
                 'is_deleted' => $item->deleted_at,

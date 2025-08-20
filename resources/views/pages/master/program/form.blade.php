@@ -10,7 +10,7 @@
 @section('content')
     <?php
     $prog['main'] = ['Admissions Mentoring', 'Career Exploration', 'Eduverse', 'Academic & Test Preparation', 'Others'];
-    
+
     $prog['admissions'] = ['Admissions Mentoring', 'Essay Clinic', 'Interview Preparation'];
     $prog['exploration'] = ['Career Bootcamp', 'Exploration', 'JuniorXplorer', 'PassionXplorer', 'Global Immersion Program'];
     $prog['eduverse'] = ['Application Bootcamp', 'Group Mentoring'];

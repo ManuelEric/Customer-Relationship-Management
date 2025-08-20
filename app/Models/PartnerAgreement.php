@@ -3,22 +3,57 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
 
-
+/**
+ * @property int $id
+ * @property string $corp_id
+ * @property string $agreement_name
+ * @property int $agreement_type 0: Referral Mutual Agreement, 1: Partnership Agreement, 2: Speaker Agreement, 3: University Agent
+ * @property string $attachment
+ * @property string $start_date
+ * @property string $end_date
+ * @property int $corp_pic
+ * @property string $empl_id
+ * @property int $reminded
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Corporate $partner
+ * @property-read \App\Models\CorporatePic $partnerPic
+ * @property-read \App\Models\User $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereAgreementName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereAgreementType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereAttachment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereCorpId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereCorpPic($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereEmplId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereEndDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereReminded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereStartDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerAgreement whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class PartnerAgreement extends Model
 {
     use HasFactory;
 
     protected $table = 'tbl_partner_agreement';
+
     protected $primaryKey = 'id';
 
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'corp_id',
@@ -29,7 +64,7 @@ class PartnerAgreement extends Model
         'end_date',
         'corp_pic',
         'empl_id',
-        'reminded'
+        'reminded',
     ];
 
     // public static function whereSchoolProgramId($id)

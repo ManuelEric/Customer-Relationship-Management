@@ -3,47 +3,39 @@
 namespace App\Imports;
 
 use App\Http\Traits\CheckExistingClient;
-use Exception;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use App\Http\Traits\StandardizePhoneNumberTrait;
-use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\CreateReferralCodeTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
-use App\Models\ClientEventLogMail;
-use App\Models\Event;
-use App\Models\UserClient;
-use App\Models\UserClientAdditionalInfo;
-use Illuminate\Support\Facades\Mail;
+use App\Http\Traits\StandardizePhoneNumberTrait;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
 
 class InvitationMailVVIPImport implements ToCollection, WithHeadingRow, WithValidation
 {
-    /**
-     * @param Collection $collection
-     */
-
-    use Importable;
-    use StandardizePhoneNumberTrait;
-    use CreateCustomPrimaryKeyTrait;
     use CheckExistingClient;
-    use MailingEventOfflineTrait;
+    use CreateCustomPrimaryKeyTrait;
     use CreateReferralCodeTrait;
+
+    /**
+     * @param  Collection  $collection
+     */
+    use Importable;
+
+    use MailingEventOfflineTrait;
+    use StandardizePhoneNumberTrait;
 
     public function collection(Collection $rows)
     {
-        
+
         foreach ($rows as $row) {
-                
+
             $this->sendMailInvitation($row['email'], $row['event_id'], 'first-send', $row['index_child'], 'BtSF0x1hK');
-               
+
         }
     }
-          
-    
 
     public function prepareForValidation($data)
     {
@@ -53,7 +45,6 @@ class InvitationMailVVIPImport implements ToCollection, WithHeadingRow, WithVali
             'email' => $data['email'],
             'index_child' => $data['index_child'],
         ];
-
 
         return $data;
     }
@@ -67,5 +58,4 @@ class InvitationMailVVIPImport implements ToCollection, WithHeadingRow, WithVali
             '*.index_child' => ['required'],
         ];
     }
-
 }

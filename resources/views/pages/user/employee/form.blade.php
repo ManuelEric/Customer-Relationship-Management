@@ -11,7 +11,7 @@
         Request::route('user_role') == 'editor' ? ($is_editor = 1) : null;
         Request::route('user_role') == 'professional' ? ($is_professional = 1) : null;
 
-    if (isset($user) && $typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first()) 
+    if (isset($user) && $typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first())
     {
         $departmentId = $typeInfo->pivot->department_id;
         $departmentThisUser = $departments->where('id', $departmentId)->first();
@@ -242,7 +242,7 @@
                 </div>
             </div>
 
-            
+
             @if (Request::route('user_role') == 'tutor' && isset($user))
                 <livewire:add-fee-and-agreement-tutor :$user/>
             @elseif (Request::route('user_role') == 'external-mentor' && isset($user))
@@ -292,7 +292,7 @@
                         break;
 
                     case 'deactivate':
-                        // show modal 
+                        // show modal
                         $('#modalDeactive').modal('show');
 
                         $("#btn-deactive").unbind('click');

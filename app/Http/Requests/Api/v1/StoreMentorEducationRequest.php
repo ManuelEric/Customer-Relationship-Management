@@ -29,8 +29,8 @@ class StoreMentorEducationRequest extends FormRequest
 
         throw new HttpResponseException(
             response()->json([
-                'message' => "",
-                'errors' => $errors
+                'message' => '',
+                'errors' => $errors,
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
         );
     }

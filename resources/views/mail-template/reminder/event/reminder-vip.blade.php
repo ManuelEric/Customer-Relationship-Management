@@ -31,14 +31,14 @@
                                 <img loading="lazy"  src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $param['link'] }}"
                                     alt="">
                             </p>
-                        
+
                             <p>
                                 We hope you will enjoy the talk sessions, gain inspiration, and support your child to engage in hands-on activities, exploring interests, building portfolios, and strengthening skills for university application and beyond.
                             </p>
 
                             <p>
                                 Best regards, <br>
-                                EduALL Team 
+                                EduALL Team
                             </p>
                         </td>
                     </tr>

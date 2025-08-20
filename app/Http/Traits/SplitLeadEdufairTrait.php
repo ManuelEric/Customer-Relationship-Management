@@ -1,10 +1,9 @@
 <?php
+
 namespace App\Http\Traits;
 
-use Illuminate\Support\Facades\Log;
-
-trait SplitLeadEdufairTrait {
-
+trait SplitLeadEdufairTrait
+{
     public function splitLeadEdufair(string $id)
     {
         $exploded = explode('-', $id);
@@ -14,7 +13,7 @@ trait SplitLeadEdufairTrait {
 
         return [
             'lead_id' => $lead_id,
-            'eduf_id' => $eduf_id
+            'eduf_id' => $eduf_id,
         ];
     }
 }

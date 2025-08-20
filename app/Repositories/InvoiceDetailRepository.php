@@ -5,12 +5,9 @@ namespace App\Repositories;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Models\InvDetail;
 use Carbon\Carbon;
-use DataTables;
-use Illuminate\Support\Facades\DB;
 
 class InvoiceDetailRepository implements InvoiceDetailRepositoryInterface
 {
-
     public function getInvoiceDetailById($identifier)
     {
         return InvDetail::find($identifier);
@@ -74,7 +71,7 @@ class InvoiceDetailRepository implements InvoiceDetailRepositoryInterface
     public function deleteInvoiceDetailByInvId($invoiceId)
     {
         return InvDetail::where('inv_id', $invoiceId)->delete();
-        
+
     }
 
     public function updateInvoiceDetailByInvB2bId($invoiceId, array $installments)
@@ -96,10 +93,10 @@ class InvoiceDetailRepository implements InvoiceDetailRepositoryInterface
             return InvDetail::whereDate('invdtl_duedate', '>=', $start_date)
                 ->whereDate('invdtl_duedate', '<=', $end_date)
                 ->get();
-        } else if (isset($start_date) && !isset($end_date)) {
+        } elseif (isset($start_date) && ! isset($end_date)) {
             return InvDetail::whereDate('invdtl_duedate', '>=', $start_date)
                 ->get();
-        } else if (!isset($start_date) && isset($end_date)) {
+        } elseif (! isset($start_date) && isset($end_date)) {
             return InvDetail::whereDate('invdtl_duedate', '<=', $end_date)
                 ->get();
         } else {

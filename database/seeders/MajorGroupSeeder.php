@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -69,15 +68,14 @@ class MajorGroupSeeder extends Seeder
             'Public Health',
             'Health and Human Sciences',
             'Veterinary Medicine',
-            'Food Science'
+            'Food Science',
         ];
 
-        foreach ($major_groups as $key => $value)
-        {
+        foreach ($major_groups as $key => $value) {
             $seeds[] = [
                 'mg_name' => $value,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ];
         }
 

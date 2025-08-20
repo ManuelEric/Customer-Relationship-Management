@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\Asset;
-use App\Models\pivot\AssetUsed;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
 
@@ -32,7 +31,7 @@ class StoreAssetUsedRequest extends FormRequest
         return [
             'asset_id' => 'exists:tbl_asset,asset_id',
             'user' => 'required|exists:users,id',
-            'amount_used' => ['required', 'min:1', function ($attribute, $value, $fail) use ($assetId, $old_amount_used) {
+            'amount_used' => ['required', 'min:1', function ($attribute, $value, $fail) use ($old_amount_used) {
 
                 if ($old_amount_used < $value) {
                     $fail('The amount used must be less than available stock');

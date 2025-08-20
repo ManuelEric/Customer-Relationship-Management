@@ -16,7 +16,6 @@ class UpdateDepartmentAccessRequest extends FormRequest
         return true;
     }
 
-   
     /**
      * Get the validation rules that apply to the request.
      *
@@ -30,9 +29,7 @@ class UpdateDepartmentAccessRequest extends FormRequest
             'menu_data' => 'required|boolean',
             'copy_data' => 'required|boolean',
             'export_data' => 'required|boolean',
-            'param' => 'required|in:menu,copy,export'
+            'param' => 'required|in:menu,copy,export',
         ];
     }
-
-   
 }

@@ -25,7 +25,7 @@
 
                             <p style="text-align: center;">
                                 <div style="border: 1px solid #ccc; border-radius: 3px">
-                                
+
                                     <table style="padding:25px; width: 100%;">
                                         <tr>
                                             <td>Event:</td>
@@ -55,7 +55,7 @@
 
                             </p>
 
-                            
+
 
                             <p style="text-align: center">
                                 We look forward to seeing you!

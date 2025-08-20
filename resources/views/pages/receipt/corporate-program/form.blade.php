@@ -343,7 +343,7 @@
                                 <div @class([
                                     'step',
                                     'step 1',
-                                    'active' => 
+                                    'active' =>
                                         $receiptHasBeenDownloaded ||
                                         $receiptHasBeenStamped ||
                                         $receiptHasBeenRequested ||
@@ -359,7 +359,7 @@
                                 </div>
                                 <div @class([
                                     'indicator-line',
-                                    'active' => 
+                                    'active' =>
                                         $receiptHasBeenDownloaded ||
                                         $receiptHasBeenStamped ||
                                         $receiptHasBeenRequested ||
@@ -370,7 +370,7 @@
                                 <div @class([
                                     'step',
                                     'step2',
-                                    'active' => 
+                                    'active' =>
                                         $receiptHasBeenStamped ||
                                         $receiptHasBeenRequested ||
                                         $receiptHasBeenSigned ||
@@ -384,7 +384,7 @@
                                 </div>
                                 <div @class([
                                     'indicator-line',
-                                    'active' => 
+                                    'active' =>
                                         $receiptHasBeenStamped ||
                                         $receiptHasBeenRequested ||
                                         $receiptHasBeenSigned ||
@@ -394,7 +394,7 @@
                                 <div @class([
                                     'step',
                                     'step3',
-                                    'active' => 
+                                    'active' =>
                                         $receiptHasBeenRequested ||
                                         $receiptHasBeenSigned ||
                                         $receiptHasBeenSentToClient,
@@ -407,7 +407,7 @@
                                 </div>
                                 <div @class([
                                     'indicator-line',
-                                    'active' => 
+                                    'active' =>
                                         $receiptHasBeenRequested ||
                                         $receiptHasBeenSigned ||
                                         $receiptHasBeenSentToClient,
@@ -477,7 +477,7 @@
                                     <div @class([
                                         'step',
                                         'step 1',
-                                        'active' => 
+                                        'active' =>
                                             $receiptHasBeenDownloaded_other ||
                                             $receiptHasBeenStamped_other ||
                                             $receiptHasBeenRequested_other ||
@@ -493,7 +493,7 @@
                                     </div>
                                     <div @class([
                                         'indicator-line',
-                                        'active' => 
+                                        'active' =>
                                             $receiptHasBeenDownloaded_other ||
                                             $receiptHasBeenStamped_other ||
                                             $receiptHasBeenRequested_other ||
@@ -504,7 +504,7 @@
                                     <div @class([
                                         'step',
                                         'step2',
-                                        'active' => 
+                                        'active' =>
                                             $receiptHasBeenStamped_other ||
                                             $receiptHasBeenRequested_other ||
                                             $receiptHasBeenSigned_other ||
@@ -518,7 +518,7 @@
                                     </div>
                                     <div @class([
                                         'indicator-line',
-                                        'active' => 
+                                        'active' =>
                                             $receiptHasBeenStamped_other ||
                                             $receiptHasBeenRequested_other ||
                                             $receiptHasBeenSigned_other ||
@@ -528,7 +528,7 @@
                                     <div @class([
                                         'step',
                                         'step3',
-                                        'active' => 
+                                        'active' =>
                                             $receiptHasBeenRequested_other ||
                                             $receiptHasBeenSigned_other ||
                                             $receiptHasBeenSentToClient_other,
@@ -541,7 +541,7 @@
                                     </div>
                                     <div @class([
                                         'indicator-line',
-                                        'active' => 
+                                        'active' =>
                                             $receiptHasBeenRequested_other ||
                                             $receiptHasBeenSigned_other ||
                                             $receiptHasBeenSentToClient_other,
@@ -652,7 +652,7 @@
                 })
                 .catch(error => {
                     notification('error', error.response.data.message);
-                    
+
                 })
         }
 
@@ -742,7 +742,7 @@
                     notification('success', 'Sign has been requested')
                     setTimeout(location.reload.bind(location), 3000);
                     $("#requestSignModal").modal('hide');
-                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box 
+                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box
                 })
                 .catch(error => {
                     notification('error', 'Something went wrong while send email')
@@ -770,7 +770,7 @@
                 $('.currency-detail').addClass('d-none')
             }
 
-            // check seesion 
+            // check seesion
             if (session) {
                 checkSession()
             }

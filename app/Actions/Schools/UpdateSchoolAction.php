@@ -9,6 +9,7 @@ use App\Interfaces\SchoolRepositoryInterface;
 class UpdateSchoolAction
 {
     private SchoolRepositoryInterface $schoolRepository;
+
     private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
 
     public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository)
@@ -19,18 +20,17 @@ class UpdateSchoolAction
 
     public function execute(
         StoreSchoolRequest $request,
-        String $school_id,
-        Array $school_details
-    )
-    {
-        # update school
+        string $school_id,
+        array $school_details
+    ) {
+        // update school
         $updated_school = $this->schoolRepository->updateSchool($school_id, $school_details);
 
-        # update sch curriculum
+        // update sch curriculum
         $new_school_curriculum_details = $request->sch_curriculum;
-       
+
         $this->schoolCurriculumRepository->updateSchoolCurriculum($school_id, $new_school_curriculum_details);
-       
+
         return $updated_school;
     }
 }

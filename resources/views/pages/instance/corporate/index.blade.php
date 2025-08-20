@@ -50,7 +50,7 @@
             var options = {
                 order: [[1, 'asc']],
                 buttons: [
-                    'pageLength', 
+                    'pageLength',
                     {
                         // extend: 'excel',
                         text: 'Export to Excel',
@@ -137,7 +137,7 @@
                 window.open("{{ url('instance/corporate') }}/" + data.corp_id.toLowerCase(), "_blank");
             });
 
-            // Tooltip 
+            // Tooltip
             $('#corporateTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',

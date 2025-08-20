@@ -176,7 +176,7 @@
                                     @endif
                                     <div class="mb-2">
                                         <div class="mb-1 mt-2">
-                                            Exist Parent's 
+                                            Exist Parent's
                                         </div>
                                         <div class="row g-1">
                                             <div class="col-10">
@@ -184,7 +184,7 @@
                                                     onchange="checkInputText(this, 'parent', 'select')">
                                                     <option value=""></option>
                                                     @foreach ($parents as $parent)
-                                                        <option data-id="{{ $parent->id }}" data-name="{{ $parent->full_name }}" data-email="{{ $parent->mail }}" data-phone="{{ $parent->phone }}" 
+                                                        <option data-id="{{ $parent->id }}" data-name="{{ $parent->full_name }}" data-email="{{ $parent->mail }}" data-phone="{{ $parent->phone }}"
                                                             value="{{ $parent->full_name }}">{{ $parent->full_name }}</option>
                                                     @endforeach
                                                 </select>

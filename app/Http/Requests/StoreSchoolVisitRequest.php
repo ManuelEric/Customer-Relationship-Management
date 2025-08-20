@@ -28,7 +28,7 @@ class StoreSchoolVisitRequest extends FormRequest
             'internal_pic' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');

@@ -8,6 +8,7 @@ use App\Interfaces\SchoolRepositoryInterface;
 class DeleteSchoolRawAction
 {
     private SchoolRepositoryInterface $schoolRepository;
+
     private ClientRepositoryInterface $clientRepository;
 
     public function __construct(SchoolRepositoryInterface $schoolRepository, ClientRepositoryInterface $clientRepository)
@@ -18,21 +19,20 @@ class DeleteSchoolRawAction
 
     public function execute(
         bool $is_bulk = false,
-        String $raw_school_id = null,
-        Array $raw_school_ids = null,
-    )
-    {
-        # Delete school
-        if($is_bulk){
+        ?string $raw_school_id = null,
+        ?array $raw_school_ids = null,
+    ) {
+        // Delete school
+        if ($is_bulk) {
             $deleted_school = $this->schoolRepository->moveBulkToTrash($raw_school_ids);
-        }else{
+        } else {
             $deleted_school = $this->schoolRepository->moveToTrash($raw_school_id);
         }
-            
-        # get all client that tagged with the school
-        # and remove the school that being deleted
+
+        // get all client that tagged with the school
+        // and remove the school that being deleted
         $clients = $this->clientRepository->getClientBySchool($is_bulk ? $raw_school_ids : $raw_school_id)->pluck('id')->toArray();
-        $this->clientRepository->updateClients($clients, ['sch_id' => NULL]);
+        $this->clientRepository->updateClients($clients, ['sch_id' => null]);
 
         return $deleted_school;
     }

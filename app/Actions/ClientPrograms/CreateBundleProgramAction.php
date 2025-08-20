@@ -19,15 +19,15 @@ class CreateBundleProgramAction
 
     public function execute(
         Request $request,
-        Array $client_program,
-        Array $client_program_details,
-        String $uuid
+        array $client_program,
+        array $client_program_details,
+        string $uuid
     ) {
         foreach ($request->choosen as $key => $clientprog_id) {
             // fetch data client program
             $clientprog_db = $this->clientProgramRepository->getClientProgramById($clientprog_id);
-            
-            // check there is an invoice 
+
+            // check there is an invoice
             $has_invoice_std = isset($clientprog_db->invoice) ? $clientprog_db->invoice()->count() : 0;
             $has_bundling = isset($clientprog_db->bundlingDetail) ? $clientprog_db->bundlingDetail()->count() : 0;
 
@@ -38,7 +38,7 @@ class CreateBundleProgramAction
                 'HasInvoice' => $has_invoice_std,
                 'HasBundling' => $has_bundling,
             ];
-            
+
             $client_program_details[] = [
                 'clientprog_id' => $clientprog_id,
                 'bundling_id' => $uuid,
@@ -47,8 +47,8 @@ class CreateBundleProgramAction
             ];
 
         }
-        
+
         return ['client_program' => $client_program, 'client_program_details' => $client_program_details];
-    
+
     }
 }

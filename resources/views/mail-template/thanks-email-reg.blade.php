@@ -30,7 +30,7 @@
                             <p style="text-align: center">
                                 <img loading="lazy"  src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}" alt="">
                             </p>
-                                
+
                             <p class="text-align: center">
                                 <b>See you there</b>.
                             </p>

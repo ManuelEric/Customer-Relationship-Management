@@ -394,7 +394,7 @@
 
 
                         var obj = response.data;
-                        
+
                         $('#list-detail-client .modal-title').html(obj.title)
                         $('#listClientTable tbody').html(obj.html_ctx)
                         swal.close()
@@ -432,7 +432,7 @@
         }
 
         function checkClientStatus(month = false) {
-            // Axios here... 
+            // Axios here...
             showLoading()
 
             var today = new Date()
@@ -467,11 +467,11 @@
 
                     $(".raw-student").html(obj[8]['current_raw']);
                     $(".raw-student").data('raw-st', obj[8]['current_raw']);
-                    
+
                     var raw_student = $(".raw-student").data('raw-st');
                     var raw_parent = $(".raw-parent").data('raw-pr');
                     var raw_teacher = $(".raw-teacher").data('raw-tc');
-                    
+
                     $(".total-raw").html(raw_parent + raw_student + raw_teacher);
 
 

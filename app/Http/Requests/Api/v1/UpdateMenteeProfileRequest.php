@@ -8,7 +8,6 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
-
 class UpdateMenteeProfileRequest extends FormRequest
 {
     /**
@@ -22,8 +21,8 @@ class UpdateMenteeProfileRequest extends FormRequest
 
         throw new HttpResponseException(
             response()->json([
-                'message' => "",
-                'errors' => $errors
+                'message' => '',
+                'errors' => $errors,
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
@@ -38,6 +37,6 @@ class UpdateMenteeProfileRequest extends FormRequest
         return [
             'gdrive_link' => 'nullable|url',
             'progress' => 'nullable|in:On Track,Slow,Behind,Halt',
-         ];
+        ];
     }
 }

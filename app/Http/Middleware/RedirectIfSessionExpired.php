@@ -16,8 +16,9 @@ class RedirectIfSessionExpired
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ( auth()->guard('api')->user()->check() )
+        if (auth()->guard('api')->user()->check()) {
             return $next($request);
+        }
 
         return Redirect::to('login')->withErrors('No department access');
     }

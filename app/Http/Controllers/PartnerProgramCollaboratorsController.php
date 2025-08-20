@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Redirect;
 
 class PartnerProgramCollaboratorsController extends Controller
 {
-
     protected PartnerProgramCollaboratorsRepositoryInterface $partnerProgramCollaboratorsRepository;
 
     public function __construct(PartnerProgramCollaboratorsRepositoryInterface $partnerProgramCollaboratorsRepository)
@@ -26,7 +25,7 @@ class PartnerProgramCollaboratorsController extends Controller
     public function store(StoreSchoolCollaboratorsPartnerProgramRequest $request, CreateProgramCollaboratorAction $createProgramCollaboratorAction, LogService $log_service)
     {
         $corp_id = $request->route('corp');
-        $partnerprog_id = $request->route('corp_prog'); # same as corp prog id
+        $partnerprog_id = $request->route('corp_prog'); // same as corp prog id
         $collaborators = $request->route('collaborators');
 
         DB::beginTransaction();
@@ -37,10 +36,11 @@ class PartnerProgramCollaboratorsController extends Controller
             DB::commit();
 
         } catch (Exception $e) {
-            
+
             DB::rollBack();
 
             $log_service->createErrorLog(LogModule::STORE_PARTNER_PROGRAM_COLLABORATOR, $e->getMessage(), $e->getLine(), $e->getFile(), $request->all());
+
             return Redirect::back()->withError('Failed to store '.$collaborators.' collaborators. Please try again.');
 
         }
@@ -53,7 +53,7 @@ class PartnerProgramCollaboratorsController extends Controller
     public function destroy(Request $request, DeleteProgramCollaboratorAction $deleteProgramCollaboratorAction, LogService $log_service)
     {
         $corp_id = $request->route('corp');
-        $partnerprog_id = $request->route('corp_prog'); # same as corp prog id
+        $partnerprog_id = $request->route('corp_prog'); // same as corp prog id
         $collaborators = $request->route('collaborators');
         $collaborators_id = $request->route('collaborators_id');
 
@@ -61,7 +61,7 @@ class PartnerProgramCollaboratorsController extends Controller
         try {
 
             $removed_collaborators = $deleteProgramCollaboratorAction->execute($collaborators, $collaborators_id, $partnerprog_id, $this->partnerProgramCollaboratorsRepository);
-    
+
             DB::commit();
 
         } catch (Exception $e) {

@@ -12,18 +12,16 @@ class UserClientObserver
     public function created(UserClient $userClient): void
     {
         $updated_application_year = false;
-        // update application year to be one year before graduation year        
-        if ( $userClient->graduation_year != null)
-        {
-            $userClient->application_year = $userClient->graduation_year-1;
+        // update application year to be one year before graduation year
+        if ($userClient->graduation_year != null) {
+            $userClient->application_year = $userClient->graduation_year - 1;
             $userClient->save();
 
             $updated_application_year = true;
         }
 
-        if ( $userClient->graduation_year_now != null && $updated_application_year == false)
-        {
-            $userClient->application_year = $userClient->graduation_year_now-1;
+        if ($userClient->graduation_year_now != null && $updated_application_year == false) {
+            $userClient->application_year = $userClient->graduation_year_now - 1;
             $userClient->save();
         }
     }
@@ -33,21 +31,18 @@ class UserClientObserver
      */
     public function updated(UserClient $userClient): void
     {
-        if ( $userClient->application_year == null ) // if application year is null then we need to set it
-        {
+        if ($userClient->application_year == null) { // if application year is null then we need to set it
             $updated_application_year = false;
-            // update application year to be one year before graduation year        
-            if ( $userClient->graduation_year != null)
-            {
-                $userClient->application_year = $userClient->graduation_year-1;
+            // update application year to be one year before graduation year
+            if ($userClient->graduation_year != null) {
+                $userClient->application_year = $userClient->graduation_year - 1;
                 $userClient->save();
 
                 $updated_application_year = true;
             }
 
-            if ( $userClient->graduation_year_now != null && $updated_application_year == false)
-            {
-                $userClient->application_year = $userClient->graduation_year_now-1;
+            if ($userClient->graduation_year_now != null && $updated_application_year == false) {
+                $userClient->application_year = $userClient->graduation_year_now - 1;
                 $userClient->save();
             }
         }

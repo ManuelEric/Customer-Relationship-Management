@@ -160,7 +160,7 @@
                 table.button(1).disable();
             @endif
 
-            
+
             $('#edufairTable tbody').on('click', '.viewEdufair ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('master/edufair') }}/" + data.id;

@@ -530,7 +530,7 @@
                     </form>
                 </div>
             </div>
-            
+
             @include('pages.program.client-program.detail.payment')
 
         </div>
@@ -548,7 +548,7 @@
 
         createApp({
             setup() {
-                // Variable 
+                // Variable
                 const main_prog = ref('{{ $clientProgram->program->main_prog_id ?? old('main_prog') }}')
                 const sub_program = ref('{{ $clientProgram->program->sub_prog_id ?? old('sub_program') }}')
                 const prog_id = ref('{{ $clientProgram->prog_id ?? old('prog_id') }}')
@@ -558,9 +558,9 @@
 
                 const subPrograms = ref([])
                 const programNames = ref([])
-                // End Variable 
+                // End Variable
 
-                // Function 
+                // Function
                 const showLoading = () => {
                     // Swal.fire({
                     //     allowOutsideClick: false,
@@ -766,7 +766,7 @@
 
 
                 const checkReferral = () => {
-                    // Trigger by main lead 
+                    // Trigger by main lead
                     if (['LS005', 'LS060', 'LS061', 'LS058'].includes(lead_id.value)) {
                         var baseUrl = "{{ url('/') }}/api/v1/get/referral/list";
 
@@ -789,7 +789,7 @@
                         });
                     }
 
-                    // Check is old_refname exist 
+                    // Check is old_refname exist
                     const old_refname = '{{ old('referral_code') }}'
                     if (old_refname != '') {
                         // Set the value, creating a new option if necessary
@@ -804,13 +804,13 @@
                         }
                     }
 
-                    // Trigger by referral code 
+                    // Trigger by referral code
                     $('#referral_code').on('change', function() {
                         $('#old_refname').val($("option:selected", this).text())
                     })
                 }
 
-                // End function 
+                // End function
 
                 onUpdated(() => {
                     $('.select').select2({

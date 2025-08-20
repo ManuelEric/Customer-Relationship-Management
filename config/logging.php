@@ -69,7 +69,7 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 365,
             'permission' => 0777,
-            'tap' => [\App\Logging\LogInjector::class]
+            'tap' => [\App\Logging\LogInjector::class],
         ],
 
         'slack' => [
@@ -135,7 +135,7 @@ return [
             //     'connectionString' => 'tcp://localhost:5044',
             // ],
             // 'formatter' => Monolog\Formatter\JsonFormatter::class,
-        ]
+        ],
     ],
 
 ];

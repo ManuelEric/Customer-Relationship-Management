@@ -8,6 +8,7 @@ use App\Interfaces\VendorRepositoryInterface;
 class UpdateVendorAction
 {
     use StandardizePhoneNumberTrait;
+
     private VendorRepositoryInterface $vendorRepository;
 
     public function __construct(VendorRepositoryInterface $vendorRepository)
@@ -17,9 +18,8 @@ class UpdateVendorAction
 
     public function execute(
         $vendor_id,
-        Array $new_vendor_details
-    )
-    {
+        array $new_vendor_details
+    ) {
 
         $new_vendor_details['vendor_phone'] = $this->tnNormalizePhoneNumber($new_vendor_details['vendor_phone']);
 

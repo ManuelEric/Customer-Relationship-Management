@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Mail;
 class SendReminderInvoiceProgramToSchoolCommand extends Command
 {
     use CurrencyTrait;
+
     private InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     private GeneralMailLogRepositoryInterface $generalMailLogRepository;
 
     public function __construct(InvoiceB2bRepositoryInterface $invoiceB2bRepository, GeneralMailLogRepositoryInterface $generalMailLogRepository)
@@ -22,6 +24,7 @@ class SendReminderInvoiceProgramToSchoolCommand extends Command
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->generalMailLogRepository = $generalMailLogRepository;
     }
+
     /**
      * The name and signature of the console command.
      *
@@ -55,27 +58,29 @@ class SendReminderInvoiceProgramToSchoolCommand extends Command
             $progressBar->start();
 
             foreach ($invoice_master as $data) {
-    
-                if($data->sign_status != 'signed')
+
+                if ($data->sign_status != 'signed') {
                     continue;
+                }
 
                 $invoiceB2bId = $data->invb2b_id;
                 $logExist = $this->generalMailLogRepository->getStatus($invoiceB2bId);
                 $pic_email = $data->pic_mail;
-    
+
                 $program_name = ucwords(strtolower($data->program_name));
-    
+
                 $school_name = $data->school_name;
                 $school_pics = $data->sch_prog->school->detail;
                 if ($school_pics->count() == 0) {
-                    # collect data parents that have no email
+                    // collect data parents that have no email
                     $school_have_no_pic[] = [
                         'school_name' => $school_name,
                     ];
+
                     continue;
-                }else{
+                } else {
                     foreach ($school_pics as $school_pic) {
-                        if($school_pic->is_pic == 1){
+                        if ($school_pic->is_pic == 1) {
                             $school_pic_name = $school_pic->schdetail_fullname;
                             $school_pic_mail = $school_pic->schdetail_email;
                             $school_pic_phone = $school_pic->schdetail_phone;
@@ -83,14 +88,14 @@ class SendReminderInvoiceProgramToSchoolCommand extends Command
                     }
                 }
 
-
                 if ($school_pic_mail == null) {
                     Log::error('Failed to send reminder to school refer to invoice : '.$invoiceB2bId.' because there is no pic email');
+
                     continue;
-                }    
-    
-                $subject = '7 Days Left until the Payment Deadline for ' . $program_name;
-    
+                }
+
+                $subject = '7 Days Left until the Payment Deadline for '.$program_name;
+
                 $params = [
                     'school_pic_name' => $school_pic_name,
                     'school_pic_mail' => $school_pic_mail,
@@ -100,11 +105,11 @@ class SendReminderInvoiceProgramToSchoolCommand extends Command
                     'total_payment_other' => $data->currency != 'idr' ? $this->formatCurrency($data->currency, $data->invb2b_totpriceidr, $data->invb2b_totprice ?? 0) : 0,
                     'total_payment_idr' => $this->formatCurrency('idr', $data->invb2b_totpriceidr, $data->invb2b_totprice ?? 0),
                     'pic_email' => $pic_email,
-                    'currency' => $data->currency
+                    'currency' => $data->currency,
                 ];
-    
+
                 $mail_resources = 'pages.invoice.school-program.mail.reminder-payment';
-    
+
                 try {
                     Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                         $message->to($params['school_pic_mail'], $params['school_pic_name'])
@@ -112,51 +117,54 @@ class SendReminderInvoiceProgramToSchoolCommand extends Command
                             ->subject($subject);
                     });
                 } catch (Exception $e) {
-    
-                    Log::error('Failed to send invoice reminder to ' . $school_pic_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
-                    return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
+
+                    Log::error('Failed to send invoice reminder to '.$school_pic_mail.' caused by : '.$e->getMessage().' | Line '.$e->getLine());
+
+                    return $this->error($e->getMessage().' | Line '.$e->getLine());
                 }
-    
-                $this->info('Invoice reminder has been sent to ' . $school_pic_mail);
-    
-                # update reminded count to 1
+
+                $this->info('Invoice reminder has been sent to '.$school_pic_mail);
+
+                // update reminded count to 1
                 $data->reminded = 1;
                 $data->save();
 
-                # remove from mail log if the identifier mail has been successfully sent
-                if ($logExist)
+                // remove from mail log if the identifier mail has been successfully sent
+                if ($logExist) {
                     $this->generalMailLogRepository->removeLog($invoiceB2bId);
-    
+                }
+
                 $progressBar->advance();
             }
-    
+
             if (count($school_have_no_pic) > 0) {
                 $params = [
                     'finance_name' => env('FINANCE_NAME'),
                     'school_have_no_pic' => $school_have_no_pic,
                 ];
-    
+
                 $mail_resources = 'pages.invoice.school-program.mail.reminder-finance';
                 try {
-    
+
                     Mail::send($mail_resources, $params, function ($message) {
                         $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
                             ->subject('There are some school that can\'t be reminded');
                     });
 
-                    # create mail log
+                    // create mail log
                     $logDetails = [
                         'identifier' => $invoiceB2bId,
                         'category' => 'invoice',
                         'target' => 'school',
-                        'description' => json_encode($params)
+                        'description' => json_encode($params),
                     ];
 
                     $this->generalMailLogRepository->createLog($logDetails);
 
                 } catch (Exception $e) {
-                    Log::error('Failed to send info to finance team cause by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
-                    return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
+                    Log::error('Failed to send info to finance team cause by : '.$e->getMessage().' | Line '.$e->getLine());
+
+                    return $this->error($e->getMessage().' | Line '.$e->getLine());
                 }
             }
             $progressBar->finish();

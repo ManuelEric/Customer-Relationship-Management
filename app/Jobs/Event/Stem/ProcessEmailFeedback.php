@@ -5,7 +5,6 @@ namespace App\Jobs\Event\Stem;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use Exception;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -20,13 +19,16 @@ class ProcessEmailFeedback implements ShouldQueue
     use IsMonitored;
 
     public $tries = 3;
+
     public $timeout = 600;
 
     // Priority levels: high, default, low
     public $priority = 'high';
 
     protected $mailDetails;
+
     protected $clientEventId;
+
     protected ClientEventLogMailRepositoryInterface $clientEventLogMailRepository;
 
     /**
@@ -52,17 +54,15 @@ class ProcessEmailFeedback implements ShouldQueue
 
             $subject = 'Thanks for joining STEM+ Wonderlab, Indonesia’s FIRST Student';
 
-
         } elseif ($this->mailDetails['role'] == 'parent') {
 
-            $subject = 'Terima kasih sudah hadir di STEM+ Wonderlab, Indonesia’s FIRST ';            
+            $subject = 'Terima kasih sudah hadir di STEM+ Wonderlab, Indonesia’s FIRST ';
 
         }
 
-
         try {
 
-            # send email
+            // send email
             Mail::send('mail-template.feedback-email', $this->mailDetails, function ($message) use ($subject) {
                 $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
                     ->subject($subject);
@@ -70,7 +70,7 @@ class ProcessEmailFeedback implements ShouldQueue
             $sent_status = 1;
 
         } catch (Exception $e) {
-            
+
             $sent_status = 0;
 
         }
@@ -80,12 +80,11 @@ class ProcessEmailFeedback implements ShouldQueue
             $logDetails = [
                 'clientevent_id' => $this->clientEventId,
                 'sent_status' => $sent_status,
-                'category' => 'feedback-mail'
+                'category' => 'feedback-mail',
             ];
 
-
-            # check if log is exists
-            # when exists then just update the sent_status
+            // check if log is exists
+            // when exists then just update the sent_status
             if ($foundLog = $this->clientEventLogMailRepository->getClientEventLogMailByClientEventIdAndCategory($this->clientEventId, 'thanks-mail-after')) {
                 Log::info($this->clientEventId.' dan '.json_encode($foundLog));
 
@@ -96,13 +95,11 @@ class ProcessEmailFeedback implements ShouldQueue
                 $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
             }
 
-
         } catch (Exception $e) {
 
-            Log::error('Failed to create event log email thanks' . $e->getMessage());
+            Log::error('Failed to create event log email thanks'.$e->getMessage());
 
         }
 
-        
     }
 }

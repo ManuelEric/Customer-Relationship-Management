@@ -24,7 +24,7 @@ class StoreAcceptanceRequest extends FormRequest
             'major_group' => 'major group',
             'major_name' => 'major',
             'status' => 'status',
-            'requirement_link' => 'requirement link'
+            'requirement_link' => 'requirement link',
         ];
     }
 
@@ -40,23 +40,24 @@ class StoreAcceptanceRequest extends FormRequest
             'major_group.*' => 'required|exists:major_groups,id',
             'major_name.*' => 'nullable',
             'status.*' => 'required|in:waitlisted,accepted,denied,chosen',
-            'requirement_link' => 'nullable'
+            'requirement_link' => 'nullable',
         ];
-        
+
         /**
          * if method is post
          * then add validation for column alumni
          */
-        if ($this->isMethod('POST')) 
+        if ($this->isMethod('POST')) {
             $rules['alumni'] = 'required|exists:tbl_client,id';
-
+        }
 
         /**
          * if method is patch
          * then add validation for column is_picked
          */
-        if ($this->isMethod('PATCH'))
+        if ($this->isMethod('PATCH')) {
             $rules['is_picked'] = 'required';
+        }
 
         return $rules;
     }

@@ -6,16 +6,15 @@ use App\Interfaces\AlarmRepositoryInterface;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\TargetTrackingRepositoryInterface;
-use App\Models\Department;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class AlarmRepository implements AlarmRepositoryInterface
 {
     protected ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+
     protected TargetTrackingRepositoryInterface $targetTrackingRepository;
+
     protected EventRepositoryInterface $eventRepository;
 
     public function __construct(ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, TargetTrackingRepositoryInterface $targetTrackingRepository, EventRepositoryInterface $eventRepository)
@@ -53,7 +52,7 @@ class AlarmRepository implements AlarmRepositoryInterface
                 'percentage_hot_lead' => $this->calculatePercentageLead($dataActual['hot_lead'], $dataTarget->target_hotleads),
                 'percentage_ic' => $this->calculatePercentageLead($dataActual['ic'], $dataTarget->target_initconsult),
                 'percentage_contribution' => $this->calculatePercentageLead($dataActual['contribution'], $dataTarget->contribution_target),
-                'revenue' =>  $dataTarget->revenue_target,
+                'revenue' => $dataTarget->revenue_target,
             ];
         }
 
@@ -86,37 +85,37 @@ class AlarmRepository implements AlarmRepositoryInterface
         $dataReferralTarget = $this->getDataTarget($today, 'Referral');
         $dataDigitalTarget = $this->getDataTarget($today, 'Digital');
 
-        # sales
+        // sales
         $actualLeadsSales = $this->setDataActual($dataSalesTarget);
         $leadSalesTarget = $this->setDataTarget($dataSalesTarget, $actualLeadsSales);
-        
-        # referral
+
+        // referral
         $actualLeadsReferral = $this->setDataActual($dataReferralTarget);
         $leadReferralTarget = $this->setDataTarget($dataReferralTarget, $actualLeadsReferral);
         $actualLeadsSales['referral'] = $actualLeadsReferral['lead_needed'];
-        
-        # digital
+
+        // digital
         $actualLeadsDigital = $this->setDataActual($dataDigitalTarget);
         $leadDigitalTarget = $this->setDataTarget($dataDigitalTarget, $actualLeadsDigital);
-        
+
         $targetTrackingLead = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today, 'lead');
         $targetTrackingRevenue = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today, 'revenue');
 
-        # Event
+        // Event
         $events = $this->eventRepository->getEventByMonthyear($today);
 
-        # Chart lead
-            for ($i = 2; $i >= 0; $i--) {
-                $dataLeadChart['target'][] = $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->target : 0;
-                $dataLeadChart['actual'][] = $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->actual : 0;
-                $dataLeadChart['label'][] = Carbon::now()->startOfMonth()->subMonth($i)->format('F');
-    
-                $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->target : 0;
-                $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->actual : 0;
-                $dataRevenueChart['label'][] = Carbon::now()->startOfMonth()->subMonth($i)->format('F');
-            }
+        // Chart lead
+        for ($i = 2; $i >= 0; $i--) {
+            $dataLeadChart['target'][] = $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int) $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->target : 0;
+            $dataLeadChart['actual'][] = $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int) $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->actual : 0;
+            $dataLeadChart['label'][] = Carbon::now()->startOfMonth()->subMonth($i)->format('F');
 
-        # Day 1-14 (awal bulan)
+            $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int) $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->target : 0;
+            $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int) $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->actual : 0;
+            $dataRevenueChart['label'][] = Carbon::now()->startOfMonth()->subMonth($i)->format('F');
+        }
+
+        // Day 1-14 (awal bulan)
         $alarmLeads['sales']['always_on']['failed'] = $this->clientLeadTrackingRepository->getFailedLead($today);
         // $alarmLeads['sales']['mid']['lead_needed'] = $actualLeadsSales['lead_needed'] < $leadSalesTarget['lead_needed'] ? true : false;
         $alarmLeads['sales']['mid']['hot_lead'] = $actualLeadsSales['hot_lead'] < $leadSalesTarget['hot_lead'] ? true : false;
@@ -124,27 +123,27 @@ class AlarmRepository implements AlarmRepositoryInterface
         $alarmLeads['digital']['mid']['hot_lead'] = $actualLeadsDigital['hot_lead'] < $leadDigitalTarget['hot_lead'] ? true : false;
         $alarmLeads['general']['mid']['event'] = ($alarmLeads['sales']['mid']['hot_lead'] || $alarmLeads['sales']['mid']['referral']) && $events->count() < 1 ? true : false;
         $alarmLeads['general']['mid']['target'] = isset($leadSalesTarget) && $leadSalesTarget['lead_needed'] != 0 ? false : true;
-  
-            # Day 15-30 (akhir bulan)
-            if ($today > date('Y-m') . '-' . $midOfMonth) {
-                # sales
-                unset($alarmLeads['sales']['mid']['lead_needed']);
-                unset($alarmLeads['sales']['mid']['hot_lead']);
-                $alarmLeads['sales']['end']['revenue'] = $dataRevenueChart['actual'][2] < ($dataRevenueChart['target'][2] != 0 ? $dataRevenueChart['target'][2] * 50 / 100 : 0) ? true : false;
-                $alarmLeads['sales']['end']['ic'] = $actualLeadsSales['ic'] < $leadSalesTarget['ic'] ? true : false;
-                $alarmLeads['sales']['end']['hot_lead'] = $actualLeadsSales['hot_lead'] < $leadSalesTarget['hot_lead'] ? true : false;
-                
-                # digital
-                // unset($alarmLeads['digital']['mid']['lead_needed']);
-                unset($alarmLeads['digital']['mid']['hot_lead']);
-                // $alarmLeads['digital']['end']['revenue'] = $dataRevenueChart['actual'][2] < ($dataRevenueChart['target'][2] != 0 ? $dataRevenueChart['target'][2] * 50 / 100 : 0) ? true : false;
-                $alarmLeads['digital']['end']['hot_lead'] = $actualLeadsDigital['hot_lead'] < $leadDigitalTarget['hot_lead'] ? true : false;
-                $alarmLeads['digital']['end']['lead_needed'] = $actualLeadsDigital['lead_needed'] < $leadDigitalTarget['lead_needed'] ? true : false;
-            }
 
-        return $alarmLeads;            
+        // Day 15-30 (akhir bulan)
+        if ($today > date('Y-m').'-'.$midOfMonth) {
+            // sales
+            unset($alarmLeads['sales']['mid']['lead_needed']);
+            unset($alarmLeads['sales']['mid']['hot_lead']);
+            $alarmLeads['sales']['end']['revenue'] = $dataRevenueChart['actual'][2] < ($dataRevenueChart['target'][2] != 0 ? $dataRevenueChart['target'][2] * 50 / 100 : 0) ? true : false;
+            $alarmLeads['sales']['end']['ic'] = $actualLeadsSales['ic'] < $leadSalesTarget['ic'] ? true : false;
+            $alarmLeads['sales']['end']['hot_lead'] = $actualLeadsSales['hot_lead'] < $leadSalesTarget['hot_lead'] ? true : false;
+
+            // digital
+            // unset($alarmLeads['digital']['mid']['lead_needed']);
+            unset($alarmLeads['digital']['mid']['hot_lead']);
+            // $alarmLeads['digital']['end']['revenue'] = $dataRevenueChart['actual'][2] < ($dataRevenueChart['target'][2] != 0 ? $dataRevenueChart['target'][2] * 50 / 100 : 0) ? true : false;
+            $alarmLeads['digital']['end']['hot_lead'] = $actualLeadsDigital['hot_lead'] < $leadDigitalTarget['hot_lead'] ? true : false;
+            $alarmLeads['digital']['end']['lead_needed'] = $actualLeadsDigital['lead_needed'] < $leadDigitalTarget['lead_needed'] ? true : false;
+        }
+
+        return $alarmLeads;
     }
-   
+
     public function countAlarm()
     {
         $alarmLeads = $this->setAlarmLead();
@@ -163,14 +162,14 @@ class AlarmRepository implements AlarmRepositoryInterface
                         case 'digital':
                             $alarm == true ? $count['digital']++ : null;
                             break;
-                        // case 'general':
-                        //     $alarm == true ? $count['sales']++ : null;
-                        //     $alarm == true ? $count['digital']++ : null;
-                        //     break;
+                            // case 'general':
+                            //     $alarm == true ? $count['sales']++ : null;
+                            //     $alarm == true ? $count['digital']++ : null;
+                            //     break;
                     }
-                    
+
                     $alarm == true ? $count['general']++ : null;
-                   
+
                 }
             }
         }
@@ -188,20 +187,20 @@ class AlarmRepository implements AlarmRepositoryInterface
             foreach ($alarmDivisi as $alarmTime) {
                 foreach ($alarmTime as $key => $alarm) {
 
-                    if($alarm){
+                    if ($alarm) {
 
                         switch ($divisi) {
-                            
+
                             case 'sales':
                                 $message['sales'][] = $this->messageNotification($key, $divisi);
                                 break;
                             case 'digital':
                                 $message['digital'][] = $this->messageNotification($key, $divisi);
                                 break;
-                            // case 'general':
-                            //     $message['sales'][] = $this->messageNotification($key, $divisi);
-                            //     $message['digital'][] = $this->messageNotification($key, $divisi);
-                            //     break;
+                                // case 'general':
+                                //     $message['sales'][] = $this->messageNotification($key, $divisi);
+                                //     $message['digital'][] = $this->messageNotification($key, $divisi);
+                                //     break;
                         }
                         $message['general'][] = $this->messageNotification($key, $divisi);
                     }
@@ -226,9 +225,9 @@ class AlarmRepository implements AlarmRepositoryInterface
             case 'target':
                 $message = 'There are no sales target this month.';
                 break;
-            
+
             default:
-                $message = str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target.';
+                $message = str_replace('_', ' ', $key).'<b> '.$divisi.'</b> less than target.';
                 break;
         }
 
@@ -237,14 +236,12 @@ class AlarmRepository implements AlarmRepositoryInterface
 
     private function calculatePercentageLead($actual, $target)
     {
-        if ($target == 0 && $actual > 0){
+        if ($target == 0 && $actual > 0) {
             return 100;
-        }else if($target == 0 && $actual == 0){
+        } elseif ($target == 0 && $actual == 0) {
             return 0;
         }
 
         return $actual / $target * 100;
     }
-
-
 }

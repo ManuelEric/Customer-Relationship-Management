@@ -13,13 +13,17 @@ class ActiveMenteeCollectionResource extends ResourceCollection
 {
     use MentorTypeTrait;
 
-    public $paginate, $filter;
+    public $paginate;
+
+    public $filter;
+
     public function __construct($resource, $paginate, $filter = [])
     {
         parent::__construct($resource);
         $this->paginate = $paginate;
         $this->filter = $filter;
     }
+
     /**
      * Transform the resource into an array.
      *
@@ -28,16 +32,15 @@ class ActiveMenteeCollectionResource extends ResourceCollection
     public function toArray(Request $request): array
     {
         $collections = [];
-        foreach ($this->collection as $single)
-        {
-            # determine which type of mentor does the user has
+        foreach ($this->collection as $single) {
+            // determine which type of mentor does the user has
             $latest_admission = $single->clientProgram[0];
-            # with orderByPivot, it helps get the latest record 
+            // with orderByPivot, it helps get the latest record
             $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
             $mapped_mentor_type = $logged_in_mentor_type->map(function ($item) {
                 return [
                     'code' => $item->pivot->type,
-                    'alias' => $this->tnDefineMentorType($item->pivot->type)
+                    'alias' => $this->tnDefineMentorType($item->pivot->type),
                 ];
             });
 
@@ -66,8 +69,7 @@ class ActiveMenteeCollectionResource extends ResourceCollection
             ];
         }
 
-        if ( $this->paginate != null )
-        {
+        if ($this->paginate != null) {
             return [
                 'current_page' => $this->currentPage(),
                 'data' => $collections,

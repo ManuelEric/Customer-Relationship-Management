@@ -14,12 +14,11 @@ class DeleteCorporateAction
     }
 
     public function execute(
-        String $corporate_id
-    )
-    {
+        string $corporate_id
+    ) {
         $corporate = $this->corporateRepository->getCorporateById($corporate_id);
 
-        # Delete corporate
+        // Delete corporate
         $this->corporateRepository->deleteCorporate($corporate_id);
 
         return $corporate;

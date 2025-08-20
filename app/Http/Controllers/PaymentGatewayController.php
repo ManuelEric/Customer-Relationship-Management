@@ -18,34 +18,38 @@ use App\Models\Transaction;
 use App\Services\Log\LogService;
 use App\Services\Receipt\ReceiptService;
 use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Riskihajar\Terbilang\Facades\Terbilang;
 
 class PaymentGatewayController extends Controller
 {
-    use BankCodeTrait, RandomDigitTrait, StandardizePhoneNumberTrait, CalculatePaymentGatewayFeeTrait, RupiahFormatterTrait;
+    use BankCodeTrait, CalculatePaymentGatewayFeeTrait, RandomDigitTrait, RupiahFormatterTrait, StandardizePhoneNumberTrait;
 
     protected $log_service;
+
     protected ClientProgramRepositoryInterface $clientProgramRepository;
+
     protected ReceiptRepositoryInterface $receiptRepository;
+
     protected $admin_fee_va;
+
     protected $admin_fee_cc;
 
     public function __construct(
-        LogService $log_service, 
+        LogService $log_service,
         ClientProgramRepositoryInterface $clientProgramRepository,
         ReceiptRepositoryInterface $receiptRepository
-        )
-    {
+    ) {
         $this->log_service = $log_service;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->receiptRepository = $receiptRepository;
@@ -56,6 +60,18 @@ class PaymentGatewayController extends Controller
 
         /* PKS w/ Prismalink */
         $this->admin_fee_cc = 1500; // not include 2.5%
+    }
+
+    public function renderPage(Request $request)
+    {
+        $query = [
+            'pgid' => $request->query('pgid'),
+            'keyId' => $request->query('keyId'),
+            'pkg' => $request->query('pkg'),
+        ];
+        $redirect = config('env.PAYMENT_WEB_URI').'/paymentpage/web/payment-page/render-page?'.http_build_query($query);
+
+        return Redirect::to($redirect);
     }
 
     public function redirectPayment(Request $request)
@@ -76,8 +92,7 @@ class PaymentGatewayController extends Controller
     public function generateLink(
         GenerateLinkRequest $request,
         PrismaLinkCheckStatusAction $prismaLinkCheckStatusAction
-        )
-    {
+    ) {
         $validated = $request->safe()->only(['payment_method', 'bank', 'installment', 'id']);
         $payment_method = $validated['payment_method'];
         $bank_name = $validated['bank'] ?? null;
@@ -86,26 +101,22 @@ class PaymentGatewayController extends Controller
         $identifier = $validated['id'];
         $trx_currency = 'IDR';
 
-        //! need validation to prevent payment link generated twice if the bills has already paid
-        if ( $existing_trx = Transaction::whereIdentifier($installment, $identifier)->whereBankName($bank_name)->available()->first() )
-        {
+        // ! need validation to prevent payment link generated twice if the bills has already paid
+        if ($existing_trx = Transaction::whereIdentifier($installment, $identifier)->whereBankName($bank_name)->available()->first()) {
             response()->json([
                 'error' => "You've been created the payment link.",
-                'payment_link' => env('PAYMENT_WEB_URI') . $existing_trx->payment_page_url
+                'payment_link' => config('env.PAYMENT_WEB_URI').$existing_trx->payment_page_url,
             ], JsonResponse::HTTP_OK);
         }
 
-        if ( $existing_trx = Transaction::whereIdentifier($installment, $identifier)->whereBankName($bank_name)->paid()->first() )
-        {
+        if ($existing_trx = Transaction::whereIdentifier($installment, $identifier)->whereBankName($bank_name)->paid()->first()) {
             throw new HttpResponseException(
                 response()->json(['error' => "There's a problem. The transaction is done, but the receipt is missing. Please reach out to our administrator."], JsonResponse::HTTP_BAD_REQUEST)
             );
         }
 
-
         $invoice_id = $invoice_dtl_id = null;
-        if ( $installment == 1 )
-        {
+        if ($installment == 1) {
             $invoice = InvDetail::find($identifier);
             $invoice_dtl_id = $invoice->invdtl_id;
             $trx_amount = $invoice->invdtl_amountidr;
@@ -122,9 +133,9 @@ class PaymentGatewayController extends Controller
             $client = $invoice->clientprog->client;
             $remarks = $invoice->clientprog->invoice_program_name;
         }
-        
+
         $fees = $this->calculateFee($payment_method, $bank_va_fee, $trx_amount);
-        
+
         $invoice_number = $invoice->inv_id;
         $parent_number = $client->parents->count() > 0 ? $client->parents[0]->secondary_id : $client->secondary_id;
         $parent_name = $client->parents->count() > 0 ? $client->parents[0]->full_name : $client->full_name;
@@ -134,11 +145,11 @@ class PaymentGatewayController extends Controller
         $parent_address = $client->parents->count() > 0 ? $client->parents[0]->address : $client->address;
 
         $trx_id = $this->tnRandomDigit();
-        $merchant_ref_no = (string) $parent_number . $trx_id;
+        $merchant_ref_no = (string) $parent_number.$trx_id;
 
-        # prevent transaction generated more than once by
-        # checking the transaction table using invoice_id, installment_id, and invoice_number
-        # if by those data transaction could be found, then use the transaction ID of existing data
+        // prevent transaction generated more than once by
+        // checking the transaction table using invoice_id, installment_id, and invoice_number
+        // if by those data transaction could be found, then use the transaction ID of existing data
         $transactions = Transaction::where('invoice_id', $invoice_id)->
                     where('installment_id', $invoice_dtl_id)->
                     where('invoice_number', $invoice_number)->
@@ -146,44 +157,40 @@ class PaymentGatewayController extends Controller
                     orderBy('created_at', 'asc')->
                     get();
 
-        if ( $transactions->count() > 0 )
-        {
-            //! this is the idea : since every time we hit their check-status endpoint
-            //! for payment method = "CC", they are going to be rejected
-            # basically the idea was
-            # to fetch entire data transaction based on invoice_id, installment_id, and invoice_number
-            # that makes $response will be overwritten.
-            # in the end, the newest entry on transaction is going to filled in $response
-            # which means, $response is going to have the latest value of the transaction 
-            foreach ( $transactions as $transaction )
-            {
-                # before submit-trx 
-                # check if the transaction has been cancelled or not
+        if ($transactions->count() > 0) {
+            // ! this is the idea : since every time we hit their check-status endpoint
+            // ! for payment method = "CC", they are going to be rejected
+            // basically the idea was
+            // to fetch entire data transaction based on invoice_id, installment_id, and invoice_number
+            // that makes $response will be overwritten.
+            // in the end, the newest entry on transaction is going to filled in $response
+            // which means, $response is going to have the latest value of the transaction
+            foreach ($transactions as $transaction) {
+                // before submit-trx
+                // check if the transaction has been cancelled or not
                 [$response, $result, $message] = $prismaLinkCheckStatusAction->execute([
                     'plink_ref_no' => $transaction->plink_ref_no,
-                    'merchant_ref_no' => $transaction->merchant_ref_no
+                    'merchant_ref_no' => $transaction->merchant_ref_no,
                 ]);
-            }
 
-
-            # check if the status inside was cancel or reject
-            if ( !in_array($response['transaction_status'], ['CANCL', 'REJEC']) )
-            {
-                $trx_id = $transaction->trx_id;
-                $merchant_ref_no = $transaction->merchant_ref_no;
+                // check if the status inside was cancel or reject
+                if (! in_array($response['transaction_status'], ['CANCL', 'REJEC'])) {
+                    $trx_id = $transaction->trx_id;
+                    $merchant_ref_no = $transaction->merchant_ref_no;
+                }
             }
 
         }
 
         $total_transaction_with_fee = round($trx_amount + $fees);
-        
-        # create request body
+
+        // create request body
         $request_body = [
-            'merchant_key_id' => env('MERCHANT_KEY_ID'),
-            'merchant_id' => env('MERCHANT_ID'),
+            'merchant_key_id' => config('env.MERCHANT_KEY_ID'),
+            'merchant_id' => config('env.MERCHANT_ID'),
             'merchant_ref_no' => $merchant_ref_no,
-            'backend_callback_url' => env('PAYMENT_BACKEND_CALLBACK_URI'),
-            'frontend_callback_url' => env('PAYMENT_FRONTEND_CALLBACK_URI'),
+            'backend_callback_url' => config('env.PAYMENT_BACKEND_CALLBACK_URI'),
+            'frontend_callback_url' => config('env.PAYMENT_FRONTEND_CALLBACK_URI'),
             'transaction_date_time' => Carbon::now()->format('Y-m-d H:i:s.v O'),
             'transmission_date_time' => Carbon::now()->format('Y-m-d H:i:s.v O'),
             'transaction_currency' => $trx_currency,
@@ -193,7 +200,7 @@ class PaymentGatewayController extends Controller
                 'item_title' => $product_name,
                 'quantity' => 1,
                 'total' => $trx_amount,
-                'currency' => $trx_currency
+                'currency' => $trx_currency,
             ]]),
             'va_name' => ucwords($parent_name),
             'user_name' => ucwords($parent_name),
@@ -204,9 +211,9 @@ class PaymentGatewayController extends Controller
             'user_device_id' => Browser::browserName(),
             'user_ip_address' => $request->ip(),
             'shipping_details' => json_encode([
-                'address' => $parent_address ?? "",
+                'address' => $parent_address ?? '',
                 'telephoneNumber' => $this->tnNormalizePhoneNumber($parent_phone),
-                'handphoneNumber' => $this->tnNormalizePhoneNumber($parent_phone)
+                'handphoneNumber' => $this->tnNormalizePhoneNumber($parent_phone),
             ]),
             'invoice_number' => $invoice_number,
             'integration_type' => '01',
@@ -217,17 +224,16 @@ class PaymentGatewayController extends Controller
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[
                 'title' => 'Admin fee',
-                'value' => $this->formatRupiah(round($fees))
-            ]])
+                'value' => $this->formatRupiah(round($fees)),
+            ]]),
         ];
 
         Log::debug('Request to Prismalink', $request_body);
 
-
         $response = Http::withHeaders([
-            'mac' => hash_hmac('sha256', json_encode($request_body), env('PAYMENT_SECRET_KEY')),
+            'mac' => hash_hmac('sha256', json_encode($request_body), config('env.PAYMENT_SECRET_KEY')),
         ])->
-        post(env('PAYMENT_API_URI') . '/payment/integration/transaction/api/submit-trx', $request_body)->
+        post(config('env.PAYMENT_API_URI').'/payment/integration/transaction/api/submit-trx', $request_body)->
         throw(function (Response $response, RequestException $err) use ($request_body) {
             $this->log_service->createErrorLog(LogModule::CREATE_PAYMENT_LINK, $err->getMessage(), $err->getLine(), $err->getFile(), $request_body);
             throw new HttpResponseException(
@@ -237,24 +243,21 @@ class PaymentGatewayController extends Controller
 
         Log::debug('Response from Prismalink', $response);
 
-        if ( $response['response_code'] != "PL000" )
-        {
-            # in order to return error but display message to user
-            # so we have to put the error into HTTP_OK
-            # here's some condition only for duplicate transaction
-            # other than that will using exception Error 
-            if ( $response['response_code'] == "PL032" )
-            {
+        if ($response['response_code'] != 'PL000') {
+            // in order to return error but display message to user
+            // so we have to put the error into HTTP_OK
+            // here's some condition only for duplicate transaction
+            // other than that will using exception Error
+            if ($response['response_code'] == 'PL032') {
                 throw new HttpResponseException(
-                    response()->json(['error' => "Transaction Exists. Please refresh the page"], JsonResponse::HTTP_BAD_REQUEST)
+                    response()->json(['error' => 'Transaction Exists. Please refresh the page'], JsonResponse::HTTP_BAD_REQUEST)
                 );
             }
 
             throw new HttpResponseException(
                 response()->json($response['response_message'], JsonResponse::HTTP_BAD_REQUEST)
             );
-        } 
-
+        }
 
         $trx_detail_to_store = [
             'trx_id' => $trx_id,
@@ -272,28 +275,27 @@ class PaymentGatewayController extends Controller
             'merchant_ref_no' => $merchant_ref_no,
             'plink_ref_no' => $response['plink_ref_no'],
             'validity' => Carbon::parse($response['validity']),
-            'payment_status' => $response['transaction_status']
+            'payment_status' => $response['transaction_status'],
         ];
 
-        if ($payment_method == "VA")
-        {
+        if ($payment_method == 'VA') {
             $va_number_list = json_decode($response['va_number_list'])[0];
             $trx_detail_to_store['bank_id'] = $va_number_list->bank_id;
             $trx_detail_to_store['bank_name'] = $va_number_list->bank;
             $trx_detail_to_store['va_number'] = $va_number_list->va;
         }
-        
 
         DB::beginTransaction();
-        try {    
+        try {
             $trx = Transaction::updateOrCreate([
                 'trx_id' => $trx_id,
-                'merchant_ref_no' => $merchant_ref_no
+                'merchant_ref_no' => $merchant_ref_no,
             ], $trx_detail_to_store);
             DB::commit();
         } catch (Exception $err) {
             DB::rollBack();
             $this->log_service->createErrorLog(LogModule::CREATE_PAYMENT_LINK, $err->getMessage(), $err->getLine(), $err->getFile(), $trx_detail_to_store);
+
             return response()->json([
                 'response_description' => 'ERR',
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
@@ -305,11 +307,11 @@ class PaymentGatewayController extends Controller
         $request = Request::create($payment_page_url);
         $query_params_from_request = $request->query();
         $route = route('payment-web.render-page', $query_params_from_request);
-        
+
         return response()->json([
             'response_description' => 'SUCCESS',
             // 'payment_link' => env('APP_URL').$response['payment_page_url']
-            'payment_link' => $route
+            'payment_link' => $route,
         ]);
     }
 
@@ -317,8 +319,7 @@ class PaymentGatewayController extends Controller
         Request $request,
         ReceiptService $receipt_service,
         LogService $log_service,
-        )
-    {
+    ) {
         Log::debug('Callback triggered by Prismalink', $request->all());
         $payment_ref_no = $request->payment_ref_no;
         $merchant_ref_no = $request->merchant_ref_no;
@@ -326,18 +327,17 @@ class PaymentGatewayController extends Controller
 
         DB::beginTransaction();
         try {
-            # update transaction status
+            // update transaction status
             $transaction = Transaction::where('merchant_ref_no', $merchant_ref_no)->firstOrFail();
             $transaction->payment_status = $payment_status;
             $transaction->save();
 
-            # get client_prog eloquent
+            // get client_prog eloquent
             $invoice_model = $transaction->invoice_id === null ? InvDetail::find($transaction->installment_id) : InvoiceProgram::find($transaction->invoice_id);
             $client_prog_model = $transaction->invoice_id === null ? $invoice_model->invoiceProgram->clientprog : $invoice_model->clientprog;
             $client_prog = $this->clientProgramRepository->getClientProgramById($client_prog_model->clientprog_id);
 
-            if ( $payment_status != "SETLD" )
-            {
+            if ($payment_status != 'SETLD') {
                 throw new Exception("Payment status is {$payment_status}");
                 // $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, "Payment status is {$payment_status}" , $request->getLine(), $request->getFile(), $request->all());
                 // return response()->json([
@@ -348,56 +348,59 @@ class PaymentGatewayController extends Controller
                 // ]);
             }
 
-            # store in Log if the client has paid more than it should be
+            // store in Log if the client has paid more than it should be
             // if ( $request->transaction_amount != $transaction->trx_amount )
             //     Log::warning("Please double check the transaction no. ". $transaction->trx_id);
 
-            $invoice_type = $transaction->invoice_id != NULL && $transaction->installment_id == NULL ? "Program" : "Installment";
-            $identifier = $transaction->invoice_id != NULL && $transaction->installment_id == NULL ? $invoice_model->inv_id : $transaction->installment_id;
-            if ( $this->receiptRepository->getReceiptByInvoiceIdentifier($invoice_type, $identifier) )
-            {
-                Log::warning("Transaction no. {$transaction->trx_id} had been triggered but already has receipt" );
+            $invoice_type = $transaction->invoice_id != null && $transaction->installment_id == null ? 'Program' : 'Installment';
+            $identifier = $transaction->invoice_id != null && $transaction->installment_id == null ? $invoice_model->inv_id : $transaction->installment_id;
+            if ($this->receiptRepository->getReceiptByInvoiceIdentifier($invoice_type, $identifier)) {
+                Log::warning("Transaction no. {$transaction->trx_id} had been triggered but already has receipt");
+
                 return response()->json([
-                    'message' => 'Payment received'
+                    'message' => 'Payment received',
                 ]);
             }
 
             $transaction_amount = $request->transaction_amount;
-            if ( $transaction->payment_method == "VA" )
+            if ($transaction->payment_method == 'VA') {
                 $transaction_amount -= $this->admin_fee_va;
-            else
-                $transaction_amount -= $transaction->trx_amount*(2.8/100) + $this->admin_fee_cc;
+            } else {
+                $transaction_amount -= (int) $transaction->trx_amount * (2.8 / 100) + (int) $this->admin_fee_cc;
+            }
 
             $is_child_program_bundle = $client_prog->bundlingDetail()->count();
             $receipt_details = [
                 'receipt_id' => $receipt_service->generateReceiptId(['receipt_date' => $request->payment_date], $client_prog, $is_child_program_bundle),
                 'inv_id' => $invoice_model->inv_id,
                 'invdtl_id' => $transaction->installment_id,
-                'rec_currency' => 'IDR', # by default it would be IDR
+                'rec_currency' => 'IDR', // by default it would be IDR
                 'receipt_amount' => null,
                 'receipt_amount_idr' => $transaction_amount,
                 'receipt_date' => $request->payment_date,
                 'receipt_words' => null,
-                'receipt_words_idr' => ucfirst(str_replace(',' ,'', Terbilang::make($transaction_amount))) . ' Rupiah',
+                'receipt_words_idr' => ucfirst(str_replace(',', '', Terbilang::make($transaction_amount))).' Rupiah',
                 'receipt_method' => $request->payment_method,
                 'receipt_cheque' => null,
-                'receipt_cat' => 'student', # by default it would be student
+                'receipt_cat' => 'student', // by default it would be student
                 'created_at' => $request->payment_date,
             ];
 
             $receipt_created = $this->receiptRepository->createReceipt($receipt_details);
-            
+
             DB::commit();
 
             $this->log_service->createSuccessLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, 'Receipt created successfully', $receipt_created->toArray());
+
             return response()->json([
-                'message' => 'Payment received'
+                'message' => 'Payment received',
             ]);
         } catch (Exception $err) {
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, $err->getMessage(), $err->getLine(), $err->getFile(), $request->all());
+
             return response()->json([
-                'message' => 'There\'s a  problem when receiving payment'
+                'message' => 'There\'s a  problem when receiving payment',
             ]);
         }
     }

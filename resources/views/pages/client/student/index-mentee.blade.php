@@ -238,7 +238,7 @@
                 window.open("{{ url('client/alumni/') }}/" + type + "/" + data.id, "_blank");
             });
 
-            // Tooltip 
+            // Tooltip
             $('#clientTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',

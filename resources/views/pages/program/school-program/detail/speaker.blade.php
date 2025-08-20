@@ -14,9 +14,9 @@
      </div>
      <div class="card-body">
          <div class="list-group">
-                @forelse ($speakers as $speaker)   
+                @forelse ($speakers as $speaker)
                     <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class=""> 
+                        <div class="">
                             @switch($speaker->speaker_type)
                                 @case('partner')
                                     <div class="">{{ $speaker->partner_pic_name }}</div>
@@ -156,7 +156,7 @@
                                  <select name="" class="speaker-select w-100" id="speaker_pic">
                                      <option data-placeholder="true"></option>
                                  </select>
-                             
+
                              </div>
                          </div>
 
@@ -250,7 +250,7 @@
          $(id).removeClass('d-none')
      }
 
-     
+
 
      function cancelModal() {
         let id = $('#agenda_id').val();
@@ -262,29 +262,26 @@
         $('#reasonModal').modal('hide')
     }
 
-   
-   
+
+
  </script>
 
-    @if($errors->has('speaker_type') || 
-        $errors->has('allin_speaker') || 
+    @if($errors->has('speaker_type') ||
+        $errors->has('allin_speaker') ||
         $errors->has('partner_speaker') ||
         $errors->has('start_time') ||
         $errors->has('end_time')
         )
-            
+
         @php
             $old = old('speaker_type');
         @endphp
 
         <script>
             $(document).ready(function(){
-                $('#speaker').modal('show'); 
+                $('#speaker').modal('show');
                 $('#speaker_type').val('{{$old}}').trigger('change')
             })
 
         </script>
     @endif
-
-
-

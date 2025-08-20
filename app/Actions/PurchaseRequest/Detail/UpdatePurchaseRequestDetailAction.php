@@ -16,9 +16,8 @@ class UpdatePurchaseRequestDetailAction
     public function execute(
         $detail_id,
         $new_item_details
-    )
-    {        
-        # update purchase request detail
+    ) {
+        // update purchase request detail
         $updated_purchase_request_detail = $this->purchaseDetailRepository->updatePurchaseDetail($detail_id, $new_item_details);
 
         return $updated_purchase_request_detail;

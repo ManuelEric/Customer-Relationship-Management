@@ -241,34 +241,34 @@
     $(document).ready(function() {
         axios.get('https://bios.kemenkeu.go.id/api/ws/ref/bank')
                 .then(function (response){
-    
+
                     let obj = response.data;
-                    
+
                     var html = '<option data-placeholder="true"></option>'
-    
+
                     for (var key in obj.data){
                         var selected = '';
-        
+
                         if('{{ !empty(old("volunt_bank_name")) }}' && '{{ old("volunt_bank_name") }}' === obj.data[key].uraian)
                             selected = "selected";
 
                         @if (isset($volunteer) && isset($volunteer->volunt_bank_name))
                             if('{{ $volunteer->volunt_bank_name }}' === obj.data[key].uraian){
                                 selected = "selected";
-                            }    
+                            }
                         @endif
-                            
+
                         html += "<option value='" + obj.data[key].uraian + "' " + selected +">" + obj.data[key].uraian + "</option>"
-                            
+
                     }
-    
+
                     $("#volunt_bank_name").html(html)
-                       
+
                     swal.close();
                 }).catch(function (error) {
                     console.log(error)
                     swal.close();
                 })
-        
+
     });
 </script>

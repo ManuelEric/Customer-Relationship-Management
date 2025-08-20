@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Models\MajorGroup;
 use App\Models\University;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +17,7 @@ class DummyClientAcceptanceSeeder extends Seeder
     {
         $this->clientRepository = $clientRepository;
     }
+
     /**
      * Run the database seeds.
      */
@@ -28,16 +28,14 @@ class DummyClientAcceptanceSeeder extends Seeder
 
             $client_acceptance_details = [];
             $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees([]);
-            foreach ($graduated_mentees as $mentee)
-            {
+            foreach ($graduated_mentees as $mentee) {
                 $client_acceptance = DB::table('tbl_client_acceptance')->where('client_id', $mentee['id'])->first();
-                if ( !$client_acceptance)
-                // if ( !$client_acceptance || $client_acceptance->status != 'Final Decision' )
-                {
+                if (! $client_acceptance) {
+                    // if ( !$client_acceptance || $client_acceptance->status != 'Final Decision' )
                     $major_group = MajorGroup::inRandomOrder()->first();
                     $category = ['Reach', 'Competitive', 'Safety'];
                     $status = ['Submitted', 'Waitlisted', 'Accepted', 'Denied', 'Deferred', 'Final Decision'];
-    
+
                     $client_acceptance_details[] = [
                         'client_id' => $mentee['id'],
                         'univ_id' => University::inRandomOrder()->first()->univ_id,
@@ -53,7 +51,7 @@ class DummyClientAcceptanceSeeder extends Seeder
                     ];
                 }
             }
-    
+
             DB::table('tbl_client_acceptance')->insert($client_acceptance_details);
         } catch (\Exception $e) {
             DB::rollBack();

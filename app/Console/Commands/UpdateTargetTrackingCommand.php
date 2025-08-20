@@ -51,17 +51,18 @@ class UpdateTargetTrackingCommand extends Command
         DB::beginTransaction();
         try {
 
-            # all of the update target tracking should be running after command "insert:target_tracking_monthly"
-            
+            // all of the update target tracking should be running after command "insert:target_tracking_monthly"
+
             $achievedRevenue = $this->leadTargetRepository->getAchievedRevenue($now);
-            
+
             foreach ($division as $key => $division_name) {
-    
-                # checking active target from target tracking
-                # won't continue the process before the active target is inserted
-                if (! $activeTarget = $this->leadTargetRepository->findThisMonthTargetByDivision($now, $division_name)) 
+
+                // checking active target from target tracking
+                // won't continue the process before the active target is inserted
+                if (! $activeTarget = $this->leadTargetRepository->findThisMonthTargetByDivision($now, $division_name)) {
                     continue;
-    
+                }
+
                 $achievedLeadMethodName = 'getAchievedLead'.$division_name.'ByMonth';
                 $achievedHotLeadMethodName = 'getAchievedHotLead'.$division_name.'ByMonth';
                 $achievedInitConsultMethodName = 'getAchievedInitConsult'.$division_name.'ByMonth';
@@ -73,8 +74,8 @@ class UpdateTargetTrackingCommand extends Command
                 $achievedContribution = $this->leadTargetRepository->{$achievedContributionMethodName}($now)->count();
 
                 $contribution_target = $activeTarget->contribution_target;
-                
-                # if the contribution target has achieved then put status into 1 which is complete
+
+                // if the contribution target has achieved then put status into 1 which is complete
                 $status = $contribution_target <= $achievedContribution ? 1 : 0;
 
                 $details = [
@@ -86,10 +87,9 @@ class UpdateTargetTrackingCommand extends Command
                     'status' => $status,
                     'updated_at' => Carbon::now(),
                 ];
-                
+
                 $this->leadTargetRepository->updateActualLead($details, $now, $division_name);
-                
-    
+
                 $progressBar->advance();
             }
 
@@ -97,15 +97,15 @@ class UpdateTargetTrackingCommand extends Command
             $progressBar->finish();
 
         } catch (Exception $e) {
-            
+
             DB::rollBack();
-            Log::info('Cron update target tracking not working normal. Error : '. $e->getMessage() .' | Line '. $e->getCode());
+            Log::info('Cron update target tracking not working normal. Error : '.$e->getMessage().' | Line '.$e->getCode());
 
         }
 
         $timer_end = Carbon::now();
         $progress_time = $timer_start->diffInSeconds($timer_end);
-        
+
         Log::info("[CRON - UPDATE TARGET TRACKING] has been run. It tooks {$progress_time} seconds");
 
         return Command::SUCCESS;

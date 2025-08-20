@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Logging;
 
 class LogInjector
@@ -13,6 +14,6 @@ class LogInjector
     {
 
         $logger->pushProcessor(new AddInstructionsProcessor);
-        
+
     }
 }

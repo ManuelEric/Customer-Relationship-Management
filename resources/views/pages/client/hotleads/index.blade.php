@@ -386,7 +386,7 @@
                 table.button(1).disable();
             @endif
 
-            // Tooltip 
+            // Tooltip
             $('#clientTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',
@@ -394,7 +394,7 @@
                 });
             });
 
-            // View More 
+            // View More
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.open("{{ url('client/student') }}/" + data.id + '/program/create', "_blank");

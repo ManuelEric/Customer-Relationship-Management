@@ -29,10 +29,11 @@ use romanzipp\QueueMonitor\Traits\IsMonitored;
 class ImportParent implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait, GetGradeAndGraduationYear;
+    use CreateCustomPrimaryKeyTrait, GetGradeAndGraduationYear, LoggingTrait, StandardizePhoneNumberTrait, SyncClientTrait, SyncClientTrait;
     use IsMonitored;
 
     public $parentData;
+
     /**
      * Create a new job instance.
      */
@@ -62,7 +63,7 @@ class ImportParent implements ShouldQueue
 
             $parentName = $this->explodeName($val['Full Name']);
 
-            if (!$parent['isExist']) {
+            if (! $parent['isExist']) {
                 $parentDetails = [
                     'first_name' => $parentName['firstname'],
                     'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
@@ -76,11 +77,10 @@ class ImportParent implements ShouldQueue
                     'lead_id' => $val['Lead'],
                     'utm_content' => isset($val['UTM Content']) ? $val['UTM Content'] : null,
                     'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
-                    'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
+                    'eduf_id' => isset($val['Edufair']) && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
                     'st_levelinterest' => $val['Level of Interest'],
-                    'is_many_request' => true
+                    'is_many_request' => true,
                 ];
-
 
                 isset($val['Joined Date']) ? $parentDetails['created_at'] = $val['Joined Date'] : null;
 
@@ -101,11 +101,11 @@ class ImportParent implements ShouldQueue
                 if ($checkExistChildren['isExist'] && $checkExistChildren['client'] != null) {
                     $children = $checkExistChildren['client'];
                     $childrenIds[] = $children;
-                } else if (!$checkExistChildren['isExist']) {
+                } elseif (! $checkExistChildren['isExist']) {
                     $name = $this->explodeName($val['Children Name']);
                     $school = School::where('sch_name', $val['School'])->first();
 
-                    if (!isset($school)) {
+                    if (! isset($school)) {
                         $school = $this->createSchoolIfNotExists($val['School'], true);
                     }
 
@@ -122,8 +122,8 @@ class ImportParent implements ShouldQueue
                         'lead_id' => $val['Lead'],
                         'utm_content' => isset($val['UTM Content']) ? $val['UTM Content'] : null,
                         'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
-                        'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
-                        'is_many_request' => true
+                        'eduf_id' => isset($val['Edufair']) && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
+                        'is_many_request' => true,
                     ];
 
                     isset($val['Joined Date']) ? $childrenDetails['created_at'] = $val['Joined Date'] : null;
@@ -138,26 +138,26 @@ class ImportParent implements ShouldQueue
             }
 
             if (isset($val['Interested Program'])) {
-                # The parent section was commented out because the queue could not be executed.
+                // The parent section was commented out because the queue could not be executed.
                 /* saving interest program for parent */
                 // $this->syncInterestProgram($val['Interested Program'], $parent, $joinedDate);
                 /* saving interest program for children */
-                $children != null ?  $this->syncInterestProgram($val['Interested Program'], $children, $joinedDate) : null;
+                $children != null ? $this->syncInterestProgram($val['Interested Program'], $children, $joinedDate) : null;
             }
 
             // Sync country of study abroad
             if (isset($val['Destination Country'])) {
-                # The parent section was commented out because the queue could not be executed.
+                // The parent section was commented out because the queue could not be executed.
                 /* saving destination country for parent */
                 // $this->syncDestinationCountry($val['Destination Country'], $parent);
                 /* saving destination country for children */
-                $children != null ?  $this->syncDestinationCountry($val['Destination Country'], $children) : null;
+                $children != null ? $this->syncDestinationCountry($val['Destination Country'], $children) : null;
             }
 
             $parentIds[] = $parent['id'];
 
             $logDetails[] = [
-                'client_id' => $parent['id']
+                'client_id' => $parent['id'],
             ];
 
             $imported_date[] = [Carbon::now()->format('d-m-Y H:i:s')];
@@ -169,10 +169,9 @@ class ImportParent implements ShouldQueue
                 'lead_source' => $val['Lead'],
                 'utm_content' => isset($val['UTM Content']) ? $val['UTM Content'] : null,
                 'inputted_from' => 'import-parent',
-                'clientprog_id' => null
+                'clientprog_id' => null,
             ];
         }
-
 
         // # trigger to verifying parent
         // count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
@@ -183,11 +182,11 @@ class ImportParent implements ShouldQueue
         // # trigger to define category children
         // count($childrenIds) > 0 ? ProcessDefineCategory::dispatch($childrenIds)->onQueue('define-category-client') : null;
 
-        # trigger to insert log children
+        // trigger to insert log children
         count($childrenIds) > 0 ? ProcessInsertLogClient::dispatch($clients_data_for_log_client, true)->onQueue('insert-log-client') : null;
 
         /* To update column `imported_date` on column `V` */
-        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet(env('APP_ENV') == 'local' ? 'test parent' : 'Parents')->range('W'. $this->parentData->first()['No'] + 1)->update($imported_date);
+        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet(env('APP_ENV') == 'local' ? 'test parent' : 'Parents')->range('W'.$this->parentData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);
 
         $logDetailsCollection = Collect($logDetails);

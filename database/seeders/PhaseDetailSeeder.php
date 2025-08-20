@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +14,7 @@ class PhaseDetailSeeder extends Seeder
     public function run(): void
     {
         $seeds = [
-            # ALL
+            // ALL
             [
                 'phase_id' => 1,
                 'phase_detail_name' => '1:1 Mentoring Hours',
@@ -23,7 +22,7 @@ class PhaseDetailSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
 
-            # Interests & Career Exploration
+            // Interests & Career Exploration
             [
                 'phase_id' => 2,
                 'phase_detail_name' => 'Hands-on Activities (Workshop / Site Visit)',
@@ -43,7 +42,7 @@ class PhaseDetailSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
 
-            # Profile Building
+            // Profile Building
             [
                 'phase_id' => 3,
                 'phase_detail_name' => 'Competition Mentoring',
@@ -81,7 +80,7 @@ class PhaseDetailSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
 
-            # University Application Strategy
+            // University Application Strategy
             [
                 'phase_id' => 4,
                 'phase_detail_name' => 'Essay Editing Hours',
@@ -89,7 +88,7 @@ class PhaseDetailSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
 
-            # Writing
+            // Writing
             [
                 'phase_id' => 5,
                 'phase_detail_name' => 'Essay Bootcamp',

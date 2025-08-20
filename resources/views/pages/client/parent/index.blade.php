@@ -217,15 +217,15 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<div class="d-flex gap-1 justify-content-center">' + 
+                        defaultContent: '<div class="d-flex gap-1 justify-content-center">' +
                                 '<button type="button" class="btn btn-sm btn-outline-warning editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>' +
                                 '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                 'data-bs-custom-class="custom-tooltip" ' +
                                 'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer deleteClient">' +
                                 '<i class="bi bi-trash"></i>' +
-                                '</small>' + 
+                                '</small>' +
                             '</div>'
-                        
+
                     }
                 ],
             }
@@ -248,7 +248,7 @@
                 table.button(1).disable();
             @endif
 
-            // Tooltip 
+            // Tooltip
             $('#clientTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',

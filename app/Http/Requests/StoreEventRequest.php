@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreEventRequest extends FormRequest
 {
@@ -46,7 +45,7 @@ class StoreEventRequest extends FormRequest
             'user_id.*' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::whereHas('roles', function ($q) {
+                    if (! User::whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -56,7 +55,7 @@ class StoreEventRequest extends FormRequest
             'event_target' => 'required|min:1',
             'event_banner' => 'nullable|mimes:jpg|max:5000|image',
             'category' => 'nullable',
-            'type' => 'required|in:online,offline,hybrid'
+            'type' => 'required|in:online,offline,hybrid',
         ];
     }
 
@@ -67,7 +66,7 @@ class StoreEventRequest extends FormRequest
         $uploadedBanner = $this->input('old_event_banner');
 
         $rules = [
-            'event_title' => 'required|unique:tbl_events,event_title,' . $eventId . ',event_id',
+            'event_title' => 'required|unique:tbl_events,event_title,'.$eventId.',event_id',
             'event_description' => 'nullable',
             'event_location' => 'required|max:250',
             'event_startdate' => 'required|before_or_equal:event_enddate',
@@ -75,7 +74,7 @@ class StoreEventRequest extends FormRequest
             'user_id.*' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::whereHas('roles', function ($q) {
+                    if (! User::whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was not employee is invalid');
@@ -84,10 +83,10 @@ class StoreEventRequest extends FormRequest
             ],
             'event_target' => 'required|min:1',
             'category' => 'nullable',
-            'type' => 'required|in:online,offline,hybrid'
+            'type' => 'required|in:online,offline,hybrid',
         ];
 
-        if (!$uploadedBanner && !$newUploadedBanner) {
+        if (! $uploadedBanner && ! $newUploadedBanner) {
             $rules['event_banner'] = 'mimes:jpg|max:5000|image';
         }
 

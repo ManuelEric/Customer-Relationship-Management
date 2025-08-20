@@ -10,24 +10,23 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PartnerExport implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles, WithEvents, WithColumnFormatting
+class PartnerExport implements FromCollection, ShouldAutoSize, WithColumnFormatting, WithEvents, WithHeadings, WithStyles
 {
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $partners = Corporate::with([
-                'pic' => function ($query) {
-                    $query->select('corp_id', 'pic_name', 'pic_mail', 'pic_linkedin', 'pic_phone')->where('is_pic', 1);
-                },
-            ])->select('corp_id', 'corp_name', 'corp_industry', 'corp_subsector_id', 'corp_mail', 'corp_phone', 'corp_site', 'corp_region', 'corp_city', 'corp_address', 'country_type', 'type', 'partnership_type', 'corp_status', 'created_at')->
+            'pic' => function ($query) {
+                $query->select('corp_id', 'pic_name', 'pic_mail', 'pic_linkedin', 'pic_phone')->where('is_pic', 1);
+            },
+        ])->select('corp_id', 'corp_name', 'corp_industry', 'corp_subsector_id', 'corp_mail', 'corp_phone', 'corp_site', 'corp_region', 'corp_city', 'corp_address', 'country_type', 'type', 'partnership_type', 'corp_status', 'created_at')->
             where('active_status', 1)->
             get();
 
@@ -99,7 +98,7 @@ class PartnerExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
             'Partner Status',
             'Registered At',
             'PIC Name',
-            'PIC Phone Number'
+            'PIC Phone Number',
         ];
     }
 
@@ -118,7 +117,7 @@ class PartnerExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
 
                     if ($partnerName !== $currentPartnerName) {
                         if ($startRow < $row - 1) {
-                            $sheet->mergeCells("B{$startRow}:B" . ($row - 1));
+                            $sheet->mergeCells("B{$startRow}:B".($row - 1));
                         }
                         $currentPartnerName = $partnerName;
                         $startRow = $row;
@@ -129,7 +128,7 @@ class PartnerExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
                 if ($startRow < $lastRow) {
                     $sheet->mergeCells("B{$startRow}:B{$lastRow}");
                 }
-            }
+            },
         ];
     }
 
@@ -138,7 +137,7 @@ class PartnerExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
         return [
             'F' => NumberFormat::FORMAT_NUMBER,
             'O' => NumberFormat::FORMAT_DATE_YYYYMMDD,
-            'Q' => NumberFormat::FORMAT_NUMBER
+            'Q' => NumberFormat::FORMAT_NUMBER,
         ];
     }
 
@@ -146,8 +145,8 @@ class PartnerExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
     {
         return [
             1 => [
-                'font' => ['bold' => true]
-            ]
+                'font' => ['bold' => true],
+            ],
         ];
     }
 }

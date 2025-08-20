@@ -30,10 +30,10 @@ class StoreClientParentRequest extends FormRequest
         $rules = [
             'pr_firstname' => 'required',
             'pr_lastname' => 'nullable',
-            'pr_mail' => 'required|email|unique:tbl_client,mail,' . $parentId . ',id',
+            'pr_mail' => 'required|email|unique:tbl_client,mail,'.$parentId.',id',
             'pr_phone' => 'required|min:10|max:15',
             'pr_dob' => 'nullable',
-            'pr_insta' => 'nullable|unique:tbl_client,insta,' . $parentId . ',id',
+            'pr_insta' => 'nullable|unique:tbl_client,insta,'.$parentId.',id',
             'state' => 'required',
             'city' => 'nullable',
             'postal_code' => 'nullable',
@@ -43,37 +43,39 @@ class StoreClientParentRequest extends FormRequest
             'sch_id' => [
                 'required_if:child_id,add-new',
                 function ($attribute, $value, $fail) {
-                    if ($this->input('sch_id') != "add-new") {
+                    if ($this->input('sch_id') != 'add-new') {
                         Rule::exists('tbl_sch', 'sch_id');
                     }
-                }
+                },
             ],
-            'sch_name' => 'sometimes|required_if:sch_id,add-new', #|unique:tbl_sch,sch_name
+            'sch_name' => 'sometimes|required_if:sch_id,add-new', // |unique:tbl_sch,sch_name
             // 'sch_location' => 'sometimes|required_if:sch_id,add-new',
             'sch_type' => 'required_if:sch_id,add-new',
             'sch_curriculum.*' => 'required_if:sch_id,add-new',
             'sch_score' => 'required_if:sch_id,add-new',
-            'event_id' => 'required_if:lead_id,LS003', # make sure id LS003 is all-in event
-            'eduf_id' => 'required_if:lead_id,LS017', # make sure id LS017 is all-in eduf
-            'referral_code' => 'required_if:lead_id,LS005', # make sure id LS005 is referral
+            'event_id' => 'required_if:lead_id,LS003', // make sure id LS003 is all-in event
+            'eduf_id' => 'required_if:lead_id,LS017', // make sure id LS017 is all-in eduf
+            'referral_code' => 'required_if:lead_id,LS005', // make sure id LS005 is referral
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
-                    if ($this->input('lead_id') == 'kol' && empty($value))
+                    if ($this->input('lead_id') == 'kol' && empty($value)) {
                         $fail('The KOL name field is required');
+                    }
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get())
+                    if (! Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) {
                         $fail('The KOL name is invalid');
-                }
+                    }
+                },
             ],
             'st_levelinterest' => 'required|in:High,Medium,Low',
             // 'prog_id.*' => 'sometimes|required|exists:tbl_prog,prog_id',
             'st_abryear' => [
                 'sometimes',
                 function ($attribute, $value, $fail) {
-                    if (($value <= date('Y')) && ($value >= date('Y', strtotime("+5 years")))) {
+                    if (($value <= date('Y')) && ($value >= date('Y', strtotime('+5 years')))) {
                         $fail('The abroad year is invalid');
                     }
-                }
+                },
             ],
             'st_abrcountry.*' => 'nullable',
             'st_abruniv.*' => 'sometimes|nullable|exists:tbl_univ,univ_id',
@@ -85,7 +87,7 @@ class StoreClientParentRequest extends FormRequest
             'phone' => 'required_if:child_id,add-new|nullable|min:10|max:15',
         ];
 
-        if ($this->input('lead_id') != "kol") {
+        if ($this->input('lead_id') != 'kol') {
             $rules['lead_id'] = 'required|exists:tbl_lead,lead_id';
         }
 

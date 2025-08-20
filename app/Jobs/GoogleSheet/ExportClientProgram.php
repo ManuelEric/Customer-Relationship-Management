@@ -1,46 +1,32 @@
 <?php
- 
+
 namespace App\Jobs\GoogleSheet;
 
-use App\Http\Controllers\Api\v1\ExtClientController;
-use App\Http\Controllers\GoogleSheetController;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
-use App\Jobs\Client\ProcessDefineCategory;
-use App\Jobs\RawClient\ProcessVerifyClient;
-use App\Jobs\RawClient\ProcessVerifyClientParent;
-use App\Jobs\RawClient\ProcessVerifyClientTeacher;
-use App\Models\Client;
-use App\Models\ClientEvent;
-use App\Models\Event;
 use App\Models\JobBatches;
-use App\Models\Role;
-use App\Models\School;
-use App\Models\UserClient;
 use App\Models\ViewClientRefCode;
-use Carbon\Carbon;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Revolution\Google\Sheets\Facades\Sheets;
 use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class ExportClientProgram implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait;
+    use CreateCustomPrimaryKeyTrait, LoggingTrait, StandardizePhoneNumberTrait, SyncClientTrait, SyncClientTrait;
     use IsMonitored;
 
     public $clientProgData;
+
     public $type;
+
     /**
      * Create a new job instance.
      */
@@ -56,7 +42,7 @@ class ExportClientProgram implements ShouldQueue
     {
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
- 
+
             return;
         }
 
@@ -66,31 +52,31 @@ class ExportClientProgram implements ShouldQueue
 
         $dataJobBatches = JobBatches::find($this->batch()->id);
 
-        if($dataJobBatches->total_imported == 0){
+        if ($dataJobBatches->total_imported == 0) {
             $i = 0;
-        }else{
+        } else {
             $i = $dataJobBatches->total_imported - 1;
         }
 
         foreach ($clientProgs as $clientProg) {
-            $customClientProgId = 'CP-' . $clientProg->clientprog_id;
+            $customClientProgId = 'CP-'.$clientProg->clientprog_id;
 
-            # Set referral name
+            // Set referral name
             $referral_name = '';
-            if (isset($clientProg->referral_code)){
+            if (isset($clientProg->referral_code)) {
                 $referral = ViewClientRefCode::where('id', (int) filter_var($clientProg->referral_code, FILTER_SANITIZE_NUMBER_INT))->first();
                 $referral_name = isset($referral) ? $referral->full_name : '';
 
             }
 
-            # Set status
+            // Set status
             $status = '';
-            if(isset($clientProg->status)){
+            if (isset($clientProg->status)) {
                 switch ($clientProg->status) {
                     case 0:
                         $status = 'Pending';
                         break;
-                        
+
                     case 1:
                         $status = 'Success';
                         break;
@@ -105,14 +91,14 @@ class ExportClientProgram implements ShouldQueue
                 }
             }
 
-            # Set prog running status
+            // Set prog running status
             $prog_running_status = '';
-            if(isset($clientProg->prog_running_status)){
+            if (isset($clientProg->prog_running_status)) {
                 switch ($clientProg->prog_running_status) {
                     case 0:
                         $prog_running_status = 'Not Yet';
                         break;
-                        
+
                     case 1:
                         $prog_running_status = 'Ongoing';
                         break;
@@ -124,7 +110,7 @@ class ExportClientProgram implements ShouldQueue
             }
 
             $data[] = [
-                $customClientProgId, 
+                $customClientProgId,
                 $this->replaceNullValue($clientProg['fullname']),
                 $this->replaceNullValue($clientProg['student_mail']),
                 $this->replaceNullValue($clientProg['student_phone']),
@@ -155,23 +141,21 @@ class ExportClientProgram implements ShouldQueue
             $i++;
         }
 
-
-        if($dataJobBatches->total_imported == 0){
+        if ($dataJobBatches->total_imported == 0) {
             $index = 2;
-        }else{
+        } else {
             $index = $dataJobBatches->total_imported + 2;
         }
-        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Client Programs')->range('A'. $index)->update($data);
-        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($data), 'category' => 'Export', 'type' => 'client-program']); 
+        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Client Programs')->range('A'.$index)->update($data);
+        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($data), 'category' => 'Export', 'type' => 'client-program']);
 
     }
-    
- 
+
     private function replaceNullValue($value)
     {
-        if(isset($value)){
+        if (isset($value)) {
             return $value;
-        }else{
+        } else {
             return '-';
         }
     }

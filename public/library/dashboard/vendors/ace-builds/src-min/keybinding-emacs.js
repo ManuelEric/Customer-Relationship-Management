@@ -5,4 +5,3 @@ define("ace/occur",["require","exports","module","ace/lib/oop","ace/range","ace/
                         }
                     });
                 })();
-            

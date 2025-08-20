@@ -35,7 +35,7 @@ class ReportPartnershipRequest extends FormRequest
     {
         return [
             'start_date' => 'nullable',
-            'end_date' => 'nullable|after_or_equal:start_date'
+            'end_date' => 'nullable|after_or_equal:start_date',
         ];
     }
 }

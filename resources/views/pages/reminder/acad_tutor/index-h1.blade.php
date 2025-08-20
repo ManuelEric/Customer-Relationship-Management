@@ -23,7 +23,7 @@
         </tr>
     </table>
     <p>
-        If you want to reschedule the session please inform it to the <b>Education Coordinator</b> today by clicking 
+        If you want to reschedule the session please inform it to the <b>Education Coordinator</b> today by clicking
         <a href="https://wa.me/+6281774821143">here</a>.
     </p>
     <p>

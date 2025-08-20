@@ -9,12 +9,10 @@ use App\Interfaces\AxisRepositoryInterface;
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Mail\Invb2b\SendToClientMail as Invb2bSendToClientMail;
-use App\Mail\SendToClientMail;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -27,15 +25,17 @@ class InvoiceB2BBaseController extends Controller
     use LoggingTrait;
 
     protected InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
+
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     protected AxisRepositoryInterface $axisRepository;
 
     public function getModule()
     {
         switch (request()->segment(2)) {
 
-            case "corporate-program":
-            case "invoice-corp":
+            case 'corporate-program':
+            case 'invoice-corp':
                 $this->module = [
                     'raw' => 'Corporate Program',
                     'segment' => 'corporate-program',
@@ -46,18 +46,18 @@ class InvoiceB2BBaseController extends Controller
                         'sub_class' => 'pic',
                         'pic' => [
                             'name' => 'pic_name',
-                            'email' => 'pic_mail'
-                        ]
+                            'email' => 'pic_mail',
+                        ],
                     ],
                     'program' => [
                         'class' => 'program',
-                        'attribute' => 'program_name'
-                    ]
+                        'attribute' => 'program_name',
+                    ],
                 ];
                 break;
 
-            case "referral":
-            case "invoice-ref":
+            case 'referral':
+            case 'invoice-ref':
                 $this->module = [
                     'raw' => 'Referral Program',
                     'segment' => 'referral',
@@ -69,17 +69,17 @@ class InvoiceB2BBaseController extends Controller
                         'pic' => [
                             'name' => 'pic_name',
                             'email' => 'pic_mail',
-                        ]
+                        ],
                     ],
                     'program' => [
                         'class' => null,
-                        'attribute' => 'additional_prog_name'
-                    ]
+                        'attribute' => 'additional_prog_name',
+                    ],
                 ];
                 break;
 
-            case "school-program":
-            case "invoice-sch":
+            case 'school-program':
+            case 'invoice-sch':
                 $this->module = [
                     'raw' => 'School Program',
                     'segment' => 'school-program',
@@ -90,13 +90,13 @@ class InvoiceB2BBaseController extends Controller
                         'sub_class' => 'detail',
                         'pic' => [
                             'name' => 'schdetail_fullname',
-                            'email' => 'schdetail_email'
-                        ]
+                            'email' => 'schdetail_email',
+                        ],
                     ],
                     'program' => [
                         'class' => 'program',
-                        'attribute' => 'program_name'
-                    ]
+                        'attribute' => 'program_name',
+                    ],
                 ];
 
                 break;
@@ -138,7 +138,7 @@ class InvoiceB2BBaseController extends Controller
         $invoice_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
         $invoice_id = $invoice_b2b->invb2b_id;
         $invoice_num = $invoice_b2b->invb2b_num;
-        $file_name = str_replace('/', '-', $invoice_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
+        $file_name = str_replace('/', '-', $invoice_id).'-'.($currency == 'idr' ? $currency : 'other').'.pdf'; // 0001_INV_JEI_EF_I_23_idr.pdf
 
         $path = 'project/crm/invoice/'.$this->module['name'].'/';
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
@@ -154,25 +154,26 @@ class InvoiceB2BBaseController extends Controller
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
             'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
+            'city' => env('ALLIN_CITY'),
         ];
 
-        $data['email'] = $to; # our director email
-        $data['recipient'] = $name; # our director name
-        $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
+        $data['email'] = $to; // our director email
+        $data['recipient'] = $name; // our director name
+        $data['title'] = 'Request Sign of Invoice Number : '.$invoice_id;
         $data['param'] = [
             'invb2b_num' => $invoice_num,
             'currency' => $currency,
             'fullname' => $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['attribute']},
             'invoice_date' => date('d F Y', strtotime($invoice_b2b->invb2b_date)),
-            'invoice_duedate' => date('d F Y', strtotime($invoice_b2b->invb2b_duedate))
+            'invoice_duedate' => date('d F Y', strtotime($invoice_b2b->invb2b_duedate)),
         ];
 
-        # condition
-        if (isset($this->module['program']['class']))
+        // condition
+        if (isset($this->module['program']['class'])) {
             $data['param']['program_name'] = $invoice_b2b->{$this->module['name']}->{$this->module['program']['class']}->{$this->module['program']['attribute']};
-        else
+        } else {
             $data['param']['program_name'] = $invoice_b2b->{$this->module['name']}->{$this->module['program']['attribute']};
+        }
 
         try {
 
@@ -180,14 +181,14 @@ class InvoiceB2BBaseController extends Controller
                 'invoiceB2b' => $invoice_b2b,
                 'currency' => $currency,
                 'companyDetail' => $company_detail,
-                'director' => $name
+                'director' => $name,
             ]);
 
-            # Generate PDF file
+            // Generate PDF file
             $content = $pdf->download();
-            Storage::disk('s3')->put($path . $file_name, $content);
+            Storage::disk('s3')->put($path.$file_name, $content);
 
-            # if attachment exist then update attachement else insert attachement
+            // if attachment exist then update attachement else insert attachement
             if (isset($attachment)) {
                 $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $attachment_details);
             } else {
@@ -197,16 +198,17 @@ class InvoiceB2BBaseController extends Controller
             Mail::send('pages.invoice.'.$this->module['segment'].'.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
                 $message->to($data['email'], $data['recipient'])
                     ->subject($data['title'])
-                    ->attachData($pdf->output(), $invoice_id . '.pdf');
+                    ->attachData($pdf->output(), $invoice_id.'.pdf');
             });
         } catch (Exception $e) {
 
             $log_service->createErrorLog(LogModule::REQUEST_SIGN_INVOICE_B2B, $e->getMessage(), $e->getLine(), $e->getFile(), $attachment_details);
+
             return $e->getMessage();
         }
 
-        # Request Sign success
-        # create log success
+        // Request Sign success
+        // create log success
         $log_service->createSuccessLog(LogModule::REQUEST_SIGN_INVOICE_B2B, 'Successfully Send Request Sign', $attachment_details);
 
         return true;
@@ -222,7 +224,7 @@ class InvoiceB2BBaseController extends Controller
         $axis = $this->axisRepository->getAxisByType('invoice');
 
         if (isset($invoice_attachment->sign_status) && $invoice_attachment->sign_status == 'signed') {
-            return "Invoice is already signed";
+            return 'Invoice is already signed';
         }
 
         return view('pages.invoice.sign-pdf')->with(
@@ -247,7 +249,7 @@ class InvoiceB2BBaseController extends Controller
 
         $attachment_details = [
             'sign_status' => 'signed',
-            'approve_date' => Carbon::now()
+            'approve_date' => Carbon::now(),
         ];
 
         $invoice_attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
@@ -259,7 +261,7 @@ class InvoiceB2BBaseController extends Controller
         DB::beginTransaction();
         try {
 
-            # if no_data == false
+            // if no_data == false
             if ($request->no_data == 0) {
                 $axis = [
                     'top' => $request->top,
@@ -269,7 +271,7 @@ class InvoiceB2BBaseController extends Controller
                     'angle' => $request->angle,
                     'flipX' => $request->flipX,
                     'flipY' => $request->flipY,
-                    'type' => 'invoice'
+                    'type' => 'invoice',
                 ];
 
                 if (isset($data_axis)) {
@@ -281,28 +283,30 @@ class InvoiceB2BBaseController extends Controller
 
             $this->invoiceAttachmentRepository->updateInvoiceAttachment($invoice_attachment->id, $attachment_details);
 
-            if (!Storage::disk('s3')->put('project/crm/invoice/'.$this->module['name'].'/'. $name, file_get_contents($pdf_file)))
+            if (! Storage::disk('s3')->put('project/crm/invoice/'.$this->module['name'].'/'.$name, file_get_contents($pdf_file))) {
                 throw new Exception('Failed to store signed invoice file');
+            }
 
-            $data['title'] = 'Invoice No. ' . $invoice_id . ' has been signed';
+            $data['title'] = 'Invoice No. '.$invoice_id.' has been signed';
             $data['invoice_id'] = $invoice_id;
 
-            # send mail when document has been signed
+            // send mail when document has been signed
             Mail::send('pages.invoice.'.$this->module['segment'].'.mail.signed', $data, function ($message) use ($data, $invoice_attachment) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
                     ->subject($data['title'])
-                    ->attach(Storage::url('invoice/'. $this->module['name'] . '/'. $invoice_attachment->attachment));
+                    ->attach(Storage::url('invoice/'.$this->module['name'].'/'.$invoice_attachment->attachment));
             });
 
             DB::commit();
         } catch (Exception $e) {
 
             $log_service->createErrorLog(LogModule::REQUEST_SIGN_INVOICE_B2B, $e->getMessage(), $e->getLine(), $e->getFile(), $attachment_details);
+
             return response()->json(['status' => 'error', 'message' => 'Failed to update'], 500);
         }
 
-        # Signed success
-        # create log success
+        // Signed success
+        // create log success
         $log_service->createSuccessLog(LogModule::APPROVE_ATTACHMENT_INVOICE_B2B, 'Successfully signed invoice', $invoice_attachment->toArray());
 
         return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
@@ -319,15 +323,15 @@ class InvoiceB2BBaseController extends Controller
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
             'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
+            'city' => env('ALLIN_CITY'),
         ];
 
         $pdf = PDF::loadView('pages.invoice.'.$this->module['segment'].'.export.invoice-pdf', [
             'invoiceB2b' => $invoice_b2b,
             'currency' => $currency,
-            'companyDetail' => $company_detail
+            'companyDetail' => $company_detail,
         ]);
-        
+
         return $pdf->stream();
     }
 
@@ -339,38 +343,37 @@ class InvoiceB2BBaseController extends Controller
         $invoice_id = $invoice_b2b->invb2b_id;
         $invoice_attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
-        # because for referral
-        # they fetching using **->referral->additional_prog_name
-        if ($this->module['name'] != 'referral'){
+        // because for referral
+        // they fetching using **->referral->additional_prog_name
+        if ($this->module['name'] != 'referral') {
             $program_name = $invoice_b2b->{$this->module['name']}->{$this->module['program']['class']}->{$this->module['program']['attribute']};
-            $param_program_name = isset($invoice_b2b->{$this->module['name']}->{$this->module['program']['class']}->sub_prog) ? $invoice_b2b->{$this->module['name']}->{$this->module['program']['class']}->main_prog->prog_name . ' - ' . $invoice_b2b->{$this->module['name']}->{$this->module['program']['class']}->sub_prog->sub_prog_name : $invoice_b2b->{$this->module['name']}->{$this->module['program']['class']}->main_prog->prog_name;
+            $param_program_name = isset($invoice_b2b->{$this->module['name']}->{$this->module['program']['class']}->sub_prog) ? $invoice_b2b->{$this->module['name']}->{$this->module['program']['class']}->main_prog->prog_name.' - '.$invoice_b2b->{$this->module['name']}->{$this->module['program']['class']}->sub_prog->sub_prog_name : $invoice_b2b->{$this->module['name']}->{$this->module['program']['class']}->main_prog->prog_name;
         } else {
             $program_name = $invoice_b2b->{$this->module['name']}->{$this->module['program']['attribute']};
             $param_program_name = $program_name;
         }
 
-
-        if (!isset($invoice_b2b->{$this->module['name']}->user)) {
+        if (! isset($invoice_b2b->{$this->module['name']}->user)) {
             return response()->json(
                 [
-                    'message' => 'This program not have PIC, please set PIC before send to client'
+                    'message' => 'This program not have PIC, please set PIC before send to client',
                 ],
                 500
             );
         }
 
-        # get partner pic
-        #$getPartnerPics = $invoicePartner->partner_prog->corp->pic->where('is_pic', '1')->toArray();
-        #$pic = $getPartnerPics[0];
+        // get partner pic
+        // $getPartnerPics = $invoicePartner->partner_prog->corp->pic->where('is_pic', '1')->toArray();
+        // $pic = $getPartnerPics[0];
 
-        # uncomment if they want the email send directly to pic partner 
-        #$data['email'] = $pic->pic_mail;
-        #$data['recipient'] = $pic->pic_name;
+        // uncomment if they want the email send directly to pic partner
+        // $data['email'] = $pic->pic_mail;
+        // $data['recipient'] = $pic->pic_name;
 
-        # validate the their pic email
+        // validate the their pic email
         // if (!isset($invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}) || $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']} == '')
         //     return response()->json(['message' => "Please complete their email in order to send the invoice mail"], 500);
-        
+
         $any_email_exist = false;
         // get pic that has mail only
         foreach ($invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']} as $key => $value) {
@@ -381,31 +384,31 @@ class InvoiceB2BBaseController extends Controller
             }
         }
 
-        if (!$any_email_exist)
-            return response()->json(['message' => "Please complete their email in order to send the invoice mail"], 500);
-        
+        if (! $any_email_exist) {
+            return response()->json(['message' => 'Please complete their email in order to send the invoice mail'], 500);
+        }
 
         // $data['email'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}; # email to pic of the partner program
         // $data['email'] = env('PARTNERSHIP_MAIL_1');
         // $data['recipient'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['name']}; # name of the pic of the partner program
         // $data['cc'] = [env('CEO_CC'), env('FINANCE_CC'), env('PARTNERSHIP_MAIL')];
         $data['cc'] = ['devi.kasih@edu-all.com', 'emilia@edu-all.com', 'theresia.avelina@edu-all.com'];
-        $data['title'] = "Invoice of program " . $program_name;
+        $data['title'] = 'Invoice of program '.$program_name;
         $data['param'] = [
             'invb2b_num' => $inv_num,
             'currency' => $currency,
             'fullname' => $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['attribute']},
-            'program_name' => $param_program_name, # main prog name - sub prog name
+            'program_name' => $param_program_name, // main prog name - sub prog name
         ];
         try {
-            
+
             $view = 'pages.invoice.'.$this->module['segment'].'.mail.client-view';
-            $s3path = 'project/crm/invoice/'. $this->module['name'] .'/';
+            $s3path = 'project/crm/invoice/'.$this->module['name'].'/';
             $filename = $invoice_attachment->attachment;
 
             Mail::to($data['email'], $data['recipient'])
                 ->cc($data['cc'])
-                ->send(new Invb2bSendToClientMail($data, $s3path . $filename, $filename, $view) );
+                ->send(new Invb2bSendToClientMail($data, $s3path.$filename, $filename, $view));
 
             $attachment_details = [
                 'send_to_client' => 'sent',
@@ -418,21 +421,21 @@ class InvoiceB2BBaseController extends Controller
 
             return response()->json(
                 [
-                    'message' => 'Something went wrong when sending invoice to client. Please try again'
+                    'message' => 'Something went wrong when sending invoice to client. Please try again',
                 ],
                 500
             );
         }
 
-        # Send To Client success
-        # create log success
+        // Send To Client success
+        // create log success
         $log_service->createSuccessLog(LogModule::SEND_INVOICE_B2B_TO_CLIENT, 'Successfully Send invoice to client', $invoice_attachment->toArray());
 
         // return true;
         return response()->json(
             [
                 'success' => true,
-                'message' => "Invoice has been send to client",
+                'message' => 'Invoice has been send to client',
             ]
         );
     }

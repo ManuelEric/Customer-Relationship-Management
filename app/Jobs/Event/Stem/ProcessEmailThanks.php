@@ -5,7 +5,6 @@ namespace App\Jobs\Event\Stem;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use Exception;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -20,13 +19,16 @@ class ProcessEmailThanks implements ShouldQueue
     use IsMonitored;
 
     public $tries = 3;
+
     public $timeout = 600;
 
     // Priority levels: high, default, low
     public $priority = 'high';
 
     protected $mailDetails;
+
     protected $clientEventId;
+
     protected ClientEventLogMailRepositoryInterface $clientEventLogMailRepository;
 
     /**
@@ -48,38 +50,35 @@ class ProcessEmailThanks implements ShouldQueue
      */
     public function handle()
     {
-        if (in_array('student', $this->mailDetails['roles'])) {
+        $roles = $this->mailDetails['roles'];
+        $recipient = $this->mailDetails['recipient'];
 
+        if (in_array('student', $roles)) {
             $view = 'mail-template.thanks-email-stem-student';
             $subject = 'Earn special discount to develop your project in Singapore!';
-            $this->mailDetails['wa_text_anggie'] = 'Hello Anggie, I’m '.$this->mailDetails['recipient'].', I have attended STEM+ Wonderlab and would like to claim 100 USD discount for the Innovators-in-Residence program in Singapore. Can you give me further information about this program?';
-            $this->mailDetails['wa_text_derry'] = 'Hello Derry, I’m '.$this->mailDetails['recipient'].', I have attended STEM+ Wonderlab and would like to claim 100 USD discount for the Innovators-in-Residence program in Singapore. Can you give me further information about this program?';
-
-
-        } elseif (in_array('parent', $this->mailDetails['roles'])) {
-
+            $messageText = "Hello %s, I’m $recipient, I have attended STEM+ Wonderlab and would like to claim 100 USD discount for the Innovators-in-Residence program in Singapore. Can you give me further information about this program?";
+        } elseif (in_array('parent', $roles)) {
             $view = 'mail-template.thanks-email-stem-parent';
             $subject = 'Dapatkan diskon special untuk program kami di Singapore!';
-            $this->mailDetails['wa_text_anggie'] = 'Halo Anggie, saya '.$this->mailDetails['recipient'].', saya sudah hadir di STEM+ Wonderlab dan ingin claim 100 USD discount untuk program Innovators-in-Residence di Singapore. Apakah saya boleh diinformasikan lebih lanjut mengenai hal ini?';
-            $this->mailDetails['wa_text_derry'] = 'Halo Derry, saya '.$this->mailDetails['recipient'].', saya sudah hadir di STEM+ Wonderlab dan ingin claim 100 USD discount untuk program Innovators-in-Residence di Singapore. Apakah saya boleh diinformasikan lebih lanjut mengenai hal ini?';
-            
-
+            $messageText = "Halo %s, saya $recipient, saya sudah hadir di STEM+ Wonderlab dan ingin claim 100 USD discount untuk program Innovators-in-Residence di Singapore. Apakah saya boleh diinformasikan lebih lanjut mengenai hal ini?";
         }
 
+        // Add WhatsApp texts if role matched
+        if (isset($messageText)) {
+            $this->mailDetails['wa_text_anggie'] = sprintf($messageText, 'Anggie');
+            $this->mailDetails['wa_text_derry'] = sprintf($messageText, 'Derry');
+        }
 
         try {
-
-            # send email
-            Mail::send($view, $this->mailDetails, function ($message) use ($subject) {
+            Mail::send($view ?? '', $this->mailDetails, function ($message) use ($subject) {
                 $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
-                    ->subject($subject);
+                    ->subject($subject ?? '');
             });
+
             $sent_status = 1;
 
         } catch (Exception $e) {
-            
             $sent_status = 0;
-
         }
 
         try {
@@ -87,12 +86,11 @@ class ProcessEmailThanks implements ShouldQueue
             $logDetails = [
                 'clientevent_id' => $this->clientEventId,
                 'sent_status' => $sent_status,
-                'category' => 'thanks-mail-after'
+                'category' => 'thanks-mail-after',
             ];
 
-
-            # check if log is exists
-            # when exists then just update the sent_status
+            // check if log is exists
+            // when exists then just update the sent_status
             if ($foundLog = $this->clientEventLogMailRepository->getClientEventLogMailByClientEventIdAndCategory($this->clientEventId, 'thanks-mail-after')) {
                 Log::info($this->clientEventId.' dan '.json_encode($foundLog));
 
@@ -103,13 +101,11 @@ class ProcessEmailThanks implements ShouldQueue
                 $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
             }
 
-
         } catch (Exception $e) {
 
-            Log::error('Failed to create event log email thanks' . $e->getMessage());
+            Log::error('Failed to create event log email thanks'.$e->getMessage());
 
         }
 
-        
     }
 }

@@ -505,7 +505,7 @@
         create: true,
     });
 
-    
+
     // $("select[name=choosen_school]").select2({
     //     placeholder: "Write school name",
     //     ajax: {
@@ -519,7 +519,7 @@
 
     //             // Query parameters will be ?search=[term]
     //             return query;
-    //         }, 
+    //         },
     //         processResults: function (data) {
     //             return {
     //                 results: $.map(data, function (obj) {

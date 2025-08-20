@@ -2,14 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpFoundation\Response;
 
 class CheckForAnyExternalResource
 {
@@ -27,6 +24,7 @@ class CheckForAnyExternalResource
 
         return static::class.':'.implode(',', $resources);
     }
+
     /**
      * Handle an incoming request.
      *
@@ -36,32 +34,32 @@ class CheckForAnyExternalResource
     {
         foreach ($resources as $resource) {
 
-            switch ($resource)
-            {
-                case "timesheet":
-                    $key = "Header-ET";
+            switch ($resource) {
+                case 'timesheet':
+                    $key = 'Header-ET';
                     break;
 
-                case "editing":
-                    $key = "Header-EE";
+                case 'editing':
+                    $key = 'Header-EE';
                     break;
 
-                case "mentoring":
-                    $key = "Header-M";
+                case 'mentoring':
+                    $key = 'Header-M';
                     break;
             }
 
-            if (! $key)
+            if (! $key) {
                 throw new Exception('Invalid resource');
+            }
 
-
-            if (\App\Models\TokenLib::where('header_name', $key)->where('value', $request->header($key))->where('expires_at', '>', Carbon::now())->exists())
+            if (\App\Models\TokenLib::where('header_name', $key)->where('value', $request->header($key))->where('expires_at', '>', Carbon::now())->exists()) {
                 return $next($request);
+            }
         }
 
         throw new HttpResponseException(
             response()->json([
-                'errors' => 'Unauthorized.'
+                'errors' => 'Unauthorized.',
             ], JsonResponse::HTTP_UNAUTHORIZED)
         );
     }

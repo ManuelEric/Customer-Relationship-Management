@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\ContributionCalculation;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ContributionCalculationLeadSeeder extends Seeder
@@ -19,27 +18,27 @@ class ContributionCalculationLeadSeeder extends Seeder
             [
                 'divisi' => 'Sales',
                 'contribution_in_percent' => '33.33',
-                'contribution_to_target' => NULL,
-                'initial_consult_target' => NULL,
-                'hot_leads_target' => NULL,
-                'leads_needed' => NULL,
+                'contribution_to_target' => null,
+                'initial_consult_target' => null,
+                'hot_leads_target' => null,
+                'leads_needed' => null,
             ],
             [
                 'divisi' => 'Referral',
                 'contribution_in_percent' => '33.33',
-                'contribution_to_target' => NULL,
-                'initial_consult_target' => NULL,
-                'hot_leads_target' => NULL,
-                'leads_needed' => NULL,
+                'contribution_to_target' => null,
+                'initial_consult_target' => null,
+                'hot_leads_target' => null,
+                'leads_needed' => null,
             ],
             [
                 'divisi' => 'Digital',
                 'contribution_in_percent' => '33.33',
-                'contribution_to_target' => NULL,
-                'initial_consult_target' => NULL,
-                'hot_leads_target' => NULL,
-                'leads_needed' => NULL,
-            ]
+                'contribution_to_target' => null,
+                'initial_consult_target' => null,
+                'hot_leads_target' => null,
+                'leads_needed' => null,
+            ],
         ];
 
         ContributionCalculation::insert($seeds);

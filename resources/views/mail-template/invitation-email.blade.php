@@ -15,17 +15,17 @@
                     <td>
                         <p>Dear Mr./Mrs. {{$recipient}},</p>
                         <p>
-                            We are thrilled to share an exclusive invitation to your family as {{$notes}} guests for <b>STEM+ Wonderlab</b>, Indonesia's FIRST Student Makerspace Expo!                        
+                            We are thrilled to share an exclusive invitation to your family as {{$notes}} guests for <b>STEM+ Wonderlab</b>, Indonesia's FIRST Student Makerspace Expo!
                         </p>
                         <p style="text-align: center;">
                             <img loading="lazy"  src="https://drive.google.com/uc?id=1FnGPGz4aM0uHC7nRvmLTc9zGX0MVXvGe" width="400" height="600">
                         </p>
                         <p style="text-align: center;margin: 2.5em auto;">
                             <a class="button" href="{{ $param['link'] }}"
-                                style="background: #3b6cde; 
-                                    text-decoration: none; 
+                                style="background: #3b6cde;
+                                    text-decoration: none;
                                     padding: .6em 1.5em;
-                                    color: #ffffff; 
+                                    color: #ffffff;
                                     border-radius: 2px;
                                     mso-padding-alt:0;
                                     text-underline-color:#156ab3">
@@ -50,14 +50,14 @@
                             </li>
                         </ul>
                         <p style="text-align: center; font-size:14px; margin-top:20px">
-                            Moreover, we encourage you to take advantage of a unique offer available only to our {{$notes}} guests by <b>bringing along 3 of your friends!</b> 
+                            Moreover, we encourage you to take advantage of a unique offer available only to our {{$notes}} guests by <b>bringing along 3 of your friends!</b>
                         </p>
                         <p style="text-align: center;margin: 2.5em auto;">
                             <a class="button" href="{{ $param['referral_page'] }}"
-                                style="background: #3b6cde; 
-                                    text-decoration: none; 
+                                style="background: #3b6cde;
+                                    text-decoration: none;
                                     padding: .5em 1.5em;
-                                    color: #ffffff; 
+                                    color: #ffffff;
                                     border-radius: 2px;
                                     mso-padding-alt:0;
                                     text-underline-color:#156ab3">
@@ -66,7 +66,7 @@
                                     <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
                             </a>
                         </p>
-                        
+
                         <p>
                             Warm regards, <br>
                             ALL-in Eduspace

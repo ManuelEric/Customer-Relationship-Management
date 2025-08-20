@@ -346,7 +346,7 @@
             };
 
             var table = initializeDataTable('#rawTable', options, 'rt_school');
-            
+
             // Add a click event listener to each row in the parent DataTable
             table.on('click', 'td.dt-control', function(e) {
                 let tr = e.target.closest('tr');
@@ -361,7 +361,7 @@
                 }
             });
 
-            // Tooltip 
+            // Tooltip
             $('#rawTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',
@@ -369,7 +369,7 @@
                 });
             });
 
-            // Select All 
+            // Select All
             function selectAll() {
                 const check_number = $('input.editor-active').length;
                 const checked_number = $('input.editor-active:checked').length;

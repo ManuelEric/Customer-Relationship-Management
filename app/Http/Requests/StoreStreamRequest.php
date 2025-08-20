@@ -22,6 +22,7 @@ class StoreStreamRequest extends FormRequest
     public function rules(): array
     {
         $id = $this->input('id') ?? null;
+
         return [
             'stream_name' => 'required|string|max:255|unique:streams,stream_name,'.$id,
         ];

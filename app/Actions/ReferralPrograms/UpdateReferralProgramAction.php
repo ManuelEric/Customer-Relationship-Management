@@ -9,7 +9,9 @@ use App\Services\Program\ReferralProgramService;
 class UpdateReferralProgramAction
 {
     use CreateCustomPrimaryKeyTrait;
+
     private ReferralRepositoryInterface $referralRepository;
+
     private ReferralProgramService $referralProgramService;
 
     public function __construct(ReferralRepositoryInterface $referralRepository, ReferralProgramService $referralProgramService)
@@ -20,17 +22,17 @@ class UpdateReferralProgramAction
 
     public function execute(
         $referral_id,
-        Array $referral_details,
-    )
-    {
+        array $referral_details,
+    ) {
 
-       # Update attribute revenue by currency
-       $referral_details_updated_attribute_revenue = $this->referralProgramService->snUpdateAttributeRevenueByCurrency($referral_details);
+        // Update attribute revenue by currency
+        $referral_details_updated_attribute_revenue = $this->referralProgramService->snUpdateAttributeRevenueByCurrency($referral_details);
 
-       # Update attribute program by referral type
-       $referral_details_updated_attribute_program = $this->referralProgramService->snUpdateAttributeProgramByReferralType($referral_details_updated_attribute_revenue);
+        // Update attribute program by referral type
+        $referral_details_updated_attribute_program = $this->referralProgramService->snUpdateAttributeProgramByReferralType($referral_details_updated_attribute_revenue);
 
-       $updated_referral_program = $this->referralRepository->updateReferral($referral_id, $referral_details_updated_attribute_program);
-       return $updated_referral_program;
+        $updated_referral_program = $this->referralRepository->updateReferral($referral_id, $referral_details_updated_attribute_program);
+
+        return $updated_referral_program;
     }
 }

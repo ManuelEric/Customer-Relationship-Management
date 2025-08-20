@@ -4,19 +4,19 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Actions\Meta\Handler as HandlerMetaLeads;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CallbackController extends Controller
 {
-
     // Your Facebook App Credentials
     protected $app_id;
+
     protected $app_secret;
+
     protected $access_token;
+
     protected HandlerMetaLeads $handlerMetaLeads;
 
     public function __construct(HandlerMetaLeads $handlerMetaLeads)
@@ -40,11 +40,13 @@ class CallbackController extends Controller
         // Verify the token matches what you expect
         if ($mode === 'subscribe' && $verify_token === $verify_token_received) {
             // Return the challenge code to complete the verification
-            Log::info('[META API] Verification success : ' . $challenge);
+            Log::info('[META API] Verification success : '.$challenge);
+
             return response($challenge);
         } else {
             // If the verification fails
             Log::error('[META API] Verification failed.');
+
             return response('Verification failed.', 400);
         }
     }
@@ -54,7 +56,7 @@ class CallbackController extends Controller
         // Log request data
         $log_data = [
             'raw_post_data' => $request->getContent(),
-            'headers' => $request->headers->all()
+            'headers' => $request->headers->all(),
         ];
 
         // Extract Leadgen ID from the POST data
@@ -73,17 +75,17 @@ class CallbackController extends Controller
     public function processLeadgenData($leadgen_id, $form_id)
     {
         // Check if the access token is valid
-        if (!$this->isAccessTokenValid($this->access_token)) {
+        if (! $this->isAccessTokenValid($this->access_token)) {
             $this->access_token = $this->refreshAccessToken();
         }
 
         $form = Http::get("https://graph.facebook.com/v17.0/{$form_id}", [
-            'access_token' => $this->access_token
+            'access_token' => $this->access_token,
         ]);
 
         // Call Facebook Graph API to fetch lead data
         $response = Http::get("https://graph.facebook.com/v17.0/{$leadgen_id}", [
-            'access_token' => $this->access_token
+            'access_token' => $this->access_token,
         ]);
 
         if ($response->successful()) {
@@ -92,7 +94,7 @@ class CallbackController extends Controller
             Log::notice('[META API] Lead received successfully', ['Form' => $form->json(), 'Lead' => $response->json()['field_data']]);
 
         } else {
-            Log::error("Error fetching lead data: " . $response->body());
+            Log::error('Error fetching lead data: '.$response->body());
         }
     }
 
@@ -116,7 +118,8 @@ class CallbackController extends Controller
             return $response->json()['access_token'];
         }
 
-        Log::error("Error refreshing access token: " . $response->body());
+        Log::error('Error refreshing access token: '.$response->body());
+
         return null;
     }
 }

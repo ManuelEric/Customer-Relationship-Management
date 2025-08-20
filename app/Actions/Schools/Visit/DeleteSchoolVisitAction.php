@@ -15,11 +15,10 @@ class DeleteSchoolVisitAction
 
     public function execute(
         $visit_id
-    )
-    {
+    ) {
         $school_visit = $this->schoolVisitRepository->getSchoolVisitById($visit_id);
-        
-        # Delete schoil visit
+
+        // Delete schoil visit
         $this->schoolVisitRepository->deleteSchoolVisit($visit_id);
 
         return $school_visit;

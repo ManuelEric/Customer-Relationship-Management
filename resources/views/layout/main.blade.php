@@ -62,7 +62,7 @@
                         @elseif ($isFinance)
                             {{ url('dashboard/finance/outstanding-payment') }}">
                         @endif
-                    
+
                         <img loading="lazy"  src="{{ asset('img/logo.webp') }}" alt="logo" class="h-auto" />
                     </a>
                     <a class="navbar-brand brand-logo-mini" href="
@@ -75,7 +75,7 @@
                         @elseif ($isFinance)
                             {{ url('dashboard/finance/outstanding-payment') }}">
                         @endif
-                    
+
                         <img loading="lazy"  src="{{ asset('library/dashboard/images/logo-mini.svg') }}" alt="logo" />
                     </a>
                 </div>
@@ -541,7 +541,7 @@
                     $('#cancel_follow_up_notes').modal('hide')
                 }
 
-                // function that change followup status to 1 
+                // function that change followup status to 1
                 $("#btn-submit-followup").click(function(e) {
                     e.preventDefault()
                     e.stopPropagation()

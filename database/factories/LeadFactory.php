@@ -21,7 +21,7 @@ class LeadFactory extends Factory
     {
         $maxLead = Lead::max('lead_id');
         $subStr = substr($maxLead, 3);
-        $leadId = "LS". $subStr + 1;
+        $leadId = 'LS'.$subStr + 1;
         $department = Department::inRandomOrder()->first();
 
         return [
@@ -34,8 +34,8 @@ class LeadFactory extends Factory
             'note' => null,
             'status' => 1,
             'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-            
+            'updated_at' => Carbon::now(),
+
         ];
     }
 }

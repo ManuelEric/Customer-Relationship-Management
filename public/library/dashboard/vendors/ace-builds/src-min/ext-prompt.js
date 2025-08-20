@@ -5,4 +5,3 @@ define("ace/ext/menu_tools/get_editor_keyboard_shortcuts",["require","exports","
                         }
                     });
                 })();
-            

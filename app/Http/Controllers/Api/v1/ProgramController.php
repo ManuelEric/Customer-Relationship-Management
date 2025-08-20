@@ -28,11 +28,11 @@ class ProgramController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $programs
+            'data' => $programs,
         ]);
     }
 
-    public function getSubProgramNameByMainProgramId(MainProg $main_prog): JsonResponse 
+    public function getSubProgramNameByMainProgramId(MainProg $main_prog): JsonResponse
     {
         try {
 
@@ -40,7 +40,7 @@ class ProgramController extends Controller
             return response()->json($main_prog->subProgram()->where('sub_prog_status', 1)->get());
         } catch (Exception $err) {
             return response()->json([
-                'message' => $err->getMessage()
+                'message' => $err->getMessage(),
             ], 500);
         }
     }
@@ -57,7 +57,7 @@ class ProgramController extends Controller
             return response()->json($result);
         } catch (Exception $err) {
             return response()->json([
-                'message' => $err->getMessage()
+                'message' => $err->getMessage(),
             ], 500);
         }
     }

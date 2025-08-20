@@ -3,8 +3,8 @@
 namespace App\Repositories;
 
 use App\Interfaces\VendorRepositoryInterface;
-use App\Models\Vendor;
 use App\Models\v1\Vendor as V1Vendor;
+use App\Models\Vendor;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -46,42 +46,42 @@ class VendorRepository implements VendorRepositoryInterface
     {
         Vendor::where('vendor_address', '=', '')->update(
             [
-                'vendor_address' => null
+                'vendor_address' => null,
             ]
         );
 
         Vendor::where('vendor_phone', '=', '')->update(
             [
-                'vendor_phone' => null
+                'vendor_phone' => null,
             ]
         );
 
         Vendor::where('vendor_material', '=', '')->update(
             [
-                'vendor_material' => null
+                'vendor_material' => null,
             ]
         );
 
         Vendor::where('vendor_size', '=', '')->update(
             [
-                'vendor_size' => null
+                'vendor_size' => null,
             ]
         );
 
         Vendor::where('vendor_processingtime', '=', '')->update(
             [
-                'vendor_processingtime' => null
+                'vendor_processingtime' => null,
             ]
         );
 
         Vendor::where('vendor_notes', '=', '')->update(
             [
-                'vendor_notes' => null
+                'vendor_notes' => null,
             ]
         );
     }
 
-    # CRM
+    // CRM
     public function getAllVendorFromCRM()
     {
         return V1Vendor::select([

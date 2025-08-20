@@ -17,24 +17,24 @@ use App\Models\School;
 use App\Models\UserClient;
 use Exception;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class Handler
 {
-    use PrefixSeparatorMeta, StandardizePhoneNumberTrait, SyncClientTrait, CheckExistingClientImport, GetGradeAndGraduationYear, CreateCustomPrimaryKeyTrait;
+    use CheckExistingClientImport, CreateCustomPrimaryKeyTrait, GetGradeAndGraduationYear, PrefixSeparatorMeta, StandardizePhoneNumberTrait, SyncClientTrait;
 
     public function execute($form_details, $leads)
     {
-        // FORM NAME 
+        // FORM NAME
         $form_name = $form_details['name'];
         $prefix = $this->getPrefix($form_name);
         if (
-            $prefix == 'NA' # prefix that supposed to be not inserted to CRM
-            || strlen($prefix) > 3 # if getPrefix() doesn't return prefix, then return false. let's say meta leads form named "automated chat 24/03/2025", instead of getting the prefix code, we got the whole words so in order to stop this kind of form name. then we're using strlen()
-        )
+            $prefix == 'NA' // prefix that supposed to be not inserted to CRM
+            || strlen($prefix) > 3 // if getPrefix() doesn't return prefix, then return false. let's say meta leads form named "automated chat 24/03/2025", instead of getting the prefix code, we got the whole words so in order to stop this kind of form name. then we're using strlen()
+        ) {
             return;
+        }
 
         $identifier = $this->getIdentifier($form_name);
 
@@ -69,7 +69,7 @@ class Handler
             $parent = $this->checkExistingClientImport($incoming_data['parent_phone'], $incoming_data['parent_email']);
             if (! $parent['isExist']) {
                 /**
-                 * preparing the data for raw data 
+                 * preparing the data for raw data
                  */
                 $parentName = $this->explodeName($incoming_data['parent_name']);
 
@@ -78,7 +78,7 @@ class Handler
                     'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
                     'mail' => $incoming_data['parent_email'],
                     'phone' => $this->tnNormalizePhoneNumber($incoming_data['parent_phone']),
-                    'lead_id' => 'LS045', # facebook ads
+                    'lead_id' => 'LS045', // facebook ads
                     'utm_content' => $identifier['utm_content'],
                 ];
 
@@ -89,7 +89,6 @@ class Handler
             } else {
                 $parent = UserClient::withTrashed()->where('id', $parent['id'])->first();
             }
-
 
             /**
              * check if the children is exists
@@ -102,11 +101,13 @@ class Handler
                     $selected_child = $child['client'];
                 } elseif (! $child['isExist']) {
                     $childName = $this->explodeName($incoming_data['child_name']);
-                    if (! $childSchool = School::where('sch_name', $incoming_data['child_school'])->first())
+                    if (! $childSchool = School::where('sch_name', $incoming_data['child_school'])->first()) {
                         $childSchool = $this->createSchoolIfNotExists($incoming_data['child_school']);
+                    }
 
-                    if (isset($incoming_data['child_graduation_year']))
+                    if (isset($incoming_data['child_graduation_year'])) {
                         $st_grade = $this->getGradeByGraduationYear($incoming_data['child_graduation_year']);
+                    }
 
                     $childDetails = [
                         'first_name' => $childName['firstname'],
@@ -130,7 +131,7 @@ class Handler
              * insert interested program or client event
              */
             switch ($prefix) {
-                case "PR":
+                case 'PR':
                     if ($selected_child) {
                         $interest_program_details[] = [
                             'prog_id' => $identifier['program_id'],
@@ -142,21 +143,20 @@ class Handler
                     }
                     break;
 
-                case "EV":
+                case 'EV':
                     $client_event_details = [
-                        'ticket_id' => NULL,
+                        'ticket_id' => null,
                         'client_id' => $parent->id,
-                        'child_id' => $selected_child ? $selected_child->id : NULL,
+                        'child_id' => $selected_child ? $selected_child->id : null,
                         'event_id' => $identifier['program_id'],
-                        'lead_id' => 'LS045', # facebook ads
+                        'lead_id' => 'LS045', // facebook ads
                         'registration_type' => 'PR',
-                        'number_of_attend' => 1
+                        'number_of_attend' => 1,
                     ];
 
                     ClientEvent::create($client_event_details);
                     break;
             }
-
 
             /**
              * insert into client log
@@ -167,10 +167,10 @@ class Handler
                     'client_id' => $selected_child->id,
                     'first_name' => $selected_child->first_name,
                     'last_name' => $selected_child->last_name,
-                    'lead_source' => 'LS045', # facebook ads
+                    'lead_source' => 'LS045', // facebook ads
                     'utm_content' => $identifier['utm_content'],
                     'inputted_from' => 'facebook-api',
-                    'clientprog_id' => null
+                    'clientprog_id' => null,
                 ];
 
                 ProcessInsertLogClient::dispatch($log_client_details)->onQueue('insert-log-client');

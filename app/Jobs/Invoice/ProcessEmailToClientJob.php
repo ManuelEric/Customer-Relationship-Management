@@ -4,21 +4,19 @@ namespace App\Jobs\Invoice;
 
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 // class ProcessEmailToClientJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
-# Temporary not implementation "ShouldBeUniqueUntilProcessing"
-# Because it makes the job not dispatch successfully
-# "ShouldBeUniqueUntilProcessing" is used for preventive action if the request clicks more than once
+// Temporary not implementation "ShouldBeUniqueUntilProcessing"
+// Because it makes the job not dispatch successfully
+// "ShouldBeUniqueUntilProcessing" is used for preventive action if the request clicks more than once
 
 class ProcessEmailToClientJob implements ShouldQueue
 {
@@ -26,11 +24,15 @@ class ProcessEmailToClientJob implements ShouldQueue
     use IsMonitored;
 
     protected $mailDetails;
+
     protected $attachment;
+
     protected $invoiceAttachmentRepository;
+
     public $invoiceId;
 
     public $tries = 3;
+
     public $timeout = 120;
 
     // Priority levels: high, default, low
@@ -70,12 +72,12 @@ class ProcessEmailToClientJob implements ShouldQueue
             $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
                 ->cc($this->mailDetails['cc'])
                 ->subject($this->mailDetails['title'])
-                ->attach(Storage::url('invoice/client/' . $this->attachment->attachment));
+                ->attach(Storage::url('invoice/client/'.$this->attachment->attachment));
         });
-        
-        # update status send to client
+
+        // update status send to client
         $newDetails['send_to_client'] = 'sent';
-        
+
         $this->invoiceAttachmentRepository->updateInvoiceAttachment($this->attachment->id, $newDetails);
     }
 }

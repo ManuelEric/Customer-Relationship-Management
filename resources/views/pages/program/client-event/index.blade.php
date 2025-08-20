@@ -278,7 +278,7 @@
                                 var intoURLParam = intoURLParam.replace('counsellor', 'counselor');
                                 URL = "{{ url('/') }}/client/" + intoURLParam + "/" + row
                                     .client_id;
-                            } 
+                            }
 
                             return "<a class='text-dark text-decoration-none' href='" + URL + "'>" +
                                 data + "</a>" + (existing == true ?
@@ -472,7 +472,7 @@
                         notification('error', 'Ooops! Something went wrong. Please try again.')
                     })
 
-                // merubah value status 
+                // merubah value status
                 this.value = status == 1 ? 0 : 1
 
             });

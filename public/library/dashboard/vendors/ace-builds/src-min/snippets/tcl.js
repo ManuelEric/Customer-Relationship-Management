@@ -5,4 +5,3 @@ define("ace/snippets/tcl",["require","exports","module"],function(e,t,n){"use st
                         }
                     });
                 })();
-            

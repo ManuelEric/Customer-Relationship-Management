@@ -87,7 +87,7 @@
                         data: 'number_of_student',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return '<i class="bi bi-person text-success me-2"></i>' + data 
+                            return '<i class="bi bi-person text-success me-2"></i>' + data
                         }
                     },
                     {

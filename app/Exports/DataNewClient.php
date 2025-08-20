@@ -5,21 +5,19 @@ namespace App\Exports;
 use App\Models\Client;
 use App\Models\SubProg;
 use Carbon\Carbon;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-
-class DataNewClient implements FromArray, WithHeadings, WithTitle, WithColumnFormatting, WithStyles
+class DataNewClient implements FromArray, WithColumnFormatting, WithHeadings, WithStyles, WithTitle
 {
     /**
      * @return \Illuminate\Support\Collection
      */
-
     use Exportable;
 
     public function headings(): array
@@ -33,16 +31,16 @@ class DataNewClient implements FromArray, WithHeadings, WithTitle, WithColumnFor
             'Spesific Concern',
             'Phone Number',
             'Client Status',
-            'Status', # default 'Qualified'
-            '$ Fund', # default 'No'
-            'Lead Source', # Referral / Other
-            'Register By', # default student
-            'Major', # decided / undecided
-            'Already Joined', # default '-'
-            'Is there any upcoming seasonal program?', # default 'no'
-            'Seasonal Program', # default '-'
-            'Month Year', # Format (Y-m) value now()
-            'Lead From' # default sales
+            'Status', // default 'Qualified'
+            '$ Fund', // default 'No'
+            'Lead Source', // Referral / Other
+            'Register By', // default student
+            'Major', // decided / undecided
+            'Already Joined', // default '-'
+            'Is there any upcoming seasonal program?', // default 'no'
+            'Seasonal Program', // default '-'
+            'Month Year', // Format (Y-m) value now()
+            'Lead From', // default sales
         ];
 
         return $columns;
@@ -53,7 +51,6 @@ class DataNewClient implements FromArray, WithHeadings, WithTitle, WithColumnFor
         $clients = Client::doesntHave('clientProgram')->whereHas('roles', function ($subQuery) {
             $subQuery->where('role_name', 'student');
         })->orderBy('created_at', 'desc')->get();
-
 
         $arrClient = [];
 
@@ -90,17 +87,16 @@ class DataNewClient implements FromArray, WithHeadings, WithTitle, WithColumnFor
                 $major = 'Decided';
             }
 
-
             $arrClient[$key] = [
                 $key + 1,
-                $client->first_name . ' ' . $client->last_name,
-                !isset($client->school) ? '-' : (isset($client->school->sch_type) ? $client->school->sch_type : '-'),
+                $client->first_name.' '.$client->last_name,
+                ! isset($client->school) ? '-' : (isset($client->school->sch_type) ? $client->school->sch_type : '-'),
                 $graduationYear,
                 $destinationContries,
                 $spesificConcern,
                 $client->phone,
                 'New',
-                $client->phone == null || $client->phone == '' ? 'Not Qualified' : 'Qualified',
+                empty($client->phone) ? 'Not Qualified' : 'Qualified',
                 'No',
                 $client->lead == null ? 'Other' : ($client->lead->main_lead == 'Referral' ? 'Referral' : 'Other'),
                 'Student',
@@ -109,10 +105,9 @@ class DataNewClient implements FromArray, WithHeadings, WithTitle, WithColumnFor
                 'No',
                 '-',
                 Carbon::now()->format('Y-m'),
-                'Sales'
+                'Sales',
             ];
         }
-
 
         return $arrClient;
     }
@@ -131,7 +126,7 @@ class DataNewClient implements FromArray, WithHeadings, WithTitle, WithColumnFor
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('A1:R1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'D9D9D9'],]);
+        $sheet->getStyle('A1:R1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'D9D9D9']]);
         $sheet->getStyle('A1:R1')->getFont()->setSize(14);
         foreach ($sheet->getColumnIterator() as $column) {
             $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);

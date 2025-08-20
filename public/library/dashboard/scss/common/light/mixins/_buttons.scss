@@ -9,7 +9,7 @@
   }
   &.btn-social-icon-text {
     padding: 0 1.5rem 0 0;
-    background: lighten($color, 10%); 
+    background: lighten($color, 10%);
     i {
       background: $color;
       padding: .75rem;
@@ -30,17 +30,17 @@ color: $color;
 background: $color;
 color: $white;
 &.btn-light,
-&.btn-secondary { 
-  color: $dark;      
+&.btn-secondary {
+  color: $dark;
 }
 &:hover,
-&:focus { 
+&:focus {
   background: darken($color, 10%);
   color: $white;
 }
 &.btn-social-icon-text {
   padding: 0 1.5rem 0 0;
-  background: lighten($color, 10%); 
+  background: lighten($color, 10%);
   i {
     background: $color;
     padding: .75rem;
@@ -64,10 +64,10 @@ color: $white;
   background-image: none;
   border-color: rgba($color, 0);
   &:not(.btn-inverse-light) {
-    color: $color;      
+    color: $color;
   }
-  &.btn-inverse-secondary { 
-    color: $dark;      
+  &.btn-inverse-secondary {
+    color: $dark;
   }
   // @include hover {
   //   color: $color-hover;

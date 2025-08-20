@@ -8,6 +8,58 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
+/**
+ * @property string $univ_id
+ * @property string|null $univ_name
+ * @property string|null $univ_address
+ * @property int|null $univ_country
+ * @property string|null $univ_email
+ * @property string|null $univ_phone
+ * @property string|null $early_action Early application (early action)
+ * @property string|null $early_decision Early application (early decision)
+ * @property string|null $regular_deadline Regular Deadline
+ * @property string|null $univ_requirement_link
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerProg> $asCollaboratorInPartnerProgram
+ * @property-read int|null $as_collaborator_in_partner_program_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SchoolProg> $asCollaboratorInSchoolProgram
+ * @property-read int|null $as_collaborator_in_school_program_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UserClient> $client
+ * @property-read int|null $client_count
+ * @property-read \App\Models\UnivCountry|null $country
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Event> $events
+ * @property-read int|null $events_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UniversityPic> $pic
+ * @property-read int|null $pic_count
+ * @property-read \App\Models\MasterCountry|null $tags
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $trackedUniversityAcceptanceFromClient
+ * @property-read int|null $tracked_university_acceptance_from_client_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UserClient> $trackedUniversityAcceptanceFromUserClient
+ * @property-read int|null $tracked_university_acceptance_from_user_client_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $user
+ * @property-read int|null $user_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University search($search)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereEarlyAction($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereEarlyDecision($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereRegularDeadline($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereUnivAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereUnivCountry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereUnivEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereUnivId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereUnivName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereUnivPhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereUnivRequirementLink($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|University withAndWhereHas($relation, $constraint)
+ *
+ * @mixin \Eloquent
+ */
 class University extends Model
 {
     use HasFactory;
@@ -21,7 +73,7 @@ class University extends Model
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'univ_id',
@@ -36,7 +88,7 @@ class University extends Model
         'regular_deadline',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -86,7 +138,9 @@ class University extends Model
 
     public static function whereUniversityId($id)
     {
-        if (is_array($id) && empty($id)) return new Collection;
+        if (is_array($id) && empty($id)) {
+            return new Collection;
+        }
 
         $instance = new static;
 
@@ -100,7 +154,7 @@ class University extends Model
         );
     }
 
-    # helper
+    // helper
     public static function trim($string)
     {
         return $string = trim(preg_replace('/\s\s+/', ' ', $string));
@@ -119,7 +173,7 @@ class University extends Model
     {
         $terms = $search['terms'] ?? null;
         $query->when($terms, function ($query) use ($terms) {
-            $query->where('univ_name', 'like', '%' . $terms . '%');
+            $query->where('univ_name', 'like', '%'.$terms.'%');
         });
     }
 

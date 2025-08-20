@@ -33,26 +33,47 @@ class DashboardService
     use GetClientStatusTrait;
 
     protected UserRepositoryInterface $userRepository;
+
     protected ClientProgramRepositoryInterface $clientProgramRepository;
+
     protected SalesTargetRepositoryInterface $salesTargetRepository;
+
     protected ProgramRepositoryInterface $programRepository;
+
     protected EventRepositoryInterface $eventRepository;
+
     protected ClientEventRepositoryInterface $clientEventRepository;
+
     protected ClientRepositoryInterface $clientRepository;
+
     protected FollowupRepositoryInterface $followupRepository;
+
     protected CorporateRepositoryInterface $corporateRepository;
+
     protected SchoolRepositoryInterface $schoolRepository;
+
     protected UniversityRepositoryInterface $universityRepository;
+
     protected PartnerAgreementRepositoryInterface $partnerAgreementRepository;
+
     protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
+
     protected PartnerProgramRepositoryInterface $partnerProgramRepository;
+
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
+
     protected ReferralRepositoryInterface $referralRepository;
+
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
+
     protected ReceiptRepositoryInterface $receiptRepository;
+
     protected RefundRepositoryInterface $refundRepository;
+
     protected LeadRepositoryInterface $leadRepository;
+
     protected LeadTargetRepositoryInterface $leadTargetRepository;
 
     public function __construct(
@@ -107,43 +128,42 @@ class DashboardService
         $this->followupRepository = $followupRepository;
     }
 
-
     public function snSalesDashboard(array $filter, $tab = 'client-program')
     {
-        # INITIALIZE PARAMETERS START
+        // INITIALIZE PARAMETERS START
         $date_details = [
             'start' => $filter['start'],
             'end' => $filter['end'],
         ];
-        $program_id = $filter['program_id']; # means all programs
+        $program_id = $filter['program_id']; // means all programs
         $events = null;
-        # INITIALIZE PARAMETERS END
+        // INITIALIZE PARAMETERS END
 
-        # fetching client status data
+        // fetching client status data
         $response_of_client_status = $this->clientStatus(Carbon::now()->format('Y-m'));
 
-        # fetching all employee data
+        // fetching all employee data
         $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('employee', 'Client Management');
 
         // Displaying content based on the active tab
         switch ($tab) {
             case 'sales-target':
-                # fetching the target sales
+                // fetching the target sales
                 $sales_target = $this->salesTargetRepository->getMonthlySalesTarget($program_id, $filter);
 
-                # fetching the actual sales
+                // fetching the actual sales
                 $sales_actual = $this->salesTargetRepository->getMonthlySalesActual($program_id, $filter);
 
-                # fetching the detail of target sales & actual sales by month
+                // fetching the detail of target sales & actual sales by month
                 $sales_detail = $this->salesTargetRepository->getSalesDetail($program_id, $filter);
 
                 break;
 
             case 'program-comparison':
-                # fetching all programs for a list that can be choose by user
+                // fetching all programs for a list that can be choose by user
                 $all_programs = $this->programRepository->getAllPrograms()->groupBy('main_prog.prog_name');
 
-                # fetching all programs including revenue per program yearly
+                // fetching all programs including revenue per program yearly
                 $comparisons = $this->clientProgramRepository->getComparisonBetweenYears($filter);
 
                 break;
@@ -154,70 +174,69 @@ class DashboardService
                     $filter['eventId'] = $events[0]->event_id;
                 }
 
-                # fetching conversion lead by client event
+                // fetching conversion lead by client event
                 $conversion_lead_of_event = $this->clientEventRepository->getConversionLead($filter);
                 break;
 
             case 'client-program':
-                # fetching chart data by no program (all)
+                // fetching chart data by no program (all)
                 $total_all_client_program_by_status = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => null] + $filter);
 
-
-                # fetching chart data by admission mentoring
+                // fetching chart data by admission mentoring
                 $admissions_mentoring = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Admissions Mentoring'] + $filter);
 
-                # fetching chart data by initial consultation
+                // fetching chart data by initial consultation
                 $initial_consultation = $this->clientProgramRepository->getInitialConsultationInformation($filter);
 
-                # sum total initial consultation by summing the data
+                // sum total initial consultation by summing the data
                 $total_initial_consultation = array_sum($initial_consultation);
 
-                # fetching only already from initial consultation chart data
+                // fetching only already from initial consultation chart data
                 $already = $initial_consultation[1];
 
-                # fetching only success program from initial consultation chart data
+                // fetching only success program from initial consultation chart data
                 $success_program = $initial_consultation[2];
 
-                # get initial assessment making (average days)
+                // get initial assessment making (average days)
                 $initial_assessment_making = $this->clientProgramRepository->getInitialMaking($date_details, $filter);
 
-                # get conversion time progress (average days)
+                // get conversion time progress (average days)
                 $conversion_time_progress = $this->clientProgramRepository->getConversionTimeProgress($date_details, $filter);
 
-                # get initial consultation success percentage 
+                // get initial consultation success percentage
                 $success_percentage = $success_program == 0 ? 0 : ($success_program / $total_initial_consultation) * 100;
 
-                # get total revenue of admission mentoring program
+                // get total revenue of admission mentoring program
                 $total_revenue_adm_mentoring_by_program_and_month = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $filter);
 
-                # fetching successful programs
+                // fetching successful programs
                 $all_success_program_by_month = $this->clientProgramRepository->getSuccessProgramByMonth($filter);
 
-                # fetching chart data by academic & test preparation program
+                // fetching chart data by academic & test preparation program
                 $academic_test_prep = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Academic & Test Preparation'] + $filter);
 
-                # get total revenue by academic & test preparation program
+                // get total revenue by academic & test preparation program
                 $total_revenue_acad_test_prep_by_month = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Academic & Test Preparation'] + $filter);
 
-                # fetching chart data by career exploration program
+                // fetching chart data by career exploration program
                 $career_exploration = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Career Exploration'] + $filter);
 
-                # get total revenue by career exploration program
+                // get total revenue by career exploration program
                 $total_revenue_career_exploration_by_month = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Career Exploration'] + $filter);
 
-                # fetching chart data of lead source as a whole (admission mentoring, academic & test preparation, career exploration)
+                // fetching chart data of lead source as a whole (admission mentoring, academic & test preparation, career exploration)
                 $lead_source = $this->clientProgramRepository->rnGetLeadSource($date_details, $filter);
 
-                # fetching chart data of conversion leads as a whole (admission mentoring, academic & test preparation, career exploration)
+                // fetching chart data of conversion leads as a whole (admission mentoring, academic & test preparation, career exploration)
                 $conversion_leads = $this->clientProgramRepository->rnGetConversionLead($date_details, $filter);
 
-                # fetching chart data of conversion lead by admission mentoring program
+                // fetching chart data of conversion lead by admission mentoring program
                 $admission_mentoring_conv_lead = $this->clientProgramRepository->rnGetConversionLead($date_details, $filter + ['prog' => 'Admissions Mentoring']);
 
-                # fetching chart data of conversion lead by academic & test preparation program
+                // fetching chart data of conversion lead by academic & test preparation program
                 $academic_test_prep_conv_lead = $this->clientProgramRepository->rnGetConversionLead($date_details, $filter + ['prog' => 'Academic & Test Preparation']);
 
-                # fetching chart data of conversion lead by career exploration program
+                // fetching chart data of conversion lead by career exploration program
                 $career_exploration_conv_lead = $this->clientProgramRepository->rnGetConversionLead($date_details, $filter + ['prog' => 'Career Exploration']);
 
                 break;
@@ -225,7 +244,7 @@ class DashboardService
 
         return $response_of_client_status + [
 
-            # client program tab
+            // client program tab
             'employees' => $employees ?? null,
             'client_program_group_by_status' => $total_all_client_program_by_status ?? [],
             'admissions_mentoring' => $admissions_mentoring ?? [],
@@ -248,16 +267,16 @@ class DashboardService
             'academic_test_prep_conv_lead' => $academic_test_prep_conv_lead ?? [],
             'career_exploration_conv_lead' => $career_exploration_conv_lead ?? [],
 
-            # sales target tab
+            // sales target tab
             'sales_target' => $sales_target ?? [],
             'sales_actual' => $sales_actual ?? [],
             'sales_detail' => $sales_detail ?? null,
 
-            # program comparison
+            // program comparison
             'all_programs' => $all_programs ?? [],
             'comparisons' => $comparisons ?? [],
 
-            # client event tab
+            // client event tab
             'events' => $events ?? [null],
             'conversion_lead_of_event' => $conversion_lead_of_event ?? [null],
         ];
@@ -286,7 +305,7 @@ class DashboardService
 
             case 'partner-program':
                 // Tab Partnership
-                $partner_programs = $this->partnerProgramRepository->getAllPartnerProgramByStatusAndMonth(0, date('Y-m')); # display default partnership program (status pending)
+                $partner_programs = $this->partnerProgramRepository->getAllPartnerProgramByStatusAndMonth(0, date('Y-m')); // display default partnership program (status pending)
 
                 break;
 
@@ -303,7 +322,7 @@ class DashboardService
                 break;
 
             case 'client-event':
-                # on client event tab
+                // on client event tab
                 $cp_filter['qyear'] = 'current';
                 $events = null;
                 if ($this->eventRepository->getEventsWithParticipants($cp_filter)->count() > 0) {
@@ -328,16 +347,17 @@ class DashboardService
             'speakerToday' => $speaker_today ?? [],
             'partnerPrograms' => $partner_programs ?? [],
             'programComparisons' => $program_comparisons ?? [],
-            # client event tab
+            // client event tab
             'events' => $events ?? [],
             'conversion_lead_of_event' => $conversion_lead_of_event ?? [],
-            'totalUncompleteSchool' => $uncomplete_schools->count()
+            'totalUncompleteSchool' => $uncomplete_schools->count(),
         ];
     }
 
     protected function fnPartnershipProgramComparisonMerger($schoolProgram, $partnerProgram, $referral)
     {
         $collection = collect($schoolProgram);
+
         return $collection->merge($partnerProgram)->merge($referral);
     }
 
@@ -345,16 +365,15 @@ class DashboardService
     {
         return $data->mapToGroups(function ($item, $key) {
             return [
-                $item['program_name'] . ' - ' . $item['type'] => [
+                $item['program_name'].' - '.$item['type'] => [
                     'program_name' => $item['program_name'],
                     'type' => $item['type'],
                     'year' => $item['year'],
 
-                    $item['year'] =>
-                    [
+                    $item['year'] => [
                         'participants' => $item['participants'],
                         'total' => $item['total'],
-                    ]
+                    ],
                 ],
             ];
         });
@@ -376,7 +395,6 @@ class DashboardService
 
         $paid_payments = collect($paid_payment_b2b)->merge($paid_payment_b2c);
 
-
         $unpaid_payment_b2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment(date('Y-m'), 'unpaid', null, null);
         $unpaid_payment_b2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment(date('Y-m'), 'unpaid');
 
@@ -392,12 +410,12 @@ class DashboardService
 
         $total_invoice[0] = [
             'count_invoice' => count($total_invoice_b2b) + count($total_invoice_b2b),
-            'total' => $total_invoice_b2b->where('invb2b_pm', 'Full Payment')->sum('invb2b_totpriceidr') + $total_invoice_b2b->where('invb2b_pm', 'Installment')->sum('invdtl_amountidr')
+            'total' => $total_invoice_b2b->where('invb2b_pm', 'Full Payment')->sum('invb2b_totpriceidr') + $total_invoice_b2b->where('invb2b_pm', 'Installment')->sum('invdtl_amountidr'),
         ];
 
         $total_invoice[1] = [
             'count_invoice' => count($total_invoice_b2c),
-            'total' => $total_invoice_b2c->where('inv_paymentmethod', 'Full Payment')->sum('inv_totalprice_idr') + $total_invoice_b2c->where('inv_paymentmethod', 'Installment')->sum('invdtl_amountidr')
+            'total' => $total_invoice_b2c->where('inv_paymentmethod', 'Full Payment')->sum('inv_totalprice_idr') + $total_invoice_b2c->where('inv_paymentmethod', 'Installment')->sum('invdtl_amountidr'),
         ];
 
         switch ($tab) {
@@ -420,7 +438,7 @@ class DashboardService
 
         return [
             'invoiceNeededToday' => count($total_invoice_needed->where('success_date', date('Y-m-d'))),
-            'outstandingToday' => count($unpaid_payments->where('invoice_duedate', date('Y-m-d', strtotime("-3 days")))),
+            'outstandingToday' => count($unpaid_payments->where('invoice_duedate', date('Y-m-d', strtotime('-3 days')))),
             'refundRequestToday' => count($total_refund_request->where('refund_date', date('Y-m-d'))),
             'totalInvoiceNeeded' => count($total_invoice_needed),
             'totalInvoice' => $total_invoice,
@@ -442,7 +460,7 @@ class DashboardService
         $today = Carbon::now()->format('Y-m-d');
         $currMonth = date('m');
 
-        # List Lead Source 
+        // List Lead Source
         $leads = $this->leadRepository->getAllLead();
 
         $lead_data_from_digital = $this->leadTargetRepository->getLeadDigital($today, $prog_id ?? null);
@@ -466,18 +484,18 @@ class DashboardService
 
     private function fnDashboardMappingDigitalDataLead($leads, $dataLead, $type)
     {
-        $data = new Collection();
+        $data = new Collection;
         foreach ($leads as $lead) {
             if ($type == 'Lead Source') {
                 $count = $dataLead->where('client.lead_id', $lead->lead_id)->count();
-            } else if ($type == 'Conversion Lead') {
+            } elseif ($type == 'Conversion Lead') {
                 $count = $dataLead->where('lead_id', $lead->lead_id)->count();
             }
 
             if ($count > 0) {
                 $data->push([
                     'lead_id' => $lead->lead_id,
-                    'lead_name' => $lead->main_lead . ($lead->sub_lead  != null ? ' - ' . $lead->sub_lead : ''),
+                    'lead_name' => $lead->main_lead.($lead->sub_lead != null ? ' - '.$lead->sub_lead : ''),
                     'count' => $count,
 
                 ]);

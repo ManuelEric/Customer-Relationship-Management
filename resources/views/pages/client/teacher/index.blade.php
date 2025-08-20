@@ -182,13 +182,13 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<div class="d-flex gap-1 justify-content-center">' + 
+                        defaultContent: '<div class="d-flex gap-1 justify-content-center">' +
                                 '<button type="button" class="btn btn-sm btn-outline-warning editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>' +
                                 '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                 'data-bs-custom-class="custom-tooltip" ' +
                                 'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer deleteClient">' +
                                 '<i class="bi bi-trash"></i>' +
-                                '</small>' + 
+                                '</small>' +
                             '</div>'
                     }
                 ],
@@ -218,7 +218,7 @@
                 table.button(1).disable();
             @endif
 
-            // Tooltip 
+            // Tooltip
             $('#clientTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',
@@ -226,7 +226,7 @@
                 });
             });
 
-            // Change Active Status 
+            // Change Active Status
             $('#clientTable tbody').on('change', '.status ', function() {
                 const data = table.row($(this).parents('tr')).data();
                 const val = data.st_statusact == 1 ? 0 : 1;
@@ -249,7 +249,7 @@
                 confirmDelete('client/teacher-counselor', data.id)
             });
 
-            // View More 
+            // View More
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.open("{{ url('client/teacher-counselor') }}/" + data.id, "_blank");

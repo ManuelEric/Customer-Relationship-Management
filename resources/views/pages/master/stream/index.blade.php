@@ -150,7 +150,7 @@
             };
 
             var table = initializeDataTable('#streamTable', options, 'rt_stream');
-            
+
             @php
                 $privilage = $menus['Master']->where('submenu_name', 'Stream')->first();
             @endphp

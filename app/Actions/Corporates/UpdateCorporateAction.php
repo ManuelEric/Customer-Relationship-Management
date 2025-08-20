@@ -14,10 +14,9 @@ class UpdateCorporateAction
     }
 
     public function execute(
-        Array $corporate_details
-    )
-    {
-        # Update corporate
+        array $corporate_details
+    ) {
+        // Update corporate
         $updated_corporate = $this->corporateRepository->updateCorporate($corporate_details['corp_id'], $corporate_details);
 
         return $updated_corporate;

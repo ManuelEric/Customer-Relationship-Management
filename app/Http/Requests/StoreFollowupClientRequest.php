@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreFollowupClientRequest extends FormRequest
@@ -17,7 +16,6 @@ class StoreFollowupClientRequest extends FormRequest
         return true;
     }
 
-   
     /**
      * Get the validation rules that apply to the request.
      *
@@ -33,7 +31,7 @@ class StoreFollowupClientRequest extends FormRequest
         return [
             'followup_date' => 'nullable',
             'notes' => 'nullable',
-            'status' => 'required|in:0,1,2,3|integer'
+            'status' => 'required|in:0,1,2,3|integer',
         ];
     }
 
@@ -41,8 +39,7 @@ class StoreFollowupClientRequest extends FormRequest
     {
         return [
             'minutes_of_meeting' => 'nullable',
-            'status' => 'required|in:0,1,2,3|integer'
+            'status' => 'required|in:0,1,2,3|integer',
         ];
     }
-   
 }

@@ -563,7 +563,7 @@
                 }
 
                 const updateSection = (field) => {
-                    // Section 1 
+                    // Section 1
                     if (field == 2) {
                         const check = checkingValidation(section_1_rule);
                         if (check) section.value = 2
@@ -599,7 +599,7 @@
                         data = teacher_rule
 
 
-                    // check validation 
+                    // check validation
                     const check = checkingValidation(data)
 
                     if (check)

@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Jobs\AnalyticsImportJob;
 use App\Jobs\Client\ProcessGetTookIA;
 use App\Jobs\GoogleSheet\ExportClient;
 use App\Jobs\GoogleSheet\ExportClientProgram;
@@ -11,26 +10,19 @@ use App\Jobs\GoogleSheet\ImportClientProgram;
 use App\Jobs\GoogleSheet\ImportParent;
 use App\Jobs\GoogleSheet\ImportStudent;
 use App\Jobs\GoogleSheet\ImportTeacher;
-use App\Jobs\GoogleSheet\ProcessDefineCategory;
-use App\Models\Client;
-use App\Models\JobBatches;
-use Generator;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Log;
 
 class JobBatchService
 {
     public function import($data, $type): string
     {
         $batch = Bus::batch([])
-            ->name('import-data-' . $type)
+            ->name('import-data-'.$type)
             ->dispatch();
 
-        
         $chunks = $data->chunk(10);
 
-        foreach($chunks as $val)
-        {
+        foreach ($chunks as $val) {
             switch ($type) {
                 case 'student':
                     $batch->add(new ImportStudent($val));
@@ -55,53 +47,50 @@ class JobBatchService
             }
         }
 
-
         return $batch->id;
     }
 
     public function jobBatchFromCollection($data, $category, $type, $sizeChunk): string
     {
-       
+
         $batch = Bus::batch([])
-            ->name($category . '-' . $type)
+            ->name($category.'-'.$type)
             ->dispatch();
 
-        
         $chunks = $data->chunk($sizeChunk);
 
-        foreach($chunks as $val)
-        {   
+        foreach ($chunks as $val) {
             switch ($category) {
                 case 'import':
                     switch ($type) {
                         case 'student':
                             $batch->add(new ImportStudent($val));
                             break;
-        
+
                         case 'parent':
                             $batch->add(new ImportParent($val));
                             break;
-        
+
                         case 'teacher':
                             $batch->add(new ImportTeacher($val));
                             break;
-        
+
                         case 'client-event':
                             $batch->add(new ImportClientEvent($val));
                             break;
-        
+
                         case 'client-program':
                             $batch->add(new ImportClientProgram($val));
                             break;
                     }
                     break;
-                
+
                 case 'process':
                     switch ($type) {
                         case 'took-ia':
                             $batch->add(new ProcessGetTookIA($val));
                             break;
-        
+
                     }
                     break;
 
@@ -125,13 +114,12 @@ class JobBatchService
                         case 'inactive':
                             $batch->add(new ExportClient($val, $type));
                             break;
-        
+
                     }
                     break;
             }
-            
-        }
 
+        }
 
         return $batch->id;
     }
@@ -141,7 +129,7 @@ class JobBatchService
         $result = [];
 
         $i = 0;
-        $data->chunk($sizeChunk, function ($chunk) use(&$i, &$result, $sizeChunk) {
+        $data->chunk($sizeChunk, function ($chunk) use (&$i, &$result) {
             foreach ($chunk as $val) {
                 $result[$i][] = $val;
             }
@@ -150,7 +138,7 @@ class JobBatchService
         });
 
         $batch = Bus::batch([])
-            ->name($category . '-' . $type)
+            ->name($category.'-'.$type)
             ->dispatch();
 
         foreach ($result as $val) {
@@ -185,5 +173,4 @@ class JobBatchService
 
         return $batch->id;
     }
-
 }

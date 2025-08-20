@@ -15,7 +15,7 @@ class DashboardRequest extends FormRequest
         return true;
     }
 
-        /**
+    /**
      * Prepare the data for validation.
      */
     protected function prepareForValidation(): void
@@ -29,10 +29,10 @@ class DashboardRequest extends FormRequest
             'start' => Carbon::parse($qdate)->firstOfMonth()->format('Y-m-d'),
             'end' => Carbon::parse($qdate)->endOfMonth()->format('Y-m-d'),
             'quuid' => $this->get('quser'),
-            'program_id' => NULL,
+            'program_id' => null,
             'qparam_year1' => (int) Carbon::now()->subYears(1)->format('Y'),
             'qparam_year2' => (int) Carbon::now()->format('Y'),
-            'qyear' => 'current'
+            'qyear' => 'current',
         ]);
     }
 
@@ -51,7 +51,7 @@ class DashboardRequest extends FormRequest
             'program_id' => 'nullable',
             'qparam_year1' => 'min_digits:4,max_digits:4',
             'qparam_year2' => 'min_digits:4,max_digits:4',
-            'qyear' => 'nullable|in:last-3-year,current'
+            'qyear' => 'nullable|in:last-3-year,current',
         ];
     }
 }

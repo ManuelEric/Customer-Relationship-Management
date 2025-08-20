@@ -5,7 +5,6 @@ namespace App\Jobs\Client;
 use App\Interfaces\ClientRepositoryInterface;
 use Exception;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -21,7 +20,9 @@ class ProcessDefineCategory implements ShouldQueue
     use IsMonitored;
 
     protected ClientRepositoryInterface $clientRepository;
+
     protected $clientIds;
+
     protected $is_many_request;
 
     /**
@@ -46,66 +47,65 @@ class ProcessDefineCategory implements ShouldQueue
         DB::beginTransaction();
         try {
 
-            # declare default variables
+            // declare default variables
             $updatedClients = [];
 
             foreach ($clients as $student) {
 
-                # New leads
+                // New leads
                 /*
                     - Doesnt have clientprogram
                     - Or have clientprogram but status failed (2) or refund (3)
                 */
 
-                # Potential
+                // Potential
                 /*
                     - Have clienprogram and status pending (0)
                 */
 
-                # Mentee
+                // Mentee
                 /*
                     - Have clientprogram & (join admission with status success (1) where prog running status != done (2))
                     - Or have clientprogram & (join admission with status success (1) where prog running status == done (2) and join another program with status pending(0))
                */
 
-                # Non mentee
+                // Non mentee
                 /*
                     - Have clientprogram & (Not join admission with status success (1) where prog running status != done (2))
                     - Or have clientprogram & (Not join admission with status success (1) and join another program with status pending(0))
                 */
 
-                # Alumni mentee
+                // Alumni mentee
                 /*
                     - Have clientprogram & (join admission with status success (1) where prog running status == done (2))
                 */
 
-                # Alumni non mentee
+                // Alumni non mentee
                 /*
                     - Have clientprogram & (not join admission with status success (1) where prog running status == done (2))
                 */
 
                 if ($student->is_verified == 'N') {
-                    Log::warning('Client with id ' . $student->id . ', failed to determine its category because it has not been verified yet');
+                    Log::warning('Client with id '.$student->id.', failed to determine its category because it has not been verified yet');
+
                     continue;
                 }
-
 
                 $categories = new Collection;
                 $isMentee = false;
 
-                # check if client have clientprogram
+                // check if client have clientprogram
                 if ($student->clientProgram->count() > 0) {
                     foreach ($student->clientProgram as $clientProg) {
 
-                       # status = 0 pending, 1 success, 2 failed, 3 refund
-                        
+                        // status = 0 pending, 1 success, 2 failed, 3 refund
 
-                       if ($clientProg->status == 0) {
+                        if ($clientProg->status == 0) {
                             $categories->push(['category' => 'potential', 'id' => $student->id]);
-                        } else if ($clientProg->status == 2 || $clientProg->status == 3) { # jika programnya cuma 1
+                        } elseif ($clientProg->status == 2 || $clientProg->status == 3) { // jika programnya cuma 1
                             $categories->push(['category' => 'new_lead', 'id' => $student->id]);
-                        } else if ($clientProg->status == 1) {
-                            if($clientProg->program->main_prog_id == 1){
+                        } elseif ($clientProg->status == 1) {
+                            if ($clientProg->program->main_prog_id == 1) {
                                 $isMentee = true;
                             }
                             if (($clientProg->prog_end_date != null && date('Y-m-d') > $clientProg->prog_end_date) || $clientProg->prog_running_status == 2) {
@@ -124,28 +124,27 @@ class ProcessDefineCategory implements ShouldQueue
                 $potential = $categories->where('id', $student->id)->where('category', 'potential')->count();
 
                 if ($active > 0) {
-                    if($isMentee){
+                    if ($isMentee) {
                         $category = 'mentee';
-                    }else{
+                    } else {
                         $category = 'non-mentee';
                     }
-                } else if ($potential > 0) {
+                } elseif ($potential > 0) {
                     $category = 'potential';
                     // if($alumni > 0 && $isMentee){
                     //     $category = 'mentee';
                     // }else if($alumni > 0 && !$isMentee){
                     //     $category = 'non-mentee';
                     // }
-                } else if ($alumni > 0) {
-                    if($isMentee){
+                } elseif ($alumni > 0) {
+                    if ($isMentee) {
                         $category = 'alumni-mentee';
-                    }else{
+                    } else {
                         $category = 'alumni-non-mentee';
                     }
-                }else{
+                } else {
                     $category = 'new-lead';
                 }
-
 
                 // if ($mentee > 0) {
                 //     $category = 'mentee';
@@ -160,7 +159,6 @@ class ProcessDefineCategory implements ShouldQueue
                 // } else if ($mentee == 0 && $nonMentee == 0 && $potential == 0 && $alumniMentee == 0 && $alumniNonMentee == 0 && $newLead > 0) {
                 //     $category = 'new-lead';
                 // }
-
 
                 // $logDetails = [
                 //     'client_id' => $student->id,
@@ -184,9 +182,9 @@ class ProcessDefineCategory implements ShouldQueue
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to define category client : ' . $e->getMessage() . ' on line ' . $e->getLine());
+            Log::error('Failed to define category client : '.$e->getMessage().' on line '.$e->getLine());
         }
 
-        Log::notice('clients that have defined categories  : (' . json_encode($updatedClients) . ')');
+        Log::notice('clients that have defined categories  : ('.json_encode($updatedClients).')');
     }
 }

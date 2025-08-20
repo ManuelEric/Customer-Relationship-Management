@@ -28,26 +28,25 @@ class ImportBank extends Command
     public function handle()
     {
         $response = Http::get('https://bios.kemenkeu.go.id/api/ws/ref/bank');
-        foreach ($response->json('data') as $value) 
-        {
+        foreach ($response->json('data') as $value) {
             Bank::firstOrCreate([
                 'code' => $value['kode'],
-                'bank_name' => $value['uraian']
+                'bank_name' => $value['uraian'],
             ]);
         }
 
-        # additional bank that excludes from https://bios.kemenkeu.go.id/api/ws/ref/bank
+        // additional bank that excludes from https://bios.kemenkeu.go.id/api/ws/ref/bank
         Bank::firstOrCreate([
             'code' => '023',
-            'bank_name' => 'BANK UOB'
+            'bank_name' => 'BANK UOB',
         ]);
         Bank::firstOrCreate([
             'code' => '535',
-            'bank_name' => 'BANK SEABANK'
+            'bank_name' => 'BANK SEABANK',
         ]);
         Bank::firstOrCreate([
             'code' => '535',
-            'bank_name' => 'BANK JAGO'
+            'bank_name' => 'BANK JAGO',
         ]);
     }
 }

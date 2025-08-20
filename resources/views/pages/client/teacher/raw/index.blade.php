@@ -318,7 +318,7 @@
                 confirmDelete('client/teacher-counselor/raw', data.id)
             });
 
-            // Tooltip 
+            // Tooltip
             $('#rawTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',

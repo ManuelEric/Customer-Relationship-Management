@@ -118,7 +118,7 @@
                      <i class="bi bi-save2 me-1"></i>
                      Import</button>
              </div>
-             
+
          </div>
      </div>
  </div>
@@ -244,8 +244,8 @@
                 html = '';
                 html += `<h5>Import ${category}</h5>`;
                 html += `<ul>`;
-                    
-                
+
+
                 if(response.data.success == false){
                     var error = response.data.error
                     if(Object.keys(error).length){
@@ -265,7 +265,7 @@
 
                 $("#modal-notif-import").modal('show');
                 $('#content-import-information').html(html);
-                
+
 
                 swal.close()
             }).catch(function(error, response) {
@@ -297,7 +297,7 @@
                 html = '';
                 // html += `<h5>Import ${category}</h5>`;
                 $('#title-modal-import').html(`Import ${category}`);
-                
+
                 if(response.data.success == false){
                     html += `<ul>`;
                     var error = response.data.error
@@ -312,7 +312,7 @@
 
                 }else{
                     var data = response.data;
-                    
+
                     if( data['batch_id'] === undefined ){
                         html += `<ul>`;
                         html += `<li>Total Imported: ${parseInt(data.total_imported)}</li>`
@@ -333,7 +333,7 @@
                         html += `<p class="text-center mt-2" id="total">Importing ...</p>`;
                         html += `</div>`;
 
-                            
+
                         $("#modal-notif-import").modal('show');
                         $('#content-import-information').html(html);
 
@@ -350,12 +350,12 @@
                                 $('#bar').css({'width': response.data.progress + '%'});
                                 $('#bar').text(response.data.progress + '%');
                                 $('#total').html(`Importing ${response.data.total_imported}/${response.data.total_data}`);
-                                
+
                                 i++;
 
                                 if(response.data.progress == 100){
                                     console.log('100 fully');
-                                    
+
                                     clearInterval(myInterval);
                                 }
 
@@ -373,12 +373,12 @@
 
                             });
                         }, 3000);
-                       
+
                     }
 
                 }
 
-                
+
 
                 swal.close()
             }).catch(function(error, response) {
@@ -405,12 +405,12 @@
                 }
             })
             .then(function(response){
-                
+
                 swal.close()
                 notification('success', 'Successfully syncronized data')
             }).catch(function(error, response) {
                 var msg = 'Something went wrong. Please try again';
-        
+
                 swal.close()
                 notification('error', msg);
 
@@ -419,4 +419,3 @@
 </script>
 
 @endsection
-

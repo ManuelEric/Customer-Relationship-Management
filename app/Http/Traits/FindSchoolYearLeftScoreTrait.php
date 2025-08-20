@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Http\Traits;
 
-trait FindSchoolYearLeftScoreTrait {
-
+trait FindSchoolYearLeftScoreTrait
+{
     public function getSchoolYearLeftScore($difference)
     {
         switch ($difference) {

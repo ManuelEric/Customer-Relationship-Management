@@ -10,7 +10,6 @@ use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\ClientProgram;
 use App\Models\Program;
 use App\Services\Log\LogService;
-use App\Services\Program\ClientProgramService;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
@@ -28,19 +27,18 @@ class ExtClientProgramController extends Controller
     ) {
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
     }
-    
+
     public function getSuccessPrograms(Request $request, $authorization = null): JsonResponse
     {
         $mentor_uuid = $request->get('k');
         $requested_main_program_name = $request->route('main_program_name');
         [$group_of, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
-        
-        $b2cPrograms = \App\Models\ClientProgram::
-        with([
+
+        $b2cPrograms = \App\Models\ClientProgram::with([
             'client' => function ($query) {
                 $query->
                     select('id', 'sch_id', 'first_name', 'last_name', 'grade_now');
-                    // selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade');
+                // selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade');
             },
             'client.school' => function ($query) {
                 $query->select('sch_id', 'sch_name');
@@ -53,7 +51,7 @@ class ExtClientProgramController extends Controller
             },
             'internalPic' => function ($query) {
                 $query->select('id', 'first_name', 'last_name', 'phone');
-            }
+            },
         ])->
         whereRelation('program.main_prog', 'group_of', $group_of)->
         // whereHas('program', function ($query) use ($main_program, $sub_program) {
@@ -107,21 +105,19 @@ class ExtClientProgramController extends Controller
                     'last_name' => $client_lname,
                     'school_name' => $school_name,
                     'grade' => $client_grade,
-                ]
+                ],
             ];
         });
 
-        # take academic & test preparation b2b success program
-        # if main program is 'Academic & Test Preparation'
+        // take academic & test preparation b2b success program
+        // if main program is 'Academic & Test Preparation'
         // if ( $main_program == 'Academic & Test Preparation' )
 
-        # take tutoring b2b success program
-        # get the program by group of column value
-        if ( $group_of == 'Tutoring' )
-        {
+        // take tutoring b2b success program
+        // get the program by group of column value
+        if ($group_of == 'Tutoring') {
 
-            $b2bPrograms = \App\Models\SchoolProgram::
-            with([
+            $b2bPrograms = \App\Models\SchoolProgram::with([
                 'school' => function ($query) {
                     $query->select('sch_id', 'sch_name');
                 },
@@ -130,21 +126,21 @@ class ExtClientProgramController extends Controller
                 },
                 'program' => function ($query) {
                     $query->select('prog_id', 'main_prog_id', 'prog_program');
-                }
+                },
             ])->
             success()->
             // programIs('Academic & Test Preparation')->
             programIsGroupOf('Tutoring')->
             select('tbl_sch_prog.id', 'prog_id', 'sch_id')->
             get();
-    
+
             $mappedB2BPrograms = $b2bPrograms->map(function ($data) {
-    
+
                 $schprog_id = $data->id;
                 $invoiceb2b_id = $data->invoiceB2b->invb2b_id;
                 $program_name = $data->program->program_name;
                 $school_name = $data->school->sch_name;
-    
+
                 return [
                     'category' => 'b2b',
                     'schprog_id' => $schprog_id,
@@ -152,14 +148,13 @@ class ExtClientProgramController extends Controller
                     'program_name' => $program_name,
                     'client' => [
                         'school_name' => $school_name,
-                    ]
+                    ],
                 ];
             });
         }
 
-
-        # if requested program is not academic tutoring
-        # then return only B2C Programs
+        // if requested program is not academic tutoring
+        // then return only B2C Programs
         $programs = isset($mappedB2BPrograms) ? $mappedB2CPrograms->merge($mappedB2BPrograms) : $mappedB2CPrograms;
 
         return response()->json($programs);
@@ -172,13 +167,12 @@ class ExtClientProgramController extends Controller
         $requested_clientprogram_id = $request->route('clientprogram_id');
         [$group_of, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
         // [$main_program, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
-        
-        $b2cPrograms = \App\Models\ClientProgram::
-        with([
+
+        $b2cPrograms = \App\Models\ClientProgram::with([
             'client' => function ($query) {
                 $query->
                     select('id', 'sch_id', 'first_name', 'last_name', 'grade_now');
-                    // selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade');
+                // selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade');
             },
             'client.school' => function ($query) {
                 $query->select('sch_id', 'sch_name');
@@ -191,7 +185,7 @@ class ExtClientProgramController extends Controller
             },
             'internalPic' => function ($query) {
                 $query->select('id', 'first_name', 'last_name', 'phone');
-            }
+            },
         ])->
         whereRelation('program.main_prog', 'group_of', $group_of)->
         // whereHas('program', function ($query) use ($main_program, $sub_program) {
@@ -247,18 +241,16 @@ class ExtClientProgramController extends Controller
                     'last_name' => $client_lname,
                     'school_name' => $school_name,
                     'grade' => $client_grade,
-                ]
+                ],
             ];
         });
 
-        # take academic & test preparation b2b success program
-        # if main program is 'Academic & Test Preparation'
+        // take academic & test preparation b2b success program
+        // if main program is 'Academic & Test Preparation'
         // if ( $main_program == 'Academic & Test Preparation' )
-        if ( $group_of == 'Tutoring' )
-        {
+        if ($group_of == 'Tutoring') {
 
-            $b2bPrograms = \App\Models\SchoolProgram::
-            with([
+            $b2bPrograms = \App\Models\SchoolProgram::with([
                 'school' => function ($query) {
                     $query->select('sch_id', 'sch_name');
                 },
@@ -267,16 +259,16 @@ class ExtClientProgramController extends Controller
                 },
                 'program' => function ($query) {
                     $query->select('prog_id', 'main_prog_id', 'prog_program');
-                }
+                },
             ])->success()->programIs('Academic & Test Preparation')->select('tbl_sch_prog.id', 'prog_id', 'sch_id')->get();
-    
+
             $mappedB2BPrograms = $b2bPrograms->map(function ($data) {
-    
+
                 $schprog_id = $data->id;
                 $invoiceb2b_id = $data->invoiceB2b->invb2b_id;
                 $program_name = $data->program->program_name;
                 $school_name = $data->school->sch_name;
-    
+
                 return [
                     'category' => 'b2b',
                     'schprog_id' => $schprog_id,
@@ -284,14 +276,13 @@ class ExtClientProgramController extends Controller
                     'program_name' => $program_name,
                     'client' => [
                         'school_name' => $school_name,
-                    ]
+                    ],
                 ];
             });
         }
 
-
-        # if requested program is not academic tutoring
-        # then return only B2C Programs
+        // if requested program is not academic tutoring
+        // then return only B2C Programs
         $programs = isset($mappedB2BPrograms) ? $mappedB2CPrograms->merge($mappedB2BPrograms) : $mappedB2CPrograms;
 
         return response()->json($programs);
@@ -299,12 +290,11 @@ class ExtClientProgramController extends Controller
 
     public function fnGetFreeTrialPrograms()
     {
-        $clients_who_own_free_trial_tutor = \App\Models\ClientProgram::
-        with([
+        $clients_who_own_free_trial_tutor = \App\Models\ClientProgram::with([
             'client' => function ($query) {
                 $query->
                     select('id', 'sch_id', 'first_name', 'last_name', 'grade_now');
-                    // selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade');
+                // selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade');
             },
             'client.school' => function ($query) {
                 $query->select('sch_id', 'sch_name');
@@ -317,14 +307,14 @@ class ExtClientProgramController extends Controller
             },
             'internalPic' => function ($query) {
                 $query->select('id', 'first_name', 'last_name', 'phone');
-            }
+            },
         ])->
         whereHas('program', function ($query) {
             $query->whereHas('main_prog', function ($query) {
                 $query->whereIn('prog_name', ['Test Preparation', 'Subject Tutoring', 'Skillset Tutoring', 'Competition']);
             });
 
-            //! commented because Academic Tutoring and Subject Tutoring turns into main program
+            // ! commented because Academic Tutoring and Subject Tutoring turns into main program
             // ->whereHas('sub_prog', function ($query) {
             //     $query->whereIn('sub_prog_name', ['Academic Tutoring', 'Subject Tutoring']);
             // });
@@ -365,7 +355,7 @@ class ExtClientProgramController extends Controller
                     'last_name' => $client_lname,
                     'school_name' => $school_name,
                     'grade' => $client_grade,
-                ]
+                ],
             ];
         });
 
@@ -374,8 +364,7 @@ class ExtClientProgramController extends Controller
 
     public function fnGetSuccessEssayProgram()
     {
-        $b2cPrograms = \App\Models\ClientProgram::
-        with([
+        $b2cPrograms = \App\Models\ClientProgram::with([
             'client' => function ($query) {
                 $query->
                     select('id', 'sch_id', 'first_name', 'last_name')->
@@ -394,7 +383,7 @@ class ExtClientProgramController extends Controller
                 $query->
                     wherePivot('status', 1)->
                     select('users.id', 'phone', 'email', 'password', 'active');
-            }
+            },
         ])->
         whereHas('program.main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
@@ -418,8 +407,7 @@ class ExtClientProgramController extends Controller
             $client_address = $data->client->address;
             $school_name = $data->client->school ? $data->client->school->sch_name : null;
 
-            foreach ($data->clientMentor as $mentor)
-            {
+            foreach ($data->clientMentor as $mentor) {
                 $mentor_pics[] = [
                     'mentor_id' => $mentor->id,
                     'type' => $this->fnGetMentorType($mentor->pivot->type),
@@ -441,7 +429,7 @@ class ExtClientProgramController extends Controller
                     'address' => $client_address,
                     'school_name' => $school_name,
                     'grade' => $client_grade,
-                ]
+                ],
             ];
         });
 
@@ -450,8 +438,7 @@ class ExtClientProgramController extends Controller
 
     private function fnGetMentorType(int $type): string
     {
-        switch ($type)
-        {
+        switch ($type) {
             case 1:
                 $type_desc = 'Supervising Mentor';
                 break;
@@ -478,10 +465,8 @@ class ExtClientProgramController extends Controller
     public function fnPromoteToGraduatedMentee(
         ClientProgram $client_program,
         LogService $log_service,
-        )
-    {
-        if ($client_program->prog_running_status == 2)
-        {
+    ) {
+        if ($client_program->prog_running_status == 2) {
             return response()->json([
                 'message' => 'Client was already graduated.',
             ]);
@@ -490,22 +475,22 @@ class ExtClientProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            # since we want to promote the client into mentee
-            # which mean, his/her client program should be updated into `done` or prog_running_status (2)
+            // since we want to promote the client into mentee
+            // which mean, his/her client program should be updated into `done` or prog_running_status (2)
             $client_program->update([
-                'prog_running_status' => 2
+                'prog_running_status' => 2,
             ]);
-    
+
             $leads_tracking = $this->clientLeadTrackingRepository->getCurrentClientLead($client_program->client->id);
-    
-            # update status client lead tracking
-            if($leads_tracking->count() > 0){
-                foreach($leads_tracking as $lead_tracking){
+
+            // update status client lead tracking
+            if ($leads_tracking->count() > 0) {
+                foreach ($leads_tracking as $lead_tracking) {
                     $this->clientLeadTrackingRepository->updateClientLeadTrackingById($lead_tracking->id, ['status' => 0]);
                 }
             }
             DB::commit();
-    
+
             $client_data_for_log_client[] = [
                 'client_id' => $client_program->client->id,
                 'first_name' => $client_program->client->first_name,
@@ -515,30 +500,31 @@ class ExtClientProgramController extends Controller
                 'status_program' => 1,
                 'old_status_program' => 0,
                 'running_status_program' => 2,
-                'old_running_status_program' => 1
+                'old_running_status_program' => 1,
             ];
-    
-            # trigger to insert log client
+
+            // trigger to insert log client
             ProcessInsertLogClient::dispatch($client_data_for_log_client)->onQueue('insert-log-client')->afterCommit();
 
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_CLIENT_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile());
             throw new HttpResponseException(
                 response()->json([
                     'message' => 'Failed to change mentee status.',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ])
             );
         }
-        
-        # Update success
-        # create log success
+
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_CLIENT_PROGRAM, 'Client program has been updated');
+
         return response()->json([
             'message' => 'Client program has been updated',
-            'data' => $client_program
+            'data' => $client_program,
         ]);
     }
 
@@ -547,7 +533,7 @@ class ExtClientProgramController extends Controller
         $client_programs = $request->get('client_programs', []);
         if (empty($client_programs)) {
             return response()->json([
-                'message' => 'No client programs provided.'
+                'message' => 'No client programs provided.',
             ], 400);
         }
 
@@ -561,10 +547,10 @@ class ExtClientProgramController extends Controller
                 $client_program->update(['prog_running_status' => 2]);
 
                 $leads_tracking = $this->clientLeadTrackingRepository->getCurrentClientLead($client_program->client->id);
-    
-                # update status client lead tracking
-                if($leads_tracking->count() > 0){
-                    foreach($leads_tracking as $lead_tracking){
+
+                // update status client lead tracking
+                if ($leads_tracking->count() > 0) {
+                    foreach ($leads_tracking as $lead_tracking) {
                         $this->clientLeadTrackingRepository->updateClientLeadTrackingById($lead_tracking->id, ['status' => 0]);
                     }
                 }
@@ -581,16 +567,17 @@ class ExtClientProgramController extends Controller
                 'status_program' => 1,
                 'old_status_program' => 0,
                 'running_status_program' => 2,
-                'old_running_status_program' => 1
+                'old_running_status_program' => 1,
             ];
-    
-            # trigger to insert log client
+
+            // trigger to insert log client
             ProcessInsertLogClient::dispatch($client_data_for_log_client)->onQueue('insert-log-client')->afterCommit();
 
             // Log success
             $log_service->createSuccessLog(LogModule::MULTIPLE_UPDATE_CLIENT_PROGRAM, 'Multiple client programs have been updated');
+
             return response()->json([
-                'message' => 'Client programs have been updated successfully.'
+                'message' => 'Client programs have been updated successfully.',
             ]);
         } catch (Exception $e) {
             DB::rollBack();
@@ -598,7 +585,7 @@ class ExtClientProgramController extends Controller
             throw new HttpResponseException(
                 response()->json([
                     'message' => 'Failed to update client programs.',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ])
             );
         }

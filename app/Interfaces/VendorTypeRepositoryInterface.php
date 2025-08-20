@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface VendorTypeRepositoryInterface 
+interface VendorTypeRepositoryInterface
 {
     public function getAllVendorType();
 }

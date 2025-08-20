@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 trait InvoiceB2BTrait
 {
-
     public function export(Request $request)
     {
         $invNum = $request->route('invoice');

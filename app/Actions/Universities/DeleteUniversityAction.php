@@ -14,10 +14,9 @@ class DeleteUniversityAction
     }
 
     public function execute(
-        String $university_id
-    )
-    {
-        # Delete university
+        string $university_id
+    ) {
+        // Delete university
         $deleted_university = $this->universityRepository->deleteUniversity($university_id);
 
         return $deleted_university;

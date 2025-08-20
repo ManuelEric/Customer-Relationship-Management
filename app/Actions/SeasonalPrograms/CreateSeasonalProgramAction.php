@@ -3,7 +3,6 @@
 namespace App\Actions\SeasonalPrograms;
 
 use App\Interfaces\SeasonalProgramRepositoryInterface;
-use Illuminate\Support\Facades\Artisan;
 
 class CreateSeasonalProgramAction
 {
@@ -15,10 +14,9 @@ class CreateSeasonalProgramAction
     }
 
     public function execute(
-        Array $seasonal_program_details
-    )
-    {
-        # store new sales target
+        array $seasonal_program_details
+    ) {
+        // store new sales target
         $new_seasonal_program = $this->seasonalProgramRepository->storeSeasonalProgram($seasonal_program_details);
 
         return $new_seasonal_program;

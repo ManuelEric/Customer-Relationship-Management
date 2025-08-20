@@ -3,7 +3,7 @@
         <h6 class="m-0 p-0">Role & Position</h6>
     </div>
     <div class="card-body">
-        
+
         {{-- @if ( $user->user_type->last()->pivot->status == 0 )
 
         @else --}}
@@ -24,35 +24,35 @@
                                 @selected(Request::route('user_role') == 'employee')
                             @endif
                             >Employee</option>
-                        <option value="2" 
+                        <option value="2"
                             @if (isset($user))
                                 @selected(in_array(2, $roles))
                             @else
                                 @selected(Request::route('user_role') == 'mentor')
                             @endif
                             >Mentor</option>
-                        <option value="3" 
+                        <option value="3"
                             @if (isset($user))
                                 @selected(in_array(3, $roles))
                             @else
                                 @selected(Request::route('user_role') == 'editor')
                             @endif
                             >Editor</option>
-                        <option value="4" 
+                        <option value="4"
                             @if (isset($user))
                                 @selected(in_array(4, $roles))
                             @else
                                 @selected(Request::route('user_role') == 'tutor')
                             @endif
                             >Tutor</option>
-                        <option value="20" 
+                        <option value="20"
                             @if (isset($user))
                                 @selected(in_array(20, $roles))
                             @else
                                 @selected(Request::route('user_role') == 'external-mentor')
                             @endif
                             >External Mentor</option>
-                        <option value="19" 
+                        <option value="19"
                             @if (isset($user))
                                 @selected(in_array(19, $roles))
                             @else
@@ -60,7 +60,7 @@
                             @endif
                             >Individual Professional</option>
                         @if ($isSuperAdmin)
-                        <option value="18" 
+                        <option value="18"
                             @if (isset($user))
                                 @selected(in_array(18, $roles))
                             @else
@@ -79,7 +79,7 @@
                         <select name="department" id="" class="select w-100">
                             <option data-placeholder="true"></option>
                             @foreach ($departments as $department)
-                                <option value="{{ $department->id }}" 
+                                <option value="{{ $department->id }}"
                                     @selected($departmentId == $department->id)
                                     @selected(old('department') == $department->id)>{{ $department->dept_name }}</option>
                             @endforeach
@@ -93,8 +93,8 @@
                         <select name="position" id="" class="select w-100">
                             <option data-placeholder="true"></option>
                             @foreach ($positions as $position)
-                                <option value="{{ $position->id }}" 
-                                    @selected(isset($user) && isset($user->position) && $user->position->id == $position->id) 
+                                <option value="{{ $position->id }}"
+                                    @selected(isset($user) && isset($user->position) && $user->position->id == $position->id)
                                     @selected(old('position') == $position->id)>{{ $position->position_name }}</option>
                             @endforeach
                         </select>
@@ -153,7 +153,7 @@
 
 <script>
     $(document).ready(function() {
-        
+
         @if (old('type'))
             $("#employeeType").select2().val("{{ old('type') }}").trigger('change')
         @endif

@@ -3,19 +3,21 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
+use Illuminate\Http\Request;
 
 class FinanceDashboardController extends Controller
 {
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
-    protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
-    protected ReceiptRepositoryInterface $receiptRepository;
-    protected RefundRepositoryInterface $refundRepository;
 
+    protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
+
+    protected ReceiptRepositoryInterface $receiptRepository;
+
+    protected RefundRepositoryInterface $refundRepository;
 
     public function __construct(InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository)
     {
@@ -24,7 +26,6 @@ class FinanceDashboardController extends Controller
         $this->receiptRepository = $receiptRepository;
         $this->refundRepository = $refundRepository;
     }
-
 
     public function getTotalByMonth(Request $request)
     {
@@ -54,17 +55,17 @@ class FinanceDashboardController extends Controller
 
         $totalInvoice[0] = [
             'count_invoice' => count($totalInvoiceB2b) + count($totalInvoiceB2b),
-            'total' => $totalInvoiceB2b->where('invb2b_pm', 'Full Payment')->sum('invb2b_totpriceidr') + $totalInvoiceB2b->where('invb2b_pm', 'Installment')->sum('invdtl_amountidr')
+            'total' => $totalInvoiceB2b->where('invb2b_pm', 'Full Payment')->sum('invb2b_totpriceidr') + $totalInvoiceB2b->where('invb2b_pm', 'Installment')->sum('invdtl_amountidr'),
         ];
 
         $totalInvoice[1] = [
             'count_invoice' => count($totalInvoiceB2c),
-            'total' => $totalInvoiceB2c->where('inv_paymentmethod', 'Full Payment')->sum('inv_totalprice_idr') + $totalInvoiceB2c->where('inv_paymentmethod', 'Installment')->sum('invdtl_amountidr')
+            'total' => $totalInvoiceB2c->where('inv_paymentmethod', 'Full Payment')->sum('inv_totalprice_idr') + $totalInvoiceB2c->where('inv_paymentmethod', 'Installment')->sum('invdtl_amountidr'),
         ];
 
         $data = [
             'invoiceNeededToday' => count($totalInvoiceNeeded->where('success_date', date('Y-m-d'))),
-            'outstandingToday' => $unpaidPayments->where('invoice_duedate', date('Y-m-d', strtotime("-3 days"))),
+            'outstandingToday' => $unpaidPayments->where('invoice_duedate', date('Y-m-d', strtotime('-3 days'))),
             'refundRequestToday' => $totalRefundRequest->where('refund_date', date('Y-m-d')),
             'totalInvoiceNeeded' => count($totalInvoiceNeeded),
             'totalInvoice' => $totalInvoice,
@@ -78,12 +79,12 @@ class FinanceDashboardController extends Controller
         if ($data) {
             $response = [
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             ];
         } else {
             $response = [
                 'success' => false,
-                'data' => null
+                'data' => null,
             ];
         }
 
@@ -112,12 +113,12 @@ class FinanceDashboardController extends Controller
         if ($data) {
             $response = [
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             ];
         } else {
             $response = [
                 'success' => false,
-                'data' => null
+                'data' => null,
             ];
         }
 
@@ -148,12 +149,12 @@ class FinanceDashboardController extends Controller
         if ($data) {
             $response = [
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             ];
         } else {
             $response = [
                 'success' => false,
-                'data' => null
+                'data' => null,
             ];
         }
 
@@ -181,12 +182,12 @@ class FinanceDashboardController extends Controller
         if ($data) {
             $response = [
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             ];
         } else {
             $response = [
                 'success' => false,
-                'data' => null
+                'data' => null,
             ];
         }
 
@@ -195,14 +196,12 @@ class FinanceDashboardController extends Controller
 
     public function getRevenueDetailByMonth(Request $request)
     {
-        $monthYear = $request->route('year') . '-' . $request->route('month');
-
+        $monthYear = $request->route('year').'-'.$request->route('month');
 
         $paidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment($monthYear, 'paid');
         $paidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment($monthYear, 'paid');
 
         $paidPayments = collect($paidPaymentB2b)->merge($paidPaymentB2c);
-
 
         $data = [
             'revenueDetail' => $paidPayments,
@@ -212,12 +211,12 @@ class FinanceDashboardController extends Controller
         if ($data) {
             $response = [
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             ];
         } else {
             $response = [
                 'success' => false,
-                'data' => null
+                'data' => null,
             ];
         }
 
@@ -239,17 +238,18 @@ class FinanceDashboardController extends Controller
                 $invoiceNeededB2c = $this->invoiceProgramRepository->getTotalInvoiceNeeded($monthYear);
 
                 $invoiceNeeded = collect($invoiceNeededB2b)->merge($invoiceNeededB2c);
-                if ($invoiceNeeded->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                if ($invoiceNeeded->count() == 0) {
+                    return response()->json(['title' => 'List of '.ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No '.str_replace('-', ' ', $type).' data</td></tr>']);
+                }
 
                 foreach ($invoiceNeeded->sortBy('success_date') as $inv) {
 
-                    $html .= '<tr' . ($inv->success_date == date('Y-m-d') ?  ' class="table-danger detail"' : ' class="detail"') . ' data-clientprog="' . $inv->client_prog_id . '" data-typeprog="' . $inv->type . '" data-type="invoice-needed" style="cursor:pointer">
-                        <td>' . $index++ . '</td>
-                        <td>' . $inv->client_name . '</td>
-                        <td>' . $inv->program_name . '</td>
-                        <td>' . date('M d, Y', strtotime($inv->success_date)) . '</td>
-                        <td>' . $inv->pic_name . '</td>
+                    $html .= '<tr'.($inv->success_date == date('Y-m-d') ? ' class="table-danger detail"' : ' class="detail"').' data-clientprog="'.$inv->client_prog_id.'" data-typeprog="'.$inv->type.'" data-type="invoice-needed" style="cursor:pointer">
+                        <td>'.$index++.'</td>
+                        <td>'.$inv->client_name.'</td>
+                        <td>'.$inv->program_name.'</td>
+                        <td>'.date('M d, Y', strtotime($inv->success_date)).'</td>
+                        <td>'.$inv->pic_name.'</td>
                     </tr>';
                 }
                 break;
@@ -259,8 +259,9 @@ class FinanceDashboardController extends Controller
                 $unpaidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
 
                 $unpaidPayments = collect($unpaidPaymentB2b)->merge($unpaidPaymentB2c);
-                if ($unpaidPayments->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="8">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                if ($unpaidPayments->count() == 0) {
+                    return response()->json(['title' => 'List of '.ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="8">No '.str_replace('-', ' ', $type).' data</td></tr>']);
+                }
 
                 foreach ($unpaidPayments->sortBy('invoice_duedate') as $unpaidPayment) {
 
@@ -277,44 +278,45 @@ class FinanceDashboardController extends Controller
                             'clientprog_id' => $unpaidPayment->client_prog_id,
                             'invoice_id' => $unpaidPayment->invoice_id,
                             'invdtl_id' => $unpaidPayment->invdtl_id,
-                            'payment_method' => (isset($unpaidPayment->installment_name)) ? ' ' . $unpaidPayment->installment_name  : '',
+                            'payment_method' => (isset($unpaidPayment->installment_name)) ? ' '.$unpaidPayment->installment_name : '',
                             'parent_id' => $unpaidPayment->parent_id,
                             'client_id' => $unpaidPayment->client_id,
-                            'parents' => isset($unpaidPayment->clientprog->client->parents) ? $unpaidPayment->clientprog->client->parents : []
+                            'parents' => isset($unpaidPayment->clientprog->client->parents) ? $unpaidPayment->clientprog->client->parents : [],
                         ];
                     }
 
-                    $holdButton = isset($unpaidPayment->status) && $unpaidPayment->status == 4 ? ($unpaidPayment->typeprog == 'client_prog' && $unpaidPayment->clientprog->program->main_prog_id == 1 ? '<button data-bs-toggle="modal" data-bs-target="#holdModal" class="mx-1 btn btn-sm btn-outline-success hold"><i class="bi bi-pause-fill"></i></button>' : '-') : "";
+                    $holdButton = isset($unpaidPayment->status) && $unpaidPayment->status == 4 ? ($unpaidPayment->typeprog == 'client_prog' && $unpaidPayment->clientprog->program->main_prog_id == 1 ? '<button data-bs-toggle="modal" data-bs-target="#holdModal" class="mx-1 btn btn-sm btn-outline-success hold"><i class="bi bi-pause-fill"></i></button>' : '-') : '';
 
-                    $html .= '<tr' . ($unpaidPayment->invoice_duedate == date('Y-m-d', strtotime("-3 days")) ?  ' class="table-danger"' : ' class="a"') . ' style="cursor:pointer">
-                            <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $index++ . '</td>
-                            <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $unpaidPayment->full_name . '</td>
-                            <td class="reminder text-center" data-clientprog="' . $unpaidPayment->client_prog_id .  '">' . ($unpaidPayment->typeprog == 'client_prog' ? '<button data-bs-toggle="modal" data-bs-target="#reminderModal" class="mx-1 btn btn-sm btn-outline-success reminder"><i class="bi bi-whatsapp"></i></button>' : '-') . '</td>
-                            <td class="hold text-center" data-clientprog="' . $unpaidPayment->client_prog_id .  '">' . $holdButton . '</td>
-                            <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $unpaidPayment->invoice_id . '</td>
-                            <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $unpaidPayment->type . '</td>
-                            <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $unpaidPayment->program_name . '</td>
-                            <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . (isset($unpaidPayment->installment_name) ? $unpaidPayment->installment_name : '-') . '</td>
-                            <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . date('M d, Y', strtotime($unpaidPayment->invoice_duedate)) . '</td>
-                            <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding"> Rp. ' . number_format($unpaidPayment->total) . '</td>
+                    $html .= '<tr'.($unpaidPayment->invoice_duedate == date('Y-m-d', strtotime('-3 days')) ? ' class="table-danger"' : ' class="a"').' style="cursor:pointer">
+                            <td class="detail" data-clientprog="'.$unpaidPayment->client_prog_id.'" data-typeprog="'.$unpaidPayment->typeprog.'" data-invid="'.$unpaidPayment->invoice_id.'" data-type="outstanding">'.$index++.'</td>
+                            <td class="detail" data-clientprog="'.$unpaidPayment->client_prog_id.'" data-typeprog="'.$unpaidPayment->typeprog.'" data-invid="'.$unpaidPayment->invoice_id.'" data-type="outstanding">'.$unpaidPayment->full_name.'</td>
+                            <td class="reminder text-center" data-clientprog="'.$unpaidPayment->client_prog_id.'">'.($unpaidPayment->typeprog == 'client_prog' ? '<button data-bs-toggle="modal" data-bs-target="#reminderModal" class="mx-1 btn btn-sm btn-outline-success reminder"><i class="bi bi-whatsapp"></i></button>' : '-').'</td>
+                            <td class="hold text-center" data-clientprog="'.$unpaidPayment->client_prog_id.'">'.$holdButton.'</td>
+                            <td class="detail" data-clientprog="'.$unpaidPayment->client_prog_id.'" data-typeprog="'.$unpaidPayment->typeprog.'" data-invid="'.$unpaidPayment->invoice_id.'" data-type="outstanding">'.$unpaidPayment->invoice_id.'</td>
+                            <td class="detail" data-clientprog="'.$unpaidPayment->client_prog_id.'" data-typeprog="'.$unpaidPayment->typeprog.'" data-invid="'.$unpaidPayment->invoice_id.'" data-type="outstanding">'.$unpaidPayment->type.'</td>
+                            <td class="detail" data-clientprog="'.$unpaidPayment->client_prog_id.'" data-typeprog="'.$unpaidPayment->typeprog.'" data-invid="'.$unpaidPayment->invoice_id.'" data-type="outstanding">'.$unpaidPayment->program_name.'</td>
+                            <td class="detail" data-clientprog="'.$unpaidPayment->client_prog_id.'" data-typeprog="'.$unpaidPayment->typeprog.'" data-invid="'.$unpaidPayment->invoice_id.'" data-type="outstanding">'.(isset($unpaidPayment->installment_name) ? $unpaidPayment->installment_name : '-').'</td>
+                            <td class="detail" data-clientprog="'.$unpaidPayment->client_prog_id.'" data-typeprog="'.$unpaidPayment->typeprog.'" data-invid="'.$unpaidPayment->invoice_id.'" data-type="outstanding">'.date('M d, Y', strtotime($unpaidPayment->invoice_duedate)).'</td>
+                            <td class="detail" data-clientprog="'.$unpaidPayment->client_prog_id.'" data-typeprog="'.$unpaidPayment->typeprog.'" data-invid="'.$unpaidPayment->invoice_id.'" data-type="outstanding"> Rp. '.number_format($unpaidPayment->total).'</td>
                         </tr.>';
                 }
                 break;
 
             case 'refund-request':
                 $refundRequest = $this->refundRepository->getTotalRefundRequest($monthYear);
-                if ($refundRequest->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="6">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                if ($refundRequest->count() == 0) {
+                    return response()->json(['title' => 'List of '.ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="6">No '.str_replace('-', ' ', $type).' data</td></tr>']);
+                }
 
                 foreach ($refundRequest->sortBy('refund_date') as $refund_req) {
 
-                    $html .= '<tr' . ($refund_req->refund_date == date('Y-m-d') ?  ' class="table-danger detail"' : ' class="detail"') . ' data-clientprog="' . $refund_req->client_prog_id . '" data-typeprog="' . $refund_req->typeprog . '" data-invid="' . $refund_req->invoice_id . '" data-type="refund-request" style="cursor:pointer">
-                            <td>' . $index++ . '</td>
-                            <td>' . $refund_req->client_fullname . '</td>
-                            <td>' . $refund_req->receipt_id . '</td>
-                            <td>' . $refund_req->program_name . '</td>
-                            <td>' . date('M d, Y', strtotime($refund_req->refund_date)) . '</td>
-                            <td>' . $refund_req->pic_name . '</td>
+                    $html .= '<tr'.($refund_req->refund_date == date('Y-m-d') ? ' class="table-danger detail"' : ' class="detail"').' data-clientprog="'.$refund_req->client_prog_id.'" data-typeprog="'.$refund_req->typeprog.'" data-invid="'.$refund_req->invoice_id.'" data-type="refund-request" style="cursor:pointer">
+                            <td>'.$index++.'</td>
+                            <td>'.$refund_req->client_fullname.'</td>
+                            <td>'.$refund_req->receipt_id.'</td>
+                            <td>'.$refund_req->program_name.'</td>
+                            <td>'.date('M d, Y', strtotime($refund_req->refund_date)).'</td>
+                            <td>'.$refund_req->pic_name.'</td>
                         </tr>';
                 }
                 break;
@@ -322,9 +324,9 @@ class FinanceDashboardController extends Controller
 
         return response()->json(
             [
-                'title' => 'List of ' . ucwords($type),
+                'title' => 'List of '.ucwords($type),
                 'html_ctx' => $html,
-                'reminder' => $reminder
+                'reminder' => $reminder,
             ]
         );
     }

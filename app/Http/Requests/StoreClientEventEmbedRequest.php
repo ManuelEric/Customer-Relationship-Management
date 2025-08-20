@@ -2,10 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-use App\Models\Lead;
 use App\Interfaces\EventRepositoryInterface;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StoreClientEventEmbedRequest extends FormRequest
 {
@@ -26,13 +24,11 @@ class StoreClientEventEmbedRequest extends FormRequest
         $this->eventRepository = $eventRepository;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, mixed>
      */
-
     public function messages()
     {
         return [
@@ -40,7 +36,6 @@ class StoreClientEventEmbedRequest extends FormRequest
             'required_with' => 'The :attribute field is required',
         ];
     }
-
 
     public function rules()
     {

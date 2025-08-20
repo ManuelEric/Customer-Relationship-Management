@@ -8,6 +8,7 @@ use App\Interfaces\AgendaSpeakerRepositoryInterface;
 class UpdateSchoolProgramSpeakerAction
 {
     use FindAgendaSpeakerPriorityTrait;
+
     private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
 
     public function __construct(AgendaSpeakerRepositoryInterface $agendaSpeakerRepository)
@@ -19,8 +20,7 @@ class UpdateSchoolProgramSpeakerAction
         $agenda_id,
         $status,
         $notes
-    )
-    {
+    ) {
 
         $updated_speaker = $this->agendaSpeakerRepository->updateAgendaSpeaker($agenda_id, ['status' => $status, 'notes' => $notes]);
 

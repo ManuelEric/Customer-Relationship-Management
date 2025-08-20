@@ -62,7 +62,7 @@
                             <td>{{ date('d F Y H:i:s', strtotime($role_subject->updated_at)) }}</td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-warning" wire:click="edit({{ $role_subject->id }})" data-bs-toggle="modal" data-bs-target="#agreementForm"><i class="bi bi-pencil"></i></button>
-                                <button type="button" class="btn btn-sm btn-danger ms-1" 
+                                <button type="button" class="btn btn-sm btn-danger ms-1"
                                 x-data
                                 @click.prevent="if (confirm('Are you sure you want to delete? This cannot be undone.')) { $wire.delete({{ $role_subject->id }}) }"><i class="bi bi-trash"></i></button>
                             </td>
@@ -72,7 +72,7 @@
                         <tr>
                             <td colspan="11" class="text-center">No data</td>
                         </tr>
-                
+
                     @endforelse
                 </tbody>
             </table>
@@ -99,7 +99,7 @@
                                 <select wire:model="subject_id" @if(!$isEdit) multiple @endif class="form-select form-select-sm w-100">
                                     @forelse ($tutor_subjects as $subject)
                                         <option value="{{ $subject->id }}">{{ $subject->name }}</option>
-                                    
+
                                     @empty
                                         <option>No subjects fetched</option>
                                     @endforelse
@@ -115,7 +115,7 @@
                                     <option value="null">No Curriculum</option>
                                     @forelse ($curriculums as $key => $curriculum)
                                         <option value="{{ $curriculum }}">{{ $curriculum }}</option>
-                                    
+
                                     @empty
                                         <option>No curriculum fetched</option>
                                     @endforelse
@@ -124,7 +124,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            
+
                             <div>
                                 <div class="row px-3 py-2">
                                     <fieldset class="border p-3">
@@ -149,8 +149,8 @@
                                 </div>
                             </div>
 
-                            
-                            
+
+
                             <div class="col-md-2 mb-2">
                                 <label for="">Grade</label>
                                 <select wire:model="grade" class="form-select form-select-sm">
@@ -193,7 +193,7 @@
                                 @enderror
                             </div> --}}
 
-                            
+
                             <div class="col-md-4 mb-2">
                                 <label for="">Agreement File @if (!$isEdit)<sup class="text-danger">*</sup>@endif</label>
                                 <div class="file-agreement">
@@ -203,8 +203,8 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            
-                            
+
+
                             <div class="col-md-12 mt-2">
                                 <div class="d-flex justify-content-between">
                                     <button type="button" wire:click="resetFields" class="btn btn-sm btn-outline-danger rounded-3"

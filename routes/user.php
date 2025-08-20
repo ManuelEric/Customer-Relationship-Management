@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// User 
+// User
 
 Route::resource('{user_role}', UserController::class, [
     'names' => [
@@ -26,9 +26,9 @@ Route::resource('{user_role}', UserController::class, [
         'update' => 'user.update',
         'edit' => 'user.edit',
         'destroy' => 'user.destroy',
-    ]
+    ],
 ])->parameters([
-    '{user_role}' => 'user'
+    '{user_role}' => 'user',
 ]);
 Route::prefix('{user_role}/{user}')->name('user.')->group(function () {
     Route::get('download/{filetype}', [UserController::class, 'download'])->name('file.download');

@@ -7,14 +7,10 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\UploadFileTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
-use App\Models\ClientEvent;
-use App\Models\ClientProgram;
 use App\Models\PicClient;
-use App\Models\pivot\UserRole;
 use App\Models\pivot\UserSubject;
 use App\Models\pivot\UserTypeDetail;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use DataTables;
 use Exception;
 use Illuminate\Http\Request;
@@ -22,12 +18,12 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 
 class UserRepository implements UserRepositoryInterface
 {
-    use UploadFileTrait;
     use CreateCustomPrimaryKeyTrait;
+    use UploadFileTrait;
+
     private ClientRepositoryInterface $clientRepository;
 
     public function __construct(ClientRepositoryInterface $clientRepository)
@@ -38,10 +34,10 @@ class UserRepository implements UserRepositoryInterface
     public function rnGetAllUsersByRoleDataTables($role)
     {
         return DataTables::eloquent(
-                User::leftJoin('tbl_position', 'tbl_position.id', '=', 'users.position_id')->
-                whereHas('roles', function ($query) use ($role) {
-                    $query->where('role_name', 'like', '%'.$role.'%');
-                })
+            User::leftJoin('tbl_position', 'tbl_position.id', '=', 'users.position_id')->
+            whereHas('roles', function ($query) use ($role) {
+                $query->where('role_name', 'like', '%'.$role.'%');
+            })
                 ->select([
                     'users.id as id',
                     'first_name',
@@ -67,7 +63,7 @@ class UserRepository implements UserRepositoryInterface
                     'active',
 
                 ])
-            )
+        )
             ->filterColumn('full_name', function ($query, $keyword) {
                 $sql = 'CONCAT(first_name, " ", COALESCE(last_name, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
@@ -104,7 +100,7 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::role($role)->department($department)->active()->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
-    
+
     public function rnGetUserById($userId)
     {
         return User::with('roles', 'user_type')->findOrFail($userId);
@@ -122,17 +118,16 @@ class UserRepository implements UserRepositoryInterface
 
     public function rnUpdateStatusUser(User $user, array $new_status_details)
     {
-        # update status users
+        // update status users
         $user->update(['active' => $new_status_details['active']]);
 
-        # update status user type detail
+        // update status user type detail
         switch ($new_status_details['active']) {
 
-            case 0: # deactivate
-                if($new_status_details['department'] != null && $new_status_details['department'] == 'Client Management')
-                {
+            case 0: // deactivate
+                if ($new_status_details['department'] != null && $new_status_details['department'] == 'Client Management') {
                     $pic_clients = PicClient::where('user_id', $user->id)->get();
-    
+
                     foreach ($pic_clients as $pic_client) {
                         $pic_detail = [
                             'client_id' => $pic_client->client_id,
@@ -140,7 +135,7 @@ class UserRepository implements UserRepositoryInterface
                             'created_at' => $new_status_details['deactivated_at'],
                             'updated_at' => $new_status_details['deactivated_at'],
                         ];
-    
+
                         $this->clientRepository->updatePicClient($pic_client->id, $pic_detail);
                     }
 
@@ -148,15 +143,15 @@ class UserRepository implements UserRepositoryInterface
 
                 UserTypeDetail::where('user_id', $user->id)->where('status', 1)->update([
                     'status' => 0,
-                    'deactivated_at' => $new_status_details['deactivated_at']
+                    'deactivated_at' => $new_status_details['deactivated_at'],
                 ]);
                 break;
 
-            case 1: # activate
+            case 1: // activate
 
                 UserTypeDetail::where('user_id', $user->id)->where('status', 0)->update([
                     'status' => 1,
-                    'deactivated_at' => null
+                    'deactivated_at' => null,
                 ]);
                 break;
         }
@@ -166,46 +161,44 @@ class UserRepository implements UserRepositoryInterface
 
     public function rnDeleteUserType($user_type_id)
     {
-        # store the soon deleted user type variable and returned it
+        // store the soon deleted user type variable and returned it
         $user_type_detail = UserTypeDetail::find($user_type_id);
         UserTypeDetail::destroy($user_type_id);
+
         return $user_type_detail;
     }
 
     public function rnCreateUserEducation(User $user, array $user_education_details)
     {
-        if ( (array_key_exists('graduated_from', $user_education_details) && ($user_education_details['graduated_from'] !== [])) 
+        if ((array_key_exists('graduated_from', $user_education_details) && ($user_education_details['graduated_from'] !== []))
             && (array_key_exists('major', $user_education_details) && ($user_education_details['major'] !== []))
             && (array_key_exists('degree', $user_education_details) && ($user_education_details['degree'] !== []))
             && (array_key_exists('graduation_date', $user_education_details) && ($user_education_details['graduation_date'] !== []))
-        )
-        {
-            for ($i = 0; $i < count($user_education_details['graduated_from']); $i++) 
-            {
+        ) {
+            for ($i = 0; $i < count($user_education_details['graduated_from']); $i++) {
                 $user->educations()->attach($user_education_details['graduated_from'][$i], [
                     'major_id' => $user_education_details['major'][$i],
                     'degree' => $user_education_details['degree'][$i],
-                    'graduation_date' => $user_education_details['graduation_date'][$i] ?? null
+                    'graduation_date' => $user_education_details['graduation_date'][$i] ?? null,
                 ]);
             }
         }
 
     }
-    
+
     public function rnUpdateUserEducation(User $user, array $new_user_education_details)
     {
-        if ( (array_key_exists('graduated_from', $new_user_education_details) && ($new_user_education_details['graduated_from'] !== [null])) 
+        if ((array_key_exists('graduated_from', $new_user_education_details) && ($new_user_education_details['graduated_from'] !== [null]))
             && (array_key_exists('major', $new_user_education_details) && ($new_user_education_details['major'] !== [null]))
             && (array_key_exists('degree', $new_user_education_details) && ($new_user_education_details['degree'] !== [null]))
             && (array_key_exists('graduation_date', $new_user_education_details) && ($new_user_education_details['graduation_date'] !== [null]))
-        )
-        {
+        ) {
             for ($i = 0; $i < count($new_user_education_details['graduated_from']); $i++) {
                 $detailEducations[] = [
                     'univ_id' => $new_user_education_details['graduated_from'][$i],
                     'major_id' => $new_user_education_details['major'][$i],
                     'degree' => $new_user_education_details['degree'][$i],
-                    'graduation_date' => $new_user_education_details['graduation_date'][$i] ?? null
+                    'graduation_date' => $new_user_education_details['graduation_date'][$i] ?? null,
                 ];
             }
 
@@ -215,10 +208,10 @@ class UserRepository implements UserRepositoryInterface
 
     public function rnCreateOrUpdateUserSubject(User $user, Request $request)
     {
-        # recollect user with user subjects
+        // recollect user with user subjects
         $user = User::with('roles')->find($user->id);
 
-        # variables for tutor subject
+        // variables for tutor subject
         $request_subject_details = $request->only([
             'subject_id',
             'role_agreement',
@@ -232,40 +225,39 @@ class UserRepository implements UserRepositoryInterface
             'year',
         ]);
 
-        if ( !$user_identity = $user->roles()->wherePivot('id', $request_subject_details['role_agreement'])->first())
-        {
+        if (! $user_identity = $user->roles()->wherePivot('id', $request_subject_details['role_agreement'])->first()) {
             Log::warning('Failed to add agreement!, User is not a Tutor, mentor, editor or professional', ['id' => $user->id]);
+
             return;
         }
-        
-        # check field agreement
-        # when update agreement and file agreement not change
-        # field agreement is agreement_text (existing agreement)
-        # else field agreement is agreement
+
+        // check field agreement
+        // when update agreement and file agreement not change
+        // field agreement is agreement_text (existing agreement)
+        // else field agreement is agreement
         $fieldname_agreement = $request['agreement_text'] != null && $request['agreement'] == null ? 'agreement_text' : 'agreement';
 
-        if ( $user_subject = UserSubject::where('user_role_id', $request_subject_details['role_agreement'])->where('subject_id', $request_subject_details['subject_id'])->where('year', $request_subject_details['year'])->first() )
-        {
+        if ($user_subject = UserSubject::where('user_role_id', $request_subject_details['role_agreement'])->where('subject_id', $request_subject_details['subject_id'])->where('year', $request_subject_details['year'])->first()) {
 
-            # case 1 agreement ga ada  dan fieldname_agreement != agreement_text then upload
-            # case 2 agreement ada dan fieldname_agreement == agreement_text then skip
-            # case 3 agreement ada dan fieldname_agreement == agreement then upload
-            # case 4 agreement ga ada dan fieldname_agreement = agreement then upload
+            // case 1 agreement ga ada  dan fieldname_agreement != agreement_text then upload
+            // case 2 agreement ada dan fieldname_agreement == agreement_text then skip
+            // case 3 agreement ada dan fieldname_agreement == agreement then upload
+            // case 4 agreement ga ada dan fieldname_agreement = agreement then upload
 
-            if((!$user_subject->agreement && $fieldname_agreement == 'agreement') || (!$user_subject->agreement && $fieldname_agreement == 'agreement') || ($user_subject->agreement && $fieldname_agreement == 'agreement')){
-                $agreement = $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'project/crm/user/' . $user->id);
-            }else{
+            if ((! $user_subject->agreement && $fieldname_agreement == 'agreement') || (! $user_subject->agreement && $fieldname_agreement == 'agreement') || ($user_subject->agreement && $fieldname_agreement == 'agreement')) {
+                $agreement = $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-'.str_replace(' ', '_', $user->first_name.'_'.$user->last_name.'-'.$request->subject_id.'-'.$request_subject_details['year']), 'project/crm/user/'.$user->id);
+            } else {
                 $agreement = $user_subject->agreement;
             }
 
             // $agreement = $user_subject->agreement ?? $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'project/crm/user/' . $user->id);
         } else {
-            $agreement = $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'project/crm/user/' . $user->id);
+            $agreement = $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-'.str_replace(' ', '_', $user->first_name.'_'.$user->last_name.'-'.$request->subject_id.'-'.$request_subject_details['year']), 'project/crm/user/'.$user->id);
         }
 
-        for($j = 0; $j < count($request_subject_details['fee_individual']); $j++){
+        for ($j = 0; $j < count($request_subject_details['fee_individual']); $j++) {
 
-            $subject_details =  [
+            $subject_details = [
                 'fee_individual' => $request_subject_details['fee_individual'][$j],
                 'fee_group' => $request_subject_details['fee_group'][$j],
                 'additional_fee' => $request_subject_details['additional_fee'][$j],
@@ -277,21 +269,22 @@ class UserRepository implements UserRepositoryInterface
                 'user_role_id' => $user_identity->pivot->id,
                 'subject_id' => $request_subject_details['subject_id'],
                 'grade' => $request_subject_details['grade'][$j],
-                'year' => $request_subject_details['year']
+                'year' => $request_subject_details['year'],
             ];
-            
+
             $user->user_subjects()->updateOrCreate(
                 $key_subject, $subject_details);
-        } 
-        
+        }
+
         return $request_subject_details;
     }
 
     public function rnCreateUserRole(User $user, array $user_role_details)
     {
-        if ( (!array_key_exists('role', $user_role_details) && ($user_role_details['role'] !== [])) )
+        if ((! array_key_exists('role', $user_role_details) && ($user_role_details['role'] !== []))) {
             throw new Exception('Role has to be provided.');
-        
+        }
+
         $user->roles()->attach($user_role_details['role']);
     }
 
@@ -302,24 +295,21 @@ class UserRepository implements UserRepositoryInterface
          * we are not using sync method from laravel built-in functions
          * because if we are using sync method, the user_role_id will be changed and it will disrupt the process of rnCreateOrUpdateUserSubject
          */
-        
-        if ( (!array_key_exists('role', $new_user_role_details) && ($new_user_role_details['role'] !== [])) )
+        if ((! array_key_exists('role', $new_user_role_details) && ($new_user_role_details['role'] !== []))) {
             throw new Exception('Role has to be provided.');
+        }
 
-        # new incoming role
+        // new incoming role
         $new_roles = $new_user_role_details['role'];
 
-        # get existing user role
+        // get existing user role
         $existing_roles = $user->roles()->pluck('tbl_roles.id')->toArray();
 
-
-        if ( $diff_roles = array_diff($existing_roles, $new_roles) )
-        {
+        if ($diff_roles = array_diff($existing_roles, $new_roles)) {
             $user->roles()->detach($diff_roles);
         }
 
-        if ( $diff_roles = array_diff($new_roles, $existing_roles) )
-        {
+        if ($diff_roles = array_diff($new_roles, $existing_roles)) {
             $user->roles()->attach($diff_roles);
         }
 
@@ -328,12 +318,13 @@ class UserRepository implements UserRepositoryInterface
 
     public function rnCreateUserType(User $user, array $user_type_details)
     {
-        if ( (!array_key_exists('type', $user_type_details) && ($user_type_details['type'] !== []))
-            || (!array_key_exists('department', $user_type_details) && ($user_type_details['department'] !== []))
-            || (!array_key_exists('start_period', $user_type_details) && ($user_type_details['start_period'] !== []))
-        )
+        if ((! array_key_exists('type', $user_type_details) && ($user_type_details['type'] !== []))
+            || (! array_key_exists('department', $user_type_details) && ($user_type_details['department'] !== []))
+            || (! array_key_exists('start_period', $user_type_details) && ($user_type_details['start_period'] !== []))
+        ) {
             throw new Exception('Contract has to be provided.');
-        
+        }
+
         $user->user_type()->attach($user_type_details['type'], [
             'department_id' => $user_type_details['department'],
             'start_date' => $user_type_details['start_period'],
@@ -343,20 +334,20 @@ class UserRepository implements UserRepositoryInterface
 
     public function rnUpdateUserType(User $user, array $new_user_type_details)
     {
-        if ( (!array_key_exists('type', $new_user_type_details) && ($new_user_type_details['type'] !== []))
-            || (!array_key_exists('department', $new_user_type_details) && ($new_user_type_details['department'] !== []))
-            || (!array_key_exists('start_period', $new_user_type_details) && ($new_user_type_details['start_period'] !== []))
-            || (!array_key_exists('end_period', $new_user_type_details) && ($new_user_type_details['end_period'] !== []))
-        )
+        if ((! array_key_exists('type', $new_user_type_details) && ($new_user_type_details['type'] !== []))
+            || (! array_key_exists('department', $new_user_type_details) && ($new_user_type_details['department'] !== []))
+            || (! array_key_exists('start_period', $new_user_type_details) && ($new_user_type_details['start_period'] !== []))
+            || (! array_key_exists('end_period', $new_user_type_details) && ($new_user_type_details['end_period'] !== []))
+        ) {
             throw new Exception('Contract has to be provided.');
+        }
 
-        # validate
-        # in order to avoid double data
+        // validate
+        // in order to avoid double data
         $new_user_type = $new_user_type_details['type'];
         $new_department = $new_user_type_details['department'];
         $start_period = $new_user_type_details['start_period'];
         $end_period = $new_user_type_details['end_period'];
-
 
         // if ( $user->user_type()->wherePivot('user_type_id', $new_user_type)->wherePivot('status', 1)->wherePivot('start_date', $start_period)->wherePivot('end_date', $end_period)->count() == 0 )
         // {
@@ -365,8 +356,6 @@ class UserRepository implements UserRepositoryInterface
         //     foreach ($active_type as $key => $value) {
         //         $user->user_type()->updateExistingPivot($value, ['status' => 0, 'deactivated_at' => Carbon::now()]);
         //     }
-
-
 
         //     # store new user type to tbl_user_type
         //     $user->user_type()->syncWithoutDetaching([[
@@ -381,7 +370,7 @@ class UserRepository implements UserRepositoryInterface
 
         UserTypeDetail::where('user_id', $user->id)->update(['status' => 0, 'deactivated_at' => Carbon::now()]);
 
-        # store new user type to tbl_user_type
+        // store new user type to tbl_user_type
         $user->user_type()->syncWithoutDetaching([[
             'user_type_id' => $new_user_type,
             'department_id' => $new_department,
@@ -395,8 +384,7 @@ class UserRepository implements UserRepositoryInterface
         return UserSubject::where('id', $user_subject_id)->first();
     }
 
-    
-    //! new methods start
+    // ! new methods start
 
     public function rnFindExpiringContracts(ContractUserType $type)
     {
@@ -428,16 +416,16 @@ class UserRepository implements UserRepositoryInterface
 
     public function rnDeleteUserAgreement($user_subject_id)
     {
-        # store the soon deleted user subject variable and returned it
+        // store the soon deleted user subject variable and returned it
         $user_subject = UserSubject::find($user_subject_id);
 
         UserSubject::destroy($user_subject_id);
-        
-        # delete file agreement
 
-        # if there is no user subject with the same subject id and year then delete file agreement
+        // delete file agreement
+
+        // if there is no user subject with the same subject id and year then delete file agreement
         $user_subjects_by_subject_id = UserSubject::where('subject_id', $user_subject->subject_id)->where('year', $user_subject->year)->get();
-        if(count($user_subjects_by_subject_id) == 0 && Storage::disk('s3')->exists($user_subject->agreement)){
+        if (count($user_subjects_by_subject_id) == 0 && Storage::disk('s3')->exists($user_subject->agreement)) {
 
             Storage::disk('s3')->delete($user_subject->agreement);
 
@@ -448,16 +436,16 @@ class UserRepository implements UserRepositoryInterface
 
     public function rnDeleteUserAgreementBySubjectIdAndYear($subject_id, $year)
     {
-        # store the soon deleted user subject variable and returned it
+        // store the soon deleted user subject variable and returned it
         $user_subject = UserSubject::where('subject_id', $subject_id)->where('year', $year)->get();
 
         UserSubject::where('subject_id', $subject_id)->where('year', $year)->delete();
-        
-        # delete file agreement
 
-        # if there is no user subject with the same subject id and year then delete file agreement
+        // delete file agreement
+
+        // if there is no user subject with the same subject id and year then delete file agreement
         // $user_subjects_by_subject_id = UserSubject::where('subject_id', $user_subject->subject_id)->where('year', $user_subject->year)->get();
-        if(count($user_subject) == 0 && Storage::disk('s3')->exists($user_subject->first()->agreement)){
+        if (count($user_subject) == 0 && Storage::disk('s3')->exists($user_subject->first()->agreement)) {
 
             Storage::disk('s3')->delete($user_subject->first()->agreement);
 
@@ -465,7 +453,7 @@ class UserRepository implements UserRepositoryInterface
 
         return $user_subject;
     }
-    //! new methods end
+    // ! new methods end
 
     public function rnGetExistingMentorsAPI(array $search = [])
     {

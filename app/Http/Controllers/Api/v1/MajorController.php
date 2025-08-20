@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\Major;
 use App\Models\MajorGroup;
-use Illuminate\Http\Request;
 
 class MajorController extends Controller
 {

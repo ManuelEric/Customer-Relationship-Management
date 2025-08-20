@@ -12,10 +12,8 @@ use App\Interfaces\MajorRepositoryInterface;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redirect;
 
 class MajorController extends Controller
@@ -42,7 +40,7 @@ class MajorController extends Controller
     {
         $new_major_details = $request->safe()->only([
             'name',
-            'active'
+            'active',
         ]);
 
         DB::beginTransaction();
@@ -58,8 +56,8 @@ class MajorController extends Controller
             return Redirect::to('master/major')->withError('Failed to create a new major');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_MAJOR, 'New major has been Added', $new_major->toArray());
 
         return Redirect::to('master/major')->withSuccess('Major successfully created');
@@ -78,7 +76,7 @@ class MajorController extends Controller
     {
         $new_major_details = $request->safe()->only([
             'name',
-            'active'
+            'active',
         ]);
 
         $major_id = $request->route('major');
@@ -96,8 +94,8 @@ class MajorController extends Controller
             return Redirect::to('master/major')->withError('Failed to update a major');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_MAJOR, 'Major has been updated', $updated_major->toArray());
 
         return Redirect::to('master/major')->withSuccess('Major successfully updated');
@@ -122,8 +120,8 @@ class MajorController extends Controller
             return Redirect::to('master/major')->withError('Failed to delete a major');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_MAJOR, 'Major has been deleted', $old_major->toArray());
 
         return Redirect::to('master/major')->withSuccess('Major successfully deleted');

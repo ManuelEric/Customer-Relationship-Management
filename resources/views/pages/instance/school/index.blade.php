@@ -157,7 +157,7 @@
                 window.open("{{ url('instance/school') }}/" + data.sch_id.toLowerCase(), "_blank");
             });
 
-            // Tooltip 
+            // Tooltip
             $('#schoolTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',
@@ -165,7 +165,7 @@
                 });
             });
 
-            // Change Active Status 
+            // Change Active Status
             $('#schoolTable tbody').on('change', '.status ', function() {
                 const data = table.row($(this).parents('tr')).data();
                 const val = data.status == 1 ? 0 : 1;
@@ -184,7 +184,7 @@
                 table.ajax.reload(null, false)
             });
 
-            // Select All 
+            // Select All
             function selectAll() {
                 const check_number = $('input.editor-active').length;
                 const checked_number = $('input.editor-active:checked').length;

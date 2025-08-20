@@ -6,17 +6,15 @@ use App\Interfaces\AssetUsedRepositoryInterface;
 use App\Models\Asset;
 use App\Models\pivot\AssetUsed;
 use App\Models\User;
-use DataTables;
-use Exception;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
 
-class AssetUsedRepository implements AssetUsedRepositoryInterface 
+class AssetUsedRepository implements AssetUsedRepositoryInterface
 {
-    # assuming views using a table list
+    // assuming views using a table list
     public function getAllAssetUsedDataTables($assetId)
     {
-        return Datatables::eloquent(User::whereHas('asset', function($query) use ($assetId) {
+        return DataTables::eloquent(User::whereHas('asset', function ($query) use ($assetId) {
             $query->where('tbl_asset_used.asset_id', $assetId);
         }))->make(true);
     }
@@ -28,13 +26,13 @@ class AssetUsedRepository implements AssetUsedRepositoryInterface
         $usedDetails['created_at'] = Carbon::now();
         $usedDetails['updated_at'] = Carbon::now();
 
-        # save into asset used
+        // save into asset used
         $asset->userUsedAsset()->attach($userId, $usedDetails);
 
-        # update asset running stock 
+        // update asset running stock
         $asset->asset_running_stock = $asset->asset_running_stock + $usedDetails['amount_used'];
         $asset->save();
-        
+
     }
 
     // public function updateAssetUsed(array $newDetails)
@@ -62,23 +60,22 @@ class AssetUsedRepository implements AssetUsedRepositoryInterface
     //         # maka statusnya akan kembali "digunakan"
     //         $asset->asset_running_stock = $asset->asset_running_stock + $details['amount_used'];
     //         $asset->save();
-            
-    //     }
 
+    //     }
 
     //     return $user->asset()->updateExistingPivot($assetId, $details);
     // }
 
     public function deleteAssetUsed($assetId, $usedId)
     {
-        # retrieve amount of assets that being used
+        // retrieve amount of assets that being used
         $assetUsed = AssetUsed::find($usedId);
         $amount_used = $assetUsed->amount_used;
 
-        # delete user who using the asset
+        // delete user who using the asset
         $assetUsed->delete();
 
-        # return the stock that being used into the available stock
+        // return the stock that being used into the available stock
         $asset = Asset::whereAssetId($assetId);
         $asset->asset_running_stock = $asset->asset_running_stock - $amount_used;
         $asset->save();

@@ -4,8 +4,6 @@ namespace App\Jobs\Client;
 
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
-use App\Models\ViewRawClient;
-use App\Repositories\ClientProgramRepository;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -22,18 +20,18 @@ class ProcessUpdateClientEventRawStudent implements ShouldQueue
     use IsMonitored;
 
     protected ClientEventRepositoryInterface $clientEventRepository;
-    protected ClientRepositoryInterface $clientRepository;
-    protected $raw_client_id;
-    protected $selected_exist_client_id;
 
+    protected ClientRepositoryInterface $clientRepository;
+
+    protected $raw_client_id;
+
+    protected $selected_exist_client_id;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-
-
     public function __construct($raw_client_id, $selected_exist_client_id)
     {
         $this->raw_client_id = $raw_client_id;
@@ -52,15 +50,15 @@ class ProcessUpdateClientEventRawStudent implements ShouldQueue
 
             $raw_student = $clientRepository->getClientById($this->raw_client_id);
 
-            # Check if raw student have join client_event
-            # then update client_id from client_event with selected exist student
+            // Check if raw student have join client_event
+            // then update client_id from client_event with selected exist student
             if (count($raw_student->clientEvent) > 0) {
                 $clientevent_ids = $raw_student->clientEvent->pluck('clientevent_id')->toArray();
                 $clientEventRepository->updateClientEvents($clientevent_ids, ['client_id' => $this->selected_exist_client_id]);
             }
 
-            # Check if raw student have join client_event as child
-            # then update child_id from client_event with selected exist student
+            // Check if raw student have join client_event as child
+            // then update child_id from client_event with selected exist student
             if (count($raw_student->clientEvent) > 0) {
                 $clientevent_ids = $raw_student->clientEventAsChild->pluck('clientevent_id')->toArray();
                 $clientEventRepository->updateClientEvents($clientevent_ids, ['client_id' => $this->selected_exist_client_id]);
@@ -70,10 +68,9 @@ class ProcessUpdateClientEventRawStudent implements ShouldQueue
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to update client event raw student : ' . $e->getMessage() . ' on line ' . $e->getLine());
+            Log::error('Failed to update client event raw student : '.$e->getMessage().' on line '.$e->getLine());
         }
 
         Log::notice('Successfully update client event raw student  : ', $raw_student->toArray());
     }
-
 }

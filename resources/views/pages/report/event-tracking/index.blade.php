@@ -70,7 +70,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    @if (isset($clientEvents->first()->filter) && $clientEvents->first()->filter == 'ByMonth')                                       
+                                    @if (isset($clientEvents->first()->filter) && $clientEvents->first()->filter == 'ByMonth')
                                         <th>Event Name</th>
                                     @endif
                                     <th>Client Name</th>
@@ -86,7 +86,7 @@
                                 @forelse ($clientEvents as $clientEvent)
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
-                                        @if ($clientEvent->filter == 'ByMonth')                                       
+                                        @if ($clientEvent->filter == 'ByMonth')
                                             <td>{{ $clientEvent->event_title }}</td>
                                         @endif
                                         <td>{{ $clientEvent->client_name }}</td>

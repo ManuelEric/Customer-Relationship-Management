@@ -47,7 +47,7 @@
             @includeWhen($status == 'reminder' && !$isBundle, 'pages.invoice.client-program.detail.invoice-reminder')
             @includeWhen($status == 'reminder' && $isBundle, 'pages.invoice.client-program.detail.invoice-bundle-reminder')
 
-            
+
 
         </div>
     </div>

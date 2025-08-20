@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\MenuController;
 use App\Http\Controllers\RequestSignController;
 use Illuminate\Support\Facades\Route;
 

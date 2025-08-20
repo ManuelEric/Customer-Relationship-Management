@@ -6,8 +6,6 @@ use App\Interfaces\AcadTutorRepositoryInterface;
 use App\Services\User\UserService;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Mail\SentMessage;
 
 class SendReminderTutorCommand extends Command
 {
@@ -26,6 +24,7 @@ class SendReminderTutorCommand extends Command
     protected $description = 'Send reminder tutor';
 
     private AcadTutorRepositoryInterface $acadTutorRepository;
+
     private UserService $userService;
 
     public function __construct(AcadTutorRepositoryInterface $acadTutorRepository, UserService $userService)
@@ -36,13 +35,13 @@ class SendReminderTutorCommand extends Command
         $this->userService = $userService;
     }
 
-    # Purpose:
-    # Get schedule tutor H-1 or -3 hours
-    # Reminder email tutor 
+    // Purpose:
+    // Get schedule tutor H-1 or -3 hours
+    // Reminder email tutor
     public function handle()
     {
         $time = $this->argument('time');
-        
+
         switch ($time) {
             case 'H1':
                 $acad_tutors = $this->acadTutorRepository->getAllScheduleAcadTutorH1Day();
@@ -51,7 +50,7 @@ class SendReminderTutorCommand extends Command
             case 'T3':
                 $acad_tutors = $this->acadTutorRepository->getAllScheduleAcadTutorT3Hours();
                 break;
-            
+
             default:
                 throw new Exception('Time is invalid!');
                 break;

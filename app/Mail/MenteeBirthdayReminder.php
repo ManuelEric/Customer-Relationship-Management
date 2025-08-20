@@ -2,13 +2,11 @@
 
 namespace App\Mail;
 
-use App\Models\UserClient;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
 
 class MenteeBirthdayReminder extends Mailable
@@ -41,7 +39,7 @@ class MenteeBirthdayReminder extends Mailable
         return new Content(
             view: 'mail-template.reminder.mentee-birthday-reminder',
             with: [
-                'mentees' => implode(", ", array_values($this->mentees)),
+                'mentees' => implode(', ', array_values($this->mentees)),
             ]
         );
     }

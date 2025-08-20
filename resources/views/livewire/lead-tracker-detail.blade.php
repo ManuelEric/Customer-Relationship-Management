@@ -57,7 +57,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            
+
                             <div class="col">
                                 <input type="text" placeholder="Search" class="form-control form-control-sm" wire:loading.attr="disabled" wire:model="requested_search" wire:keydown.enter="doSearch">
                             </div>

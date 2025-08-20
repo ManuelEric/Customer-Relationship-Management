@@ -5,4 +5,3 @@ define("ace/snippets/haskell",["require","exports","module"],function(e,t,n){"us
                         }
                     });
                 })();
-            

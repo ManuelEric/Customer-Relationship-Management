@@ -13,15 +13,19 @@ use Illuminate\Http\Request;
 
 class ClientMenteeController extends Controller
 {
-    
     private ClientRepositoryInterface $clientRepository;
-    private InitialProgramRepositoryInterface $initialProgramRepository;
-    private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
-    private ProgramRepositoryInterface $programRepository;
-    private ReasonRepositoryInterface $reasonRepository;
-    private UserRepositoryInterface $userRepository;
-    private ProgramService $programService;
 
+    private InitialProgramRepositoryInterface $initialProgramRepository;
+
+    private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+
+    private ProgramRepositoryInterface $programRepository;
+
+    private ReasonRepositoryInterface $reasonRepository;
+
+    private UserRepositoryInterface $userRepository;
+
+    private ProgramService $programService;
 
     public function __construct(ClientRepositoryInterface $clientRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository, ProgramRepositoryInterface $programRepository, UserRepositoryInterface $userRepository, ProgramService $programService)
     {
@@ -34,7 +38,7 @@ class ClientMenteeController extends Controller
         $this->programService = $programService;
 
     }
-    
+
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -44,7 +48,7 @@ class ClientMenteeController extends Controller
             $as_datatables = true;
             $group_by = false;
 
-            # array for advanced filter request
+            // array for advanced filter request
             $advanced_filter = [
                 'school_name' => $school_name,
                 'graduation_year' => $graduation_year,
@@ -52,14 +56,15 @@ class ClientMenteeController extends Controller
 
             switch ($status) {
 
-                case "mentee":
+                case 'mentee':
                     $model = $this->clientRepository->getAlumniMentees($group_by, $as_datatables, null, $advanced_filter);
                     break;
 
-                case "non-mentee":
+                case 'non-mentee':
                     $model = $this->clientRepository->getAlumniNonMentees($group_by, $as_datatables, null, $advanced_filter);
                     break;
             }
+
             return $this->clientRepository->getDataTables($model);
         }
 
@@ -82,8 +87,9 @@ class ClientMenteeController extends Controller
         $initial_programs = $this->initialProgramRepository->getAllInitProg();
         $history_leads = $this->clientLeadTrackingRepository->getHistoryClientLead($mentee_id);
 
-        if (!$student)
+        if (! $student) {
             abort(404);
+        }
 
         $pic_active = null;
         if (count($student->picClient) > 0) {

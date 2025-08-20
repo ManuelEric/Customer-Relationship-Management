@@ -34,12 +34,12 @@
                         {{ isset($school) ? $school->sch_name : 'Add New School' }}
                     </h5>
                     @if(isset($school))
-                    
+
                         <p>
                             <a class="text-primary text-decoration-none cursor-pointer" target="_blank" href="{{ url('client/student?sch='.$school->sch_name) }}">
                                 {{ $school->client->count() }} Students Connected
-                            </a> 
-                            | 
+                            </a>
+                            |
                             <a class="text-decoration-none" href="#" data-bs-toggle="modal" data-bs-target="#aliasModal">
                                 {{ $aliases->count() }} Aliases
                             </a>
@@ -154,7 +154,7 @@
                                     <label>School Name <sup class="text-danger">*</sup> </label>
                                     @if (!isset($school))
                                     <select name="choosen_school" class="w-100" @disabled(!empty($school) && !isset($edit))>
-                                        
+
                                     </select>
                                     @endif
                                     <input type="text" name="sch_name" @class([
@@ -393,7 +393,7 @@
             @endif
         </div>
     </div>
-    
+
     @if (isset($school))
         <div class="modal modal-md fade" id="aliasModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
@@ -455,7 +455,7 @@
                                     </tr>
                             </tbody>
                         </table>
-                        
+
                         <div class="col-md-12 mt-2">
                             <div class="d-flex justify-content-between">
                                 <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
@@ -610,7 +610,7 @@
 
 @push('scripts')
 <script>
-    
+
     $(document).ready(function() {
         @if (session()->has('success'))
             $("#aliasModal").modal('show');
@@ -618,24 +618,24 @@
 
         $('.delete-alias').on('click', function(e) {
             e.preventDefault();
-    
+
             showLoading();
-    
+
             var link = $(this).attr('href');
-    
+
             axios.post(link, {
                     _method: 'DELETE',
                     _token: '{{ csrf_token() }}'
                 }).then(function (response) {
-    
+
                     swal.close();
                     notification('success', response.data.message);
                     location.reload();
-    
+
                 }).catch(function (error) {
-    
+
                     notification('error', error.message);
-    
+
                 })
         })
     })
@@ -650,12 +650,12 @@
                 var query = {
                     search: params.term
                 }
-                
+
                 $("input[name=sch_name]").val(query.search);
-                
+
                 // Query parameters will be ?search=[term]
                 return query;
-            }, 
+            },
             processResults: function (data) {
                 return {
                     results: $.map(data, function (obj) {
@@ -668,7 +668,7 @@
     })
 
     $("select[name=choosen_school]").on('change', function() {
-        var val = $(this).val();        
+        var val = $(this).val();
         if (val == 'SCH-NEW') {
 
             $(this).next(".select2-container").addClass('d-none');
@@ -677,7 +677,7 @@
         }
     })
 
-    // Select2 Modal 
+    // Select2 Modal
     $(document).ready(function() {
         $('.modal-program').select2({
             dropdownParent: $('#programForm .modal-content'),

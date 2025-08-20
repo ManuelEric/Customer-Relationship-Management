@@ -51,7 +51,7 @@
                                     <div class="col-5">
                                         <select name="file" id="" class="form-select" required>
                                             <option value=""></option>
-                                            
+
                                         </select>
                                     </div>
                                     <div class="col-2">
@@ -70,8 +70,7 @@
         function checkType(){
             let type = $('#type').val()
             $('#invitation').attr('action', '{{url("instance/school/import/merge")}}');
-                   
+
         }
     </script>
 @endsection
-

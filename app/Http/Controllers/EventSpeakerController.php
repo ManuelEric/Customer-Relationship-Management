@@ -9,13 +9,10 @@ use App\Enum\LogModule;
 use App\Http\Requests\StoreSpeakerRequest;
 use App\Http\Traits\FindAgendaSpeakerPriorityTrait;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
-use App\Models\AgendaSpeaker;
 use App\Services\Log\LogService;
 use Exception;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class EventSpeakerController extends Controller
@@ -32,7 +29,7 @@ class EventSpeakerController extends Controller
     public function store(StoreSpeakerRequest $request, CreateEventSpeakerAction $createEventSpeakerAction, LogService $log_service)
     {
         $event_id = $request->route('event');
-        
+
         $new_agenda_details = $request->safe()->only([
             'speaker_type',
             'allin_speaker',
@@ -54,7 +51,7 @@ class EventSpeakerController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_EVENT_SPEAKER, $e->getMessage(), $e->getLine(), $e->getFile(), $new_agenda_details);
 
-            return Redirect::to('master/event/' . $event_id . '')->withError('Failed to add speaker');
+            return Redirect::to('master/event/'.$event_id.'')->withError('Failed to add speaker');
 
         }
 
@@ -63,14 +60,14 @@ class EventSpeakerController extends Controller
         return Redirect::to('master/event/'.$event_id)->withSuccess('Event speaker successfully added');
     }
 
-    # get request from event controller
+    // get request from event controller
     public function update(StoreSpeakerRequest $request, UpdateEventSpeakerAction $updateEventSpeakerAction, LogService $log_service)
     {
         $event_id = $request->route('event');
 
         $new_event_speaker_details = $request->safe()->only([
             'status',
-            'notes'
+            'notes',
         ]);
 
         DB::beginTransaction();
@@ -86,7 +83,7 @@ class EventSpeakerController extends Controller
 
             $log_service->createErrorLog(LogModule::UPDATE_EVENT_SPEAKER, $e->getMessage(), $e->getLine(), $e->getFile(), $new_event_speaker_details);
 
-            return Redirect::to('master/event/' . $event_id . '')->withError('Failed to update speaker');
+            return Redirect::to('master/event/'.$event_id.'')->withError('Failed to update speaker');
 
         }
 
@@ -112,7 +109,7 @@ class EventSpeakerController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_EVENT_SPEAKER, $e->getMessage(), $e->getLine(), $e->getFile(), ['agenda_id' => $agenda_id]);
 
-            return Redirect::to('master/event/' . $event_id . '')->withError('Failed to remove speaker');
+            return Redirect::to('master/event/'.$event_id.'')->withError('Failed to remove speaker');
 
         }
 

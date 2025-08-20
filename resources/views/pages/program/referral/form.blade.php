@@ -179,9 +179,9 @@
                             <div class="col-md-6 mb-2 referral-other d-none">
                                 <label>Referral Fee IDR <sup class="text-danger">*</sup></label>
                                 <input type="number" name="revenue_idr" id="revenue_idr"
-                                    value="{{ 
+                                    value="{{
                                             isset($referral) ?
-                                                (isset($referral->revenue) && $referral->currency != "IDR" ? $referral->revenue : old('revenue_idr')) 
+                                                (isset($referral->revenue) && $referral->currency != "IDR" ? $referral->revenue : old('revenue_idr'))
                                             : null
                                         }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
@@ -252,11 +252,11 @@
         function checkReferralOther() {
             let kurs = $('#curs_rate').val()
             let price = $('#revenue').val()
-    
+
             $('#revenue_idr').val(price * kurs)
-            
+
         }
-        
+
 
         $(document).ready(function() {
 
@@ -265,33 +265,33 @@
                 var current_rate = $("#curs_rate").val()
 
                 {{--  checkCurrencyDetail()  --}}
-                
+
 
                     showLoading()
                     var base_currency = $(this).val();
                     var to_currency = 'IDR';
-    
+
                     var link = "{{ url('/') }}/api/v1/current/rate/"+base_currency+"/"+to_currency
-    
+
                     axios.get(link)
                         .then(function (response) {
-    
+
                             var rate = response.data.rate;
                             $("#curs_rate").val(rate)
                             swal.close()
-    
+
                         }).catch(function (error) {
-    
+
                             $("#curs_rate").val('')
                             swal.close()
                             notification('error', 'Something went wrong. Please try again');
-    
+
                         })
-                
+
 
             })
 
-            
+
 
             @if (isset($referral) && $referral->referral_type == 'In')
                 $('#selectProgram').removeClass('d-none')

@@ -21,8 +21,8 @@ class StoreAcceptanceRequest extends FormRequest
 
         throw new HttpResponseException(
             response()->json([
-                'message' => "",
-                'errors' => $errors
+                'message' => '',
+                'errors' => $errors,
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
@@ -30,7 +30,7 @@ class StoreAcceptanceRequest extends FormRequest
     public function prepareForValidation()
     {
         $this->merge([
-            'acceptance_id' => $this->route('acceptance')
+            'acceptance_id' => $this->route('acceptance'),
         ]);
     }
 
@@ -48,16 +48,18 @@ class StoreAcceptanceRequest extends FormRequest
             'major_name' => 'nullable',
             'status' => 'required',
             'requirement_link' => 'nullable',
-         ];
+        ];
 
-        if ( $this->isMethod('PUT') )
+        if ($this->isMethod('PUT')) {
             $rules['acceptance_id'] = 'required';
+        }
 
         return $rules;
     }
 
     /**
      * Summary of attributes
+     *
      * @return array{alumni: string, major: string, major_group: string, status: string, uni_id: string}
      */
     public function attributes()

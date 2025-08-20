@@ -7,8 +7,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRefundSchoolRequest extends FormRequest
 {
-
     private InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -37,8 +37,8 @@ class StoreRefundSchoolRequest extends FormRequest
         $total_paid = $invoice->receipt()->sum('receipt_amount_idr');
 
         return [
-            'total_payment' => 'required|numeric|in:' . $total_payment,
-            'total_paid' => 'required|numeric|in:' . $total_paid,
+            'total_payment' => 'required|numeric|in:'.$total_payment,
+            'total_paid' => 'required|numeric|in:'.$total_paid,
             'percentage_refund' => 'nullable|numeric|max:100',
             'refund_amount' => 'required|numeric',
             'tax_percentage' => 'nullable|numeric|max:100',

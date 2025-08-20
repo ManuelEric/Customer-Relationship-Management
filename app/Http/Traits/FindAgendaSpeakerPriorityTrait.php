@@ -3,28 +3,26 @@
 namespace App\Http\Traits;
 
 use App\Models\AgendaSpeaker;
-use App\Models\Event;
 
 trait FindAgendaSpeakerPriorityTrait
 {
-
     public function maxAgendaSpeakerPriority($class, $identifier, $agendaDetails)
     {
 
         switch ($class) {
-            case "Event":
+            case 'Event':
                 $query = AgendaSpeaker::where('event_id', $identifier);
                 break;
 
-            case "School-Program":
+            case 'School-Program':
                 $query = AgendaSpeaker::where('sch_prog_id', $identifier);
                 break;
 
-            case "Partner-Program":
+            case 'Partner-Program':
                 $query = AgendaSpeaker::where('partner_prog_id', $identifier);
                 break;
 
-            case "Edufair":
+            case 'Edufair':
                 $query = AgendaSpeaker::where('eduf_id', $identifier);
                 break;
         }
@@ -38,19 +36,19 @@ trait FindAgendaSpeakerPriorityTrait
 
         switch ($speaker_type) {
 
-            case "internal":
+            case 'internal':
                 return $query->whereNotNull('empl_id')->max('priority');
                 break;
 
-            case "partner":
+            case 'partner':
                 return $query->whereNotNull('partner_pic_id')->max('priority');
                 break;
 
-            case "school":
+            case 'school':
                 return $query->whereNotNull('sch_pic_id')->max('priority');
                 break;
 
-            case "university":
+            case 'university':
                 return $query->whereNotNull('univ_pic_id')->max('priority');
                 break;
         }

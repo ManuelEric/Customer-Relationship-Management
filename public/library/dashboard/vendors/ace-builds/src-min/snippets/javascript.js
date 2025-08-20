@@ -5,4 +5,3 @@ define("ace/snippets/javascript",["require","exports","module"],function(e,t,n){
                         }
                     });
                 })();
-            

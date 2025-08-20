@@ -70,8 +70,8 @@
                 </div>
             </div>
         </div>
-        
-        
+
+
     </div>
 </div>
 
@@ -81,7 +81,7 @@
         function get_domicile(uuid, daterange) {
 
             var url = window.location.origin + '/api/v1/dashboard/domicile'
-    
+
             axios.get(url, {
                     params: {
                         date_range: daterange,
@@ -89,13 +89,13 @@
                     }
                 })
                 .then(function(response) {
-    
+
                     let html = null
-                    const obj = response.data.data                    
-                    
+                    const obj = response.data.data
+
                     var no = 1;
                     Object.keys(obj).forEach(function(key) {
-                        
+
 
                         html += "<tr>" +
                             "<td class='text-center'>" + no++ + "</td>" +
@@ -105,7 +105,7 @@
                             "</tr>"
 
                     });
-    
+
                     $("#data-domicile").html(html)
                     swal.close()
                 }).catch(function(error) {

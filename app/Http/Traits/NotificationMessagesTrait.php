@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Http\Traits;
 
 use Illuminate\Support\Facades\Crypt;
 
-trait NotificationMessagesTrait {
-
+trait NotificationMessagesTrait
+{
     public function statusMessages(array $raw_program_status)
     {
         $status_msg = [];
@@ -12,7 +13,7 @@ trait NotificationMessagesTrait {
             $raw_status = Crypt::decrypt($raw_program_status[$i]);
             $status[] = $raw_status;
 
-            # create messages
+            // create messages
             switch ($raw_status) {
                 case 0:
                     $status_msg[] = 'pending';

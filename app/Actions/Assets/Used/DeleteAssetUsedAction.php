@@ -8,6 +8,7 @@ use App\Interfaces\AssetUsedRepositoryInterface;
 class DeleteAssetUsedAction
 {
     use CreateCustomPrimaryKeyTrait;
+
     private AssetUsedRepositoryInterface $assetUsedRepository;
 
     public function __construct(AssetUsedRepositoryInterface $assetUsedRepository)
@@ -16,11 +17,10 @@ class DeleteAssetUsedAction
     }
 
     public function execute(
-        String $asset_id,
+        string $asset_id,
         $used_id
-    )
-    {
-        # delete asset used
+    ) {
+        // delete asset used
         $deleted_asset_used = $this->assetUsedRepository->deleteAssetUsed($asset_id, $used_id);
 
         return $deleted_asset_used;

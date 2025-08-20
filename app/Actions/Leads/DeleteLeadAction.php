@@ -14,11 +14,10 @@ class DeleteLeadAction
     }
 
     public function execute(
-        String $lead_id
-    )
-    {
-        # Update curriculum
-        $lead =  $this->leadRepository->deleteLead($lead_id);
+        string $lead_id
+    ) {
+        // Update curriculum
+        $lead = $this->leadRepository->deleteLead($lead_id);
 
         return $lead;
     }

@@ -6,7 +6,6 @@ use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\StoreAcceptanceRequest as V1APIStoreAcceptanceRequest;
 use App\Interfaces\ClientRepositoryInterface;
-use App\Models\ClientAcceptance as ModelsClientAcceptance;
 use App\Models\pivot\ClientAcceptance;
 use App\Models\University;
 use App\Models\UserClient;
@@ -24,7 +23,6 @@ class AcceptanceController extends Controller
     {
         $this->clientRepository = $clientRepository;
     }
-
 
     public function fnListOfUniApplication(UserClient $student): JsonResponse
     {
@@ -47,16 +45,17 @@ class AcceptanceController extends Controller
                 'major' => $item->get_major_name,
                 'category' => ucwords($item->category),
                 'requirement_link' => $item->requirement_link,
-                'status' => ucwords($item->status)
-            ]; 
+                'status' => ucwords($item->status),
+            ];
         });
         $latest_adm_program = $student->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first();
         $total = $latest_adm_program->total_uni;
+
         return response()->json(compact('uni_application', 'total'));
     }
 
     public function fnAddUni(
-        UserClient $student, 
+        UserClient $student,
         V1APIStoreAcceptanceRequest $request,
         LogService $log_service)
     {
@@ -82,7 +81,7 @@ class AcceptanceController extends Controller
                 'requirement_link' => $validated['requirement_link'],
                 'early_action' => $master_univ->early_action,
                 'early_decision' => $master_univ->early_decision,
-                'regular_deadline' => $master_univ->regular_deadline
+                'regular_deadline' => $master_univ->regular_deadline,
             ]);
             DB::commit();
         } catch (Exception $err) {
@@ -94,17 +93,17 @@ class AcceptanceController extends Controller
         }
 
         $log_service->createSuccessLog(LogModule::STORE_ALUMNI_ACCEPTANCE, 'New uni has been added to shortlist', $validated);
+
         return response()->json([
             'message' => 'Uni has successfully added',
         ]);
     }
 
     public function fnUpdateUni(
-        UserClient $student, 
+        UserClient $student,
         V1APIStoreAcceptanceRequest $request,
         LogService $log_service
-    )
-    {
+    ) {
         $validated = $request->safe()->only([
             'univ_id',
             'category',
@@ -112,7 +111,7 @@ class AcceptanceController extends Controller
             'major_name',
             'status',
             'requirement_link',
-            'acceptance_id'
+            'acceptance_id',
         ]);
 
         DB::beginTransaction();
@@ -135,17 +134,17 @@ class AcceptanceController extends Controller
         }
 
         $log_service->createSuccessLog(LogModule::UPDATE_ALUMNI_ACCEPTANCE, 'The uni has been updated to shortlist', $validated);
+
         return response()->json([
-            'message' => 'Uni application has been updated'
+            'message' => 'Uni application has been updated',
         ]);
     }
 
     public function fnDeleteUni(
-        UserClient $student, 
+        UserClient $student,
         LogService $log_service,
         $acceptance_id
-    )
-    {
+    ) {
         DB::beginTransaction();
         try {
             ClientAcceptance::findOrFail($acceptance_id)->delete();
@@ -159,8 +158,9 @@ class AcceptanceController extends Controller
         }
 
         $log_service->createSuccessLog(LogModule::DELETE_ALUMNI_ACCEPTANCE, 'The uni has been deleted to shortlist');
+
         return response()->json([
-            'message' => 'Uni application has been deleted'
+            'message' => 'Uni application has been deleted',
         ]);
     }
 }

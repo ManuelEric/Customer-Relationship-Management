@@ -20,7 +20,7 @@
                         <div class="">
                             {{ $school->sch_name }}
                         </div>
-                        <div class="btn-delete-school" style="cursor:pointer" 
+                        <div class="btn-delete-school" style="cursor:pointer"
                             onclick="confirmDelete('program/school/{{ $schId }}/detail/{{ $sch_ProgId }}/collaborators/school', '{{ $school->sch_id }}')">
                             <i class="bi bi-trash2 text-danger"></i>
                         </div>

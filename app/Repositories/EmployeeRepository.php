@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\EmployeeRepositoryInterface;
 use App\Models\v1\Employee;
 
-class EmployeeRepository implements EmployeeRepositoryInterface 
+class EmployeeRepository implements EmployeeRepositoryInterface
 {
     public function getDistinctDepartment()
     {

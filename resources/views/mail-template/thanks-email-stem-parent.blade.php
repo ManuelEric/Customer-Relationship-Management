@@ -42,8 +42,8 @@
                                 Dapatkan sekarang di <br>
                                 <a href="https://api.whatsapp.com/send?phone=+6281808081363&text={{ $wa_text_anggie }}" style="text-decoration: none;">
                                     <button style="border: 1px solid rgb(222, 222, 12); padding: 15px 50px 15px 50px; background-color:#F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">Anggie</button>
-                                </a> 
-                                atau 
+                                </a>
+                                atau
                                 <a href="https://api.whatsapp.com/send?phone=+6287860811413&text={{ $wa_text_derry }}" style="text-decoration: none;">
                                     <button style="border: 1px solid rgb(222, 222, 12); padding: 15px 50px 15px 50px; background-color: #F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">Derry</button>
                                 </a>

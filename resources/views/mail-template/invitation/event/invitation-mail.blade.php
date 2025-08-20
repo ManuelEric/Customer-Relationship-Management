@@ -13,7 +13,7 @@
                         <td>
                             <p>Dear Mr./Mrs. {{ $client['recipient'] }},</p>
                             <p>
-                                We are excited to announce that ALL-in Eduspace is evolving into EduALL! 
+                                We are excited to announce that ALL-in Eduspace is evolving into EduALL!
                             </p>
                             <p>
                                 In hope to celebrate this milestone, we cordially invite you to our grand launching:
@@ -28,10 +28,10 @@
 
                             <p style="text-align: center;margin: 2.5em auto;">
                                 <a class="button" href="{{ $cta }}"
-                                    style="background: #3b6cde; 
-                                        text-decoration: none; 
+                                    style="background: #3b6cde;
+                                        text-decoration: none;
                                         padding: .6em 1.5em;
-                                        color: #ffffff; 
+                                        color: #ffffff;
                                         border-radius: 2px;
                                         mso-padding-alt:0;
                                         text-underline-color:#156ab3">
@@ -40,7 +40,7 @@
                                         <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
                                 </a>
                             </p>
-                        
+
                             <p>
                                 In EduALL Launchpad, we invite you and your child to gain insights and experience hands-on activities in university application preparation to enter the world’s best universities.
                             </p>
@@ -51,7 +51,7 @@
 
                             <p>
                                 Best regards, <br>
-                                EduALL Team 
+                                EduALL Team
                             </p>
                         </td>
                     </tr>

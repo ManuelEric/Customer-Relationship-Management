@@ -1,0 +1,29 @@
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
+  - repo: local
+    hooks:
+      - id: laravel-pint
+        name: Laravel Pint
+        entry: ./vendor/bin/pint
+        language: system
+        types: [php]
+        pass_filenames: false
+        require_serial: true
+        always_run: true
+        args: []
+        # This lets pre-commit know that the hook might modify files and it should re-add them.
+        stages: [commit]
+
+      - id: phpstan
+        name: PHPStan Static Analysis
+        entry: ./vendor/bin/phpstan analyse --no-progress
+        language: system
+        types: [php]

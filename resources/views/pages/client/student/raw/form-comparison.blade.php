@@ -312,7 +312,7 @@
                                                 onchange="checkInputText(this, 'parent', 'select')">
                                                 <option value=""></option>
                                                 @foreach ($parents as $parent)
-                                                    <option data-id="{{ $parent->id }}" data-name="{{ $parent->full_name }}" data-email="{{ $parent->mail }}" data-phone="{{ $parent->phone }}" 
+                                                    <option data-id="{{ $parent->id }}" data-name="{{ $parent->full_name }}" data-email="{{ $parent->mail }}" data-phone="{{ $parent->phone }}"
                                                         value="{{ $parent->full_name }}">{{ $parent->full_name }}</option>
                                                 @endforeach
                                             </select>
@@ -472,7 +472,7 @@
             if (type == 'text') {
                 $('#' + init + 'New').val('')
 
-                // Sumarize 
+                // Sumarize
                 $('#' + init + 'InputPreview').val($(item).val())
                 $('#' + init + 'Preview').html($(item).val())
             } else if (type == 'select') {
@@ -486,12 +486,12 @@
                     }
                     $('#' + init + 'NamePreview').html($(item).data('name'))
 
-                    // for parents detail 
+                    // for parents detail
                     $('#' + init + '_name').val($(item).data('name'))
                     $('#' + init + '_email').val($(item).data('email'))
                     $('#' + init + '_phone').val($(item).data('phone'))
 
-                    // for parent detail summarize 
+                    // for parent detail summarize
                     $('#' + init + 'NameInputPreview').val($(item).data('name'))
                     $('#' + init + 'EmailInputPreview').val($(item).data('email'))
                     $('#' + init + 'PhoneInputPreview').val($(item).data('phone'))
@@ -505,7 +505,7 @@
                     }
                 }
 
-                // Sumarize 
+                // Sumarize
                 $('#' + init + 'InputPreview').val($(item).val())
             }
 

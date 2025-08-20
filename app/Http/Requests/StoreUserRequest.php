@@ -5,13 +5,13 @@ namespace App\Http\Requests;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Hash;
 
 class StoreUserRequest extends FormRequest
 {
     use StandardizePhoneNumberTrait;
 
     private UserRepositoryInterface $userRepository;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,6 +26,7 @@ class StoreUserRequest extends FormRequest
     {
         $this->userRepository = $userRepository;
     }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -55,8 +56,8 @@ class StoreUserRequest extends FormRequest
             $i < $total_roles
         ) {
             $rules = [
-                'emergency_contact_phone' =>  'required_if:role.' . $i . ',1,8',
-                'emergency_contact_relation_name' => 'required_if:role.' . $i . ',1,8'
+                'emergency_contact_phone' => 'required_if:role.'.$i.',1,8',
+                'emergency_contact_relation_name' => 'required_if:role.'.$i.',1,8',
             ];
             $i++;
         }
@@ -85,18 +86,18 @@ class StoreUserRequest extends FormRequest
             'npwp' => 'nullable',
             'tax' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
             'health_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
-            'empl_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000'
+            'empl_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
 
         ];
 
-        if(!in_array(19, $this->input('role'))){
+        if (! in_array(19, $this->input('role'))) {
             $rules += [
-                'department' => 'required', # 19 is professional
+                'department' => 'required', // 19 is professional
                 'position' => 'required',
                 'hiredate' => 'required',
                 'type' => 'required|exists:tbl_user_type,id',
                 'start_period' => 'required',
-                'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
+                'end_period' => 'required_unless:type,1', // 1 is type : Full-Time
             ];
         }
 
@@ -116,7 +117,7 @@ class StoreUserRequest extends FormRequest
         //         ];
         //     }
         // }
-        
+
         return $rules;
     }
 
@@ -128,8 +129,8 @@ class StoreUserRequest extends FormRequest
             $i < $total_roles
         ) {
             $rules = [
-                'emergency_contact_phone' =>  'required_if:role.' . $i . ',1,8',
-                'emergency_contact_relation_name' => 'required_if:role.' . $i . ',1,8'
+                'emergency_contact_phone' => 'required_if:role.'.$i.',1,8',
+                'emergency_contact_relation_name' => 'required_if:role.'.$i.',1,8',
             ];
             $i++;
         }
@@ -148,7 +149,7 @@ class StoreUserRequest extends FormRequest
             'graduation_date.*' => 'nullable',
 
             'role.*' => 'required|in:1,2,3,4,18,19,20',
-            
+
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
             'bank_name' => 'required',
             'account_name' => 'required',
@@ -157,26 +158,27 @@ class StoreUserRequest extends FormRequest
             'npwp' => 'nullable',
             'tax' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
             'health_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
-            'empl_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000'
+            'empl_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
 
         ];
 
-        if(!in_array(19, $this->input('role'))){
+        if (! in_array(19, $this->input('role'))) {
             $rules += [
-                'department' => 'required', # 19 is professional
+                'department' => 'required', // 19 is professional
                 'position' => 'required',
                 'hiredate' => 'required',
                 'type' => 'required|exists:tbl_user_type,id',
                 'start_period' => 'required',
-                'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
+                'end_period' => 'required_unless:type,1', // 1 is type : Full-Time
             ];
         }
 
         $userId = $this->route('user');
         $user = $this->userRepository->rnGetUserById($userId);
 
-        if ($user->idcard == null)
+        if ($user->idcard == null) {
             $rules['idcard'] = 'nullable|mimes:pdf,jpeg,jpg,png|max:5000';
+        }
 
         // if ( $total_roles > 0 )
         // {

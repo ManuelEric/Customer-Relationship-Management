@@ -18,8 +18,8 @@
                 <div class="row g-2 installment-others mb-3">
                     <div class="col-md-3">
                         <label for="">Name</label>
-                        <input type="text" name="invdtl_installment_other[]" class="form-control form-control-sm installment-name" 
-                            value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_installment : old('invdtl_installment_other')[$i] }}" 
+                        <input type="text" name="invdtl_installment_other[]" class="form-control form-control-sm installment-name"
+                            value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_installment : old('invdtl_installment_other')[$i] }}"
                                     {{ empty($invoicePartner->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
                         @error('invdtl_installment_other.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -28,7 +28,7 @@
                     <div class="col-md-3">
                         <label for="">Due Date</label>
                         <input type="date" name="invdtl_duedate_other[]" class="form-control form-control-sm"
-                           value="{{ isset($invoicePartner->inv_detail) ? date('Y-m-d', strtotime($invoicePartner->inv_detail[$i]->invdtl_duedate)) : old('invdtl_duedate_other')[$i] }}" 
+                           value="{{ isset($invoicePartner->inv_detail) ? date('Y-m-d', strtotime($invoicePartner->inv_detail[$i]->invdtl_duedate)) : old('invdtl_duedate_other')[$i] }}"
                                     {{ empty($invoicePartner->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
                         @error('invdtl_duedate_other.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -38,7 +38,7 @@
                         <label for="">Percentage (%)</label>
                         <input type="text" name="invdtl_percentage_other[]" id="percentage_other_0"
                             class="form-control form-control-sm percentage-other" onchange="checkPercentageOther('0')"
-                            onchange="checkPercentage('{{$i}}')" value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_percentage : old('invdtl_percentage_other')[$i] }}" 
+                            onchange="checkPercentage('{{$i}}')" value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_percentage : old('invdtl_percentage_other')[$i] }}"
                                     {{ empty($invoicePartner->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
                         @error('invdtl_percentage_other.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -60,7 +60,7 @@
                                 $
                             </span>
                             <input type="number" name="invdtl_amount[]" class="form-control amount-other" id="amount_other_{{$i}}" onchange="checkAmountOther('{{ $i }}')"
-                                value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_amount : old('invdtl_amount')[$i] }}" 
+                                value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_amount : old('invdtl_amount')[$i] }}"
                                 {{ empty($invoicePartner->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
                              @error('invdtl_amount.'.$i)
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -70,9 +70,9 @@
                             <span class="input-group-text" id="basic-addon1">
                                 Rp
                             </span>
-                            <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" 
+                            <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr"
                                 id="amount_other_idr_{{$i}}"
-                               value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_amountidr : old('invdtl_amountidr_other')[$i] }}" 
+                               value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_amountidr : old('invdtl_amountidr_other')[$i] }}"
                                {{ empty($invoicePartner->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
                              @error('invdtl_amountidr_other.'.$i)
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -140,7 +140,7 @@
         $(".installment-others").first().clone().attr('id', 'installment_other_' + id).appendTo(
             "#installment_content_other");
 
-        // value 
+        // value
         $('#installment_other_' + id).find('input').val('')
 
         $('#installment_other_' + id).find('.installment-name').val('Installment ' + parseInt(id+1))

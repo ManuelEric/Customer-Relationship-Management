@@ -15,9 +15,8 @@ class DeleteSeasonalProgramAction
 
     public function execute(
         $seasonal_program_id
-    )
-    {
-        # delete seasonal program
+    ) {
+        // delete seasonal program
         $deleted_seasonal_program = $this->seasonalProgramRepository->deleteSeasonalProgram($seasonal_program_id);
 
         return $deleted_seasonal_program;

@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Interfaces\SeasonalProgramRepositoryInterface;
 use App\Models\SeasonalProgram;
-use Carbon\Carbon;
 use DataTables;
 
 class SeasonalProgramRepository implements SeasonalProgramRepositoryInterface

@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\Bundling;
-use App\Models\ClientProgram;
 use App\Models\InvoiceProgram;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +12,7 @@ use Illuminate\Validation\Rule;
 class StoreInvoiceProgramBundleRequest extends FormRequest
 {
     use CreateInvoiceIdTrait;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -36,10 +36,10 @@ class StoreInvoiceProgramBundleRequest extends FormRequest
         $currency[1] = $this->input('currency_detail');
 
         if (in_array('idr', $currency)) {
-            return $this->rupiahInvoiceWithNoSession($currency); 
+            return $this->rupiahInvoiceWithNoSession($currency);
 
         } elseif (in_array('other', $currency)) {
-            
+
             return $this->otherCurrencyInvoiceWithNoSession($currency);
         }
     }
@@ -89,7 +89,7 @@ class StoreInvoiceProgramBundleRequest extends FormRequest
             'inv_notes' => 'nullable',
             'inv_tnc' => 'nullable',
 
-            # installment validation
+            // installment validation
             'invdtl_installment_other.*' => [
                 'required_if:inv_paymentmethod,installment',
                 'distinct',
@@ -103,8 +103,9 @@ class StoreInvoiceProgramBundleRequest extends FormRequest
             'invdtl_amountidr_other.*' => 'required_if:inv_paymentmethod,installment',
         ];
 
-        if ($this->input('inv_duedate') != NULL && $this->input('inv_paymentmethod') == 'installment')
+        if ($this->input('inv_duedate') != null && $this->input('inv_paymentmethod') == 'installment') {
             $rules['invdtl_duedate_other.*'] .= '|after_or_equal:inv_duedate';
+        }
 
         return $rules;
     }
@@ -116,7 +117,7 @@ class StoreInvoiceProgramBundleRequest extends FormRequest
 
         $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->max(DB::raw('substr(inv_id, 1, 4)'));
 
-        # Use Trait Create Invoice Id
+        // Use Trait Create Invoice Id
         $inv_id = $this->getInvoiceId($last_id, 'BDL');
 
         $addQuery = $this->isMethod('POST') ? '|unique:tbl_inv,bundling_id' : null;
@@ -143,7 +144,7 @@ class StoreInvoiceProgramBundleRequest extends FormRequest
             'inv_notes' => 'nullable',
             'inv_tnc' => 'nullable',
 
-            # installment validation
+            // installment validation
             'invdtl_installment.*' => [
                 'required_if:inv_paymentmethod,installment',
                 'distinct',

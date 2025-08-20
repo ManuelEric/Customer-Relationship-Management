@@ -5,14 +5,14 @@
     @media print {
         #pdf-container > .canvas-container{
             position: unset !important;
-            
+
         }
         canvas, .canvas-container {
             box-shadow: none !important;
             -webkit-box-shadow: none !important;
         }
     }
-    
+
 </style>
     <div class="toolbar">
         <div class="tool">
@@ -23,7 +23,7 @@
                     onclick="enableSelector(event)"></i></button>
         </div>
         <div class="tool">
-            <button class="btn btn-light btn-sm" 
+            <button class="btn btn-light btn-sm"
                 @if (isset($attachment) && $attachment->inv_id != NULL)
                     onclick="savePDF('print','{{$attachment->attachment}}')"><i class="fa fa-print"
                 @elseif (isset($invoiceAttachment))
@@ -69,7 +69,7 @@
                 }
             });
         }
-        
+
         function printPDF()
         {
             $(".toolbar").css({'display': 'none'});

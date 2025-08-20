@@ -7,7 +7,7 @@
 @endsection
 @section('content')
 
-    @include('pages.invoice.pic-modal')  
+    @include('pages.invoice.pic-modal')
 
     @php
         $invoiceSchHasRequested = null;
@@ -276,11 +276,11 @@
                     <div class="">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-person me-2"></i>
-                            {{ isset($invoiceSch) ? 'Invoice : ' . $invoiceSch->invb2b_id : '' }} 
+                            {{ isset($invoiceSch) ? 'Invoice : ' . $invoiceSch->invb2b_id : '' }}
                         </h6>
                         <h6 class="mt-2 mb-0 p-0">
                             <i class="bi bi-calendar-week me-2"></i>
-                            {{ isset($invoiceSch) ? 'Date : ' . $invoiceSch->created_at : '' }} 
+                            {{ isset($invoiceSch) ? 'Date : ' . $invoiceSch->created_at : '' }}
                         </h6>
                     </div>
                     <div class="">
@@ -829,8 +829,8 @@
                     $("#receipt_word").val(wordConverter(receipt_amount_idr) + " Rupiah")
 
                 }else{
-                    persenPPh = pph23/100 * (receipt_amount_other) 
-                    persenPPhIdr = pph23/100 * (receipt_amount_idr) 
+                    persenPPh = pph23/100 * (receipt_amount_other)
+                    persenPPhIdr = pph23/100 * (receipt_amount_idr)
                 }
                     totalOther = receipt_amount_other - persenPPh
                     totalIdr = receipt_amount_idr - persenPPhIdr
@@ -839,15 +839,15 @@
                 $("#receipt_word_other").val(wordConverter(Math.round(totalOther)) + currency)
                 $("#receipt_amount").val(Math.round(totalIdr))
                 $("#receipt_word").val(wordConverter(Math.round(totalIdr)) + " Rupiah")
-           
+
             }else{
                 if((pph23.length > 0 && pph23 == 0) || pph23.length < 1){
                     persenPPhIdr = 0
                 }else{
-                    persenPPhIdr = pph23/100 * (receipt_amount_idr) 
+                    persenPPhIdr = pph23/100 * (receipt_amount_idr)
                 }
                     receipt_amount_idr = receipt_amount_idr - persenPPhIdr
-                
+
                 $("#receipt_amount").val(Math.round(receipt_amount_idr))
 
 
@@ -980,9 +980,9 @@
 
         @if (isset($invoiceSch))
             function requestAcc(link, currency) {
-                
+
                 showLoading();
-                
+
                 var inv_rec_pic = $("input[name=pic_sign]:checked").val();
                 var inv_rec_pic_name = $("input[name=pic_sign]:checked").data('name');
 
@@ -1000,7 +1000,7 @@
                         notification('success', 'Sign has been requested')
                         setTimeout(location.reload.bind(location), 3000);
                         $("#requestSignModal").modal('hide');
-                        $("#requestSign--modal").modal('hide'); // this modal is for confirmation box  
+                        $("#requestSign--modal").modal('hide'); // this modal is for confirmation box
                     })
                     .catch(error => {
                         notification('error', 'Something went wrong while send email')

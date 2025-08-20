@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Curriculum;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -79,6 +78,6 @@ class CurriculumSeeder extends Seeder
             ],
         ];
 
-        Curriculum::insert($seeds);        
+        Curriculum::insert($seeds);
     }
 }

@@ -17,13 +17,11 @@ class StorePartnerAgreementRequest extends FormRequest
         return true;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, mixed>
      */
-
     public function attributes()
     {
         return [
@@ -32,7 +30,6 @@ class StorePartnerAgreementRequest extends FormRequest
             'attachment' => 'Agreement File',
         ];
     }
-
 
     public function rules()
     {
@@ -48,7 +45,7 @@ class StorePartnerAgreementRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -56,9 +53,7 @@ class StorePartnerAgreementRequest extends FormRequest
                 },
             ],
 
-            
         ];
-  
-        
+
     }
 }

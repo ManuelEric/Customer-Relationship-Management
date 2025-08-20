@@ -28,9 +28,9 @@ class StreamController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax()) 
+        if ($request->ajax()) {
             return $this->streamRepository->rnGetDataTables();
-        
+        }
 
         return view('pages.master.stream.index');
     }
@@ -53,9 +53,9 @@ class StreamController extends Controller
 
             return Redirect::to('master/stream')->withError('Failed to create a new stream');
         }
-        
-        # store Success
-        # create log success
+
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_STREAM, 'New stream has been added', $stream_created->toArray());
 
         return Redirect::to('master/stream')->withSuccess('Stream successfully created');
@@ -66,11 +66,12 @@ class StreamController extends Controller
         $stream_id = $request->route('stream');
 
         try {
-            # retrieve stream
+            // retrieve stream
             $stream = $this->streamRepository->rnGetStreamById($stream_id);
         } catch (Exception $e) {
-            
+
             $log_service->createErrorLog(LogModule::SHOW_STREAM, $e->getMessage(), $e->getLine(), $e->getFile());
+
             return response()->json(['error' => $e->getMessage()], 500);
         }
 
@@ -84,7 +85,7 @@ class StreamController extends Controller
             'stream_name',
         ]);
 
-        # retrieve vendor id from url
+        // retrieve vendor id from url
         $stream_id = $request->route('stream');
 
         DB::beginTransaction();
@@ -100,8 +101,8 @@ class StreamController extends Controller
             return Redirect::to('master/stream')->withError('Failed to update a stream');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_STREAM, 'New stream has been added', $updated_stream->toArray());
 
         return Redirect::to('master/stream')->withSuccess('Stream successfully updated');
@@ -125,8 +126,8 @@ class StreamController extends Controller
             return Redirect::to('master/stream')->withError('Failed to delete a stream');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_STREAM, 'Stream has been deleted', $stream->toArray());
 
         return Redirect::to('master/stream')->withSuccess('Stream successfully deleted');

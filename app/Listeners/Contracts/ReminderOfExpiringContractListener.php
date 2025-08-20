@@ -4,8 +4,6 @@ namespace App\Listeners\Contracts;
 
 use App\Events\Contracts\SendingReminderExpiringContractEvent;
 use App\Mail\ContractExpirationEmail;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class ReminderOfExpiringContractListener
 {

@@ -2,7 +2,7 @@
 
 @section('title', 'Sales Target')
 
-@section('content')    
+@section('content')
     <div class="card bg-secondary mb-1 p-2">
         <div class="d-flex align-items-center justify-content-between">
             <h5 class="text-white m-0">
@@ -89,7 +89,7 @@
                                         Participants Target <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="number" name="total_participant" id="total_participant"
-                                        class="form-control form-control-sm rounded" 
+                                        class="form-control form-control-sm rounded"
                                         value="{{ old('total_participant') }}">
                                     @error('total_participant')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -102,7 +102,7 @@
                                         Total Amount Target <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="number" name="total_target" id="total_target"
-                                        class="form-control form-control-sm rounded" 
+                                        class="form-control form-control-sm rounded"
                                         value="{{ old('total_target') }}">
                                     @error('total_target')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -115,7 +115,7 @@
                                         Month <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="month" name="month_year" id="month_year"
-                                        class="form-control form-control-sm rounded" 
+                                        class="form-control form-control-sm rounded"
                                         value="{{ old('month_year') }}">
                                     @error('month_year')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -210,7 +210,7 @@
                     }
                 ]
             };
-            
+
             var table = initializeDataTable('#salesTargetTable', options, 'rt_sales_target');
 
             @php
@@ -287,43 +287,43 @@
                     console.error(error);
                 })
         }
-        
+
 
         $("#main_prog").on('change', function() {
             showLoading();
 
             var mainProgId = $(this).val();
             if (mainProgId == "") {
-                
+
                 $(".prog-name-cont").addClass('d-none');
                 $("#prog_id").html('<option></option>');
                 swal.close();
                 return;
             }
-        
+
 
             var baseUrl = "{{ url('/') }}/api/get/program/main/" + mainProgId;
 
             axios.get(baseUrl)
                 .then(function (response) {
 
-                    
+
                     let obj = response.data;
-                    
+
                     var html = '<option data-placeholder="true"></option>'
-                    
+
                     for (var key in obj.data) {
-                        var selected = '';                        
-                        
+                        var selected = '';
+
                         if('{{ !empty(old("prog_id")) }}' && '{{ old("prog_id") }}' === obj.data[key].prog_id)
                             selected = "selected";
 
                         if(existingProgId !== null && (existingProgId == obj.data[key].prog_id))
                             selected = "selected";
-                        
+
                         html += "<option value='" + obj.data[key].prog_id + "' " + selected +">" + obj.data[key].prog_program + "</option>"
-                        
-                            
+
+
 
                     }
 

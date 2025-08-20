@@ -12,7 +12,6 @@ use App\Interfaces\PositionRepositoryInterface;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -56,8 +55,8 @@ class PositionController extends Controller
             return Redirect::to('master/position')->withError('Failed to create a new position');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_POSITION, 'New position has been added', $new_position->toArray());
 
         return Redirect::to('master/position')->withSuccess('Position successfully created');
@@ -94,8 +93,8 @@ class PositionController extends Controller
             return Redirect::to('master/position')->withError('Failed to update position');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_POSITION, 'Position has been updated', $updated_position->toArray());
 
         return Redirect::to('master/position')->withSuccess('Position successfully updated');
@@ -119,8 +118,8 @@ class PositionController extends Controller
             return Redirect::to('master/position')->withError('Failed to delete position');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_POSITION, 'Position has been deleted', $old_position->toArray());
 
         return Redirect::to('master/position')->withSuccess('Position successfully deleted');

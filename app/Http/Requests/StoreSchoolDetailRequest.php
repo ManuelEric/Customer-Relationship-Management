@@ -52,7 +52,7 @@ class StoreSchoolDetailRequest extends FormRequest
             'schdetail_name.*' => 'required|string',
             'schdetail_mail.*' => [
                 'required',
-                'email', 
+                'email',
                 Rule::unique('tbl_schdetail', 'schdetail_email')->where('sch_id', $schId)->when($picId !== null, function ($query) use ($picId) {
                     $query->ignore($picId, 'schdetail_id');
                 }),

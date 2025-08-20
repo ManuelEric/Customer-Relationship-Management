@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface EditorRepositoryInterface 
+interface EditorRepositoryInterface
 {
     public function getAllEditors();
 }

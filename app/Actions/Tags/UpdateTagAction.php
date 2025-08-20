@@ -15,9 +15,8 @@ class UpdateTagAction
 
     public function execute(
         $tag_id,
-        Array $new_tag_details
-    )
-    {
+        array $new_tag_details
+    ) {
 
         $updated_tag = $this->tagRepository->updateTag($tag_id, $new_tag_details);
 

@@ -5,17 +5,13 @@ namespace App\Events;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithBroadcasting;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class MessageSent implements ShouldBroadcastNow
 {
-    use Dispatchable, InteractsWithSockets, InteractsWithBroadcasting, SerializesModels;
+    use Dispatchable, InteractsWithBroadcasting, InteractsWithSockets, SerializesModels;
 
     public $message;
 
@@ -28,7 +24,7 @@ class MessageSent implements ShouldBroadcastNow
      */
     public function __construct($message, $channel)
     {
-        $this->message  = $message;
+        $this->message = $message;
         $this->channel = $channel;
     }
 
@@ -42,7 +38,8 @@ class MessageSent implements ShouldBroadcastNow
         return [$this->channel];
     }
 
-    public function broadcastAs(){
+    public function broadcastAs()
+    {
         return 'my-event';
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCorporatePicRequest extends FormRequest
 {
@@ -40,7 +40,7 @@ class StoreCorporatePicRequest extends FormRequest
             'pic_name' => 'required|string',
             'pic_mail' => [
                 'nullable',
-                'email', 
+                'email',
                 Rule::unique('tbl_corp_pic', 'pic_mail')->where('corp_id', $corporateId)->when($picId !== null, function ($query) use ($picId) {
                     $query->ignore($picId);
                 }),

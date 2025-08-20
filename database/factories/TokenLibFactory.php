@@ -20,17 +20,17 @@ class TokenLibFactory extends Factory
     {
         $headers = [
             [
-                'name' => 'Header-ET'
+                'name' => 'Header-ET',
             ],
             [
-                'name' => 'Header-EE'
+                'name' => 'Header-EE',
             ],
             [
-                'name' => 'Header-M'
-            ]
+                'name' => 'Header-M',
+            ],
         ];
         $randomize_token = base64_encode(Str::uuid());
-        
+
         /* calculate gap date */
         $now = Carbon::now();
         $maxTime = $now->setTime(23, 59, 59);

@@ -41,21 +41,21 @@ class SendReminderofMenteesBirthday extends Command
         $mentors_mail = $data = [];
         // mentees that having birthday
         $mentees = $this->clientRepository->getMenteesBirthdaybyToday();
-        foreach ( $mentees as $mentee )
-        {
+        foreach ($mentees as $mentee) {
             $mentors = $mentee->clientMentor()->groupBy('user_id')->get()->pluck('user_id');
             // $this->info('mentee : '. $mentee->full_name. ' mentored by '.json_encode($mentors));
-            
+
             // send email to each mentors
-            foreach ($mentors as $key => $val)
-            {
-                $data[User::find($val)->email][] = ucwords($mentee->full_name);
+            foreach ($mentors as $key => $val) {
+                $user = User::find($val);
+                if ($user) {
+                    $data[$user->email][] = ucwords($mentee->full_name);
+                }
             }
         }
 
-        foreach ($data as $recipient => $val)
-        {
-            $this->info('mentor : ' . $recipient . ' has ' . json_encode($val));
+        foreach ($data as $recipient => $val) {
+            $this->info('mentor : '.$recipient.' has '.json_encode($val));
             Mail::to($recipient)->send(new MenteeBirthdayReminder($val));
         }
     }

@@ -59,7 +59,7 @@
                             <td>{{ date('d F Y H:i:s', strtotime($role_stream->updated_at)) }}</td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-warning" wire:click="edit({{ $role_stream->id }})" data-bs-toggle="modal" data-bs-target="#agreementForm"><i class="bi bi-pencil"></i></button>
-                                <button type="button" class="btn btn-sm btn-danger ms-1" 
+                                <button type="button" class="btn btn-sm btn-danger ms-1"
                                     x-data
                                     @click.prevent="if (confirm('Are you sure you want to delete? This cannot be undone.')) { $wire.delete({{ $role_stream->id }}) }"
                                 ><i class="bi bi-trash"></i></button>
@@ -70,7 +70,7 @@
                         <tr>
                             <td colspan="10" class="text-center">No data</td>
                         </tr>
-                
+
                     @endforelse
                 </tbody>
             </table>
@@ -98,7 +98,7 @@
                                     <option data-placeholder="true">Select Stream</option>
                                     @forelse ($streams as $stream)
                                         <option value="{{ $stream->id }}">{{ $stream->stream_name }}</option>
-                                    
+
                                     @empty
                                         <option>No streams fetched</option>
                                     @endforelse
@@ -113,7 +113,7 @@
                                     <option data-placeholder="true">Select Engagement Type</option>
                                     @forelse ($engagement_types as $engagement_type)
                                         <option value="{{ $engagement_type->id }}">{{ $engagement_type->phase_detail_name }}</option>
-                                    
+
                                     @empty
                                         <option>No engagement type fetched</option>
                                     @endforelse
@@ -128,7 +128,7 @@
                                 <select wire:model="package" @if (!$isEdit) multiple @endif class="form-select form-select-sm w-100">
                                     @forelse ($packages as $key => $package)
                                         <option value="{{ $package }}">{{ $package }}</option>
-                                    
+
                                     @empty
                                         <option>No streams fetched</option>
                                     @endforelse
@@ -137,7 +137,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            
+
                             <div>
                                 <div class="row px-3 py-2">
                                     <fieldset class="border p-3">
@@ -162,8 +162,8 @@
                                 </div>
                             </div>
 
-                            
-                            
+
+
                             <div class="col-md-4 mb-2">
                                 <label for="">Grade</label>
                                 <select wire:model="grade" class="form-select form-select-sm" disabled>
@@ -190,7 +190,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div> --}}
-                            
+
                             <div class="col-md-4 mb-2">
                                 <label for="">Agreement File @if (!$isEdit)<sup class="text-danger">*</sup>@endif</label>
                                 <div class="file-agreement">
@@ -200,8 +200,8 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            
-                            
+
+
                             <div class="col-md-12 mt-2">
                                 <div class="d-flex justify-content-between">
                                     <button type="button" wire:click="resetFields" class="btn btn-sm btn-outline-danger rounded-3"

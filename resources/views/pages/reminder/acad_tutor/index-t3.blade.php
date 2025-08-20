@@ -3,7 +3,7 @@
 @section('content')
     <p style="margin:0;">Hi {{ ucwords($recipient['name']) }},</p>
     <p>
-        Just a quick reminder that your tutoring session is scheduled to begin in just 3 hours. Please make sure to be prepared and ready to make the most of our time together. Here are the details:    
+        Just a quick reminder that your tutoring session is scheduled to begin in just 3 hours. Please make sure to be prepared and ready to make the most of our time together. Here are the details:
     </p>
     <table>
         <tr>

@@ -72,12 +72,12 @@
                                         <td>
                                             {{ $pt->inv_id }}
                                         </td>
-                                        
+
                                         {{-- Client Name --}}
                                         <td>{{ $pt->clientprog->client->full_name }}</td>
 
                                         {{-- City --}}
-                                        <td>{{ $pt->clientprog->client->city ?? '-' }}</td> 
+                                        <td>{{ $pt->clientprog->client->city ?? '-' }}</td>
 
                                         {{-- School Name --}}
                                         <td>{{ isset($pt->clientprog->client->school) ? $pt->clientprog->client->school->sch_name : '-' }}</td>
@@ -87,13 +87,13 @@
 
                                         {{-- Amount USD --}}
                                         <td>{{ $pt->currency == 'usd' ? $pt->invoiceTotalprice : '-' }}</td>
-                                        
+
                                         {{-- Price IDR --}}
                                         <td>{{ $pt->invoiceTotalpriceIdr }}</td>
 
                                         {{-- Method --}}
                                         <td>{{ $pt->inv_paymentmethod }}</td>
-                                        
+
                                         {{-- Installment --}}
                                         <td class="text-center">
                                             @if(count($pt->invoiceDetail) > 0)
@@ -102,22 +102,22 @@
                                                 -
                                             @endif
                                         </td>
-                                        
+
                                         {{-- Destination Country --}}
                                         <td>{{ count($pt->clientprog->client->destinationCountries) > 0 ? implode(', ', json_decode($pt->clientprog->client->destinationCountries->pluck('name')->toJson())) : '-' }}</td>
-                                        
+
                                         {{-- Graduation Year --}}
                                         <td>{{ $pt->clientprog->client->graduationYearReal }}</td>
-                                        
+
                                         {{-- Joined Date --}}
                                         <td>{{ date('F, dS Y', strtotime($pt->clientprog->client->created_at)) }}</td>
 
                                         {{-- Lead Source --}}
                                         <td>{{ $pt->clientprog->client->lead_source }}</td>
-                                        
+
                                         {{-- Conversion Lead --}}
                                         <td>{{ $pt->clientprog->conversionLead }}</td>
-                                        
+
                                         {{-- Conversion Lead --}}
                                         <td>{{ ucfirst($pt->clientprog->client->category) }}</td>
 
@@ -156,13 +156,13 @@
     </div>
 
     <script>
-        @php            
+        @php
             $privilage = $menus['Report']->where('submenu_name', 'Program Tracking')->first();
         @endphp
         $(document).ready(function() {
             @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                    
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });
@@ -193,7 +193,7 @@
 
                 var col = ['G', 'H']; //  I = Amount IDR, J = USD, K = SGD, L = GBP, M = Refund(IDR)
                 col.forEach(function (d, i){
-                    
+
                     for(var i = 2; i <= last_col; i++) {
                         var index = d + i;
 
@@ -214,16 +214,16 @@
                         workbook.Sheets[sheet][index].t = 'n';
                         workbook.Sheets[sheet][index].z = format_cell;
                     }
-                    
+
                     workbook.Sheets[sheet][d + i] = { t:'n', z:format_cell, f: `SUM(${d+2}:` + index +")", F:d + i + ":" + d + i }
-                    
+
 
                 })
 
             })
-           
+
             XLSX.writeFile(workbook, "report-program-tracking.xlsx");
-            
+
         }
     </script>
 @endsection

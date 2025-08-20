@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\GeneralMailLogRepositoryInterface;
 use App\Models\MailLog;
 
-class GeneralMailLogRepository implements GeneralMailLogRepositoryInterface 
+class GeneralMailLogRepository implements GeneralMailLogRepositoryInterface
 {
     public function getStatus($identifier)
     {

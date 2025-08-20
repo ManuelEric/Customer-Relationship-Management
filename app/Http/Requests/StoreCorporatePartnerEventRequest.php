@@ -36,13 +36,14 @@ class StoreCorporatePartnerEventRequest extends FormRequest
 
         return [
             'corp_id' => [
-                'required', 
+                'required',
                 'exists:tbl_corp,corp_id',
                 function ($attribute, $value, $fail) use ($eventId) {
                     $event = Event::whereEventId($eventId);
-                    if (in_array($value, $event->partner()->pluck('tbl_corp_partner_event.corp_id')->toArray()))
+                    if (in_array($value, $event->partner()->pluck('tbl_corp_partner_event.corp_id')->toArray())) {
                         $fail('The partner has been added');
-                }
+                    }
+                },
             ],
         ];
     }

@@ -23,7 +23,7 @@
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
-                    
+
                     <div class="col-md-3">
                         <label for="">Due Date <sup class="text-danger">*</sup></label>
                         <input type="date" name="invdtl_duedate_other[]" class="form-control form-control-sm " value="{{ isset($invoice->invoiceDetail) ? date('Y-m-d', strtotime($invoice->invoiceDetail[$i]->invdtl_duedate)) : old('invdtl_duedate_other')[$i] }}" {{ $disabled }}>
@@ -78,7 +78,7 @@
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
                 </div>
-                
+
                 <div class="col-md-3">
                     <label for="">Due Date <sup class="text-danger">*</sup></label>
                     <input type="date" name="invdtl_duedate_other[]" class="form-control form-control-sm ">
@@ -143,7 +143,7 @@
 
         $(".installment-others").first().clone().attr('id', 'installment_other_' + id).appendTo("#installment_content_other");
 
-        // value 
+        // value
         $('#installment_other_' + id).find('input').val('')
 
         $('#installment_other_' + id).find('.installment-name').val('Installment ' + parseInt(id+1))

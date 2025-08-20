@@ -14,10 +14,9 @@ class CreatePositionAction
     }
 
     public function execute(
-        Array $new_position_details
-    )
-    {
-        # store new position
+        array $new_position_details
+    ) {
+        // store new position
         $new_position = $this->positionRepository->createPosition($new_position_details);
 
         return $new_position;

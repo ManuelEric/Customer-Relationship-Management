@@ -16,8 +16,7 @@ class CurriculumSelect extends Component
         public int $textIndex,
         public ?string $disabled = null,
         public ?object $clientProgram = null,
-    )
-    {
+    ) {
         //
     }
 

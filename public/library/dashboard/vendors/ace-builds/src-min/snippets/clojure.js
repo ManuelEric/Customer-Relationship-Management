@@ -5,4 +5,3 @@ define("ace/snippets/clojure",["require","exports","module"],function(e,t,n){"us
                         }
                     });
                 })();
-            

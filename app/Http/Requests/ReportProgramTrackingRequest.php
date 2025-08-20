@@ -35,7 +35,7 @@ class ReportProgramTrackingRequest extends FormRequest
     {
         return [
             'start_month' => 'nullable',
-            'end_month' => 'nullable|after_or_equal:start_month'
+            'end_month' => 'nullable|after_or_equal:start_month',
         ];
     }
 }

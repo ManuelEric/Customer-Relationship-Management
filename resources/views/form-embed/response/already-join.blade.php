@@ -18,7 +18,7 @@
                     <img loading="lazy"  src="{{ asset('img/submitted.webp') }}" alt="Form ALL-in Event" class="w-[200px]">
                 </div>
                 <h2 class="md:text-3xl text-xl mb-4 font-bold">
-                    Hi, 
+                    Hi,
                     @switch($choosen_role)
                     @case("parent")
                     @case("teacher/counsellor")
@@ -26,10 +26,10 @@
                         Mr./Mrs. {{ $name }}
                         @endif
                         @break
-                
+
                     @default
                         {{ $name }}
-                @endswitch 
+                @endswitch
                 <br>
                 You've Already Registered
                 </h2>
@@ -40,4 +40,4 @@
         </div>
     </div>
 </body>
-</html> 
+</html>

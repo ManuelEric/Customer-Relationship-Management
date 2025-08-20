@@ -15,10 +15,9 @@ class DeleteReferralProgramAction
 
     public function execute(
         $referral_id,
-    )
-    {
+    ) {
 
-        # deleted referral program
+        // deleted referral program
         $deleted_referral_program = $this->referralRepository->deleteReferral($referral_id);
 
         return $deleted_referral_program;

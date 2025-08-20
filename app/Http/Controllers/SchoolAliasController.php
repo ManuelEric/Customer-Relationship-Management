@@ -8,7 +8,6 @@ use App\Enum\LogModule;
 use App\Http\Requests\SchoolAliasRequest;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
-use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
@@ -18,8 +17,8 @@ use Illuminate\Support\Facades\Redirect;
 
 class SchoolAliasController extends Controller
 {
-
     protected SchoolRepositoryInterface $schoolRepository;
+
     protected ClientRepositoryInterface $clientRepository;
 
     public function __construct(SchoolRepositoryInterface $schoolRepository, ClientRepositoryInterface $clientRepository)
@@ -31,8 +30,9 @@ class SchoolAliasController extends Controller
     public function store(SchoolAliasRequest $request, CreateSchoolAliasAction $createSchoolAliasAction, LogService $log_service)
     {
         $school_id = $request->route('school');
-        if (!$this->schoolRepository->getSchoolById($school_id))
+        if (! $this->schoolRepository->getSchoolById($school_id)) {
             return Redirect::back()->withError('There is no such school');
+        }
 
         DB::beginTransaction();
         try {
@@ -41,7 +41,7 @@ class SchoolAliasController extends Controller
 
             $details = [
                 'sch_id' => $school_id,
-                'alias' => $alias
+                'alias' => $alias,
             ];
 
             if ($request->is_convert) {
@@ -50,7 +50,7 @@ class SchoolAliasController extends Controller
             }
 
             $created_new_alias = $createSchoolAliasAction->execute($request, $details);
-            
+
             DB::commit();
 
         } catch (Exception $e) {
@@ -64,7 +64,7 @@ class SchoolAliasController extends Controller
 
         $school = $this->schoolRepository->getSchoolById($details['sch_id']);
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_SCHOOL_ALIAS, 'New school alias has been added', $created_new_alias->toArray());
 
         return redirect()->route('school.index')->withSuccess('New alias has been added to '.$school->sch_name);
@@ -74,9 +74,10 @@ class SchoolAliasController extends Controller
     public function destroy(Request $request, DeleteSchoolAliasAction $deleteSchoolAliasAction, LogService $log_service)
     {
         $school_id = $request->route('school');
-        if (!$this->schoolRepository->getSchoolById($school_id))
+        if (! $this->schoolRepository->getSchoolById($school_id)) {
             return Redirect::back()->withError('There is no such school');
-        
+        }
+
         $alias_id = $request->route('alias');
 
         DB::beginTransaction();
@@ -96,7 +97,7 @@ class SchoolAliasController extends Controller
 
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_ALIAS, 'School alias has been deleted', ['school_id' => $school_id, 'alias_id' => $alias_id]);
 
         return response()->json(['message' => 'The alias has been removed']);

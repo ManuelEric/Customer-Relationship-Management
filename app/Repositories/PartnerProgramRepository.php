@@ -7,19 +7,16 @@ use App\Models\PartnerProg;
 use App\Models\v1\PartnerProg as V1PartnerProg;
 use DataTables;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Carbon;
-
 
 class PartnerProgramRepository implements PartnerProgramRepositoryInterface
 {
-
     public function getAllPartnerProgramsDataTables($filter = null)
     {
         return Datatables::eloquent(
             PartnerProg::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')->select(
                 'tbl_corp.corp_id',
                 'tbl_partner_prog.id',
-                DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
+                DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null
                     THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                     ELSE tbl_corp.corp_name
                 END) as partnership_name'),
@@ -32,7 +29,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
             )
                 ->when($filter && isset($filter['partner_name']), function ($query) use ($filter) {
-                    $query->whereIn(DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
+                    $query->whereIn(DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null
                             THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                             ELSE tbl_corp.corp_name
                         END)'), $filter['partner_name']);
@@ -43,7 +40,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 ->when($filter && isset($filter['pic']), function ($query) use ($filter) {
                     $query->whereIn('users.id', $filter['pic']);
                 })
-                ->when($filter && isset($filter['status']) && !isset($filter['start_date']) && !isset($filter['end_date']), function ($query) use ($filter) {
+                ->when($filter && isset($filter['status']) && ! isset($filter['start_date']) && ! isset($filter['end_date']), function ($query) use ($filter) {
                     $query->whereIn('tbl_partner_prog.status', $filter['status']);
                 })
                 ->when($filter && isset($filter['start_date']) && isset($filter['end_date']), function ($query) use ($filter) {
@@ -59,19 +56,19 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                                     ->where('tbl_partner_prog.status', $filter['status'][0]);
 
                                 // Status == denied
-                            } else if ($filter['status'][0] == 2) {
+                            } elseif ($filter['status'][0] == 2) {
                                 $query->whereDate('tbl_partner_prog.denied_date', '>=', $filter['start_date'])
                                     ->whereDate('tbl_partner_prog.denied_date', '<=', $filter['end_date'])
                                     ->where('tbl_partner_prog.status', $filter['status'][0]);
 
                                 // Status == refund
-                            } else if ($filter['status'][0] == 3) {
+                            } elseif ($filter['status'][0] == 3) {
                                 $query->whereDate('tbl_partner_prog.refund_date', '>=', $filter['start_date'])
                                     ->whereDate('tbl_partner_prog.refund_date', '<=', $filter['end_date'])
                                     ->where('tbl_partner_prog.status', $filter['status'][0]);
 
                                 // Status == pending
-                            } else if ($filter['status'][0] == 0) {
+                            } elseif ($filter['status'][0] == 0) {
                                 $query->whereDate('tbl_partner_prog.created_at', '>=', $filter['start_date'])
                                     ->whereDate('tbl_partner_prog.created_at', '<=', $filter['end_date'])
                                     ->whereIn('tbl_partner_prog.status', $filter['status']);
@@ -87,7 +84,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                             ->whereDate('tbl_partner_prog.created_at', '<=', $filter['end_date']);
                     }
                 })
-                ->when($filter && isset($filter['start_date']) && !isset($filter['end_date']), function ($query) use ($filter) {
+                ->when($filter && isset($filter['start_date']) && ! isset($filter['end_date']), function ($query) use ($filter) {
 
                     if (isset($filter['status'])) {
 
@@ -98,20 +95,18 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                                 $query->whereDate('tbl_partner_prog.success_date', '>=', $filter['start_date'])
                                     ->where('tbl_partner_prog.status', $filter['status'][0]);
 
-
                                 // Status == denied
-                            } else if ($filter['status'][0] == 2) {
+                            } elseif ($filter['status'][0] == 2) {
                                 $query->whereDate('tbl_partner_prog.denied_date', '>=', $filter['start_date'])
                                     ->where('tbl_partner_prog.status', $filter['status'][0]);
 
                                 // Status == refund
-                            } else if ($filter['status'][0] == 3) {
+                            } elseif ($filter['status'][0] == 3) {
                                 $query->whereDate('tbl_partner_prog.refund_date', '>=', $filter['start_date'])
                                     ->where('tbl_partner_prog.status', $filter['status'][0]);
 
-
                                 // Status == pending
-                            } else if ($filter['status'][0] == 0) {
+                            } elseif ($filter['status'][0] == 0) {
                                 $query->whereDate('tbl_partner_prog.created_at', '>=', $filter['start_date'])
                                     ->where('tbl_partner_prog.status', $filter['status'][0]);
                             }
@@ -123,7 +118,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                         $query->whereDate('tbl_partner_prog.created_at', '>=', $filter['start_date']);
                     }
                 })
-                ->when($filter && isset($filter['end_date']) && !isset($filter['start_date']), function ($query) use ($filter) {
+                ->when($filter && isset($filter['end_date']) && ! isset($filter['start_date']), function ($query) use ($filter) {
 
                     if (isset($filter['status'])) {
 
@@ -134,20 +129,18 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                                 $query->whereDate('tbl_partner_prog.success_date', '<=', $filter['end_date'])
                                     ->where('tbl_partner_prog.status', $filter['status'][0]);
 
-
                                 // Status == denied
-                            } else if ($filter['status'][0] == 2) {
+                            } elseif ($filter['status'][0] == 2) {
                                 $query->whereDate('tbl_partner_prog.denied_date', '<=', $filter['end_date'])
                                     ->where('tbl_partner_prog.status', $filter['status'][0]);
 
                                 // Status == refund
-                            } else if ($filter['status'][0] == 3) {
+                            } elseif ($filter['status'][0] == 3) {
                                 $query->whereDate('tbl_partner_prog.refund_date', '<=', $filter['end_date'])
                                     ->where('tbl_partner_prog.status', $filter['status'][0]);
 
-
                                 // Status == pending
-                            } else if ($filter['status'][0] == 0) {
+                            } elseif ($filter['status'][0] == 0) {
                                 $query->whereDate('tbl_partner_prog.created_at', '<=', $filter['end_date'])
                                     ->where('tbl_partner_prog.status', $filter['status'][0]);
                             }
@@ -167,13 +160,13 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
         )->filterColumn('partnership_name', function ($query, $keyword) {
-            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
+            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null
                         THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                         ELSE tbl_corp.corp_name
                     END) like ?';
             $query->whereRaw($sql, ["%{$keyword}%"]);
         })
-        ->make(true);
+            ->make(true);
     }
 
     public function getAllPartnerProgramsByPartnerId($corpId)
@@ -194,7 +187,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 'program.program_name'
             )
 
-            # Status (4: Accepted, 5: Cancel) Temporary by created_at
+            // Status (4: Accepted, 5: Cancel) Temporary by created_at
             ->whereYear(
                 DB::raw('(CASE
                             WHEN tbl_partner_prog.status = 0 THEN tbl_partner_prog.created_at
@@ -233,14 +226,14 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
             DB::raw('SUM(total_fee) as total_fee'),
             DB::raw('COUNT(*) as count_status')
         )
-            # Status (4: Accepted, 5: Cancel) Temporary by created_at
+            // Status (4: Accepted, 5: Cancel) Temporary by created_at
             ->whereYear(
                 DB::raw('(CASE
                             WHEN status = 0 THEN created_at
                             WHEN status = 1 THEN success_date
                             WHEN status = 2 THEN denied_date
                             WHEN status = 3 THEN refund_date
-                            WHEN status = 4 THEN accepted_date  
+                            WHEN status = 4 THEN accepted_date
                             WHEN status = 5 THEN cancel_date
                         END)'),
                 '=',
@@ -252,7 +245,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                             WHEN status = 1 THEN success_date
                             WHEN status = 2 THEN denied_date
                             WHEN status = 3 THEN refund_date
-                            WHEN status = 4 THEN accepted_date  
+                            WHEN status = 4 THEN accepted_date
                             WHEN status = 5 THEN cancel_date
                         END)'),
                 '=',
@@ -265,7 +258,6 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
     {
         return PartnerProg::find($partnerProgId);
     }
-
 
     public function deletePartnerProgram($partnerProgId)
     {
@@ -318,12 +310,12 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 'tbl_partner_prog.prog_id',
                 'program.program_name',
                 DB::raw("'Partner Program' as type"),
-                DB::raw('(CASE 
+                DB::raw('(CASE
                             WHEN SUM(participants) is null THEN 0
                             ELSE SUM(participants)
                         END) as participants'),
                 DB::raw('DATE_FORMAT(success_date, "%Y") as year'),
-                DB::raw("SUM(total_fee) as total"),
+                DB::raw('SUM(total_fee) as total'),
                 DB::raw('count(tbl_partner_prog.prog_id) as count_program')
             )
             ->active()
@@ -331,8 +323,8 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 'success_date',
                 '=',
                 DB::raw('(case year(success_date)
-                                when ' . $startYear . ' then ' . $startYear . '
-                                when ' . $endYear . ' then ' . $endYear . '
+                                when '.$startYear.' then '.$startYear.'
+                                when '.$endYear.' then '.$endYear.'
                             end)')
             )
             ->groupBy('tbl_partner_prog.prog_id')

@@ -55,8 +55,8 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            {!! $teacher_counselor->address !!} 
-                            {!! $teacher_counselor->postal_code ? $teacher_counselor->postal_code."<br>" : null !!} 
+                            {!! $teacher_counselor->address !!}
+                            {!! $teacher_counselor->postal_code ? $teacher_counselor->postal_code."<br>" : null !!}
                             {{ $teacher_counselor->city }} {{ $teacher_counselor->state }}
                         </div>
                     </div>
@@ -183,24 +183,24 @@
     <script src="{{ asset('js/lc_switch.min.js') }}"></script>
     <script>
     lc_switch('input[type=checkbox]', {
-    
+
         // ON text
         on_txt: 'ON',
-    
+
         // OFF text
         off_txt: 'OFF',
-    
+
         // Custom ON color. Supports gradients
         on_color: '#0083B8',
-    
+
         // enable compact mode
         compact_mode: false
-    
+
     });
     </script>
 
     <script>
-        // Select2 Modal 
+        // Select2 Modal
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#programForm .modal-content'),
@@ -212,11 +212,11 @@
 
     <script type="text/javascript">
         $('.lcs_switch').on('click', async function() {
-            
+
             var class_names = $(this).attr('class');
             var getLcsStatus = class_names.split(' ');
             var current_value = getLcsStatus[2];
-            
+
             var val = current_value == "lcs_off" ? 0 : 1;
 
             var link = "{{ url('/') }}/client/teacher-counselor/{{ $teacher_counselor->id }}/status/" + val

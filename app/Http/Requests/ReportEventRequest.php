@@ -21,11 +21,10 @@ class ReportEventRequest extends FormRequest
     {
         $this->merge([
             'event_name' => $this->get('event_name'),
-            'start_date' => null, //* change the value if you want the function to receive filter by date
-            'end_date' => null, //* change the value if you want the function to receive filter by date
+            'start_date' => null, // * change the value if you want the function to receive filter by date
+            'end_date' => null, // * change the value if you want the function to receive filter by date
         ]);
     }
-
 
     /**
      * Get the validation rules that apply to the request.
@@ -37,7 +36,7 @@ class ReportEventRequest extends FormRequest
         return [
             'event_name' => 'nullable|exists:tbl_events,event_title',
             'start_date' => 'nullable',
-            'end_date' => 'nullable'
+            'end_date' => 'nullable',
         ];
     }
 }

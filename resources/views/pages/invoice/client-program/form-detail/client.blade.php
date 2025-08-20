@@ -124,7 +124,7 @@
             <div class="accordion-body p-2">
                 <div class="card">
                     <div class="card-body" style="overflow: auto;">
-                        
+
                         @if ($clientProg->client->parents()->count() > 0)
                             <table class="table table-bordered" id="list-parent">
                                 <thead>

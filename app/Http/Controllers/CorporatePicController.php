@@ -37,8 +37,8 @@ class CorporatePicController extends Controller
         return response()->json(
             [
                 'success' => $detail ? true : false,
-                'message' => $detail ? "Detail data has been retrieved" : "Couldn't get the detail data",
-                'data' => $detail ? $detail : null
+                'message' => $detail ? 'Detail data has been retrieved' : "Couldn't get the detail data",
+                'data' => $detail ? $detail : null,
             ]
         );
     }
@@ -67,15 +67,15 @@ class CorporatePicController extends Controller
             $log_service->createErrorLog(LogModule::STORE_CORPORATE_PIC, $e->getMessage(), $e->getLine(), $e->getFile(), $pic_details);
 
             return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to create corporate PIC');
-            
+
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_CORPORATE_PIC, 'New corporate pic has been added', $craeted_corporate_pic->toArray());
 
         return Redirect::to('instance/corporate/'.$corporate_id)->withSuccess('Corporate PIC successfully created');
     }
-    
+
     public function update(StoreCorporatePicRequest $request, UpdateCorporatePicAction $updateCorporatePicAction, LogService $log_service)
     {
         $corporate_pic_details = $request->safe()->only([
@@ -101,10 +101,10 @@ class CorporatePicController extends Controller
             $log_service->createErrorLog(LogModule::UPDATE_CORPORATE_PIC, $e->getMessage(), $e->getLine(), $e->getFile(), $updated_corporate_pic);
 
             return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to update corporate PIC');
-            
+
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_CORPORATE_PIC, 'Corporate pic has been updated', $updated_corporate_pic->toArray());
 
         return Redirect::to('instance/corporate/'.$corporate_id)->withSuccess('Corporate PIC successfully updated');
@@ -115,9 +115,10 @@ class CorporatePicController extends Controller
         $corporate_id = $request->route('corporate');
         $pic_id = $request->route('detail');
         $pic = $this->corporatePicRepository->getCorporatePicById($pic_id);
-        
-        if(isset($pic->partner_agreement))
+
+        if (isset($pic->partner_agreement)) {
             return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to delete this PIC, there is an agreement related to this PIC');
+        }
 
         DB::beginTransaction();
         try {
@@ -132,7 +133,7 @@ class CorporatePicController extends Controller
             return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to delete corporate PIC');
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_CORPORATE_PIC, 'Corporate pic has been deleted', ['corp_id' => $corporate_id, 'pic_id' => $pic_id]);
 
         return Redirect::to('instance/corporate/'.$corporate_id)->withSuccess('Corporate PIC successfully deleted');

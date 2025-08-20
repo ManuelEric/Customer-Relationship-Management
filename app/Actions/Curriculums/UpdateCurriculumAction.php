@@ -15,10 +15,9 @@ class UpdateCurriculumAction
 
     public function execute(
         $curriculum_id,
-        Array $new_curriculum_details
-    )
-    {
-        # Update asset
+        array $new_curriculum_details
+    ) {
+        // Update asset
         $updated_asset = $this->curriculumRepository->updateCurriculum($curriculum_id, $new_curriculum_details);
 
         return $updated_asset;

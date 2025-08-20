@@ -5,7 +5,6 @@ namespace App\Http\Traits;
 use App\Jobs\Event\EduAll\ProcessEmailInvitationInfo;
 use App\Jobs\Event\EduAll\ProcessEmailInvitationVIP;
 use App\Jobs\Event\EduAll\ProcessEmailReminderVIP;
-use App\Jobs\Event\Stem\ProcessEmailFeedback;
 use App\Jobs\Event\Stem\ProcessEmailQuestCompleter;
 use App\Models\ClientEvent;
 use App\Models\ClientEventLogMail;
@@ -16,7 +15,6 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use AshAllenDesign\ShortURL\Facades\ShortURL;
 
 trait MailingEventOfflineTrait
 {
@@ -32,12 +30,12 @@ trait MailingEventOfflineTrait
 
         switch ($notes) {
             case 'VIP':
-            case 'WxSFs0LGh': # Mean VIP
+            case 'WxSFs0LGh': // Mean VIP
                 $notes = 'VIP';
                 break;
 
             case 'VVIP':
-            case 'BtSF0x1hK': # Mean VVIP
+            case 'BtSF0x1hK': // Mean VVIP
                 $notes = 'VVIP';
                 break;
 
@@ -45,7 +43,6 @@ trait MailingEventOfflineTrait
                 abort(404);
                 break;
         }
-
 
         DB::beginTransaction();
 
@@ -69,31 +66,28 @@ trait MailingEventOfflineTrait
             $data['success'] = true;
             $data['already_join'] = true;
 
-            if (!isset($checkJoined)) {
-                if (!$clientEvent = ClientEvent::create($clientEvents))
+            if (! isset($checkJoined)) {
+                if (! $clientEvent = ClientEvent::create($clientEvents)) {
                     throw new Exception('Store client event', 1);
-
+                }
 
                 UserClient::whereId($client_id)->update(['register_by' => 'parent']);
                 if ($client->childrens->count() > 0) {
                     UserClient::whereId($client->childrens[0]->id)->update(['register_by' => 'parent']);
                 }
 
-
                 $this->sendMailReferral($clientEvent, $notes, 'first-send');
-
 
                 $data['success'] = true;
                 $data['already_join'] = false;
             }
-
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
 
-            Log::error('Register express client event failed : ' . $e->getMessage());
+            Log::error('Register express client event failed : '.$e->getMessage());
 
             $data['success'] = false;
         }
@@ -106,13 +100,13 @@ trait MailingEventOfflineTrait
         $noteEncrypt = '';
         switch ($notes) {
             case 'VIP':
-            case 'WxSFs0LGh': # Mean VIP
+            case 'WxSFs0LGh': // Mean VIP
                 $notes = 'VIP';
                 $noteEncrypt = 'WxSFs0LGh';
                 break;
 
             case 'VVIP':
-            case 'BtSF0x1hK': # Mean VVIP
+            case 'BtSF0x1hK': // Mean VVIP
                 $notes = 'VVIP';
                 $noteEncrypt = 'BtSF0x1hK';
                 break;
@@ -124,22 +118,22 @@ trait MailingEventOfflineTrait
 
         $data['email'] = $client->mail;
         $data['client'] = [
-            'name' => $client->full_name
+            'name' => $client->full_name,
         ];
-        $data['title'] = "Invitation For STEM+ Wonderlab";
+        $data['title'] = 'Invitation For STEM+ Wonderlab';
         $data['notes'] = $notes;
         // $data['referral_link'] = $this->createShortUrl(url('form/event?event_name='.urlencode($event->event_title).'&form_type=cta&event_type=offline&ref='. $referralCode), $referralCode);
 
-        // $data['referral_link'] = url('form/event?event_name='.urlencode($event->event_name).'&form_type=cta&event_type=offline&ref='. substr($client->fist_name,0,3) . $client->id); 
+        // $data['referral_link'] = url('form/event?event_name='.urlencode($event->event_name).'&form_type=cta&event_type=offline&ref='. substr($client->fist_name,0,3) . $client->id);
 
         $data['qr_page'] = route('program.event.qr-page', [
             'event_slug' => str_replace(' ', '-', $event->event_title),
-            'clientevent' => $clientEvent->clientevent_id
+            'clientevent' => $clientEvent->clientevent_id,
         ]);
         $data['referral_page'] = route('program.event.referral-page', [
             'event_slug' => str_replace(' ', '-', $event->event_title),
             'refcode' => $referralCode,
-            'notes' => $noteEncrypt
+            'notes' => $noteEncrypt,
         ]);
 
         $data['event'] = [
@@ -169,7 +163,6 @@ trait MailingEventOfflineTrait
                 case 'VIP':
                     $data['title'] = 'Thank you for registering as our VIP guest';
 
-
                     $isSendMail = Mail::send('mail-template.thanks-email-vip', $data, function ($message) use ($data) {
                         $message->to($data['email'], $data['client']['name'])
                             ->subject($data['title']);
@@ -180,15 +173,14 @@ trait MailingEventOfflineTrait
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            Log::error('Failed send email ' . $notes . ' | error : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+            Log::error('Failed send email '.$notes.' | error : '.$e->getMessage().' | Line '.$e->getLine());
         }
-
 
         if ($for == 'first-send') {
             $logDetails = [
                 'clientevent_id' => $clientEvent->clientevent_id,
                 'sent_status' => $sent_mail,
-                'category' => 'qrcode-mail-referral'
+                'category' => 'qrcode-mail-referral',
             ];
 
             return ClientEventLogMail::create($logDetails);
@@ -205,13 +197,13 @@ trait MailingEventOfflineTrait
             $noteEncrypt = '';
             switch ($notes) {
                 case 'VIP':
-                case 'WxSFs0LGh': # Mean VIP
+                case 'WxSFs0LGh': // Mean VIP
                     $notes = 'VIP';
                     $noteEncrypt = 'WxSFs0LGh';
                     break;
 
                 case 'VVIP':
-                case 'BtSF0x1hK': # Mean VVIP
+                case 'BtSF0x1hK': // Mean VVIP
                     $notes = 'VVIP';
                     $noteEncrypt = 'BtSF0x1hK';
                     break;
@@ -219,8 +211,9 @@ trait MailingEventOfflineTrait
 
             $client = UserClient::where('id', $client_id)->first();
             $event = Event::where('event_id', $event_id)->first();
-            if ($child_id != null)
+            if ($child_id != null) {
                 $child = UserClient::where('id', $child_id)->first();
+            }
 
             $data['client_id'] = $client_id;
             $data['email'] = $client->mail;
@@ -238,7 +231,7 @@ trait MailingEventOfflineTrait
                 'link' => route('register-express-event', ['main_client' => $client->id, 'notes' => $noteEncrypt, 'second_client' => $child_id, 'EVT' => $event_id]),
             ];
             $data['event'] = [
-                'eventId' => $event->event_id, 
+                'eventId' => $event->event_id,
                 'eventName' => $event->event_title,
                 'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
                 'eventDate_start' => date('l, d M Y', strtotime($event->event_startdate)),
@@ -262,9 +255,8 @@ trait MailingEventOfflineTrait
             DB::rollBack();
 
             // $sent_mail = 0;
-            Log::error('Failed to send invitation mail : ' . $e->getMessage());
+            Log::error('Failed to send invitation mail : '.$e->getMessage());
         }
-
 
     }
 
@@ -276,21 +268,22 @@ trait MailingEventOfflineTrait
             $noteEncrypt = '';
             switch ($notes) {
                 case 'VIP':
-                case 'WxSFs0LGh': # Mean VIP
+                case 'WxSFs0LGh': // Mean VIP
                     $notes = 'VIP';
                     $noteEncrypt = 'WxSFs0LGh';
                     break;
 
                 case 'VVIP':
-                case 'BtSF0x1hK': # Mean VVIP
+                case 'BtSF0x1hK': // Mean VVIP
                     $notes = 'VVIP';
                     $noteEncrypt = 'BtSF0x1hK';
                     break;
             }
 
             $client = UserClient::where('id', $client_id)->first();
-            if ($child_id != null)
+            if ($child_id != null) {
                 $child = UserClient::where('id', $child_id)->first();
+            }
 
             $event = Event::where('event_id', $event_id)->first();
 
@@ -315,7 +308,7 @@ trait MailingEventOfflineTrait
                     'eventTime_start' => date('g:i A', strtotime($event->event_startdate)),
                     'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
                     'eventLocation' => $event->event_location,
-                ]
+                ],
 
             ];
 
@@ -323,7 +316,7 @@ trait MailingEventOfflineTrait
 
         } catch (Exception $e) {
 
-            Log::info('Failed to add queue mail reminder : ' . $e->getMessage());
+            Log::info('Failed to add queue mail reminder : '.$e->getMessage());
         }
 
     }
@@ -335,34 +328,34 @@ trait MailingEventOfflineTrait
 
             $role = $clientEvent->client->roles->first()->role_name;
 
-            $data['qr'] =  route('link-event-attend', [
+            $data['qr'] = route('link-event-attend', [
                 // 'event_slug' => $event_slug,
-                'clientevent' => $clientEvent->clientevent_id
+                'clientevent' => $clientEvent->clientevent_id,
             ]);
 
             $date = Carbon::parse($clientEvent->event->event_startdate)->locale('id');
 
-            if ($role == 'Parent')
+            if ($role == 'Parent') {
                 $date->settings(['formatFunction' => 'translatedFormat']);
+            }
 
             $data = [
                 'email' => $clientEvent->client->mail,
                 'role' => $role,
                 'qr' => route('link-event-attend', [
-                    'clientevent' => $clientEvent->clientevent_id
+                    'clientevent' => $clientEvent->clientevent_id,
                 ]),
                 // 'notes' => $notes,
                 'recipient' => $clientEvent->client->full_name,
-                'title' =>  'STEM+ Wonderlab QR Code Entrance',
+                'title' => 'STEM+ Wonderlab QR Code Entrance',
                 'event' => [
                     'eventName' => $clientEvent->event->event_title,
                     'eventDate_start' => $date->format('l, d M Y'),
                     'eventTime_start' => $date->format('g A'),
                     'eventLocation' => $clientEvent->event->event_location,
-                ]
+                ],
 
             ];
-
 
             Mail::send('mail-template.reminder-attend', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['recipient'])
@@ -372,14 +365,14 @@ trait MailingEventOfflineTrait
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            Log::info('Failed to send reminder attend mail : ' . $e->getMessage() . $e->getLine());
+            Log::info('Failed to send reminder attend mail : '.$e->getMessage().$e->getLine());
         }
 
         if ($for == 'first-send') {
             $keyLog = [
                 'clientevent_id' => $clientEvent->clientevent_id,
                 'sent_status' => $sent_mail,
-                'category' => 'reminder-attend'
+                'category' => 'reminder-attend',
             ];
 
             $valueLog = [
@@ -399,8 +392,8 @@ trait MailingEventOfflineTrait
                 'email' => $email,
                 'level' => $level,
                 'recipient' => $fullname,
-                'wa_text_anggie' => 'Hello Anggie, I’m ' . $fullname . ', I have attended STEM+ Wonderlab and would like to claim 100 USD discount for the Innovators-in-Residence program in Singapore. Can you give me further information about this program?',
-                'wa_text_derry' => 'Hello Derry, I’m ' . $fullname . ', I have attended STEM+ Wonderlab and would like to claim 100 USD discount for the Innovators-in-Residence program in Singapore. Can you give me further information about this program?'
+                'wa_text_anggie' => 'Hello Anggie, I’m '.$fullname.', I have attended STEM+ Wonderlab and would like to claim 100 USD discount for the Innovators-in-Residence program in Singapore. Can you give me further information about this program?',
+                'wa_text_derry' => 'Hello Derry, I’m '.$fullname.', I have attended STEM+ Wonderlab and would like to claim 100 USD discount for the Innovators-in-Residence program in Singapore. Can you give me further information about this program?',
             ];
 
             ProcessEmailQuestCompleter::dispatch($data)->onQueue('quest-completer_EVT-0008');
@@ -409,21 +402,21 @@ trait MailingEventOfflineTrait
         } catch (Exception $e) {
 
             // $sent_mail = 0;
-            Log::info('Failed to send quest completer mail : ' . $e->getMessage());
+            Log::info('Failed to send quest completer mail : '.$e->getMessage());
         }
 
         // Log::debug('Send quest completer mail fullname: ' . $fullname . ' status: ' . $sent_mail, ['fullname' => $fullname, 'email' => $email, 'level' => $level, 'sent_status' => $sent_mail]);
     }
 
-    # Just send mail invitation information only not include register express
-    public function sendMailInvitationInfo($details, $for) 
+    // Just send mail invitation information only not include register express
+    public function sendMailInvitationInfo($details, $for)
     {
         try {
 
             $event = Event::whereEventId($details['event_id']);
 
             $date = Carbon::parse($event->event_startdate)->locale('id');
-            
+
             $details['event'] = [
                 'eventName' => $event->event_title,
                 'eventDate_start' => $date->format('l, d M Y'),
@@ -438,7 +431,7 @@ trait MailingEventOfflineTrait
 
         } catch (Exception $e) {
 
-            Log::info('Failed to add queue mail invitation info : ' . $e->getMessage());
+            Log::info('Failed to add queue mail invitation info : '.$e->getMessage());
         }
     }
 }

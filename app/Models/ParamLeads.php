@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class ParamLeads extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'tbl_param_lead';
 
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'name',

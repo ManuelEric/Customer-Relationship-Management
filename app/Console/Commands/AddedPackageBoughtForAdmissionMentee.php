@@ -25,19 +25,19 @@ class AddedPackageBoughtForAdmissionMentee extends Command
      */
     protected $description = 'This command will generate a package for everyone that joined the admission program';
 
-
     protected ClientRepositoryInterface $clientRepository;
+
     protected ProgramPhaseRepositoryInterface $programPhaseRepository;
 
     public function __construct(
         ClientRepositoryInterface $clientRepository,
         ProgramPhaseRepositoryInterface $programPhaseRepository
-        )
-    {
+    ) {
         parent::__construct();
         $this->clientRepository = $clientRepository;
         $this->programPhaseRepository = $programPhaseRepository;
     }
+
     /**
      * Execute the console command.
      */
@@ -50,25 +50,23 @@ class AddedPackageBoughtForAdmissionMentee extends Command
         $bar = $this->output->createProgressBar($active_mentees->count());
 
         DB::beginTransaction();
-        foreach ( $active_mentees as $mentee )
-        {
+        foreach ($active_mentees as $mentee) {
             $full_name = $mentee->full_name;
             $grade = $mentee->grade_now;
-            
-            foreach ($mentee->clientProgram as $client_program)
-            {
+
+            foreach ($mentee->clientProgram as $client_program) {
                 $clientprog_id = $client_program->clientprog_id;
                 $client_program_details = [];
-                foreach ( $packages as $package )
-                {
+                foreach ($packages as $package) {
                     // check if exists
-                    if (ClientProgramDetail::where('clientprog_id', $clientprog_id)->where('phase_detail_id', $package->id)->exists())
+                    if (ClientProgramDetail::where('clientprog_id', $clientprog_id)->where('phase_detail_id', $package->id)->exists()) {
                         continue;
+                    }
 
                     $client_program_details[] = [
                         'clientprog_id' => $clientprog_id,
                         'phase_detail_id' => $package->id,
-                        'phase_lib_id' => NULL, //! change this into phase_lib_id whenever team sales want to track how many client goes to US, UK, etc.
+                        'phase_lib_id' => null, // ! change this into phase_lib_id whenever team sales want to track how many client goes to US, UK, etc.
                         'quota' => 1,
                         'use' => 0,
                         'grade' => $grade,
@@ -83,11 +81,11 @@ class AddedPackageBoughtForAdmissionMentee extends Command
 
                 $this->programPhaseRepository->rnStoreBulkProgramPhase($client_program_details);
                 $this->newLine();
-                $this->info('Client program details stored successfully for ' . $full_name . ' with clientprog_id: ' . $clientprog_id);
+                $this->info('Client program details stored successfully for '.$full_name.' with clientprog_id: '.$clientprog_id);
                 DB::commit();
             } catch (\Exception $err) {
                 DB::rollBack();
-                $this->error('Failed to store client program details ' . $err->getMessage());
+                $this->error('Failed to store client program details '.$err->getMessage());
                 break;
             }
         }

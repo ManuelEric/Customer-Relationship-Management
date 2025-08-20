@@ -3,41 +3,35 @@
 namespace App\Imports;
 
 use App\Http\Traits\CheckExistingClient;
-use Exception;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use App\Http\Traits\StandardizePhoneNumberTrait;
-use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\CreateReferralCodeTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
-use App\Models\ClientEventLogMail;
-use App\Models\Event;
-use App\Models\UserClient;
-use App\Models\UserClientAdditionalInfo;
-use Illuminate\Support\Facades\Mail;
+use App\Http\Traits\StandardizePhoneNumberTrait;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
 
 class InvitationMailInfoImport implements ToCollection, WithHeadingRow, WithValidation
 {
-    /**
-     * @param Collection $collection
-     */
-
-    use Importable;
-    use StandardizePhoneNumberTrait;
-    use CreateCustomPrimaryKeyTrait;
     use CheckExistingClient;
-    use MailingEventOfflineTrait;
+    use CreateCustomPrimaryKeyTrait;
     use CreateReferralCodeTrait;
+
+    /**
+     * @param  Collection  $collection
+     */
+    use Importable;
+
+    use MailingEventOfflineTrait;
+    use StandardizePhoneNumberTrait;
 
     public function collection(Collection $rows)
     {
-        
+
         foreach ($rows as $row) {
-            
+
             $data = [
                 'client' => [
                     'client_id' => $row['client_id'],
@@ -45,20 +39,17 @@ class InvitationMailInfoImport implements ToCollection, WithHeadingRow, WithVali
                     'recipient' => $row['full_name'],
                 ],
                 'event_id' => $row['event_id'],
-                'notes' => 'WxSFs0LGh'
+                'notes' => 'WxSFs0LGh',
             ];
 
             $this->sendMailInvitationInfo($data, 'first-send');
-               
+
         }
     }
-          
-    
 
     public function prepareForValidation($data)
     {
 
-   
         $data = [
             'client_id' => $data['client_id'],
             'full_name' => $data['full_name'],
@@ -78,5 +69,4 @@ class InvitationMailInfoImport implements ToCollection, WithHeadingRow, WithVali
             '*.event_id' => ['required', 'exists:tbl_events,event_id'],
         ];
     }
-
 }

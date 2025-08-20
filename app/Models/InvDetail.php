@@ -2,23 +2,63 @@
 
 namespace App\Models;
 
-use App\Models\Invb2b;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-
+/**
+ * @property int $invdtl_id
+ * @property string|null $invb2b_id
+ * @property string|null $inv_id
+ * @property string|null $invdtl_installment
+ * @property string|null $invdtl_duedate
+ * @property float|null $invdtl_percentage
+ * @property int|null $invdtl_amount
+ * @property int|null $invdtl_amountidr
+ * @property int $invdtl_status
+ * @property int|null $invdtl_cursrate
+ * @property string|null $invdtl_currency
+ * @property int $reminded has been reminded = 1 else 0
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Invb2b|null $inv_b2b
+ * @property-read \App\Models\InvoiceProgram|null $invoiceProgram
+ * @property-read mixed $invoicedtl_amount
+ * @property-read mixed $invoicedtl_amountidr
+ * @property-read \App\Models\Receipt|null $receipt
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereInvId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereInvb2bId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereInvdtlAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereInvdtlAmountidr($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereInvdtlCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereInvdtlCursrate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereInvdtlDuedate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereInvdtlId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereInvdtlInstallment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereInvdtlPercentage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereInvdtlStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereReminded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvDetail whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class InvDetail extends Model
 {
     use HasFactory;
 
     protected $table = 'tbl_invdtl';
+
     protected $primaryKey = 'invdtl_id';
 
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'invdtl_id',
@@ -33,27 +73,27 @@ class InvDetail extends Model
         'invdtl_cursrate',
         'invdtl_currency',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     public function getCurrencyUnit()
     {
         switch ($this->invdtl_currency) {
 
-            case "usd":
+            case 'usd':
             default:
                 $unit = '$';
                 break;
 
-            case "sgd":
+            case 'sgd':
                 $unit = 'S$';
                 break;
 
-            case "gbp":
+            case 'gbp':
                 $unit = '£';
                 break;
 
-            case "aud":
+            case 'aud':
                 $unit = 'A$';
                 break;
         }
@@ -71,14 +111,14 @@ class InvDetail extends Model
     protected function invoicedtlAmount(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invdtl_amount
+            get: fn ($value) => $this->getCurrencyUnit().' '.$this->invdtl_amount
         );
     }
 
     protected function invoicedtlAmountidr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invdtl_amountidr)
+            get: fn ($value) => 'Rp. '.number_format($this->invdtl_amountidr)
         );
     }
 

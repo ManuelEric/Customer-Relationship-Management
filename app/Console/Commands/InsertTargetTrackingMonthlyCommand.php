@@ -34,12 +34,12 @@ class InsertTargetTrackingMonthlyCommand extends Command
         $this->leadTargetRepository = $leadTargetRepository;
     }
 
-    # Purpose:
-    # Insert target tracking when target tracking this month is null
-    # Update target tracking when target tracking this month is not null
+    // Purpose:
+    // Insert target tracking when target tracking this month is null
+    // Update target tracking when target tracking this month is not null
     public function handle()
     {
-        # info if the cron working or not
+        // info if the cron working or not
         Log::info('Cron Insert target tracking monthly works fine.');
 
         $now = Carbon::now();
@@ -47,18 +47,19 @@ class InsertTargetTrackingMonthlyCommand extends Command
         DB::beginTransaction();
         try {
 
-            # if this month data target has been stored into target tracking
-            # then don't allow scheduler to continue the process
+            // if this month data target has been stored into target tracking
+            // then don't allow scheduler to continue the process
             $exist_target_tracking = $this->leadTargetRepository->findThisMonthTarget($now);
 
             $count_exist_target_tracking = $exist_target_tracking->count();
-    
-            # active target is data from view table target_signal_view
-            if (!$active_target = $this->leadTargetRepository->getThisMonthTarget())
+
+            // active target is data from view table target_signal_view
+            if (! $active_target = $this->leadTargetRepository->getThisMonthTarget()) {
                 Log::error('Cron Insert target tracking monthly cannot be processed because there are no data in the target signal view.');
-                
+            }
+
             foreach ($active_target as $target) {
-    
+
                 if ($count_exist_target_tracking > 0) {
                     $target_tracking_details[] = [
                         'divisi' => $target->divisi,
@@ -70,7 +71,7 @@ class InsertTargetTrackingMonthlyCommand extends Command
                         'updated_at' => Carbon::now(),
                     ];
 
-                }else{
+                } else {
                     $target_tracking_details[] = [
                         'divisi' => $target->divisi,
                         'target_lead' => $target->lead_needed,
@@ -93,24 +94,23 @@ class InsertTargetTrackingMonthlyCommand extends Command
 
             if ($count_exist_target_tracking > 0) {
                 $i = 0;
-                foreach ($exist_target_tracking as $targetTracking) {      
+                foreach ($exist_target_tracking as $targetTracking) {
                     $this->leadTargetRepository->updateTargetTracking($targetTracking->id, $target_tracking_details[$i]);
                     $i++;
                 }
-            }else{
+            } else {
                 LeadTargetTracking::insert($target_tracking_details);
             }
 
             DB::commit();
 
         } catch (Exception $e) {
-            
+
             DB::rollBack();
-            Log::info('Cron Insert target tracking not working normal. Error : '. $e->getMessage() .' | Line '. $e->getCode());
+            Log::info('Cron Insert target tracking not working normal. Error : '.$e->getMessage().' | Line '.$e->getCode());
 
         }
 
         return Command::SUCCESS;
     }
 }
-

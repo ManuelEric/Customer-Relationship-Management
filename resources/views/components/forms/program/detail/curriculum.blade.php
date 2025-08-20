@@ -5,9 +5,9 @@
     <option value="" selected disabled>Select curriculum name</option>
     @if ( $programType == "subject-tutoring" )
         @foreach ($curriculumList as $key => $curriculum)
-            <option value="{{ $curriculum }}" 
+            <option value="{{ $curriculum }}"
                 @selected(isset($clientProgram) && $clientProgram->curriculum == $curriculum)
-                @selected(old('curriculum.'.$textIndex) == $curriculum)    
+                @selected(old('curriculum.'.$textIndex) == $curriculum)
             >{{ $curriculum }}</option>
         @endforeach
     @endif

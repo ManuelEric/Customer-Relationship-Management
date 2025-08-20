@@ -4,9 +4,8 @@ namespace App\Repositories;
 
 use App\Interfaces\PurchaseDetailRepositoryInterface;
 use App\Models\PurchaseDetail;
-use DataTables;
 
-class PurchaseDetailRepository implements PurchaseDetailRepositoryInterface 
+class PurchaseDetailRepository implements PurchaseDetailRepositoryInterface
 {
     public function getAllPurchaseDetailByPurchaseId($purchaseRequestId)
     {
@@ -37,5 +36,4 @@ class PurchaseDetailRepository implements PurchaseDetailRepositoryInterface
     {
         return PurchaseDetail::find($purchaseDetailId)->update($newDetails);
     }
-
 }

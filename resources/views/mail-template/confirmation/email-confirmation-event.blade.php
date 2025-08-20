@@ -9,12 +9,12 @@
             <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                     @switch($role_name)
-                    
+
                         @case('Parent')
                             <td>
                                 <p>Halo {{ $recipient }},</p>
                                 <p>
-                                    Terima kasih sudah mendaftar ke <b>{{ $event->event_title }}</b> 
+                                    Terima kasih sudah mendaftar ke <b>{{ $event->event_title }}</b>
                                 </p>
                                 <p>
                                     {{-- 📅 Tanggal: {{ Carbon::parse($event->event_startdate)->locale('Id')->format('D, M d, Y') date('D, M d, Y', strtotime($event->event_startdate)) }} <br> --}}
@@ -41,7 +41,7 @@
                             <td>
                                 <p>Hi {{ $recipient }},</p>
                                 <p>
-                                    You're all set for <b>{{ $event->event_title }}</b> 
+                                    You're all set for <b>{{ $event->event_title }}</b>
                                 </p>
                                 <p>
                                     📅 Date: {{ date('l, F d, Y', strtotime($event->event_startdate)) }} <br>
@@ -63,7 +63,7 @@
                             <td>
                                 <p>Hi {{ $recipient }},</p>
                                 <p>
-                                    You're all set for <b>{{ $event->event_title }}</b> 
+                                    You're all set for <b>{{ $event->event_title }}</b>
                                 </p>
                                 <p>
                                     📅 Date: {{ date('l, F d, Y', strtotime($event->event_startdate)) }} <br>
@@ -80,9 +80,9 @@
                                 </p>
                             </td>
                             @break
-                                                
+
                     @endswitch
-                    
+
                 </tr>
             </table>
         </td>

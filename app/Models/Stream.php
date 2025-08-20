@@ -7,17 +7,36 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $stream_name
+ * @property int $is_active
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ *
+ * @method static Builder<static>|Stream active()
+ * @method static Builder<static>|Stream newModelQuery()
+ * @method static Builder<static>|Stream newQuery()
+ * @method static Builder<static>|Stream query()
+ * @method static Builder<static>|Stream whereCreatedAt($value)
+ * @method static Builder<static>|Stream whereId($value)
+ * @method static Builder<static>|Stream whereIsActive($value)
+ * @method static Builder<static>|Stream whereStreamName($value)
+ * @method static Builder<static>|Stream whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Stream extends Model
 {
     use HasFactory;
-    
+
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
-        'stream_name', 
+        'stream_name',
         'is_active',
     ];
 

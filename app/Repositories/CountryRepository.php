@@ -5,9 +5,8 @@ namespace App\Repositories;
 use App\Interfaces\CountryRepositoryInterface;
 use App\Models\CountryTranslations;
 use App\Models\RegionTranslations;
-use Illuminate\Http\JsonResponse;
 
-class CountryRepository implements CountryRepositoryInterface 
+class CountryRepository implements CountryRepositoryInterface
 {
     public function getAllCountries()
     {

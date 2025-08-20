@@ -28,7 +28,7 @@
                         <tr align="center" @class([
                             'text-danger' => $children->deleted_at !== NULL ? true : false
                         ])>
-                            <td>{{ $no++ }}</td>    
+                            <td>{{ $no++ }}</td>
                             <td>{{ $children->fullname }}</td>
                             <td>{{ isset($children->school) ? $children->school->sch_name : '-' }}</td>
                             <td>{{ $children->graduation_year }}</td>
@@ -44,7 +44,7 @@
                                 <a href="{{ url('client/student').'/'.$children->id }}" class="btn btn-outline-warning btn-sm rounded"><i
                                     class="bi bi-eye"></i></a>
                             </td>
-                        </tr> 
+                        </tr>
                     @endforeach
                 </tbody>
             </table>

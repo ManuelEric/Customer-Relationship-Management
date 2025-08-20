@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Request;
 
 class StoreInvoiceReferralRequest extends FormRequest
@@ -14,7 +13,6 @@ class StoreInvoiceReferralRequest extends FormRequest
      *
      * @return bool
      */
-
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
 
     public function __construct(InvoiceB2bRepositoryInterface $invoiceB2bRepository)

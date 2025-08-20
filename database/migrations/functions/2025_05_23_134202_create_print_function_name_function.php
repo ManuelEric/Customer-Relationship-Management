@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -17,11 +15,11 @@ return new class extends Migration
 
         CREATE FUNCTION StringProgramName ( clientprog_id INTEGER )
         RETURNS VARCHAR(255)
-        
+
         BEGIN
         	DECLARE program_name VARCHAR(255) DEFAULT "";
 
-            SELECT 
+            SELECT
                 (CASE
                     WHEN cp.package IS NOT NULL AND cp.curriculum IS NOT NULL THEN CONCAT(mp.prog_name, " : ", p.prog_program, " [", cp.package, "-", cp.curriculum, "]")
                     WHEN cp.package IS NOT NULL AND cp.curriculum IS NULL THEN CONCAT(mp.prog_name, " : ", p.prog_program, " [", cp.package, "]")

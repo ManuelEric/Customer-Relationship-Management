@@ -235,20 +235,20 @@
     {{-- Confirm Delete & Deactivate Modal  --}}
     <script>
         function confirmRestore(subject, id) {
-            // show modal 
+            // show modal
             var myModal = new bootstrap.Modal(document.getElementById('restoreModal'))
             myModal.show()
 
-            // change form action 
+            // change form action
             $('#formRestore').attr('action', '{{ url('') }}/' + subject + '/' + id);
         }
 
         function confirmDelete(subject, id) {
-            // show modal 
+            // show modal
             var myModal = new bootstrap.Modal(document.getElementById('deleteItem'))
             myModal.show()
 
-            // change form action 
+            // change form action
             $('#formAction').attr('action', '{{ url('') }}/' + subject + '/' + id);
         }
 
@@ -256,7 +256,7 @@
             var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
             myModal.show()
 
-            // change form action 
+            // change form action
             $('#formActionDeactive').attr('action', '{{ url('') }}/' + subject + '/' + id);
         }
 
@@ -266,7 +266,7 @@
 
             var warningMessage = 'You want to request his/her signature for this document?';
 
-            //     // change form action 
+            //     // change form action
             $("#formActionRequestSign h6").html(warningMessage);
 
             var link = subject;
@@ -282,7 +282,7 @@
 
             var warningMessage = 'You want to send this ' + category + ' to client?';
 
-            // change form action 
+            // change form action
             $("#formActionSendToClient h6").html(warningMessage);
 
             var link = subject + '/' + id;
@@ -296,7 +296,7 @@
         }
 
         function confirmUpdateLeadStatus(link, clientId, initProg, groupId, leadStatusOld, leadStatus) {
-            // show modal 
+            // show modal
             var myModal = new bootstrap.Modal(document.getElementById('updateLeadStatus'))
             myModal.show()
             $('#statusLeadOld').val(leadStatusOld);
@@ -398,7 +398,7 @@
         //         // plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
         //         toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
         //     });
-        // 
+        //
     </script>
 
     {{-- Select2  --}}

@@ -14,10 +14,9 @@ class DeleteEdufLeadAction
     }
 
     public function execute(
-        String $eduf_lead_id
-    )
-    {
-        # Delete eduf_lead
+        string $eduf_lead_id
+    ) {
+        // Delete eduf_lead
         $deleted_eduf_lead = $this->edufLeadRepository->deleteEdufairLead($eduf_lead_id);
 
         return $deleted_eduf_lead;

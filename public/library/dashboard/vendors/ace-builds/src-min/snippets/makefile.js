@@ -5,4 +5,3 @@ define("ace/snippets/makefile",["require","exports","module"],function(e,t,n){"u
                         }
                     });
                 })();
-            

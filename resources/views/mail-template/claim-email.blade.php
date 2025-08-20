@@ -16,7 +16,7 @@
 
                             <p style="text-align: center;">
                                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Itaque, temporibus.
-                           
+
                             <p>
                                 Warm regards, <br>
                                 ALL-in Eduspace

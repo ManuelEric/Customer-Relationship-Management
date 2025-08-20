@@ -3,7 +3,6 @@
 namespace App\Mail\Receipt;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
@@ -16,7 +15,9 @@ class SendToClient extends Mailable
     use Queueable, SerializesModels;
 
     public $receiptData;
+
     public $s3FilePath;
+
     public $attachmentName;
 
     /**
@@ -49,7 +50,7 @@ class SendToClient extends Mailable
             view: 'pages.receipt.client-program.mail.client-view',
             with: [
                 'recipient' => $this->receiptData['recipient'],
-                'program_name' => $this->receiptData['program_name']
+                'program_name' => $this->receiptData['program_name'],
             ]
         );
     }
@@ -64,7 +65,7 @@ class SendToClient extends Mailable
         return [
             Attachment::fromStorageDisk('s3', $this->s3FilePath)
                 ->as($this->attachmentName) // Optional: Specify the file name seen by the recipient
-                ->withMime('application/pdf') // Optional: Specify MIME type if not auto-detected
+                ->withMime('application/pdf'), // Optional: Specify MIME type if not auto-detected
         ];
     }
 }

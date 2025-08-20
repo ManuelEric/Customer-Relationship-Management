@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Validation\Rule;
 
 class StoreInvoiceB2bRequest extends FormRequest
 {
@@ -14,7 +14,6 @@ class StoreInvoiceB2bRequest extends FormRequest
      *
      * @return bool
      */
-
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
 
     public function __construct(InvoiceB2bRepositoryInterface $invoiceB2bRepository)
@@ -101,12 +100,10 @@ class StoreInvoiceB2bRequest extends FormRequest
             'invdtl_duedate.*' => 'required_if:invb2b_pm,Installment|nullable|date|after_or_equal:invb2b_date',
             'invdtl_percentage.*' => 'required_if:invb2b_pm,Installment',
             'invdtl_amountidr.*' => 'required_if:invb2b_pm,Installment',
-            'is_full_amount' => 'required|in:0,1'
+            'is_full_amount' => 'required|in:0,1',
             // 'date', 'before_or_equal:invb2b_duedate', 'after_or_equal:invb2b_date'
 
-
             // 'date', 'before_or_equal:invb2b_duedate', 'after_or_equal:invb2b_date'
-
 
         ];
     }
@@ -143,8 +140,7 @@ class StoreInvoiceB2bRequest extends FormRequest
             'invdtl_percentage_other.*' => 'required_if:invb2b_pm,Installment',
             'invdtl_amount_other.*' => 'required_if:invb2b_pm,Installment',
             'invdtl_amountidr_other.*' => 'required_if:invb2b_pm,Installment',
-            'is_full_amount' => 'required|in:0,1'
-
+            'is_full_amount' => 'required|in:0,1',
 
         ];
     }

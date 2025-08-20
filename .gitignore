@@ -30,3 +30,5 @@ error_log
 .deploy.php
 docker-compose.yml
 .env.production
+.pre-commit-config.yaml
+phpstan.neon

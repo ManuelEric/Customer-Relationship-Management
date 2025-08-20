@@ -86,10 +86,10 @@
                             @if(isset($notes) && $notes == 'VIP')
                                 <p style="text-align: center;margin: 2.5em auto;">
                                     <a class="button" href="{{ $link }}"
-                                        style="background: #3b6cde; 
-                                        text-decoration: none; 
+                                        style="background: #3b6cde;
+                                        text-decoration: none;
                                         padding: .5em 1.5em;
-                                        color: #ffffff; 
+                                        color: #ffffff;
                                         border-radius: 48px;
                                         mso-padding-alt:0;
                                         text-underline-color:#156ab3">

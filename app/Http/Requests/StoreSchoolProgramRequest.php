@@ -4,18 +4,13 @@ namespace App\Http\Requests;
 
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
-use App\Models\School;
-use App\Models\SchoolProgram;
 use App\Models\User;
-use Arcanedev\Support\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
-
-use function Ramsey\Uuid\v1;
 
 class StoreSchoolProgramRequest extends FormRequest
 {
-
     private InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     private ReceiptRepositoryInterface $receiptRepository;
 
     /**
@@ -34,13 +29,11 @@ class StoreSchoolProgramRequest extends FormRequest
         $this->receiptRepository = $receiptRepository;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, mixed>
      */
-
     public function messages()
     {
         return [
@@ -112,7 +105,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -136,25 +129,22 @@ class StoreSchoolProgramRequest extends FormRequest
 
             $invoice = $this->invoiceB2bRepository->getInvoiceB2bBySchProg($schprog_id);
 
-
             $rules = [
-                'status' =>
-                [
+                'status' => [
                     'required', 'in:0,1,2,3,4,5',
                     function ($attribute, $value, $fail) use ($invoice) {
                         if (isset($invoice->refund)) {
                             $fail('Not able to change status to success. This activities has marked as "refunded"');
                         }
-                    }
-                ]
+                    },
+                ],
 
             ];
         } else {
             $rules = [
-                'status' =>
-                [
+                'status' => [
                     'required', 'in:0,1,2,3,4,5',
-                ]
+                ],
 
             ];
         }
@@ -165,7 +155,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -184,7 +174,6 @@ class StoreSchoolProgramRequest extends FormRequest
             'success_date' => 'required|date|before_or_equal:end_program_date',
         ];
 
-
         return $rules;
     }
 
@@ -198,7 +187,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -210,7 +199,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'denied_date' => 'required|date',
             'reason_id' => 'required',
             'other_reason' => 'required_if:reason_id,other|nullable|unique:tbl_reason,reason_name',
-            'reason_notes' => 'nullable'
+            'reason_notes' => 'nullable',
 
         ];
     }
@@ -228,27 +217,24 @@ class StoreSchoolProgramRequest extends FormRequest
                 $hasReceipt = null;
             }
 
-
             $rules = [
-                'status' =>
-                [
+                'status' => [
                     'required', 'in:0,1,2,3,4,5',
                     function ($attribute, $value, $fail) use ($hasInvoice, $hasReceipt) {
-                        if (!isset($hasInvoice)) {
+                        if (! isset($hasInvoice)) {
                             $fail('Looks like this program has not been paid');
-                        } else if (isset($hasInvoice)  && !isset($hasReceipt)) {
+                        } elseif (isset($hasInvoice) && ! isset($hasReceipt)) {
                             $fail('Looks like this program has not been paid');
                         }
-                    }
-                ]
+                    },
+                ],
 
             ];
         } else {
             $rules = [
-                'status' =>
-                [
+                'status' => [
                     'required', 'in:0,1,2,3,4,5',
-                ]
+                ],
 
             ];
         }
@@ -259,7 +245,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -290,7 +276,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -315,7 +301,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                    if (! User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
@@ -327,7 +313,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'cancel_date' => 'required|date',
             'reason_id' => 'required',
             'other_reason' => 'required_if:reason_id,other|nullable|unique:tbl_reason,reason_name',
-            'reason_notes' => 'nullable'
+            'reason_notes' => 'nullable',
 
         ];
     }

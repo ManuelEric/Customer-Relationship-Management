@@ -13,7 +13,7 @@
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
-                
+
                 <tfoot class="bg-light text-white">
                     <tr>
                         <td colspan="9"></td>
@@ -49,7 +49,7 @@
                             },
                             {
                                 data: 'school_name',
-                                name: 'tbl_sch.sch_name' 
+                                name: 'tbl_sch.sch_name'
                             },
                             {
                                 data: 'program_name',
@@ -85,7 +85,7 @@
                                     if(parseInt(row.status) === 1){
                                         return data;
                                     }else{
-                                        return data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>';  
+                                        return data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>';
                                     }
                                 }
                             },
@@ -132,7 +132,7 @@
                                             totprice = '-'
                                             break;
                                     }
-                                    return currency + totprice;   
+                                    return currency + totprice;
                                 }
                             },
                             {
@@ -141,7 +141,7 @@
                                 render: function(data, type, row, meta) {
                                     var currency = 'Rp. ';
                                     var totprice = new Intl.NumberFormat().format(row.invb2b_totpriceidr);
-                                    return currency + ' ' + totprice;   
+                                    return currency + ' ' + totprice;
                                 }
                             },
                             {

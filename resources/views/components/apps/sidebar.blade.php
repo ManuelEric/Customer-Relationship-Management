@@ -42,13 +42,13 @@
 
                                 if ($position = strpos($submenu['submenu_link'], '?'))
                                     $submenu_link = substr($submenu['submenu_link'], 0, $position);
-                                
+
                                 /* Removing the ? meaning GET params */
                                 $submenu_active = $submenu['submenu_link'];
                                 if ( $questionmark_pos = strpos($submenu_active, '?') ) {
                                     $submenu_active = substr($submenu_active, 0, $questionmark_pos);
                                 }
-                                
+
                                 /* Extract only 2 words from 'invoice/corporate-program/needed' into 'invoice/corporate-program' */
                                 $url = explode("/", $submenu_active);
                                 if ( count($url) > 2) {
@@ -63,8 +63,8 @@
                                 if (end($url) == 'employee')
                                     $submenu_active = 'user';
 
-                                
-                                
+
+
                             @endphp
                             <li class="p-0">
                                 <a @class([
@@ -96,7 +96,7 @@
                 </a>
             </li>
         @endif
-        
+
         @if ($isSuperAdmin)
             <li class="nav-item">
                 <a href="{{ url('request-sign?type=invoice') }}"

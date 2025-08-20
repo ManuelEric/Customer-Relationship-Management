@@ -10,10 +10,8 @@ use App\Http\Requests\StoreCurriculumRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Services\Log\LogService;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -36,7 +34,6 @@ class CurriculumController extends Controller
             return $this->curriculumRepository->getAllCurriculumsDataTables();
         }
 
-    
         return view('pages.master.curriculum.index');
     }
 
@@ -60,8 +57,8 @@ class CurriculumController extends Controller
             return Redirect::to('master/curriculum')->withError('Failed to create a new curriculum');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_CURRICULUM, 'New curriculum has been added', $new_curriculum->toArray());
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully created');
@@ -88,8 +85,8 @@ class CurriculumController extends Controller
             return Redirect::to('master/curriculum')->withError('Failed to update a curriculum');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_CURRICULUM, 'Curriculum has been updated', $new_curriculum->toArray());
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully updated');
@@ -124,11 +121,10 @@ class CurriculumController extends Controller
             return Redirect::to('master/curriculum')->withError('Failed to delete a curriculum');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_CURRICULUM, 'Curriculum has been deleted', $curriculum->toArray());
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully deleted');
     }
-
 }

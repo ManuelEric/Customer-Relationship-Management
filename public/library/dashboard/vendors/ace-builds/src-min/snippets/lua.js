@@ -5,4 +5,3 @@ define("ace/snippets/lua",["require","exports","module"],function(e,t,n){"use st
                         }
                     });
                 })();
-            

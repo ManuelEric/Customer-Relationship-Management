@@ -11,8 +11,8 @@ use Illuminate\Http\Request;
 
 class MenuController extends Controller
 {
-
     private DepartmentRepositoryInterface $departmentRepository;
+
     private MenuRepositoryInterface $menuRepository;
 
     public function __construct(DepartmentRepositoryInterface $departmentRepository, MenuRepositoryInterface $menuRepository)
@@ -22,23 +22,23 @@ class MenuController extends Controller
     }
 
     public function index()
-    {        
+    {
         $departments = $this->departmentRepository->getAllDepartment();
         $menus = $this->menuRepository->getMenu();
 
         return view('pages.menus.index')->with(
             [
                 'departments' => $departments,
-                'menus' => $menus
+                'menus' => $menus,
             ]
         );
     }
 
     public function fnGetMenuAccess(Request $request, MenuService $menu_service)
     {
-        $department_id = $request->route('department');
+        $department_id = (int) $request->route('department');
         $user_id = $request->route('user');
-    
+
         $access_menus = $menu_service->snGetMenuAccess($department_id, $user_id);
 
         return response()->json($access_menus);
@@ -47,7 +47,7 @@ class MenuController extends Controller
     public function fnUpdateDepartmentAccess(UpdateDepartmentAccessRequest $request, MenuService $menu_service)
     {
         $request_data = $request->safe()->only(['department_id', 'menu_id', 'menu_data', 'copy_data', 'export_data', 'param']);
-       
+
         return $menu_service->snUpdateAccess($request_data, 'department');
     }
 

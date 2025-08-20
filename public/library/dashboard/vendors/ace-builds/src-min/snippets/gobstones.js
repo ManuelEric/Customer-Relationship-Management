@@ -5,4 +5,3 @@ define("ace/snippets/gobstones",["require","exports","module"],function(e,t,n){"
                         }
                     });
                 })();
-            

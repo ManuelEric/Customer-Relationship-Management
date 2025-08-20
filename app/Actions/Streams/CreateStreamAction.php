@@ -9,7 +9,6 @@ class CreateStreamAction
     /**
      * Execute the action to create a new stream.
      *
-     * @param array $streamDetails
      * @return \App\Models\Stream
      */
     public function execute(array $streamDetails)

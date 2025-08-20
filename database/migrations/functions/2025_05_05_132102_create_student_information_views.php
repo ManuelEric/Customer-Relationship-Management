@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -17,10 +15,10 @@ return new class extends Migration
 
         DROP PROCEDURE IF EXISTS ViewStudentFullInformation //
 
-        CREATE PROCEDURE 
+        CREATE PROCEDURE
             ViewStudentFullInformation ( student_uuid CHAR(36) )
         BEGIN
-            SELECT 
+            SELECT
                 c.id,
                 CONCAT(c.first_name, " ", c.last_name) AS full_name,
                 c.mail,

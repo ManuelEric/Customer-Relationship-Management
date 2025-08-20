@@ -15,7 +15,14 @@ class AddFeeAndAgreementEditor extends Component
 {
     use WithFileUploads;
 
-    public $user, $user_role_id, $editor_agreements, $editor_agreement_id;
+    public $user;
+
+    public $user_role_id;
+
+    public $editor_agreements;
+
+    public $editor_agreement_id;
+
     public $isEdit = false;
 
     public $categories = [null, 'Essay Editing', 'Essay Mentoring', 'Program Development'];
@@ -23,7 +30,13 @@ class AddFeeAndAgreementEditor extends Component
     public $category = 'Essay Editing';
 
     /* form request */
-    public $start_date, $end_date, $fee_individual, $agreement;
+    public $start_date;
+
+    public $end_date;
+
+    public $fee_individual;
+
+    public $agreement;
 
     protected function rules()
     {
@@ -33,8 +46,9 @@ class AddFeeAndAgreementEditor extends Component
             'end_date' => 'required|gte:start_date',
             'fee_individual' => 'required',
             'agreement' => ['nullable', 'file', 'mimes:pdf', 'max:1024', function ($attribute, $value, $fail) {
-                if ($this->isEdit == false && !$this->agreement)
+                if ($this->isEdit == false && ! $this->agreement) {
                     $fail('The :attribute is required');
+                }
             }],
         ];
     }
@@ -65,9 +79,9 @@ class AddFeeAndAgreementEditor extends Component
 
             $agreementPath = null;
             if ($this->agreement) {
-                $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . $this->editor_agreement_id . '-' . Carbon::now()->format('Ymdhis'));
-                $agreementPath = $fileName . '.' . $this->agreement->getClientOriginalExtension();
-                $this->agreement->storeAs('project/crm/user/' . $this->user->id, $agreementPath, 's3');
+                $fileName = 'Agreement-'.str_replace(' ', '_', $this->user->first_name.'_'.$this->user->last_name.'-'.$this->editor_agreement_id.'-'.Carbon::now()->format('Ymdhis'));
+                $agreementPath = $fileName.'.'.$this->agreement->getClientOriginalExtension();
+                $this->agreement->storeAs('project/crm/user/'.$this->user->id, $agreementPath, 's3');
             }
 
             EditorAgreement::create([
@@ -79,14 +93,15 @@ class AddFeeAndAgreementEditor extends Component
                 'agreement' => $agreementPath,
             ]);
 
-
             $this->resetFields();
             $this->dispatch('agreement-created');
             DB::commit();
+
             return session()->flash('success', 'Agreement has been created.');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('[STORE EDITOR AGREEMENT] Failed to store editor\'s agreement : ' . $e->getMessage() . ' on ' . $e->getFile() . ' line ' . $e->getLine());
+            Log::error('[STORE EDITOR AGREEMENT] Failed to store editor\'s agreement : '.$e->getMessage().' on '.$e->getFile().' line '.$e->getLine());
+
             // $this->log_service->createErrorLog(LogModule::STORE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
             return session()->flash('error', 'Failed to create agreement.');
         }
@@ -116,15 +131,15 @@ class AddFeeAndAgreementEditor extends Component
             // Handle new file upload
             if ($this->agreement) {
                 // Delete old file if it exists
-                if ($editor_agreement->agreement && Storage::disk('s3')->exists('project/crm/user/' . $this->user->id . '/' . $editor_agreement->agreement)) {
+                if ($editor_agreement->agreement && Storage::disk('s3')->exists('project/crm/user/'.$this->user->id.'/'.$editor_agreement->agreement)) {
                     // delete file
-                    Storage::disk('s3')->delete('project/crm/user/' . $this->user->id . '/' . $editor_agreement->agreement);
+                    Storage::disk('s3')->delete('project/crm/user/'.$this->user->id.'/'.$editor_agreement->agreement);
                 }
 
                 // Store new file
-                $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . $this->editor_agreement_id . '-' . Carbon::now()->format('Ymdhis'));
-                $agreementPath = $fileName . '.' . $this->agreement->getClientOriginalExtension();
-                $this->agreement->storeAs('project/crm/user/' . $this->user->id, $agreementPath, 's3');
+                $fileName = 'Agreement-'.str_replace(' ', '_', $this->user->first_name.'_'.$this->user->last_name.'-'.$this->editor_agreement_id.'-'.Carbon::now()->format('Ymdhis'));
+                $agreementPath = $fileName.'.'.$this->agreement->getClientOriginalExtension();
+                $this->agreement->storeAs('project/crm/user/'.$this->user->id, $agreementPath, 's3');
             } else {
                 $agreementPath = $editor_agreement->agreement;
             }
@@ -140,10 +155,12 @@ class AddFeeAndAgreementEditor extends Component
             $this->resetFields();
             $this->dispatch('agreement-updated');
             DB::commit();
+
             return session()->flash('success', 'Agreement has been updated.');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('[UPDATE EDITOR AGREEMENT] Failed to update editor\'s agreement : ' . $e->getMessage() . ' on ' . $e->getFile() . ' line ' . $e->getLine());
+            Log::error('[UPDATE EDITOR AGREEMENT] Failed to update editor\'s agreement : '.$e->getMessage().' on '.$e->getFile().' line '.$e->getLine());
+
             // $this->log_service->createErrorLog(LogModule::UPDATE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
             return session()->flash('error', 'Failed to update agreement.');
         }
@@ -155,23 +172,24 @@ class AddFeeAndAgreementEditor extends Component
         try {
             $editor_agreement = EditorAgreement::find($editor_agreement_id);
 
-            if (Storage::disk('s3')->exists('project/crm/user/' . $this->user->id . '/' . $editor_agreement->agreement)) {
+            if (Storage::disk('s3')->exists('project/crm/user/'.$this->user->id.'/'.$editor_agreement->agreement)) {
                 // delete file
-                Storage::disk('s3')->delete('project/crm/user/' . $this->user->id . '/' . $editor_agreement->agreement);
+                Storage::disk('s3')->delete('project/crm/user/'.$this->user->id.'/'.$editor_agreement->agreement);
             }
             // delete record
             $editor_agreement->delete();
 
             DB::commit();
+
             return session()->flash('success', 'Agreement Deleted Successfully');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('[DELETE USER AGREEMENT] Failed to delete editor\'s agreement : ' . $e->getMessage() . ' on ' . $e->getFile() . ' line ' . $e->getLine());
+            Log::error('[DELETE USER AGREEMENT] Failed to delete editor\'s agreement : '.$e->getMessage().' on '.$e->getFile().' line '.$e->getLine());
+
             // $this->log_service->createErrorLog(LogModule::DELETE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
             return session()->flash('error', 'Failed to delete agreement.');
         }
     }
-
 
     public function render()
     {

@@ -22,7 +22,7 @@
                     <span class="input-group-text" id="basic-addon1">
                         Rp
                     </span>
-                    <input type="number" name="invb2b_priceidr_other" id="invoice_other_price_idr" class="form-control" 
+                    <input type="number" name="invb2b_priceidr_other" id="invoice_other_price_idr" class="form-control"
                         value="{{ (isset($invoicePartner)) ? $invoicePartner->invb2b_priceidr : old('invb2b_priceidr_other') }}" readonly
                         {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>
                 </div>
@@ -63,7 +63,7 @@
                     <span class="input-group-text" id="basic-addon1">
                         Rp
                     </span>
-                    <input type="number" name="invb2b_discidr_other" id="invoice_other_discount_idr" class="form-control" 
+                    <input type="number" name="invb2b_discidr_other" id="invoice_other_discount_idr" class="form-control"
                         value="{{ (isset($invoicePartner)) ? $invoicePartner->invb2b_discidr : old('invb2b_discidr_other') }}" readonly
                         {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>
                 </div>
@@ -88,7 +88,7 @@
                     <span class="input-group-text" id="basic-addon1">
                         Rp
                     </span>
-                    <input type="number" name="invb2b_totpriceidr_other" id="invoice_other_total_idr" class="form-control" 
+                    <input type="number" name="invb2b_totpriceidr_other" id="invoice_other_total_idr" class="form-control"
                         value="{{ (isset($invoicePartner)) ? $invoicePartner->invb2b_totpriceidr : old('invb2b_totpriceidr_other') }}" readonly
                         {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>
                 </div>
@@ -99,14 +99,14 @@
             <div class="col-md-8 mb-3">
                 <label for="">Words</label>
                 <input type="text" name="invb2b_words" id="invoice_other_word"
-                    class="form-control form-control-sm rounded mb-1" 
+                    class="form-control form-control-sm rounded mb-1"
                     value="{{ (isset($invoicePartner)) ? $invoicePartner->invb2b_words : old('invb2b_words') }}" readonly
                     {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>
                 @error('invb2b_words')
                     <small class="text-danger fw-light">{{ $message }}</small>
                 @enderror
                 <input type="text" name="invb2b_wordsidr_other" id="invoice_other_word_idr"
-                    class="form-control form-control-sm rounded" 
+                    class="form-control form-control-sm rounded"
                     value="{{ (isset($invoicePartner)) ? $invoicePartner->invb2b_wordsidr : old('invb2b_wordsidr_other') }}" readonly
                     {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>
                 @error('invb2b_wordsidr_other')
@@ -129,7 +129,7 @@
 
         $('#invoice_other_price_idr').val(price * kurs)
         $('#invoice_other_discount_idr').val(discount * kurs)
-        
+
          if(is_full_amount == 1){
             $('#invoice_other_total_idr').val((price * kurs)-(discount * kurs))
             $('#invoice_other_total').val(price - discount)

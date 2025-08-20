@@ -15,9 +15,8 @@ class UpdateStreamAction
 
     public function execute(
         $stream_id,
-        Array $new_subject_details
-    )
-    {
+        array $new_subject_details
+    ) {
 
         $updated_subject = $this->streamRepository->rnUpdateStream($stream_id, $new_subject_details);
 

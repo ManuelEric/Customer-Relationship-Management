@@ -4,11 +4,9 @@ namespace App\Repositories;
 
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Models\Referral;
-use Carbon\Carbon;
+use App\Models\v1\Referral as CRMRef;
 use DataTables;
 use Illuminate\Support\Facades\DB;
-use App\Models\v1\Referral as CRMRef;
-
 
 class ReferralRepository implements ReferralRepositoryInterface
 {
@@ -20,7 +18,7 @@ class ReferralRepository implements ReferralRepositoryInterface
                 ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
                 ->leftJoin('users', 'users.id', '=', 'tbl_referral.empl_id')->select(
                     'tbl_referral.id',
-                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null
                                 THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -40,7 +38,7 @@ class ReferralRepository implements ReferralRepositoryInterface
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
         )->filterColumn('partnership_name', function ($query, $keyword) {
-            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
+            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null
                         THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                         ELSE tbl_corp.corp_name
                     END) like ?';
@@ -61,8 +59,8 @@ class ReferralRepository implements ReferralRepositoryInterface
                 DB::raw(
                     'CASE tbl_referral.referral_type
                         WHEN "Out" THEN tbl_referral.additional_prog_name
-                        WHEN "In" 
-                            THEN 
+                        WHEN "In"
+                            THEN
                                 program.program_name
                     END AS program_name'
                 )
@@ -89,6 +87,7 @@ class ReferralRepository implements ReferralRepositoryInterface
     {
         return Referral::find($referralId);
     }
+
     public function createReferral(array $referralDetails)
     {
         return Referral::create($referralDetails);
@@ -114,8 +113,8 @@ class ReferralRepository implements ReferralRepositoryInterface
                 DB::raw(
                     'CASE tbl_referral.referral_type
                         WHEN "Out" THEN tbl_referral.additional_prog_name
-                        WHEN "In" 
-                            THEN 
+                        WHEN "In"
+                            THEN
                                program.program_name
                     END AS program_name'
                 ),
@@ -126,12 +125,12 @@ class ReferralRepository implements ReferralRepositoryInterface
                     END AS type'
                 ),
                 DB::raw('SUM(number_of_student) as participants'),
-                DB::raw('(CASE 
+                DB::raw('(CASE
                             WHEN SUM(number_of_student) is null THEN 0
                             ELSE SUM(number_of_student)
                         END) as participants'),
                 DB::raw('DATE_FORMAT(ref_date, "%Y") as year'),
-                DB::raw("SUM(revenue) as total"),
+                DB::raw('SUM(revenue) as total'),
                 // DB::raw('count(tbl_referral.prog_id) as count_program')
                 DB::raw(
                     'CASE tbl_referral.referral_type
@@ -140,14 +139,10 @@ class ReferralRepository implements ReferralRepositoryInterface
                         END AS count_program'
                 ),
             )
-            ->whereYear(
-                'ref_date',
-                '=',
-                DB::raw('(case year(ref_date)
-                                when ' . $startYear . ' then ' . $startYear . '
-                                when ' . $endYear . ' then ' . $endYear . '
-                            end)')
-            )
+            ->whereRaw('YEAR(ref_date) = (CASE
+                WHEN YEAR(ref_date) = '.$startYear.' THEN '.$startYear.'
+                WHEN YEAR(ref_date) = '.$endYear.' THEN '.$endYear.'
+            END)')
             ->groupBy('tbl_referral.prog_id')
             ->groupBy(DB::raw('year(ref_date)'))
             ->get();
@@ -177,7 +172,7 @@ class ReferralRepository implements ReferralRepositoryInterface
                     $sub->where('referral_type', 'In');
                 })->
                 when($type == 'Out', function ($sub) {
-                    $sub->where('referral_type', 'Out');  
+                    $sub->where('referral_type', 'Out');
                 })->
                 get();
     }
@@ -187,7 +182,7 @@ class ReferralRepository implements ReferralRepositoryInterface
         return Referral::where('partner_id', $corpId)->where('ref_date', $refDate)->first();
     }
 
-    # crm
+    // crm
     public function getReferralFromV1()
     {
         return CRMRef::select([

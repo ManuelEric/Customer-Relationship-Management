@@ -4,32 +4,31 @@ namespace App\Http\Traits;
 
 trait CurrencyTrait
 {
-
     public function formatCurrency(string $currency, int $subunit_idr, int $subunit_other)
     {
         switch ($currency) {
 
-            case "idr":
+            case 'idr':
                 $locale = 'id_ID';
-                $symbol = "Rp";
+                $symbol = 'Rp';
                 $formatter = number_format($subunit_idr);
                 break;
 
-            case "usd":
+            case 'usd':
                 $locale = 'en_US';
-                $symbol = "$";
+                $symbol = '$';
                 $formatter = number_format($subunit_other, 2);
                 break;
 
-            case "sgd":
+            case 'sgd':
                 $locale = 'en_SG';
-                $symbol = "S$";
+                $symbol = 'S$';
                 $formatter = number_format($subunit_other, 2);
                 break;
 
-            case "gbp":
+            case 'gbp':
                 $locale = 'en_DE';
-                $symbol = "£";
+                $symbol = '£';
                 $formatter = number_format($subunit_other, 2);
                 break;
 

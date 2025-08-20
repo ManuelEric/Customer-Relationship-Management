@@ -66,9 +66,9 @@ function initMap() {
           }
         ]
       }]
-    });  
+    });
   }
-  
+
   // Apple Theme
   if($("#apple-map-theme").length) {
     var AppletThemeMap = new google.maps.Map(document.getElementById('apple-map-theme'), {
@@ -553,9 +553,9 @@ function initMap() {
           }]
         }
       ]
-    });  
+    });
   }
-  
+
   // Propia Theme
   if($("#propia-map-theme").length) {
     var PropiaThemeMap = new google.maps.Map(document.getElementById('propia-map-theme'), {

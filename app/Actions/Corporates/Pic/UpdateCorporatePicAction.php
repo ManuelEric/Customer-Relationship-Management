@@ -20,18 +20,16 @@ class UpdateCorporatePicAction
     public function execute(
         StoreCorporatePicRequest $request,
         int $pic_id,
-        String $corp_id,
-        Array $corporate_pic_details
-    )
-    {
+        string $corp_id,
+        array $corporate_pic_details
+    ) {
         unset($corporate_pic_details['pic_phone']);
         $picDetails['pic_phone'] = $this->tnNormalizePhoneNumber($request->pic_phone);
 
         $corporate_pic_details['corp_id'] = $corp_id;
 
-        # Update corporate pic
+        // Update corporate pic
         $updated_corporate_pic = $this->corporatePicRepository->updateCorporatePic($pic_id, $corporate_pic_details);
-
 
         return $updated_corporate_pic;
     }

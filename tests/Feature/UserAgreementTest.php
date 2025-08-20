@@ -15,8 +15,8 @@ test('user can store tutor agreement', function () {
     $user_id = $user->id;
     $user_role_id = UserRole::where('user_id', $user->id)->inRandomOrder()->first()->user_role_id;
     $subject_id = Subject::inRandomOrder()->first()->id;
-    $fake_directory = 'project/crm/user/' . $user_id;
-    $fake_filename = 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name) . '-' . $subject_id . '-' . now()->format('Ymdhis') . '.pdf';
+    $fake_directory = 'project/crm/user/'.$user_id;
+    $fake_filename = 'Agreement-'.str_replace(' ', '_', $user->first_name.'_'.$user->last_name).'-'.$subject_id.'-'.now()->format('Ymdhis').'.pdf';
     $fake_curriculum = collect(['IBDP', 'IB MYP', 'Cambridge ALevel', 'Cambridge IGCSE', 'Advanced Placement', 'National'])->shuffle()->first();
     $fake_startdate = Carbon::now()->addDays(1)->format('Y-m-d');
     $fake_enddate = Carbon::now()->addDays(2)->format('Y-m-d');
@@ -47,7 +47,7 @@ test('user can store tutor agreement', function () {
         ->curriculum->toBe($user_subject->curriculum)
         ->start_date->toBe($fake_startdate)
         ->end_date->toBe($fake_enddate)
-        ->agreement->toBe( $fake_directory . '/' . $fake_filename)
+        ->agreement->toBe($fake_directory.'/'.$fake_filename)
         ->grade->toBe('9-12')
         ->fee_individual->toBe(1000000)
         ->fee_group->toBe(2000000);

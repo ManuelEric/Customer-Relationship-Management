@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -16,49 +14,48 @@ return new class extends Migration
     {
         /**
          * Functions need to be installed before using
-         * 
+         *
          * A. Create Get Client Type Function
          *  a.1. CountJoinAdmissionProgramByClientId
          *  a.2. CountJoinNonAdmissionProgramByClientId
          *  a.3. GetClientType
-         * 
+         *
          * B. Update Grade Student Function
-         * 
+         *
          * C. Check Participated Client Function
          *  c.1. CheckParticipatedProgram
          *  c.2. CheckParticipatedEvent
          *  c.3. CheckParticipated
-         * 
+         *
          * D. Get Grade Student By Graduation Year Function
-         * 
+         *
          * E. Get Graduation Year Real Function
-         * 
+         *
          * F. Get Referral Name By Ref Code Function
-         * 
+         *
          * G. Get Total Score Function. Used to create a client student view
-         * 
+         *
          * H. Get Monthly Target. Used to create a lead signal view
-         * 
+         *
          * I. Get Contribution by total target. Used to create a lead signal view
-         * 
+         *
          * J. Get initial consult by total target. Used to create a lead signal view
-         * 
+         *
          * K. Get leads needed by division. Used to create a lead signal view
-         * 
+         *
          * L. Get diff from last month. Used to create a lead signal view
-         * 
+         *
          * M. Get revenue target by requested month & year. Used to create a lead signal view
-         * 
+         *
          * N. Create Referral Code Function. Used to create a client ref code view
-         * 
-         * O. Get Role Client By Client Id. 
-         * 
+         *
+         * O. Get Role Client By Client Id.
+         *
          * P. Get Client Suggestions based on similarity of first name and last name
-         * 
+         *
          * Q. Count Client Raw Client Relation
-         * 
+         *
          * R. Get number of hot leads per division. Used to create a lead signal view
-         * 
          */
         DB::statement('
         # a.1
@@ -66,7 +63,7 @@ return new class extends Migration
 
         CREATE FUNCTION CountJoinAdmissionProgramByClientId ( requested_client_id INTEGER )
         RETURNS INTEGER
-        
+
         BEGIN
         	DECLARE counted_program INTEGER DEFAULT 0;
 
@@ -85,7 +82,7 @@ return new class extends Migration
 
         CREATE FUNCTION CountJoinNonAdmissionProgramByClientId ( requested_client_id INTEGER )
         RETURNS INTEGER
-        
+
         BEGIN
         	DECLARE counted_program INTEGER DEFAULT 0;
 
@@ -107,7 +104,7 @@ return new class extends Migration
 
             BEGIN
                 DECLARE client_type VARCHAR(20);
-                DECLARE join_program_admission INTEGER DEFAULT 0; 
+                DECLARE join_program_admission INTEGER DEFAULT 0;
                 DECLARE join_program_non_admission INTEGER DEFAULT 0;
 
                 SET join_program_admission = CountJoinAdmissionProgramByClientId(requested_client_id);
@@ -125,7 +122,7 @@ return new class extends Migration
         END; //
         DELIMITER ;
 
-        # B 
+        # B
         DELIMITER //
 
         CREATE FUNCTION UpdateGradeStudent ( ynow INTEGER, yinput INTEGER, mnow INTEGER, minput INTEGER, ginput INTEGER )
@@ -136,17 +133,17 @@ return new class extends Migration
                 DECLARE gradeNow INTEGER;
 
                 IF (mnow >= 7 AND minput < 7) AND (ynow > yinput) THEN
-                    SET gradeNow = (ynow - yinput) + (ginput + 1); 
+                    SET gradeNow = (ynow - yinput) + (ginput + 1);
                 ELSEIF (mnow < 7 AND minput >= 7) AND (ynow > yinput) THEN
                     SET gradeNow = (ynow - yinput) + (ginput - 1);
                 ELSEIF (mnow >= 7 AND minput < 7) AND (ynow = yinput) THEN
-                    SET gradeNow = ginput + 1;  
+                    SET gradeNow = ginput + 1;
                 ELSEIF (mnow < 7 AND minput >= 7) AND (ynow = yinput) THEN
-                    SET gradeNow = (ynow - yinput) + (ginput - 1);  
+                    SET gradeNow = (ynow - yinput) + (ginput - 1);
                 ELSEIF ((mnow < 7 AND minput < 7) OR (mnow >= 7 AND minput >= 7)) AND (ynow >= yinput) THEN
                     SET gradeNow = (ynow - yinput) + ginput;
-                ELSE 
-                    SET gradeNow = ginput;  
+                ELSE
+                    SET gradeNow = ginput;
                 END IF;
 
             RETURN gradeNow;
@@ -158,7 +155,7 @@ return new class extends Migration
 
         CREATE FUNCTION checkParticipatedProgram ( requested_client_id INTEGER )
         RETURNS INTEGER
-        
+
         BEGIN
         	DECLARE counted_program INTEGER DEFAULT 0;
             SELECT EXISTS(SELECT clientprog_id FROM tbl_client_prog cp WHERE cp.client_id = requested_client_id) INTO counted_program;
@@ -171,7 +168,7 @@ return new class extends Migration
 
         CREATE FUNCTION checkParticipatedEvent ( requested_client_id INTEGER )
         RETURNS INTEGER
-        
+
         BEGIN
         	DECLARE counted_event INTEGER DEFAULT 0;
             SELECT EXISTS(SELECT clientevent_id FROM tbl_client_event ce WHERE ce.client_id = requested_client_id) INTO counted_event;
@@ -187,7 +184,7 @@ return new class extends Migration
 
             BEGIN
                 DECLARE participated VARCHAR(20) COLLATE utf8mb4_general_ci;
-                DECLARE join_program INTEGER DEFAULT 0; 
+                DECLARE join_program INTEGER DEFAULT 0;
                 DECLARE join_event INTEGER DEFAULT 0;
 
                 SET join_program = checkParticipatedProgram(requested_client_id);
@@ -214,12 +211,12 @@ return new class extends Migration
                 DECLARE grade INTEGER;
                 DECLARE month_now INTEGER;
                 DECLARE diff_year INTEGER;
-                
+
                 SET diff_year = graduation_year - YEAR(NOW());
                 SET grade = 12 - diff_year;
                 SET month_now = MONTH(now());
 
-                IF (month_now >= 7) THEN 
+                IF (month_now >= 7) THEN
                     SET grade = grade + 1;
                 END IF;
 
@@ -238,11 +235,11 @@ return new class extends Migration
                 DECLARE graduation_year_real INTEGER;
                 DECLARE year_now INTEGER;
                 DECLARE month_now INTEGER;
-                
+
                 SET year_now = YEAR(now());
                 SET month_now = MONTH(now());
 
-                IF (month_now >= 7) THEN 
+                IF (month_now >= 7) THEN
                     SET graduation_year_real = (12 - grade_now) + year_now + 1;
                 ELSE
                     SET graduation_year_real = (12 - grade_now) + year_now;
@@ -257,7 +254,7 @@ return new class extends Migration
 
         CREATE FUNCTION GetReferralNameByRefCode ( refCode VARCHAR(50) )
         RETURNS VARCHAR(255)
-        
+
         BEGIN
         	DECLARE referral_name VARCHAR(255) DEFAULT NULL;
 
@@ -278,7 +275,7 @@ return new class extends Migration
                 DECLARE total DECIMAL(4,2);
 
                 IF destination_country_score IS NULL THEN
-                    IF school_score IS NULL THEN 
+                    IF school_score IS NULL THEN
                         SET total = (lead_score + school_year_left_score) / 2;
                     ELSE
                 	    SET total = (school_score + lead_score + school_year_left_score) / 3;
@@ -301,7 +298,7 @@ return new class extends Migration
             BEGIN
                 DECLARE total INTEGER;
 
-                SELECT SUM(total_participant) INTO total 
+                SELECT SUM(total_participant) INTO total
                     FROM tbl_sales_target
                     LEFT JOIN tbl_prog ON tbl_prog.prog_id = tbl_sales_target.prog_id
                     LEFT JOIN tbl_main_prog ON tbl_main_prog.id = tbl_prog.main_prog_id
@@ -327,7 +324,7 @@ return new class extends Migration
             RETURN contribution_to_target;
         END; //
         DELIMITER ;
-        
+
         # J
         DELIMITER //
 
@@ -357,8 +354,8 @@ return new class extends Migration
                 DECLARE leads_needed INTEGER;
                 DECLARE multiplier INTEGER;
 
-                SET multiplier = 
-                    CASE 
+                SET multiplier =
+                    CASE
                         WHEN division = "Sales" THEN 2
                         WHEN division = "Referral" THEN 1
                         WHEN division = "Digital" THEN 5
@@ -382,7 +379,7 @@ return new class extends Migration
 
                 SELECT contribution_target - contribution_achieved INTO difference
                     FROM target_tracking
-                    WHERE MONTH(month_year) = MONTH(now() - INTERVAL 1 MONTH) 
+                    WHERE MONTH(month_year) = MONTH(now() - INTERVAL 1 MONTH)
                         AND YEAR(month_year) = YEAR(now() - INTERVAL 1 MONTH)
                         AND divisi = requested_division;
 
@@ -400,7 +397,7 @@ return new class extends Migration
             BEGIN
                 DECLARE total INTEGER;
 
-                SELECT SUM(total_target) INTO total 
+                SELECT SUM(total_target) INTO total
                     FROM tbl_sales_target
                     LEFT JOIN tbl_prog ON tbl_prog.prog_id = tbl_sales_target.prog_id
                     LEFT JOIN tbl_main_prog ON tbl_main_prog.id = tbl_prog.main_prog_id
@@ -420,7 +417,7 @@ return new class extends Migration
             BEGIN
                 DECLARE ref_code VARCHAR(10);
 
-                SELECT CONCAT(UPPER(SUBSTR(first_name, 1, 3)), id) INTO ref_code 
+                SELECT CONCAT(UPPER(SUBSTR(first_name, 1, 3)), id) INTO ref_code
                     FROM tbl_client
                     WHERE id = identifier;
             RETURN ref_code;
@@ -434,11 +431,11 @@ return new class extends Migration
         RETURNS INTEGER
 
             BEGIN
-                DECLARE role_id INTEGER DEFAULT NULL; 
+                DECLARE role_id INTEGER DEFAULT NULL;
 
-                SELECT MAX(tbl_client_roles.role_id) into role_id FROM tbl_client 
-                    LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id 
-                where tbl_client.id = client_id 
+                SELECT MAX(tbl_client_roles.role_id) into role_id FROM tbl_client
+                    LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id
+                where tbl_client.id = client_id
                 GROUP by tbl_client.id
                 limit 1;
 
@@ -482,7 +479,7 @@ return new class extends Migration
             END IF;
 
             RETURN id_similiar;
-        END; // 
+        END; //
         DELIMITER ;
 
         # Q
@@ -490,7 +487,7 @@ return new class extends Migration
 
         CREATE FUNCTION CountRawClientRelation ( raw_client_id VARCHAR(36), roles VARCHAR(50) )
         RETURNS INTEGER
-        
+
         BEGIN
         	DECLARE counted_relation INTEGER DEFAULT 0;
 
@@ -498,11 +495,11 @@ return new class extends Migration
 
                 SELECT COUNT(*) INTO counted_relation FROM tbl_client_relation cr
 
-                        WHERE (CASE 
+                        WHERE (CASE
                                     WHEN roles = "student" THEN child_id
                                     WHEN roles = "parent" THEN parent_id
                                 END) = raw_client_id;
-                                
+
                     RETURN counted_relation ;
             ELSE
                 RETURN 0;
@@ -521,8 +518,8 @@ return new class extends Migration
                 DECLARE hot_leads_target INTEGER;
                 DECLARE multiplier INTEGER;
 
-                SET multiplier = 
-                    CASE 
+                SET multiplier =
+                    CASE
                         WHEN division = "Sales" THEN 2
                         WHEN division = "Referral" THEN 1
                         WHEN division = "Digital" THEN 3
@@ -555,7 +552,7 @@ return new class extends Migration
                 END IF;
             END; //
         DELIMITER ;
-        
+
         # T
         DELIMITER //
             CREATE FUNCTION `SplitNameClient`(fullname VARCHAR(255), section VARCHAR(50)) RETURNS varchar(255)
@@ -563,16 +560,16 @@ return new class extends Migration
                     DECLARE name VARCHAR(255);
 
                     IF (section = "first") THEN
-                        SET name = SUBSTRING_INDEX(SUBSTRING_INDEX(fullname, " ", 1), " ", -1); 
+                        SET name = SUBSTRING_INDEX(SUBSTRING_INDEX(fullname, " ", 1), " ", -1);
                     ELSEIF (section = "middle") THEN
                         SET name = SUBSTRING_INDEX(SUBSTRING_INDEX(fullname, " ", 2), " ", -1);
                     ELSEIF (section = "last") THEN
-                        SET name = SUBSTRING_INDEX(SUBSTRING_INDEX(fullname, " ", 3), " ", -1);  
+                        SET name = SUBSTRING_INDEX(SUBSTRING_INDEX(fullname, " ", 3), " ", -1);
                     END IF;
 
                 RETURN name;
             END; //
-        DELIMITER ;  
+        DELIMITER ;
         ');
     }
 

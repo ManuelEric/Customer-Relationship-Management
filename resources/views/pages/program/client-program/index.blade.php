@@ -280,7 +280,7 @@
             @endforeach
             $("#main-program").val(main_program).trigger('change')
         @endif
-        
+
         @if ($request->get('program_name') !== null)
             var program_name = new Array();
             @foreach ($request->get('program_name') as $key => $val)
@@ -319,7 +319,7 @@
                     26, 'desc'
                 ],
                 buttons: [
-                    'pageLength', 
+                    'pageLength',
                     {
                         extend: 'excel',
                         text: 'Export to Excel',
@@ -645,7 +645,7 @@
                 const isSelected = selectedRows.includes(rowData.clientprog_id);
 
                 if(index === -1){
-                    
+
                     selectedRows.push(rowData.clientprog_id);
                     customClientProgId.push(rowData.custom_clientprog_id);
                     bundlingIds.push(rowData.bundling_id);
@@ -662,7 +662,7 @@
             });
 
             table.on('draw', updateRowSelection)
-            
+
             function addBundle() {
                 var html = '';
 
@@ -682,7 +682,7 @@
                                     number: customClientProgId,
                                 })
                                 .then(function(response) {
-                                    
+
                                     html = '';
                                     html += `<ul>`;
 
@@ -704,11 +704,11 @@
                                         notification('success', 'Successfully created a bundle program');
                                         // location.reload();
                                     }
-                                    
+
                                     $("#programTable").DataTable().ajax.reload()
                                 })
                                 .catch(function(error) {
-                                    
+
                                     swal.close();
                                     notification('error', error.message);
                                 })
@@ -728,12 +728,12 @@
                         text: "Please select the client program data first!",
                     });
                 }
-                
+
             }
 
             function cancelBundle(){
                 var html = '';
-                
+
                 if (selectedRows.length > 1) {
                     Swal.fire({
                         title: "Confirmation!",
@@ -821,7 +821,7 @@
                             'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                         }
                     }).then(function (response) {
-                        
+
                         var data = response.data;
                         var batch_id = data.batch_id;
                         html = '';
@@ -832,7 +832,7 @@
                         html += `<p class="text-center mt-2" id="total">Exporting ...</p>`;
                         html += `</div>`;
 
-                                        
+
                         $("#modal-notif-export").modal('show');
                         $('#content-export-information').html(html);
 
@@ -848,7 +848,7 @@
                                 $('#bar').css({'width': response.data.progress + '%'});
                                 $('#bar').text(response.data.progress + '%');
                                 $('#total').html(`Exporting ${response.data.total_imported}/${response.data.total_data}`);
-                                            
+
                                 i++;
 
                                 if(response.data.progress == 100){
@@ -899,7 +899,7 @@
 
                             });
                         }, 3000);
-                        
+
                         swal.close()
                     }).catch(function(error, response) {
                         var msg = error.response.data.error;
@@ -910,7 +910,7 @@
                         notification('error', msg);
 
                 })
-                
+
             }
 
         });

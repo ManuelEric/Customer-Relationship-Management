@@ -123,7 +123,7 @@ var Arrow = (function() {
       hasControls: true,
       selectable: true
     });
-    
+
     inst.canvas.add(line).setActiveObject(line);
   };
 

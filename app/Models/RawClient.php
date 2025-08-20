@@ -9,6 +9,25 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property-read mixed $full_name
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read int|null $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role> $roles
+ * @property-read int|null $roles_count
+ * @property-read \App\Models\School|null $school
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read int|null $tokens_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawClient newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawClient newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawClient onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawClient query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawClient withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawClient withoutTrashed()
+ *
+ * @mixin \Eloquent
+ */
 class RawClient extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
@@ -18,7 +37,7 @@ class RawClient extends Authenticatable
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'id',
@@ -37,11 +56,11 @@ class RawClient extends Authenticatable
         'updated_at',
     ];
 
-    # attributes
+    // attributes
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => isset($this->last_name) ? $this->first_name . ' ' . $this->last_name : $this->first_name,
+            get: fn ($value) => isset($this->last_name) ? $this->first_name.' '.$this->last_name : $this->first_name,
         );
     }
 
@@ -54,5 +73,4 @@ class RawClient extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'tbl_client_roles', 'client_id', 'role_id');
     }
-
 }

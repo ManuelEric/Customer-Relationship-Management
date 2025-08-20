@@ -19,14 +19,14 @@ class StoreFormProgramEmbedRequest extends FormRequest
     public function messages()
     {
         return [
-            'leadsource' => ':attributes field is required'
+            'leadsource' => ':attributes field is required',
         ];
     }
 
     public function attributes()
     {
         switch ($this->input('role')) {
-            case "parent":
+            case 'parent':
                 return [
                     'fullname.0' => 'name',
                     'email.0' => 'email address',
@@ -34,9 +34,9 @@ class StoreFormProgramEmbedRequest extends FormRequest
                     'fullname.1' => 'child name',
                     'email.1' => 'child email address',
                     'fullnumber.1' => 'child phone number',
-                    'leadsource' => 'where do you know this event'
+                    'leadsource' => 'where do you know this event',
                 ];
-            case "student":
+            case 'student':
                 return [
                     'fullname.0' => 'name',
                     'email.0' => 'email address',
@@ -44,10 +44,10 @@ class StoreFormProgramEmbedRequest extends FormRequest
                     'fullname.1' => 'parent name',
                     'email.1' => 'parent email address',
                     'fullnumber.1' => 'parent phone number',
-                    'leadsource' => 'where do you know this event'
+                    'leadsource' => 'where do you know this event',
                 ];
                 break;
-            
+
         }
     }
 
@@ -70,7 +70,7 @@ class StoreFormProgramEmbedRequest extends FormRequest
             'fullname.1' => 'required',
             'email.1' => 'nullable|email',
             'fullnumber.1' => 'nullable',
-            
+
             'school' => 'required',
             'graduation_year' => 'required',
             'destination_country' => 'required|exists:tbl_country,id',

@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\VendorTypeRepositoryInterface;
 use App\Models\VendorType;
 
-class VendorTypeRepository implements VendorTypeRepositoryInterface 
+class VendorTypeRepository implements VendorTypeRepositoryInterface
 {
     public function getAllVendorType()
     {

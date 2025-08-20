@@ -27,6 +27,7 @@ class UpdateGradeAndGraduationYearCommand extends Command
     protected $description = 'Update grade and graduation year student every year';
 
     private ClientRepository $clientRepository;
+
     use GetGradeAndGraduationYear;
 
     public function __construct(ClientRepository $clientRepository)
@@ -35,13 +36,12 @@ class UpdateGradeAndGraduationYearCommand extends Command
         $this->clientRepository = $clientRepository;
     }
 
-    # Purpose:
-    # Update grade and graduation year student every year
+    // Purpose:
+    // Update grade and graduation year student every year
     public function handle()
     {
-        # info if the cron working or not
+        // info if the cron working or not
         Log::info('Cron Update grade and graduation year works fine.');
-
 
         DB::beginTransaction();
         try {
@@ -51,44 +51,43 @@ class UpdateGradeAndGraduationYearCommand extends Command
             $progress_bar = $this->output->createProgressBar($clients->count());
             $progress_bar->start();
 
-            foreach($clients as $client){
+            foreach ($clients as $client) {
                 $grade_now = $graduation_year_now = null;
 
-                if($client->st_grade != null){
-                    if($client->graduation_year == null){
+                if ($client->st_grade != null) {
+                    if ($client->graduation_year == null) {
                         $grade_now = $client->st_grade;
-                    }else{
+                    } else {
                         $grade_now = $this->getRealGrade(date('Y'), Carbon::parse($client->created_at)->format('Y'), date('m'), Carbon::parse($client->created_at)->format('m'), $client->st_grade);
                     }
                     $graduation_year_now = $this->getGraduationYearNow($grade_now);
-                }else{
+                } else {
                     $grade_now = $this->getGradeByGraduationYear($client->graduation_year);
-                    if($client->graduation_year != null){
+                    if ($client->graduation_year != null) {
                         $graduation_year_now = $client->graduation_year;
-                    }else{
+                    } else {
                         $graduation_year_now = $this->getGraduationYearNow($grade_now);
                     }
                 }
 
                 $client->st_grade == null && $client->graduation_year == null ? $grade_now = $graduation_year_now = null : null;
 
-                # Update grade now and graduation year now to tbl_client
+                // Update grade now and graduation year now to tbl_client
                 $this->clientRepository->updateClientWithTrashed($client->id, ['grade_now' => $grade_now, 'graduation_year_now' => $graduation_year_now, 'updated_at' => $client->updated_at]);
-                
+
                 $progress_bar->advance();
             }
-            
+
             DB::commit();
             $progress_bar->finish();
 
         } catch (Exception $e) {
-            
+
             DB::rollBack();
-            Log::error('Cron Update grade and graduation year not working normal. Error : '. $e->getMessage() .' | Line '. $e->getLine());
+            Log::error('Cron Update grade and graduation year not working normal. Error : '.$e->getMessage().' | Line '.$e->getLine());
 
         }
 
         return Command::SUCCESS;
     }
 }
-

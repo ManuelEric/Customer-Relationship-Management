@@ -69,7 +69,7 @@
              <div class="col-md-8 mb-3">
                  <label for="">Words</label>
                  <input type="text" name="invb2b_wordsidr" id="invoice_idr_word"
-                     class="form-control form-control-sm rounded" 
+                     class="form-control form-control-sm rounded"
                      value="{{ (isset($invoicePartner)) ? $invoicePartner->invb2b_wordsidr : old('invb2b_wordsidr') }}" readonly
                      {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>
                     @error('invb2b_wordsidr')
@@ -90,17 +90,17 @@
 
          if(is_full_amount == 1){
             $('#invoice_idr_total').val(price-discount)
-    
+
             $('#total_idr').val(price-discount)
             $('#total_other').val(0)
-    
+
             $('#invoice_idr_word').val(wordConverter(price-discount)+ ' Rupiah')
          }else{
             $('#invoice_idr_total').val(total)
-    
+
             $('#total_idr').val(total)
             $('#total_other').val(0)
-    
+
             $('#invoice_idr_word').val(wordConverter(total)+ ' Rupiah')
          }     }
  </script>

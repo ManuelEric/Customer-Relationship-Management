@@ -14,7 +14,7 @@
     </div>
     <div class="card-body overflow-auto" style="max-height: 150px;">
 
-        @forelse ($student->picClient->sortByDesc('created_at') as $picClient)  
+        @forelse ($student->picClient->sortByDesc('created_at') as $picClient)
             <div class="d-flex align-items-center justify-content-between w-100 ">
                 <a href="#" class="text-decoration-none {{ $picClient->status == 1  ? 'text-primary' : 'text-muted' }}" style="font-size:12px;">
                     <div>
@@ -30,7 +30,7 @@
                     @else
                         - {{ date('M d, Y', strtotime($picClient->updated_at)) }}
                     @endif
-                    
+
                 </div>
             </div>
         @empty

@@ -2,11 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Lead;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-
-use function PHPSTORM_META\map;
 
 class StoreClientRawParentRequest extends FormRequest
 {
@@ -19,8 +15,6 @@ class StoreClientRawParentRequest extends FormRequest
     {
         return true;
     }
-
- 
 
     /**
      * Get the validation rules that apply to the request.

@@ -17,8 +17,7 @@ class AuthController extends Controller
     public function login(
         Request $request,
         AuthorizationService $authorizationService,
-    )
-    {
+    ) {
         $credentials = $request->validate([
             'email' => 'required|exists:users,email',
             'password' => 'required',
@@ -26,11 +25,11 @@ class AuthController extends Controller
 
         $credentials = $request->only(['email', 'password']);
 
-        # check credentials
-        if (!Auth::attempt($credentials, true)) 
-            return response()->json([ 'password' => 'Wrong email or password' ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+        // check credentials
+        if (! Auth::attempt($credentials, true)) {
+            return response()->json(['password' => 'Wrong email or password'], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
-        
         try {
 
             $user = Auth::user();
@@ -43,7 +42,7 @@ class AuthController extends Controller
 
             throw new HttpResponseException(
                 response()->json([
-                    'errors' => $e->getMessage()
+                    'errors' => $e->getMessage(),
                 ])
             );
 
@@ -51,7 +50,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $generatedToken,
-            'data' => $user
+            'data' => $user,
         ]);
     }
 
@@ -66,7 +65,7 @@ class AuthController extends Controller
 
         // // Revoke an access token...
         // $tokenRepository->revokeAccessToken($tokenId);
-        
+
         // // Revoke all of the token's refresh tokens...
         // $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($tokenId);
 
@@ -74,7 +73,7 @@ class AuthController extends Controller
         $user->revoke();
 
         return response()->json([
-            'message' => 'Logout success'
+            'message' => 'Logout success',
         ], JsonResponse::HTTP_OK);
     }
 }

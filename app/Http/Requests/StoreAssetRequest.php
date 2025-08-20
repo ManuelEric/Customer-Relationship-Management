@@ -25,7 +25,7 @@ class StoreAssetRequest extends FormRequest
     public function rules()
     {
         return $this->isMethod('POST') ? $this->store() : $this->update();
-        
+
     }
 
     public function store()
@@ -59,7 +59,7 @@ class StoreAssetRequest extends FormRequest
                             $fail('Cannot update the amount because the asset is already running.');
                         }
                     }
-                }
+                },
             ],
             'asset_unit' => 'required|alpha',
             'asset_condition' => 'required|in:Good,Good Enough,Not Good',

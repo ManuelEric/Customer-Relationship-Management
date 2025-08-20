@@ -5,7 +5,6 @@ namespace App\Repositories;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Models\Corporate;
 use App\Models\v1\Corp as CRMCorp;
-use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -14,13 +13,12 @@ class CorporateRepository implements CorporateRepositoryInterface
     public function getAllCorporateDataTables()
     {
         return Datatables::eloquent(
-            Corporate::
-                leftJoin('users', 'users.id', '=', 'tbl_corp.user_id')->
+            Corporate::leftJoin('users', 'users.id', '=', 'tbl_corp.user_id')->
                 leftJoin('tbl_industry', 'tbl_industry.id', '=', 'tbl_corp.corp_industry')->
                 leftJoin('tbl_industry_subsector', 'tbl_industry_subsector.id', '=', 'tbl_corp.corp_subsector_id')->
                 select(
                     'corp_id',
-                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null
                                 THEN CONCAT(users.first_name, " ", COALESCE(users.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -35,47 +33,46 @@ class CorporateRepository implements CorporateRepositoryInterface
                     'corp_region',
                     'active_status'
                 ))
-                ->rawColumns(['corp_address'])
-                ->filterColumn('partnership_name', function ($query, $keyword) {
-                    $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
+            ->rawColumns(['corp_address'])
+            ->filterColumn('partnership_name', function ($query, $keyword) {
+                $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null
                                 THEN CONCAT(users.first_name, " ", COALESCE(users.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) like ?';
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->make(true);
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->make(true);
     }
 
     public function getAllCorporate()
     {
         return Corporate::orderBy('corp_name', 'asc')->get();
     }
+
     public function getCorporateByMonthly($monthYear, $type)
     {
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        $query = Corporate::when(!empty($type), function ($q) use ($type)
-                {
-                    if($type != 'list'){
-                        $q->select(DB::raw("count(*) as corp_count"));
-                    }else{
-                        $q->select('*');
-                    }
-                });
+        $query = Corporate::when(! empty($type), function ($q) use ($type) {
+            if ($type != 'list') {
+                $q->select(DB::raw('count(*) as corp_count'));
+            } else {
+                $q->select('*');
+            }
+        });
 
         if ($type == 'all') {
-            $query->where(DB::raw("year(created_at)"), '<=', $year)
-                ->where(DB::raw("month(created_at)"), '<=', $month);
+            $query->where(DB::raw('year(created_at)'), '<=', $year)
+                ->where(DB::raw('month(created_at)'), '<=', $month);
         } else {
-            $query->where(DB::raw("year(created_at)"), '=', $year)
-                ->where(DB::raw("month(created_at)"), '=', $month);
+            $query->where(DB::raw('year(created_at)'), '=', $year)
+                ->where(DB::raw('month(created_at)'), '=', $month);
         }
 
-
-        if ($type != 'list'){
+        if ($type != 'list') {
             return $query->pluck('corp_count')->toArray()[0];
-        }else{
+        } else {
             return $query->get();
         }
     }
@@ -114,55 +111,55 @@ class CorporateRepository implements CorporateRepositoryInterface
     {
         Corporate::where('corp_industry', '=', '')->update(
             [
-                'corp_industry' => null
+                'corp_industry' => null,
             ]
         );
 
         Corporate::where('corp_mail', '=', '')->orWhere('corp_mail', '=', '-')->orWhere('corp_mail', '=', 'no email. contact it')->update(
             [
-                'corp_mail' => null
+                'corp_mail' => null,
             ]
         );
 
         Corporate::where('corp_phone', '=', '')->orWhere('corp_phone', '=', '-')->orWhere('corp_phone', '=', 'no contact')->update(
             [
-                'corp_phone' => null
+                'corp_phone' => null,
             ]
         );
 
         Corporate::where('corp_insta', '=', '')->update(
             [
-                'corp_insta' => null
+                'corp_insta' => null,
             ]
         );
 
         Corporate::where('corp_site', '=', '')->update(
             [
-                'corp_site' => null
+                'corp_site' => null,
             ]
         );
 
         Corporate::where('corp_region', '=', '')->update(
             [
-                'corp_region' => null
+                'corp_region' => null,
             ]
         );
 
         Corporate::where('corp_address', '=', '')->update(
             [
-                'corp_address' => null
+                'corp_address' => null,
             ]
         );
 
         Corporate::where('corp_note', '=', '')->update(
             [
-                'corp_note' => null
+                'corp_note' => null,
             ]
         );
 
         Corporate::where('corp_password', '=', '')->update(
             [
-                'corp_password' => null
+                'corp_password' => null,
             ]
         );
     }
@@ -170,11 +167,11 @@ class CorporateRepository implements CorporateRepositoryInterface
     public function getReportNewPartner($start_date, $end_date)
     {
         return Corporate::whereDate('created_at', '>=', $start_date)
-                ->whereDate('created_at', '<=', $end_date)
-                ->get();
+            ->whereDate('created_at', '<=', $end_date)
+            ->get();
     }
 
-    # crm
+    // crm
     public function getCorpFromV1()
     {
         return CRMCorp::select([

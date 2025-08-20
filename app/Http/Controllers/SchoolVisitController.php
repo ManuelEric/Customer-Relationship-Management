@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Redirect;
 
 class SchoolVisitController extends Controller
 {
-
     protected SchoolVisitRepositoryInterface $schoolVisitRepository;
 
     public function __construct(SchoolVisitRepositoryInterface $schoolVisitRepository)
@@ -51,7 +50,7 @@ class SchoolVisitController extends Controller
 
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_SCHOOL_VISIT, 'New school visit has been added', $created_school_visit->toArray());
 
         return Redirect::to('instance/school/'.$school_id)->withSuccess('Visit schedule has been created');
@@ -67,7 +66,7 @@ class SchoolVisitController extends Controller
 
             $updated_school_visit = $updateSchoolVisitAction->execute($visit_id);
             DB::commit();
-             
+
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -77,7 +76,7 @@ class SchoolVisitController extends Controller
 
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_SCHOOL_VISIT, 'School visit has been updated', $updated_school_visit->toArray());
 
         return Redirect::to('instance/school/'.$school_id)->withSuccess('Visit schedule has been updated');
@@ -103,7 +102,7 @@ class SchoolVisitController extends Controller
 
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_VISIT, 'School visit has been deleted', $deleted_school_visit->toArray());
 
         return Redirect::to('instance/school/'.$school_id)->withSuccess('Visit schedule has been canceled');

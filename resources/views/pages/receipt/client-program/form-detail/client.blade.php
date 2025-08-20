@@ -102,13 +102,13 @@
                             </div>
                             <div class="col-md-8">
                                 {{ $client_prog->client->lead->main_lead }}
-                                
+
                                 @if (strtolower($client_prog->client->lead->main_lead) == "external edufair")
                                     ( {{ $client_prog->client->external_edufair->title }} )
                                 @elseif (strtolower($client_prog->client->lead->main_lead) == "all-in event")
                                     ( {{ $client_prog->client->event->event_title }} )
                                 @endif
-                                
+
                             </div>
                         </div>
                     </div>

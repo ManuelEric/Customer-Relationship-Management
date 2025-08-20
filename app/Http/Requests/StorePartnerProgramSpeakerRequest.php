@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\AgendaSpeaker;
 use App\Models\User;
-
+use Illuminate\Foundation\Http\FormRequest;
 
 class StorePartnerProgramSpeakerRequest extends FormRequest
 {
@@ -24,12 +23,11 @@ class StorePartnerProgramSpeakerRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-
     public function messages()
     {
-         return [
-             'required_if' => 'The :attribute field is required',
-         ];
+        return [
+            'required_if' => 'The :attribute field is required',
+        ];
     }
 
     public function rules()
@@ -81,13 +79,13 @@ class StorePartnerProgramSpeakerRequest extends FormRequest
         ];
 
         switch ($this->input('speaker_type')) {
-            case "internal":
+            case 'internal':
                 $rules['allin_speaker'][] = function ($attribute, $value, $fail) use ($partnerProgId) {
-                    if (!User::whereHas('roles', function($query) {
-                            $query->where('role_name', 'employee');
-                        })->find($value)) {
+                    if (! User::whereHas('roles', function ($query) {
+                        $query->where('role_name', 'employee');
+                    })->find($value)) {
 
-                            $fail('The partner name is invalid'. $value);
+                        $fail('The partner name is invalid'.$value);
 
                     } elseif ($this->input('speaker_type') == 'internal' && AgendaSpeaker::where('empl_id', $value)->where('sch_prog_id', $partnerProgId)->where('start_time', '=', $this->input('start_time'))->where('end_time', '=', $this->input('end_time'))->first()) {
 
@@ -97,14 +95,14 @@ class StorePartnerProgramSpeakerRequest extends FormRequest
                 };
                 break;
 
-            case "partner":
+            case 'partner':
                 $rules['partner_speaker'] = 'exists:tbl_corp_pic,id';
-                break; 
-                
-            case "school":
+                break;
+
+            case 'school':
                 $rules['school_speaker'] = 'exists:tbl_schdetail,schdetail_id';
                 break;
-                
+
         }
 
         return $rules;

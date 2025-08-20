@@ -14,11 +14,10 @@ class UpdateSchoolRawAction
     }
 
     public function execute(
-        String $school_id,
-        Array $school_details
-    )
-    {
-        # set is_verified school to Y (yes)
+        string $school_id,
+        array $school_details
+    ) {
+        // set is_verified school to Y (yes)
         $updated_school_raw = $this->schoolRepository->updateSchool($school_id, $school_details + ['is_verified' => 'Y']);
 
         return $updated_school_raw;

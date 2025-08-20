@@ -30,8 +30,8 @@ class UpdateQuotaProgramPhaseRequest extends FormRequest
 
         throw new HttpResponseException(
             response()->json([
-                'message' => "",
-                'errors' => $errors
+                'message' => '',
+                'errors' => $errors,
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
@@ -47,7 +47,7 @@ class UpdateQuotaProgramPhaseRequest extends FormRequest
             'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id',
             'phase_detail_id' => 'required|exists:phase_details,id',
             'phase_lib_id' => 'nullable|exists:phase_libraries,id',
-            'quota' => 'required|numeric|min:1'
+            'quota' => 'required|numeric|min:1',
         ];
     }
 }

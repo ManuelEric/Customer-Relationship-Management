@@ -22,13 +22,13 @@
                                 <br>
                                 By receiving this email, you are entitled to a <b>100 USD discount</b> on the <b>Innovators-in-Residence</b> program!
                                 <br>
-                                Let’s find out about the program and claim your prize by contacting 
-                                <br> 
+                                Let’s find out about the program and claim your prize by contacting
+                                <br>
                                 <br>
                                 <a href="https://api.whatsapp.com/send?phone=+6281808081363&text={{ $wa_text_anggie }}" style="text-decoration: none;">
                                     <button style="border: 1px solid rgb(222, 222, 12); padding: 10px 20px 10px 20px; background-color:#F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">Anggie</button>
-                                </a> 
-                                or 
+                                </a>
+                                or
                                 <a href="https://api.whatsapp.com/send?phone=+6287860811413&text={{ $wa_text_derry }}" style="text-decoration: none;">
                                     <button style="border: 1px solid rgb(222, 222, 12); padding: 10px 20px 10px 20px; background-color: #F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">Derry</button>
                                 </a>

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 class CreateCorporateAction
 {
     use CreateCustomPrimaryKeyTrait;
+
     private CorporateRepositoryInterface $corporateRepository;
 
     public function __construct(CorporateRepositoryInterface $corporateRepository)
@@ -21,15 +22,14 @@ class CreateCorporateAction
 
     public function execute(
         StoreCorporateRequest $request,
-        Array $corporate_details
-    )
-    {
+        array $corporate_details
+    ) {
         $last_id = Corporate::max('corp_id');
-        $corp_id_without_label =  $last_id ? $this->remove_primarykey_label($last_id, 5) : '0000';
-        $corp_id_with_label = 'CORP-' . $this->add_digit($corp_id_without_label + 1, 4);
+        $corp_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 5) : '0000';
+        $corp_id_with_label = 'CORP-'.$this->add_digit($corp_id_without_label + 1, 4);
         $corporateDetails['corp_password'] = Hash::make($request->corp_password);
 
-        # store new corporate
+        // store new corporate
         $new_corporate = $this->corporateRepository->createCorporate(['corp_id' => $corp_id_with_label] + $corporate_details + ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
 
         return $new_corporate;

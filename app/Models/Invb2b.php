@@ -3,24 +3,104 @@
 namespace App\Models;
 
 use App\Events\MessageSent;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
+/**
+ * @property int $invb2b_num
+ * @property string $invb2b_id
+ * @property int|null $schprog_id
+ * @property int|null $partnerprog_id
+ * @property int|null $ref_id
+ * @property int|null $invb2b_price
+ * @property int|null $invb2b_priceidr
+ * @property int|null $invb2b_participants
+ * @property int|null $invb2b_disc
+ * @property int|null $invb2b_discidr
+ * @property int|null $invb2b_totprice
+ * @property int|null $invb2b_totpriceidr
+ * @property string|null $invb2b_words
+ * @property string|null $invb2b_wordsidr
+ * @property string $invb2b_date
+ * @property string|null $invb2b_duedate
+ * @property string $invb2b_pm
+ * @property string|null $invb2b_notes
+ * @property string|null $invb2b_tnc
+ * @property int $invb2b_status 1: Success, 2: Refund
+ * @property int|null $curs_rate
+ * @property string|null $currency
+ * @property int $is_full_amount
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $reminded jumlah reminder terkirim
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvDetail> $inv_detail
+ * @property-read int|null $inv_detail_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceAttachment> $invoiceAttachment
+ * @property-read int|null $invoice_attachment_count
+ * @property-read mixed $invoice_discount
+ * @property-read mixed $invoice_discount_idr
+ * @property-read mixed $invoice_price
+ * @property-read mixed $invoice_price_idr
+ * @property-read mixed $invoice_sub_totalprice
+ * @property-read mixed $invoice_sub_totalprice_idr
+ * @property-read mixed $invoice_totalprice
+ * @property-read mixed $invoice_totalprice_idr
+ * @property-read \App\Models\PartnerProg|null $partner_prog
+ * @property-read mixed $rate
+ * @property-read \App\Models\Receipt|null $receipt
+ * @property-read \App\Models\Referral|null $referral
+ * @property-read \App\Models\Refund|null $refund
+ * @property-read \App\Models\SchoolProgram|null $sch_prog
+ * @property-read mixed $total_refund
+ * @property-read mixed $total_refund_str
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereCursRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bDisc($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bDiscidr($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bDuedate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bNum($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bParticipants($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bPm($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bPriceidr($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bTnc($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bTotprice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bTotpriceidr($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bWords($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereInvb2bWordsidr($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereIsFullAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b wherePartnerprogId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereRefId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereReminded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereSchprogId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Invb2b whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Invb2b extends Model
 {
     use HasFactory;
 
     protected $table = 'tbl_invb2b';
-    protected $primaryKey = 'invb2b_num';
-    protected $appends = ['total_refund', 'total_refund_str'];
 
+    protected $primaryKey = 'invb2b_num';
+
+    protected $appends = ['total_refund', 'total_refund_str'];
 
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'invb2b_id',
@@ -54,7 +134,7 @@ class Invb2b extends Model
         'updated_at',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -95,25 +175,24 @@ class Invb2b extends Model
         return $model;
     }
 
-
     public function getCurrencyUnit()
     {
         switch ($this->currency) {
 
-            case "usd":
+            case 'usd':
             default:
                 $unit = '$';
                 break;
 
-            case "sgd":
+            case 'sgd':
                 $unit = 'S$';
                 break;
 
-            case "gbp":
+            case 'gbp':
                 $unit = '£';
                 break;
 
-            case "aud":
+            case 'aud':
                 $unit = 'A$';
                 break;
         }
@@ -124,64 +203,63 @@ class Invb2b extends Model
     protected function invoicePrice(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invb2b_price
+            get: fn ($value) => $this->getCurrencyUnit().' '.$this->invb2b_price
         );
     }
 
     protected function invoiceDiscount(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invb2b_disc
+            get: fn ($value) => $this->getCurrencyUnit().' '.$this->invb2b_disc
         );
     }
 
     protected function invoiceTotalprice(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invb2b_totprice
+            get: fn ($value) => $this->getCurrencyUnit().' '.$this->invb2b_totprice
         );
     }
 
     protected function invoiceSubTotalprice(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invb2b_price * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants)
+            get: fn ($value) => $this->getCurrencyUnit().' '.$this->invb2b_price * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants)
         );
     }
-
 
     protected function rate(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->curs_rate)
+            get: fn ($value) => 'Rp. '.number_format($this->curs_rate)
         );
     }
 
     protected function invoicePriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invb2b_priceidr)
+            get: fn ($value) => 'Rp. '.number_format($this->invb2b_priceidr)
         );
     }
 
     protected function invoiceDiscountIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invb2b_discidr)
+            get: fn ($value) => 'Rp. '.number_format($this->invb2b_discidr)
         );
     }
 
     protected function invoiceTotalpriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invb2b_totpriceidr)
+            get: fn ($value) => 'Rp. '.number_format($this->invb2b_totpriceidr)
         );
     }
 
     protected function invoiceSubTotalpriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invb2b_priceidr * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants))
+            get: fn ($value) => 'Rp. '.number_format($this->invb2b_priceidr * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants))
         );
     }
 
@@ -196,7 +274,7 @@ class Invb2b extends Model
     {
 
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->totalRefund)
+            get: fn ($value) => 'Rp. '.number_format($this->totalRefund)
         );
     }
 

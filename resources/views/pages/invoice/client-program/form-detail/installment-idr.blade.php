@@ -172,7 +172,7 @@
 
         $(".installment").first().clone().attr('id', 'installment_' + id).appendTo("#installment_content");
 
-        // value 
+        // value
         $('#installment_' + id).find('input').val('')
 
         $('#installment_' + id).find('.installment-name').val('Installment ' + parseInt(id+1))
@@ -193,7 +193,7 @@
     function triggerInstallment()
     {
         $(".percentage").each(function() {
-            
+
             var each_element = $(this)
             var element_id = each_element.attr('id')
             const arrayElement = element_id.split("_")
@@ -214,7 +214,7 @@
         $('.percentage').each(function() {
             sum += parseInt($(this).val())
         })
-        
+
         if (isNaN(sum))
             sum = 0
 

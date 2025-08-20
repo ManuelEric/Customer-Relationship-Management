@@ -4,12 +4,9 @@ namespace App\Repositories;
 
 use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 use App\Models\SchoolProgramAttach;
-use DataTables;
 
 class SchoolProgramAttachRepository implements SchoolProgramAttachRepositoryInterface
 {
-
-
     public function getAllSchoolProgramAttachsBySchprogId($schoolProgramId)
     {
         return SchoolProgramAttach::where('schprog_id', $schoolProgramId)->orderBy('id', 'asc')->get();

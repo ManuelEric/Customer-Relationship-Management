@@ -3,48 +3,49 @@
 namespace App\Http\Controllers;
 
 use App\Enum\LogModule;
-use App\Http\Requests\StoreInvoiceB2bRequest;
 use App\Http\Requests\StoreInvoiceReferralRequest;
-use App\Interfaces\CorporateRepositoryInterface;
-use App\Interfaces\ProgramRepositoryInterface;
-use App\Interfaces\ReferralRepositoryInterface;
-use App\Interfaces\InvoiceAttachmentRepositoryInterface;
-use App\Interfaces\InvoiceB2bRepositoryInterface;
-use App\Interfaces\InvoiceDetailRepositoryInterface;
-use App\Interfaces\ReceiptRepositoryInterface;
-use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Http\Traits\DirectorListTrait;
 use App\Http\Traits\LoggingTrait;
+use App\Interfaces\AxisRepositoryInterface;
+use App\Interfaces\CorporateRepositoryInterface;
+use App\Interfaces\InvoiceAttachmentRepositoryInterface;
+use App\Interfaces\InvoiceB2bRepositoryInterface;
+use App\Interfaces\InvoiceDetailRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\ReceiptRepositoryInterface;
+use App\Interfaces\ReferralRepositoryInterface;
 use App\Models\Invb2b;
 use App\Services\Log\LogService;
-use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Storage;
-use PDF;
-
 
 class InvoiceReferralController extends InvoiceB2BBaseController
 {
-    use DirectorListTrait;
     use CreateInvoiceIdTrait;
+    use DirectorListTrait;
     use LoggingTrait;
+
     protected ReferralRepositoryInterface $referralRepository;
+
     protected ProgramRepositoryInterface $programRepository;
+
     protected InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
+
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
+
     protected ReceiptRepositoryInterface $receiptRepository;
+
     protected CorporateRepositoryInterface $corporateRepository;
+
     protected AxisRepositoryInterface $axisRepository;
+
     public $module;
 
     public function __construct(ReferralRepositoryInterface $referralRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, CorporateRepositoryInterface $corporateRepository, AxisRepositoryInterface $axisRepository)
@@ -67,13 +68,14 @@ class InvoiceReferralController extends InvoiceB2BBaseController
         if ($request->ajax()) {
             switch ($status) {
                 case 'needed':
-                    return $this->invoiceB2bRepository->getAllInvoiceNeededReferralDataTables();
+                    $datatables = $this->invoiceB2bRepository->getAllInvoiceNeededReferralDataTables();
                     break;
                 case 'list':
                 case 'reminder':
-                    return $this->invoiceB2bRepository->getAllInvoiceReferralDataTables($status);
+                    $datatables = $this->invoiceB2bRepository->getAllInvoiceReferralDataTables($status);
                     break;
             }
+            return $datatables;
         }
 
         return view('pages.invoice.referral.index')->with(['status' => $status]);
@@ -87,7 +89,7 @@ class InvoiceReferralController extends InvoiceB2BBaseController
 
         $partner_id = $referral->partner_id;
 
-        # retrieve corp data by id
+        // retrieve corp data by id
         $partner = $this->corporateRepository->getCorporateById($partner_id);
 
         return view('pages.invoice.referral.form')->with(
@@ -120,7 +122,6 @@ class InvoiceReferralController extends InvoiceB2BBaseController
             'invb2b_tnc',
         ]);
 
-
         switch ($invoices['select_currency']) {
             case 'other':
                 $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other'];
@@ -137,7 +138,6 @@ class InvoiceReferralController extends InvoiceB2BBaseController
 
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
-
 
         $now = Carbon::now();
         $this_month = $now->month;
@@ -161,11 +161,11 @@ class InvoiceReferralController extends InvoiceB2BBaseController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_INVOICE_REFERRAL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
-            return Redirect::to('invoice/referral/' . $ref_id . '/detail/create')->withError('Failed to create a new invoice');
+            return Redirect::to('invoice/referral/'.$ref_id.'/detail/create')->withError('Failed to create a new invoice');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_INVOICE_REFERRAL, 'New invoice has been added', $invoices);
 
         return Redirect::to('invoice/referral/status/list')->withSuccess('Invoice successfully created');
@@ -183,7 +183,6 @@ class InvoiceReferralController extends InvoiceB2BBaseController
         $partner = $this->corporateRepository->getCorporateById($partner_id);
 
         $invoice_ref = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
-
 
         return view('pages.invoice.referral.form')->with(
             [
@@ -259,7 +258,6 @@ class InvoiceReferralController extends InvoiceB2BBaseController
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
 
-
         $invoices['ref_id'] = $ref_id;
         $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
         $inv_id = $inv_b2b->invb2b_id;
@@ -279,14 +277,14 @@ class InvoiceReferralController extends InvoiceB2BBaseController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_INVOICE_REFERRAL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
-            return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $inv_num)->withError('Failed to update invoice');
+            return Redirect::to('invoice/referral/'.$ref_id.'/detail/'.$inv_num)->withError('Failed to update invoice');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_INVOICE_REFERRAL, 'Invoice has been updated', $invoices);
 
-        return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $inv_num)->withSuccess('Invoice successfully updated');
+        return Redirect::to('invoice/referral/'.$ref_id.'/detail/'.$inv_num)->withSuccess('Invoice successfully updated');
     }
 
     public function destroy(Request $request, LogService $log_service)
@@ -305,11 +303,11 @@ class InvoiceReferralController extends InvoiceB2BBaseController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_INVOICE_REFERRAL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice->toArray());
 
-            return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $inv_num)->withError('Failed to delete invoice');
+            return Redirect::to('invoice/referral/'.$ref_id.'/detail/'.$inv_num)->withError('Failed to delete invoice');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_INVOICE_REFERRAL, 'Invoice has been deleted', $invoice->toArray());
 
         return Redirect::to('invoice/referral/status/list')->withSuccess('Invoice successfully deleted');

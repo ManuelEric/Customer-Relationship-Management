@@ -6,7 +6,7 @@
     <title>Document</title>
 </head>
 <body>
-    
+
     <script type="text/javascript">
         var redirectUrl = "{{ $redirectUrl }}";
         $(document).ready(function() {

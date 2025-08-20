@@ -16,16 +16,24 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
-class ClientProgramService 
+class ClientProgramService
 {
     protected ClientRepositoryInterface $clientRepository;
+
     protected ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository;
+
     protected ClientProgramRepositoryInterface $clientProgramRepository;
+
     private $admission_prog_list;
+
     private $tutoring_prog_list;
+
     private $subject_tutoring_list;
+
     private $competition_list;
+
     private $skillset_tutoring;
+
     private $satact_prog_list;
 
     public function __construct(ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository)
@@ -33,7 +41,7 @@ class ClientProgramService
         $this->clientProgramLogMailRepository = $clientProgramLogMailRepository;
         $this->clientRepository = $clientRepository;
         $this->clientProgramRepository = $clientProgramRepository;
-                /* list of admissions program */
+        /* list of admissions program */
         $this->admission_prog_list = Program::admissionProgList()->pluck('prog_id')->toArray();
 
         /* list of test preparation program */
@@ -57,13 +65,18 @@ class ClientProgramService
         $data = $status = $empl_uuid = [];
         $status = $user_id = null;
 
-        $data['clientId'] = NULL;
-        $data['programName'] = !empty($request->get('program_name')) ? array_filter($request->get('program_name'), fn ($value) => !is_null($value)) ?? null : null;
-        $data['mainProgram'] = !empty($request->get('main_program')) ? array_filter($request->get('main_program'), fn ($value) => !is_null($value)) ?? null : null;
+        $data['clientId'] = null;
+        $data['programName'] = is_array($request->get('program_name'))
+            ? array_filter($request->get('program_name'), fn ($value) => $value !== null)
+            : null;
+
+        $data['mainProgram'] = is_array($request->get('main_program'))
+            ? array_filter($request->get('main_program'), fn ($value) => $value !== null)
+            : null;
         $data['schoolName'] = $request->get('school_name') ?? null;
         $data['leadId'] = $request->get('conversion_lead') ?? null;
         $data['grade'] = $request->get('grade') ?? null;
-        
+
         if ($raw_program_status = $request->get('program_status')) {
             for ($i = 0; $i < count($raw_program_status); $i++) {
                 $raw_status = Crypt::decrypt($raw_program_status[$i]);
@@ -86,7 +99,7 @@ class ClientProgramService
                 $empl_uuid[] = $request->get('pic')[$i];
             }
         }
-        $data['emplUUID'] = array_filter($empl_uuid, fn ($value) => !is_null($value)) ?? null;;
+        $data['emplUUID'] = array_filter($empl_uuid, fn ($value) => ! is_null($value)) ?? null;
         $data['startDate'] = $request->get('start_date') ?? null;
         $data['endDate'] = $request->get('end_date') ?? null;
         $data['package'] = $request->get('package') ?? null;
@@ -97,10 +110,10 @@ class ClientProgramService
 
     public function snMappingLeads($leads, $type)
     {
-        $leads = $leads->map(function ($item) use($type) {
+        $leads = $leads->map(function ($item) use ($type) {
             return [
                 'lead_id' => $item->lead_id,
-                'main_lead' => $type == 'main_lead' ? $item->main_lead : $item->sub_lead
+                'main_lead' => $type == 'main_lead' ? $item->main_lead : $item->sub_lead,
             ];
         });
 
@@ -111,41 +124,40 @@ class ClientProgramService
     {
         switch ($clientProgramDetails['lead_id']) {
 
-            case "LS004": #All-In Event
+            case 'LS004': // All-In Event
                 $clientProgramDetails['eduf_lead_id'] = null;
                 $clientProgramDetails['partner_id'] = null;
                 break;
 
-            case "LS010": #ALL-In Partners
+            case 'LS010': // ALL-In Partners
                 $clientProgramDetails['eduf_lead_id'] = null;
                 $clientProgramDetails['clientevent_id'] = null;
                 break;
 
-            case "LS018": #External Edufair
+            case 'LS018': // External Edufair
                 $clientProgramDetails['partner_id'] = null;
                 $clientProgramDetails['clientevent_id'] = null;
                 break;
 
-            case "kol": #KOL
+            case 'kol': // KOL
                 $clientProgramDetails['partner_id'] = null;
                 $clientProgramDetails['clientevent_id'] = null;
                 break;
         }
 
-        # set lead_id based on lead_id & kol_lead_id
-        # when lead_id is kol
-        # then put kol_lead_id to lead_id
-        # otherwise
-        # when lead_id is not kol 
-        # then lead_id is lead_id
-        if ($clientProgramDetails['lead_id'] == "kol") {
+        // set lead_id based on lead_id & kol_lead_id
+        // when lead_id is kol
+        // then put kol_lead_id to lead_id
+        // otherwise
+        // when lead_id is not kol
+        // then lead_id is lead_id
+        if ($clientProgramDetails['lead_id'] == 'kol') {
 
             unset($clientProgramDetails['lead_id']);
             $clientProgramDetails['lead_id'] = $clientProgramDetails['kol_lead_id'];
         }
 
-        if ( !in_array($clientProgramDetails['lead_id'], ['LS005', 'LS058', 'LS060', 'LS061']) ) # Referral
-        {
+        if (! in_array($clientProgramDetails['lead_id'], ['LS005', 'LS058', 'LS060', 'LS061'])) { // Referral
             $clientProgramDetails['referral_code'] = null;
         }
 
@@ -165,9 +177,9 @@ class ClientProgramService
                 if (in_array($request->prog_id, $this->admission_prog_list)) { // set additional attributes for admission mentoring program
 
                     $clientProgramDetails += [
-                        'initconsult_date'    => $request->initconsult_date,
+                        'initconsult_date' => $request->initconsult_date,
                         'assessmentsent_date' => $request->assessmentsent_date,
-                        'mentor_ic'           => $request->mentor_ic,
+                        'mentor_ic' => $request->mentor_ic,
                     ];
                 } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->competition_list) || in_array($request->prog_id, $this->skillset_tutoring)) { // set additional attributes for tutoring and competition program
 
@@ -176,7 +188,7 @@ class ClientProgramService
                         'trial_date' => $request->trial_date,
                     ];
                 } elseif (in_array($request->prog_id, $this->subject_tutoring_list)) {
-                    
+
                     $clientProgramDetails += [
                         'package' => $request->package,
                         'curriculum' => $request->curriculum,
@@ -199,8 +211,8 @@ class ClientProgramService
                     'success_date' => $request->success_date,
                 ];
 
-                # and submitted prog_id is admission mentoring
-                # below are the details of the program
+                // and submitted prog_id is admission mentoring
+                // below are the details of the program
                 if (in_array($request->prog_id, $this->admission_prog_list)) {
 
                     $clientProgramDetails += [
@@ -218,34 +230,33 @@ class ClientProgramService
                     ];
 
                     // exclusively if $is_update_method is true then update all the mentors
-                    if ( $is_update_method )
-                    {
+                    if ($is_update_method) {
                         $clientProgramDetails += [
                             'supervising_mentor' => $request->supervising_mentor,
-                            'profile_building_mentor' => isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL,
-                            'subject_specialist_mentor' => isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : NULL,
-                            'aplication_strategy_mentor' => isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL,
-                            'writing_mentor' => isset($request->writing_mentor) ? $request->writing_mentor : NULL
-                        ];                   
+                            'profile_building_mentor' => isset($request->profile_building_mentor) ? $request->profile_building_mentor : null,
+                            'subject_specialist_mentor' => isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : null,
+                            'aplication_strategy_mentor' => isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : null,
+                            'writing_mentor' => isset($request->writing_mentor) ? $request->writing_mentor : null,
+                        ];
                     }
-                    
+
                     // declare the variables for agreement
                     if ($request->hasFile('agreement')) {
 
-                        # setting up the agreement request file
-                        $file_name = "agreement_".str_replace(' ', '_', trim($student->full_name))."_".$request->prog_id;
+                        // setting up the agreement request file
+                        $file_name = 'agreement_'.str_replace(' ', '_', trim($student->full_name)).'_'.$request->prog_id;
                         $file_format = $request->file('agreement')->getClientOriginalExtension();
-                        
-                        # generate the file path
+
+                        // generate the file path
                         $file_path = $file_name.'.'.$file_format;
 
                         if (Storage::disk('s3')->exists('project/crm/agreement/'.$file_path)) {
                             Storage::disk('s3')->delete('project/crm/agreement/'.$file_path);
                         }
 
-                        if (!Storage::disk('s3')->put('project/crm/agreement/'.$file_path, file_get_contents($request->file('agreement')))){
+                        if (! Storage::disk('s3')->put('project/crm/agreement/'.$file_path, file_get_contents($request->file('agreement')))) {
                             throw new Exception('The file cannot be uploaded.');
-                        }else{
+                        } else {
                             $clientProgramDetails['agreement'] = $file_path;
                             $clientProgramDetails['agreement_uploaded_at'] = Carbon::now();
 
@@ -255,7 +266,7 @@ class ClientProgramService
 
                 } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->skillset_tutoring) || in_array($request->prog_id, $this->competition_list)) {
 
-                    # add additional values
+                    // add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['trial_date'] = $request->trial_date;
                     // $clientProgramDetails['first_class'] = $request->first_class;
@@ -267,7 +278,7 @@ class ClientProgramService
                     $clientProgramDetails['package'] = $request->package;
                 } elseif (in_array($request->prog_id, $this->subject_tutoring_list)) {
 
-                    # add additional values
+                    // add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['trial_date'] = $request->trial_date;
                     // $clientProgramDetails['first_class'] = $request->first_class;
@@ -279,8 +290,8 @@ class ClientProgramService
                     $clientProgramDetails['package'] = $request->package;
                     $clientProgramDetails['curriculum'] = $request->curriculum;
                 } elseif (in_array($request->prog_id, $this->satact_prog_list)) {
-                    
-                    # add additional values
+
+                    // add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['test_date'] = $request->test_date;
                     $clientProgramDetails['first_class'] = $request->first_class;
@@ -293,26 +304,26 @@ class ClientProgramService
                     $clientProgramDetails['package'] = $request->package;
                 }
 
-                # declare variables to store mentor or tutor details
+                // declare variables to store mentor or tutor details
                 if (in_array($request->prog_id, $this->admission_prog_list)) {
 
                     $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
-                    $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
-                    $clientProgramDetails['subject_specialist_mentor'] = isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : NULL;
-                    $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
-                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;
+                    $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : null;
+                    $clientProgramDetails['subject_specialist_mentor'] = isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : null;
+                    $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : null;
+                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : null;
                     $clientProgramDetails['mentor_ic'] = $request->mentor_ic;
                 } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->competition_list) || in_array($request->prog_id, $this->subject_tutoring_list) || in_array($request->prog_id, $this->skillset_tutoring)) {
 
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;
 
-                    # if session tutor form doesn't exist then don't detail session tutor
+                    // if session tutor form doesn't exist then don't detail session tutor
                     if (isset($request->session)) {
 
                         $clientProgramDetails['session_tutor'] = $request->session; // how many session will applied
                         $clientProgramDetails['session_tutor_detail'] = [
                             'datetime' => $request->sessionDetail,
-                            'linkmeet' => $request->sessionLinkMeet
+                            'linkmeet' => $request->sessionLinkMeet,
                         ];
                     }
 
@@ -325,7 +336,7 @@ class ClientProgramService
                 }
                 break;
 
-                # when program status is failed
+                // when program status is failed
             case 2:
 
                 $clientProgramDetails['failed_date'] = $request->failed_date;
@@ -335,7 +346,7 @@ class ClientProgramService
 
                 break;
 
-                # when program status is refund
+                // when program status is refund
             case 3:
                 $clientProgramDetails['refund_date'] = $request->refund_date;
                 $clientProgramDetails['refund_notes'] = $request->refund_notes;
@@ -344,7 +355,7 @@ class ClientProgramService
                 $clientProgramDetails['reason_notes'] = $request->reason_notes;
                 break;
 
-                # when program status is hold
+                // when program status is hold
             case 4:
                 $clientProgramDetails['reason_id'] = $request->reason_id;
                 $clientProgramDetails['other_reason'] = $request->other_reason;
@@ -355,10 +366,10 @@ class ClientProgramService
         return ['file_path' => $file_path, 'client_program_details' => $clientProgramDetails];
     }
 
-    # Purpose:
-    # set mail data (recipient: name, email and children details)
-    # send thanks mail registration
-    # insert log mail
+    // Purpose:
+    // set mail data (recipient: name, email and children details)
+    // send thanks mail registration
+    // insert log mail
     public function snSendMailThanks(Collection $clientProgram, int $parentId, int $childId, bool $update = false)
     {
         $subject_mail = 'Your registration is confirmed';
@@ -366,17 +377,17 @@ class ClientProgramService
 
         $parent = $this->clientRepository->getClientById($parentId);
         $children = $this->clientRepository->getClientById($childId);
-        
+
         $recipient_details = [
-            'name' => $parent->mail != null ? $parent->full_name : $children->full_name,  
+            'name' => $parent->mail != null ? $parent->full_name : $children->full_name,
             'mail' => $parent->mail != null ? $parent->mail : $children->mail,
             'children_details' => [
-                'name' => $children->full_name
-            ]
+                'name' => $children->full_name,
+            ],
         ];
 
         $program = [
-            'name' => $clientProgram->program->program_name
+            'name' => $clientProgram?->program?->program_name,
         ];
 
         try {
@@ -385,24 +396,24 @@ class ClientProgramService
                     ->subject($subject_mail);
             });
             $sent_mail = 1;
-            
+
         } catch (Exception $e) {
-            
+
             $sent_mail = 0;
             Log::error('Failed send email thanks to client that register using form program | error : '.$e->getMessage().' | Line '.$e->getLine());
 
         }
 
-        # if update is true 
-        # meaning that this function being called from scheduler
-        # that updating the client event log mail, so the system no longer have to create the client event log mail
+        // if update is true
+        // meaning that this function being called from scheduler
+        // that updating the client event log mail, so the system no longer have to create the client event log mail
         if ($update === true) {
-            return true;    
+            return true;
         }
 
         $log_details = [
-            'clientprog_id' => $clientProgram->clientprog_id,
-            'sent_status' => $sent_mail
+            'clientprog_id' => $clientProgram?->clientprog_id,
+            'sent_status' => $sent_mail,
         ];
 
         return $this->clientProgramLogMailRepository->createClientProgramLogMail($log_details);
@@ -412,26 +423,27 @@ class ClientProgramService
     {
         if (in_array($prog_id, $admission_prog_list)) {
             switch ($status) {
-                case 0: # pending
-                case 2: # failed
-                case 3: # refund
-                    if($is_method_update)
+                case 0: // pending
+                case 2: // failed
+                case 3: // refund
+                    if ($is_method_update) {
                         $this->clientRepository->removeRole($student_id, 'Mentee');
+                    }
                     break;
-                case 1: # success
+                case 1: // success
                     $this->clientRepository->addRole($student_id, 'Mentee');
                     break;
             }
         }
     }
 
-    public function snSetDataBundleProgramBeforeCreate(Request $request, Array $client_program, Array $client_program_details, String $uuid)
+    public function snSetDataBundleProgramBeforeCreate(Request $request, array $client_program, array $client_program_details, string $uuid)
     {
         foreach ($request->choosen as $key => $clientprog_id) {
             // fetch data client program
             $clientprog_db = $this->clientProgramRepository->getClientProgramById($clientprog_id);
-            
-            // check there is an invoice 
+
+            // check there is an invoice
             $has_invoice_std = isset($clientprog_db->invoice) ? $clientprog_db->invoice()->count() : 0;
             $has_bundling = isset($clientprog_db->bundlingDetail) ? $clientprog_db->bundlingDetail()->count() : 0;
 
@@ -442,7 +454,7 @@ class ClientProgramService
                 'HasInvoice' => $has_invoice_std,
                 'HasBundling' => $has_bundling,
             ];
-            
+
             $client_program_details[] = [
                 'clientprog_id' => $clientprog_id,
                 'bundling_id' => $uuid,
@@ -450,19 +462,19 @@ class ClientProgramService
                 'updated_at' => Carbon::now(),
             ];
         }
-        
+
         return ['client_program' => $client_program, 'client_program_details' => $client_program_details];
     }
 
-    public function snSetDataBundleProgramBeforeDelete(Request $request, Array $client_program)
+    public function snSetDataBundleProgramBeforeDelete(Request $request, array $client_program)
     {
         foreach ($request->choosen as $key => $clientprog_id) {
             // fetch data client program
             $clientprog_db = $this->clientProgramRepository->getClientProgramById($clientprog_id);
-            
-            // check there is an invoice 
+
+            // check there is an invoice
             $has_invoice_std = isset($clientprog_db->invoice) ? $clientprog_db->invoice()->count() : 0;
-           
+
             $has_bundling = isset($clientprog_db->bundlingDetail) ? $clientprog_db->bundlingDetail()->count() : 0;
 
             $client_program[$request->number[$key]] = [
@@ -471,7 +483,7 @@ class ClientProgramService
                 'HasInvoice' => $has_invoice_std,
                 'HasBundling' => $has_bundling,
             ];
-            
+
         }
 
         return ['client_program' => $client_program];

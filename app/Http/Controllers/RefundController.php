@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\Redirect;
 class RefundController extends Controller
 {
     private InvoiceProgramRepositoryInterface $invoiceProgramRepository;
+
     private RefundRepositoryInterface $refundRepository;
+
     private ClientProgramRepositoryInterface $clientProgramRepository;
 
     public function __construct(RefundRepositoryInterface $refundRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository)
@@ -27,18 +29,19 @@ class RefundController extends Controller
 
     public function index(Request $request)
     {
-        $status =  $request->route('status');
-        if ($request->ajax())
+        $status = $request->route('status');
+        if ($request->ajax()) {
             return $this->refundRepository->getAllRefundDataTables($status);
+        }
 
         return view('pages.invoice.refund.index', ['status' => $status]);
     }
-    
+
     public function store(StoreRefundRequest $request)
     {
         $clientprog_id = $request->route('client_program');
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
-        
+
         $refundDetails = $request->only([
             'total_payment',
             'total_paid',
@@ -46,30 +49,31 @@ class RefundController extends Controller
             'refund_amount',
             'tax_percentage',
             'tax_amount',
-            'total_refunded'
+            'total_refunded',
         ]);
 
         DB::beginTransaction();
         try {
             $inv_id = $clientProg->invoice->inv_id;
 
-            # default refund status is 1
+            // default refund status is 1
             $this->refundRepository->createRefund(['inv_id' => $inv_id, 'status' => 1] + $refundDetails);
 
-            # change status invoice to refund
+            // change status invoice to refund
             $this->invoiceProgramRepository->updateInvoice($inv_id, ['inv_status' => 2]);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store refund failed : ' . $e->getMessage());
+            Log::error('Store refund failed : '.$e->getMessage());
+
             return Redirect::back()->withError('Failed to create refund');
 
         }
 
         return Redirect::to('invoice/client-program/'.$clientprog_id)->withSuccess('Refund successfully created');
-        
+
     }
 
     public function destroy(Request $request)
@@ -85,7 +89,8 @@ class RefundController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Cancel refund failed : ' . $e->getMessage());
+            Log::error('Cancel refund failed : '.$e->getMessage());
+
             return Redirect::back()->withError('Failed to cancel refund request');
 
         }

@@ -19,7 +19,7 @@
         @endif
         <br>
         <div class="mt-3 d-flex justify-content-center">
-            
+
             @if (isset($invoice->refund))
             <button class="btn btn-sm btn-outline-danger rounded mx-1" data-bs-toggle="modal"
                 data-bs-target="#cancel_refund">
@@ -153,7 +153,7 @@
 </div>
 <script type="text/javascript">
     $("#percentage-refund").on('keyup', function() {
-        calculate_refund_nominal($(this).val(), null)  
+        calculate_refund_nominal($(this).val(), null)
     })
 
     // $("#refund-nominal").on('keyup', function() {

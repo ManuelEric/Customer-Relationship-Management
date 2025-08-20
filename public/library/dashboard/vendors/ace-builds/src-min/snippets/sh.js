@@ -5,4 +5,3 @@ define("ace/snippets/sh",["require","exports","module"],function(e,t,n){"use str
                         }
                     });
                 })();
-            

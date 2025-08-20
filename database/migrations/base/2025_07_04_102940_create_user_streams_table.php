@@ -19,7 +19,7 @@ return new class extends Migration
                 table: 'streams', indexName: 'user_streams_stream_id'
             )->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('engagement_type_id')->nullable()->constrained(
-                table: "phase_details", indexName: "user_streams_engagement_type_id_foreign"
+                table: 'phase_details', indexName: 'user_streams_engagement_type_id_foreign'
             )->onUpdate('cascade')->onDelete('cascade');
             $table->string('package')->nullable();
             $table->date('start_date')->nullable();

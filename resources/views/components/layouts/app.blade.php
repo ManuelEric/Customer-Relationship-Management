@@ -66,8 +66,8 @@
         <script src="{{ asset('js/pusher.min.js') }}"></script>
         {{-- <script src="{{ asset('js/ckeditor.js') }}"></script> --}}
         <script src="https://cdn.ckeditor.com/ckeditor5/12.3.1/classic/ckeditor.js"></script>
-        
-    
+
+
         <script src="{{ asset('js/generate-number.js') }}"></script>
         <script src="{{ asset('js/currency.js') }}"></script>
         <script src="{{ asset('library/dashboard/js/off-canvas.js') }}"></script>
@@ -103,7 +103,7 @@
                         @elseif ($isFinance)
                             {{ url('dashboard/finance/outstanding-payment') }}">
                         @endif
-                    
+
                         <img loading="lazy"  src="{{ asset('img/logo.webp') }}" alt="logo" class="h-auto" />
                     </a>
                     <a class="navbar-brand brand-logo-mini" href="
@@ -116,7 +116,7 @@
                         @elseif ($isFinance)
                             {{ url('dashboard/finance/outstanding-payment') }}">
                         @endif
-                    
+
                         <img loading="lazy"  src="{{ asset('library/dashboard/images/logo-mini.svg') }}" alt="logo" />
                     </a>
                 </div>
@@ -364,7 +364,7 @@
         <!-- page-body-wrapper ends -->
 
         <x-main.modal />
-        
+
         <script>
             window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         </script>
@@ -492,7 +492,7 @@
                         window.location.href = "{{ route('logout.expiration') }}";
                         return;
                     }
-                
+
                     notification('error', 'Oops, Something went wrong when trying to get the data')
                 };
             })
@@ -501,20 +501,20 @@
         {{-- Confirm Delete & Deactivate Modal  --}}
         <script>
             function confirmRestore(subject, id) {
-                // show modal 
+                // show modal
                 var myModal = new bootstrap.Modal(document.getElementById('restoreModal'))
                 myModal.show()
 
-                // change form action 
+                // change form action
                 $('#formRestore').attr('action', '{{ url('') }}/' + subject + '/' + id);
             }
 
             function confirmDelete(subject, id) {
-                // show modal 
+                // show modal
                 var myModal = new bootstrap.Modal(document.getElementById('deleteItem'))
                 myModal.show()
 
-                // change form action 
+                // change form action
                 $('#formAction').attr('action', '{{ url('') }}/' + subject + '/' + id);
             }
 
@@ -522,7 +522,7 @@
                 var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
                 myModal.show()
 
-                // change form action 
+                // change form action
                 $('#formActionDeactive').attr('action', '{{ url('') }}/' + subject + '/' + id);
             }
 
@@ -532,7 +532,7 @@
 
                 var warningMessage = 'You want to request his/her signature for this document?';
 
-                //     // change form action 
+                //     // change form action
                 $("#formActionRequestSign h6").html(warningMessage);
 
                 var link = subject;
@@ -548,7 +548,7 @@
 
                 var warningMessage = 'You want to send this ' + category + ' to client?';
 
-                // change form action 
+                // change form action
                 $("#formActionSendToClient h6").html(warningMessage);
 
                 var link = subject + '/' + id;
@@ -562,7 +562,7 @@
             }
 
             function confirmUpdateLeadStatus(link, clientId, initProg, groupId, leadStatusOld, leadStatus) {
-                // show modal 
+                // show modal
                 var myModal = new bootstrap.Modal(document.getElementById('updateLeadStatus'))
                 myModal.show()
                 $('#statusLeadOld').val(leadStatusOld);
@@ -597,7 +597,7 @@
                 $('.leads' + id).val(old_status);
                 $('#updateLeadStatus').modal('hide');
             }
-            
+
             function singlequote(text) {
                 return `'${text}'`;
             }
@@ -654,7 +654,7 @@
         </script>
 
         {{-- TinyMCE  --}}
-        
+
         <script>
             //     tinymce.init({
             //         strict_loading_mode : true,
@@ -664,7 +664,7 @@
             //         // plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
             //         toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
             //     });
-            // 
+            //
         </script>
 
         {{-- Select2  --}}
@@ -775,7 +775,7 @@
                 // }
             })
 
-    
+
             function changeProgramStatus() {
 
                 // prevent to trigger this function if options within select program name are null
@@ -794,7 +794,7 @@
 
                 // if (programName) {
                 try {
-                    switch (parseInt(programStatus)) 
+                    switch (parseInt(programStatus))
                     {
                         // program status = pending
                         case 0:
@@ -803,7 +803,7 @@
                                 // open form detail of admissions mentoring
                                 $("#pending_mentoring").removeClass('d-none')
                             }
-                            else if (programMainProg.includes('Test Preparation') || programMainProg.includes('Subject Tutoring') || programMainProg.includes('Competition') || programMainProg.includes('Skillset Tutoring')) 
+                            else if (programMainProg.includes('Test Preparation') || programMainProg.includes('Subject Tutoring') || programMainProg.includes('Competition') || programMainProg.includes('Skillset Tutoring'))
                             {
                                 // open form detail of tutoring program
                                 $("#pending_tutoring").removeClass('d-none')
@@ -832,12 +832,12 @@
                                 else
                                 {
                                     // default open form for test preparation exclude SAT/ACT, subject tutoring, competition, and skillset tutoring
-                                    resetDetailTutoring(programMainProg, 1, programSubProg) 
+                                    resetDetailTutoring(programMainProg, 1, programSubProg)
                                     $("#success_tutoring").removeClass('d-none')
                                 }
                             }
 
-                            // Mentor & Tutor Needs Check 
+                            // Mentor & Tutor Needs Check
                             switch (prog_mentor) {
                                 case "Mentor":
                                     $("#available-mentor").removeClass("d-none")
@@ -985,7 +985,7 @@
                         getProgramName(main_prog_id, '')
                         return
                     }
-                
+
                     let html = '<option data-placeholder="true"></option>';
                     $.each(obj, function (i, item) {
                         html += '<option value="' + item.id + '">' + item.sub_prog_name + '</option>';
@@ -1028,7 +1028,7 @@
                 var link = '{{ url('api/get/program/') }}/main/' + main_prog_id + '/sub/'
                 if ( sub_prog_id )
                     link = link + sub_prog_id
-                
+
 
                 axios.get(link, {
                     headers: {
@@ -1050,7 +1050,7 @@
                                 ' data-sprog="' + sub_prog_name + '"' +
                                 ' value="' + prog_id + '">' + prog_program + '</option>';
                     });
-                    
+
                     @if (!isset($edit))
 
                         $('#program_name').html(html).select2({
@@ -1075,7 +1075,7 @@
                     @elseif (isset($clientProgram))
                         $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
                     @endif
-                    
+
                 })
                 .catch(function (error) {
                     swal.close()
@@ -1099,7 +1099,7 @@
                     if(!$('#check-'+ phase_detail_id).is(":checked")){
                         $('#qty-' + phase_detail_id).addClass('uncheck')
                         link = '{{ url('api/program-phase') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id
-                        
+
                         axios.delete(link, {
                             headers:{
                                 'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}',
@@ -1121,7 +1121,7 @@
                     }else{
                         $('#qty-' + phase_detail_id).removeClass('uncheck')
                         link = '{{ url('api/program-phase/') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id
-                        
+
                         axios.post(link, null,
                             {
                                 headers:{
@@ -1133,7 +1133,7 @@
                         .then(function(response) {
 
                             let obj = response.data;
-                            
+
                             $('#quota-' + phase_detail_id).prop("disabled", false);
                             Swal.close()
                             notification('success', "Successfully add item program bought");
@@ -1154,7 +1154,7 @@
                     var quota = this.value;
 
                     link = '{{ url('api/program-phase') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id + '/quota'
-                        
+
                     axios.patch(link, {quota: quota}, {
                         headers:{
                             'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}',
@@ -1172,7 +1172,7 @@
                         notification('error', error)
                     })
                 });
-            
+
                 var baseUrl = "{{ url('/') }}/api/v1/get/referral/list";
 
                 $(".select-referral").select2({
@@ -1192,17 +1192,17 @@
                         cache: true
                     }
                 });
-                
+
                 @if (old('referral_code') !== NULL)
                     // Set the value, creating a new option if necessary
                     if ($('#referral_code').find("option[value= {{ old('referral_code') }} ]").length) {
                         $('#referral_code').val('{{ old("referral_code") }}').trigger('change');
-                    } else { 
+                    } else {
                         // Create a DOM Option and pre-select by default
                     var newOption = new Option('{{ old("old_refname") }}', '{{ old("referral_code") }}', true, true);
                         // Append it to the select
                         $('#referral_code').append(newOption).trigger('change');
-                    } 
+                    }
                 @endif
 
                 $('#referral_code').on('change', function(){

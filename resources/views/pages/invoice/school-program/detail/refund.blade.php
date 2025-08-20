@@ -22,7 +22,7 @@
         @endif
         <br>
         <div class="mt-2 d-flex justify-content-center">
-            
+
             @if (isset($invoiceSch->refund))
             <button class="btn btn-sm btn-outline-danger rounded mx-1" data-bs-toggle="modal"
                 data-bs-target="#cancel_refund">
@@ -42,7 +42,7 @@
             <div class="card-footer d-flex justify-content-between">
                 <h6 class="m-0 p-0">Total Refund</h6>
                 <h6 class="m-0 p-0">{{ $invoiceSch->refund->total_refunded_str }}</h6>
-            </div> 
+            </div>
         @endif --}}
     {{-- @endif --}}
 </div>
@@ -64,7 +64,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="">Total Price </label>
-                            <input type="number" name="total_payment" id="" 
+                            <input type="number" name="total_payment" id=""
                             value="{{ $invoiceSch->invb2b_totpriceidr }}" readonly
                                 class="form-control form-control-sm rounded">
                                 @error('total_payment')
@@ -168,17 +168,17 @@
     </div>
 </div>
 
-@if( $errors->has('total_price') | 
-        $errors->has('total_paid') | 
-        $errors->has('percentage_payment') | 
-        $errors->has('refunded_amount') | 
+@if( $errors->has('total_price') |
+        $errors->has('total_paid') |
+        $errors->has('percentage_payment') |
+        $errors->has('refunded_amount') |
         $errors->has('refunded_tax_percentage') |
         $errors->has('refunded_tax_amount') |
         $errors->has('total_refunded'))
-        
+
         <script>
             $(document).ready(function(){
-                $('#refund').modal('show'); 
+                $('#refund').modal('show');
             })
         </script>
 @endif
@@ -248,21 +248,21 @@
         var val = $(this).val()
         let max = $('#total_paid').val()
         let percent = $('#percentage_tax').val()
-        
+
         if (isNaN(val))
         val = 0
-        
+
         if (parseInt(val) <= parseInt(max)) {
             // $("#percentage_refund").val(null)
             let percent_tax = $('#percentage_tax').val()
             // let nominal_refund = $('#refund_nominal').val()
             let total_tax = (percent_tax / 100) * val
             let total_refund = total_tax > 0 ? val - total_tax : val
-            
+
             $('#tax_nominal').val(total_tax)
             $('#total_refund').val(total_refund)
-            
-            
+
+
         } else if(val == 0 || val == ''){
             $('#tax_nominal').val(null)
             $('#total_refund').val(null)
@@ -273,8 +273,8 @@
             $('#refund_nominal').val(null)
             notification('error', 'Refund nominal is more than total paid')
         }
-        
-          
+
+
      })
 
 

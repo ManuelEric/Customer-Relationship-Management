@@ -144,9 +144,9 @@
                 ajax: '{!! url('master/lead') !!}',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
-                        data: 'DT_RowIndex', 
-                        name: 'DT_RowIndex', 
-                        orderable: false, 
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
                         searchable: false,
                         className: 'text-center',
                     },

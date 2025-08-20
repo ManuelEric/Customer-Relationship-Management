@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 class CreateAssetReturnedAction
 {
     use CreateCustomPrimaryKeyTrait;
+
     private AssetReturnedRepositoryInterface $assetReturnedRepository;
 
     public function __construct(AssetReturnedRepositoryInterface $assetReturnedRepository)
@@ -18,9 +19,8 @@ class CreateAssetReturnedAction
 
     public function execute(
         Request $request,
-        Array $new_asset_returned_details
-    )
-    {
+        array $new_asset_returned_details
+    ) {
         $new_asset_returned_details['asset_used_id'] = $request->used_id;
         unset($new_asset_returned_details['used_id']);
 

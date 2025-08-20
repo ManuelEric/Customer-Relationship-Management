@@ -305,7 +305,7 @@
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
-                        
+
                         <div class="mb-4">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                 I know this event from <span class="text-red-400">*</span>
@@ -419,7 +419,7 @@ https://fastly.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
 
 
     function checkRole(element) {
-        
+
 
         const input_child_name = $('#input_child_name')
         const graduation_input = $('#graduation_input')
@@ -430,7 +430,7 @@ https://fastly.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
         const other_name = $('#other_name')
 
         if (element.value == "student") {
-            
+
             role.html('Parent\'s')
             user_other.removeClass('hidden')
             other_name.addClass('required')
@@ -438,7 +438,7 @@ https://fastly.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             country_input.removeClass('hidden')
 
         } else if (element.value == "parent") {
-            
+
             role.html('Child\'s')
             user_other.removeClass('hidden')
             other_name.addClass('required')

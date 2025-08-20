@@ -11,12 +11,12 @@
 |
 */
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\v1\SalesDashboardController as V1SalesDashboardController;
-use App\Http\Controllers\Api\v1\PartnerDashboardController as V1PartnershipDashboardController;
-use App\Http\Controllers\Api\v1\FinanceDashboardController as V1FinanceDashboardController;
 use App\Http\Controllers\Api\v1\DigitalDashboardController as V1DigitalDashboardController;
+use App\Http\Controllers\Api\v1\FinanceDashboardController as V1FinanceDashboardController;
+use App\Http\Controllers\Api\v1\PartnerDashboardController as V1PartnershipDashboardController;
+use App\Http\Controllers\Api\v1\SalesDashboardController as V1SalesDashboardController;
 use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['throttle:120,1'])->group(function () {
 
@@ -46,7 +46,6 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('outstanding-payment', [DashboardController::class, 'fnAjaxDataTablesOutstandingPayment']);
     Route::get('domicile', [V1SalesDashboardController::class, 'fnDomicileTracker']);
 
-
     /**
      * Partnership
      */
@@ -57,7 +56,6 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [V1PartnershipDashboardController::class, 'fnGetPartnershipProgramDetailByMonth']);
     Route::get('partner/partnership-program/program-comparison/{start_year}/{end_year}', [V1PartnershipDashboardController::class, 'fnGetProgramComparison']);
 
-
     /**
      * Finance
      */
@@ -67,7 +65,6 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('finance/revenue/{year}', [V1FinanceDashboardController::class, 'getRevenueByYear']);
     Route::get('finance/revenue/detail/{year}/{month}', [V1FinanceDashboardController::class, 'getRevenueDetailByMonth']);
     Route::get('finance/outstanding/period/{start_date}/{end_date}', [V1FinanceDashboardController::class, 'getOutstandingPaymentByPeriod']);
-
 
     /**
      * Digital

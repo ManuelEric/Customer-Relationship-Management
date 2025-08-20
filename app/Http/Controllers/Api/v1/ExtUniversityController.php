@@ -20,16 +20,14 @@ class ExtUniversityController extends Controller
         $terms = $request->get('terms');
         $search = compact('terms');
         $universities = $this->universityRepository->getAllUniversities($search);
-        if (!$universities) {
+        if (! $universities) {
             return response()->json([
                 'success' => true,
-                'message' => 'No universities found.'
+                'message' => 'No universities found.',
             ]);
         }
 
-        
-
-        # map the data that being shown to the user
+        // map the data that being shown to the user
         $mappedUniversities = $universities->map(function ($value) {
             return [
                 'univ_id' => $value->univ_id,
@@ -42,7 +40,7 @@ class ExtUniversityController extends Controller
 
         return response()->json([
             'message' => 'There are universities found.',
-            'data' => $mappedUniversities
+            'data' => $mappedUniversities,
         ]);
     }
 
@@ -53,13 +51,13 @@ class ExtUniversityController extends Controller
         $upcoming = $this->universityRepository->getUpcomingApplicationDeadline($search);
         if ($upcoming->count() == 0) {
             return response()->json([
-                'message' => 'No upcoming application deadline found.'
+                'message' => 'No upcoming application deadline found.',
             ]);
         }
 
         return response()->json([
             'message' => 'There are upcoming application deadline found.',
-            'data' => $upcoming
+            'data' => $upcoming,
         ]);
     }
 }

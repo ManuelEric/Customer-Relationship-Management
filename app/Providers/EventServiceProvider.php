@@ -25,13 +25,13 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         MessageSending::class => [
-            AddCustomHeader::class,  
+            AddCustomHeader::class,
         ],
         MessageSent::class => [
-            ReminderInvoiceToClientListener::class
+            ReminderInvoiceToClientListener::class,
         ],
         JobProcessed::class => [
-            JobProcessedListener::class
+            JobProcessedListener::class,
         ],
     ];
 

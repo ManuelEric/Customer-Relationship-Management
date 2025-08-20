@@ -131,7 +131,7 @@
             };
 
             var table = initializeDataTable('#subjectTable', options, 'rt_subject');
-            
+
             @php
                 $privilage = $menus['Master']->where('submenu_name', 'Subject')->first();
             @endphp

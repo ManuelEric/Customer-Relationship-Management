@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Models\Role;
 
-class RoleRepository implements RoleRepositoryInterface 
+class RoleRepository implements RoleRepositoryInterface
 {
     public function getRoleByName($roleName)
     {

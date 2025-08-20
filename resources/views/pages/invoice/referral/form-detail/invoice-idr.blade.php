@@ -21,7 +21,7 @@
              <div class="col-md-8 mb-3">
                  <label for="">Words</label>
                  <input type="text" name="invb2b_wordsidr" id="invoice_idr_word"
-                     class="form-control form-control-sm rounded" 
+                     class="form-control form-control-sm rounded"
                      value="{{ (isset($invoiceRef)) ? $invoiceRef->invb2b_wordsidr : old('invb2b_wordsidr') }}" readonly
                      {{ empty($invoiceRef) || $status == 'edit' ? '' : 'disabled' }}>
                     @error('invb2b_wordsidr')

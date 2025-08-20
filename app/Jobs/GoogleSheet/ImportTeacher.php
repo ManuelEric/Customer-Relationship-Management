@@ -1,15 +1,12 @@
 <?php
- 
+
 namespace App\Jobs\GoogleSheet;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
-use App\Jobs\RawClient\ProcessVerifyClient;
-use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Jobs\RawClient\ProcessVerifyClientTeacher;
-use App\Models\Client;
 use App\Models\JobBatches;
 use App\Models\Role;
 use App\Models\School;
@@ -21,19 +18,17 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Revolution\Google\Sheets\Facades\Sheets;
 use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class ImportTeacher implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait;
+    use CreateCustomPrimaryKeyTrait, LoggingTrait, StandardizePhoneNumberTrait, SyncClientTrait, SyncClientTrait;
     use IsMonitored;
 
     public $teacherData;
+
     /**
      * Create a new job instance.
      */
@@ -49,7 +44,7 @@ class ImportTeacher implements ShouldQueue
     {
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
- 
+
             return;
         }
 
@@ -62,13 +57,13 @@ class ImportTeacher implements ShouldQueue
             // Check existing school
             $school = School::where('sch_name', $val['School'])->get()->pluck('sch_id')->first();
 
-            if (!isset($school)) {
+            if (! isset($school)) {
                 $newSchool = $this->createSchoolIfNotExists($val['School'], true);
             }
 
             $teacher = $this->checkExistingClientImport($phoneNumber, $val['Email']);
 
-            if (!$teacher['isExist']) {
+            if (! $teacher['isExist']) {
                 $teacherDetails = [
                     'first_name' => $teacherName['firstname'],
                     'last_name' => isset($teacherName['lastname']) ? $teacherName['lastname'] : null,
@@ -82,12 +77,12 @@ class ImportTeacher implements ShouldQueue
                     'sch_id' => isset($school) ? $school : $newSchool->sch_id,
                     'lead_id' => $val['Lead'],
                     'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
-                    'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
+                    'eduf_id' => isset($val['Edufair']) && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
                     'st_levelinterest' => $val['Level of Interest'],
-                    'is_many_request' => true
+                    'is_many_request' => true,
                 ];
-                isset($val['Joined Date']) ? $teacherDetails['created_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
-                isset($val['Joined Date']) ? $teacherDetails['updated_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
+                isset($val['Joined Date']) ? $teacherDetails['created_at'] = Carbon::parse($val['Joined Date'].' '.date('H:i:s')) : null;
+                isset($val['Joined Date']) ? $teacherDetails['updated_at'] = Carbon::parse($val['Joined Date'].' '.date('H:i:s')) : null;
 
                 $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['teacher/counselor'])->first();
 
@@ -97,7 +92,7 @@ class ImportTeacher implements ShouldQueue
             }
 
             $logDetails[] = [
-                'client_id' => $teacher['id']
+                'client_id' => $teacher['id'],
             ];
 
             $teacherIds[] = $teacher['id'];
@@ -106,17 +101,15 @@ class ImportTeacher implements ShouldQueue
             // $totalImported += $imported->totalUpdatedRows;
         }
 
-        # trigger to verifying parent
+        // trigger to verifying parent
         count($teacherIds) > 0 ? ProcessVerifyClientTeacher::dispatch($teacherIds)->onQueue('verifying-client-teacher') : null;
 
-        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Teachers')->range('R'. $this->teacherData->first()['No'] + 1)->update($imported_date);
+        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Teachers')->range('R'.$this->teacherData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);
-        
+
         $logDetailsCollection = Collect($logDetails);
         $logDetailsMerge = $logDetailsCollection->merge(json_decode($dataJobBatches->log_details));
-        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($imported_date), 'log_details' => json_encode($logDetailsMerge), 'type' => 'teacher', 'category' => 'Import']); 
-        
+        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($imported_date), 'log_details' => json_encode($logDetailsMerge), 'type' => 'teacher', 'category' => 'Import']);
 
     }
-   
 }

@@ -15,9 +15,8 @@ class DeleteMajorAction
 
     public function execute(
         $major_id
-    )
-    {
-        # delete major
+    ) {
+        // delete major
         $deleted_major = $this->majorRepository->deleteMajor($major_id);
 
         return $deleted_major;

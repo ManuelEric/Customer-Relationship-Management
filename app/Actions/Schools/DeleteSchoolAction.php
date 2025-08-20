@@ -14,10 +14,9 @@ class DeleteSchoolAction
     }
 
     public function execute(
-        String $school_id
-    )
-    {
-        # Delete schol
+        string $school_id
+    ) {
+        // Delete schol
         $deleted_school = $this->schoolRepository->deleteSchool($school_id);
 
         return $deleted_school;

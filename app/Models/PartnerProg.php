@@ -6,10 +6,84 @@ use App\Events\MessageSent;
 use App\Models\pivot\AgendaSpeaker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $corp_id
+ * @property string $prog_id
+ * @property int|null $type
+ * @property string|null $first_discuss
+ * @property string|null $notes
+ * @property string|null $refund_notes
+ * @property string|null $refund_date
+ * @property int $status 0: Pending, 1: Success, 2: Rejected 3: Refund 4: Accepted 5: Cancel
+ * @property int|null $participants
+ * @property string|null $start_date
+ * @property string|null $end_date
+ * @property string|null $denied_date
+ * @property string|null $success_date
+ * @property string|null $cancel_date
+ * @property string|null $accepted_date
+ * @property string|null $pending_date
+ * @property float|null $total_fee
+ * @property int $is_corporate_scheme
+ * @property int|null $reason_id
+ * @property string|null $reason_notes
+ * @property string|null $empl_id ALL-In PIC
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Corporate $corp
+ * @property-read AgendaSpeaker|null $pivot
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $internal_speaker
+ * @property-read int|null $internal_speaker_count
+ * @property-read \App\Models\Invb2b|null $invoiceB2b
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Corporate> $partnerCollaborators
+ * @property-read int|null $partner_collaborators_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CorporatePic> $partner_speaker
+ * @property-read int|null $partner_speaker_count
+ * @property-read \App\Models\Program $program
+ * @property-read \App\Models\Reason|null $reason
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\School> $schoolCollaborators
+ * @property-read int|null $school_collaborators_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SchoolDetail> $school_speaker
+ * @property-read int|null $school_speaker_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\University> $univCollaborators
+ * @property-read int|null $univ_collaborators_count
+ * @property-read \App\Models\User|null $user
+ *
+ * @method static Builder<static>|PartnerProg active()
+ * @method static Builder<static>|PartnerProg newModelQuery()
+ * @method static Builder<static>|PartnerProg newQuery()
+ * @method static Builder<static>|PartnerProg query()
+ * @method static Builder<static>|PartnerProg whereAcceptedDate($value)
+ * @method static Builder<static>|PartnerProg whereCancelDate($value)
+ * @method static Builder<static>|PartnerProg whereCorpId($value)
+ * @method static Builder<static>|PartnerProg whereCreatedAt($value)
+ * @method static Builder<static>|PartnerProg whereDeniedDate($value)
+ * @method static Builder<static>|PartnerProg whereEmplId($value)
+ * @method static Builder<static>|PartnerProg whereEndDate($value)
+ * @method static Builder<static>|PartnerProg whereFirstDiscuss($value)
+ * @method static Builder<static>|PartnerProg whereId($value)
+ * @method static Builder<static>|PartnerProg whereIsCorporateScheme($value)
+ * @method static Builder<static>|PartnerProg whereNotes($value)
+ * @method static Builder<static>|PartnerProg whereParticipants($value)
+ * @method static Builder<static>|PartnerProg wherePendingDate($value)
+ * @method static Builder<static>|PartnerProg whereProgId($value)
+ * @method static Builder<static>|PartnerProg whereReasonId($value)
+ * @method static Builder<static>|PartnerProg whereReasonNotes($value)
+ * @method static Builder<static>|PartnerProg whereRefundDate($value)
+ * @method static Builder<static>|PartnerProg whereRefundNotes($value)
+ * @method static Builder<static>|PartnerProg whereStartDate($value)
+ * @method static Builder<static>|PartnerProg whereStatus($value)
+ * @method static Builder<static>|PartnerProg whereSuccessDate($value)
+ * @method static Builder<static>|PartnerProg whereTotalFee($value)
+ * @method static Builder<static>|PartnerProg whereType($value)
+ * @method static Builder<static>|PartnerProg whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class PartnerProg extends Model
 {
     use HasFactory;
@@ -19,7 +93,7 @@ class PartnerProg extends Model
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'corp_id',
@@ -45,7 +119,7 @@ class PartnerProg extends Model
         'empl_id',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -155,5 +229,4 @@ class PartnerProg extends Model
     {
         return $this->belongsToMany(Corporate::class, 'tbl_partner_prog_partner', 'partnerprog_id', 'corp_id')->withTimestamps();
     }
-
 }

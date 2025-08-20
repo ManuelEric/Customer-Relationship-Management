@@ -249,16 +249,16 @@
                         $('td', row).eq(6).addClass('bg-success text-light');
 
 
-                    if ( data['prog_running_status'] == 2 ) 
+                    if ( data['prog_running_status'] == 2 )
                         $('td', row).eq(7).addClass('bg-success text-light');
                     else if (data['prog_running_status'] == 0)
                         $('td', row).eq(7).addClass('bg-warning');
 
-                    
+
                 },
             });
 
-            // Tooltip 
+            // Tooltip
             $('#programTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',
@@ -293,7 +293,7 @@
                                     number: no,
                                 })
                                 .then(function(response) {
-                                    
+
                                     html = '';
                                     html += `<ul>`;
 
@@ -315,11 +315,11 @@
                                         notification('success', 'Successfully created a bundle program');
                                         // location.reload();
                                     }
-                                    
+
                                     $("#programTable").DataTable().ajax.reload()
                                 })
                                 .catch(function(error) {
-                                    
+
                                     swal.close();
                                     notification('error', error.message);
                                 })
@@ -353,7 +353,7 @@
                         bundlingId = $(this).data('bundlingid');
                     }
                 });
-                
+
                 if (selected.length > 1) {
                     Swal.fire({
                         title: "Confirmation!",
@@ -417,7 +417,7 @@
                     });
                 }
             }
-                
+
         });
     </script>
 @endpush

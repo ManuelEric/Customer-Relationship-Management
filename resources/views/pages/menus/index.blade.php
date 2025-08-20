@@ -83,16 +83,16 @@
             var elementor_checked = $("input[name='"+policy+"_"+key+"']").prop('checked');
             $("input[name="+policy+"][data-master='"+key+"']").prop('checked', elementor_checked).trigger('change');
         }
-        
+
         function checkDepartment() {
             showLoading();
             let department = $('#department').val()
 
             // open menu card
             $("#menus").removeClass('d-none');
-            
+
             //   Axios Here
-            var link = "{{ url('/') }}/api/v1/department/access/" + department 
+            var link = "{{ url('/') }}/api/v1/department/access/" + department
             axios.get(link)
                 .then(function (response) {
                     resetCheckboxes()
@@ -109,7 +109,7 @@
                     console.log(error)
                     notification('error', 'Something went wrong. Please try again.')
                 })
-            
+
             var link = '{{ url("/") }}/api/v1/employee/department/' + department
             axios.get(link)
                 .then(function (response) {
@@ -122,7 +122,7 @@
                     }
                     swal.close();
                 }).catch(function (error) {
-                    
+
                     swal.close();
                     notification('error', error.message);
                 })
@@ -133,7 +133,7 @@
             let department = $('#department').val()
             $('#user_id').val(user_id)
 
-            //   Axios Here 
+            //   Axios Here
             var link = "{{ url('/') }}/api/v1/department/access/" + department + "/" + user_id
             axios.get(link)
                 .then(function (response) {
@@ -161,31 +161,31 @@
         }
 
         function checkMenus(param, menus_id) {
-            
+
             let department = $('#department').val()
             let user = $('#user_id').val()
             let menus = $('#menus_' + menus_id)
-            
+
             let menu_data = menus.is(':checked')
             let copy_data = $("#copy_" + menus_id).is(':checked')
             let export_data = $("#export_" + menus_id).is(':checked')
-            
+
             // if user not choosen
             // then post into department menus
             if (!user) {
                 var link = '{{ url("/") }}/menus/manage/department/access'
-            } 
+            }
 
             // if user is choosen
             // then post into user menus
-            else {                
+            else {
                 var link = '{{ url("/") }}/menus/manage/user/access';
             }
 
             axios.post(link, {
                 'department_id': department,
                 'menu_id': menus.val(), // menu id value from checkbox
-                'menu_data': menu_data,   
+                'menu_data': menu_data,
                 'copy_data': copy_data,
                 'export_data': export_data,
                 'user': user,
@@ -197,7 +197,7 @@
                 getActiveMenu(obj.data);
                 swal.close();
 
-                
+
             }).catch(function (error) {
 
                 console.log(error)
@@ -207,7 +207,7 @@
             });
         }
 
-        function getActiveMenu(object) 
+        function getActiveMenu(object)
         {
             for (var i = 0 ; i < object.length ; i++) {
                 var id = "#menus_" + object[i]
@@ -222,17 +222,17 @@
             for (var i = 0 ; i < object.length ; i++) {
                 var id = "#copy_" + object[i]
                 $(id).prop('checked', true)
-                
+
                 var master_name = $(id).data('master');
                 if (array_master_name.indexOf(master_name) == -1)
                     array_master_name.push(master_name);
-                
+
             }
 
             for (var i = 0; i < array_master_name.length ; i++) {
                 var sum = 0;
                 var master_name = array_master_name[i];
-                
+
                 var total_child = $("input[name=copy_"+master_name+"]").data('total-child');
 
                 var total_actual_child = $("input[name=copy][data-master="+master_name+"]:checked").each(function () {
@@ -261,7 +261,7 @@
             for (var i = 0; i < array_master_name.length ; i++) {
                 var sum = 0;
                 var master_name = array_master_name[i];
-                
+
                 var total_child = $("input[name=export_"+master_name+"]").data('total-child');
 
                 var total_actual_child = $("input[name=export][data-master="+master_name+"]:checked").each(function () {
@@ -293,7 +293,7 @@
                 $("#export_" + dept_export[i]).prop('disabled', true);
             }
         }
-        
+
         function resetCheckboxes(param)
         {
             switch (param) {

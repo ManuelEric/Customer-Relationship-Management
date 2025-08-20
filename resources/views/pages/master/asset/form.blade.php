@@ -57,7 +57,7 @@
                                         Asset Name <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="text" name="asset_name" class="form-control form-control-sm rounded"
-                                        value="{{ isset($asset->asset_name) ? $asset->asset_name : old('asset_name') }}" 
+                                        value="{{ isset($asset->asset_name) ? $asset->asset_name : old('asset_name') }}"
                                         {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                     @error('asset_name')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -104,7 +104,7 @@
                                         Unit(s) <sup class="text-warning">*</sup>
                                     </label>
                                     <input type="text" placeholder="ex : Unit / etc " name="asset_unit" class="form-control form-control-sm rounded"
-                                        value="{{ isset($asset->asset_unit) ? $asset->asset_unit : old('asset_unit') }}" 
+                                        value="{{ isset($asset->asset_unit) ? $asset->asset_unit : old('asset_unit') }}"
                                         {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                     @error('asset_unit')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -452,7 +452,7 @@
     @endif
 
     <script>
-        
+
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#picForm .modal-content'),

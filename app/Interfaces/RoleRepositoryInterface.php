@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface RoleRepositoryInterface 
+interface RoleRepositoryInterface
 {
     public function getRoleByName($roleName);
 }

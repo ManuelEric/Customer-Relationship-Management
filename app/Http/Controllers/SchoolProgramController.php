@@ -9,32 +9,25 @@ use App\Enum\LogModule;
 use App\Http\Requests\StoreSchoolProgramRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
-use App\Interfaces\SchoolProgramRepositoryInterface;
-use App\Interfaces\SchoolProgramAttachRepositoryInterface;
-use App\Interfaces\SchoolRepositoryInterface;
-use App\Interfaces\SchoolDetailRepositoryInterface;
-use App\Interfaces\ProgramRepositoryInterface;
-use App\Interfaces\UserRepositoryInterface;
-use App\Interfaces\ReasonRepositoryInterface;
-use App\Interfaces\CorporateRepositoryInterface;
-use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
+use App\Interfaces\CorporatePicRepositoryInterface;
+use App\Interfaces\CorporateRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\ReasonRepositoryInterface;
+use App\Interfaces\SchoolDetailRepositoryInterface;
+use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolProgramCollaboratorsRepositoryInterface;
+use App\Interfaces\SchoolProgramRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use App\Services\Log\LogService;
 use App\Services\Master\ProgramService;
 use App\Services\Master\ReasonService;
 use App\Services\Program\SchoolProgramService;
-use App\Services\Program\SchoolService;
 use Exception;
-use Faker\Calculator\Inn;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
@@ -44,19 +37,33 @@ class SchoolProgramController extends Controller
     use LoggingTrait;
 
     protected SchoolRepositoryInterface $schoolRepository;
+
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
+
     protected SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository;
+
     protected ProgramRepositoryInterface $programRepository;
+
     protected UserRepositoryInterface $userRepository;
+
     protected ReasonRepositoryInterface $reasonRepository;
+
     protected CorporateRepositoryInterface $corporateRepository;
+
     protected CorporatePicRepositoryInterface $corporatePicRepository;
+
     protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
+
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
+
     protected SchoolProgramCollaboratorsRepositoryInterface $schoolProgramCollaboratorsRepository;
+
     protected UniversityRepositoryInterface $universityRepository;
+
     protected SchoolProgramService $schoolProgramService;
+
     protected ProgramService $programService;
+
     protected ReasonService $reasonService;
 
     public function __construct(
@@ -96,7 +103,6 @@ class SchoolProgramController extends Controller
     public function index(Request $request)
     {
 
-
         if ($request->ajax()) {
             $filter = null;
 
@@ -114,15 +120,14 @@ class SchoolProgramController extends Controller
             return $this->schoolProgramRepository->getAllSchoolProgramsDataTables($filter);
         }
 
-        # retrieve all school data
+        // retrieve all school data
         $schools = $this->schoolRepository->getAllSchools();
 
-        # retrieve program data
+        // retrieve program data
         $programs = $this->programService->snGetProgramsB2b();
 
-        # retrieve employee data
+        // retrieve employee data
         $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
-
 
         return view('pages.program.school-program.index')->with(
             [
@@ -139,9 +144,9 @@ class SchoolProgramController extends Controller
         $school_id = strtoupper($request->route('school'));
 
         $school_program_details = $request->all();
-    
+
         DB::beginTransaction();
-        
+
         try {
             $school_program_created = $createSchoolProgramAction->execute($school_id, $school_program_details);
             $sch_prog_id = $school_program_created->id;
@@ -151,40 +156,40 @@ class SchoolProgramController extends Controller
 
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_SCHOOL_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $school_program_details);
-            return Redirect::to('program/school/' . strtolower($school_id) . '/detail/create')->withError('Failed to create school program' . $e->getMessage());
+
+            return Redirect::to('program/school/'.strtolower($school_id).'/detail/create')->withError('Failed to create school program'.$e->getMessage());
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_SCHOOL_PROGRAM, 'New school program has been added', $school_program_created->toArray());
 
-        return Redirect::to('program/school/' . strtolower($school_id) . '/detail/' . $sch_prog_id)->withSuccess('School program successfully created');
+        return Redirect::to('program/school/'.strtolower($school_id).'/detail/'.$sch_prog_id)->withSuccess('School program successfully created');
     }
 
     public function create(Request $request)
     {
         $school_id = strtoupper($request->route('school'));
 
-        # retrieve school data by id
+        // retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($school_id);
 
-        # retrieve program data
+        // retrieve program data
         $programs = $this->programService->snGetProgramsB2b();
 
-        # retrieve reason data
+        // retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        # retrieve employee data
+        // retrieve employee data
         $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
-
 
         return view('pages.program.school-program.form')->with(
             [
                 'employees' => $employees,
                 'programs' => $programs,
                 'reasons' => $reasons,
-                'school' => $school
+                'school' => $school,
             ]
         );
     }
@@ -195,41 +200,41 @@ class SchoolProgramController extends Controller
         $school_id = strtoupper($request->route('school'));
         $sch_prog_id = $request->route('detail');
 
-        # retrieve school data by id
+        // retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($school_id);
 
-        # retrieve all school data
+        // retrieve all school data
         $schools = $this->schoolRepository->getAllSchools();
 
-        # retrieve all school detail by school id
+        // retrieve all school detail by school id
         $school_detail = $this->schoolDetailRepository->getAllSchoolDetailsById($school_id);
 
-        # retrieve program data
+        // retrieve program data
         $programs = $this->programService->snGetProgramsB2b();
 
-        # retrieve reason data
+        // retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        # retrieve School Program data by schoo_id
+        // retrieve School Program data by schoo_id
         $school_program = $this->schoolProgramRepository->getSchoolProgramById($sch_prog_id);
 
-        # retrieve School Program Attach data by schoo_id
+        // retrieve School Program Attach data by schoo_id
         $school_program_attachs = $this->schoolProgramAttachRepository->getAllSchoolProgramAttachsBySchprogId($sch_prog_id);
 
-        # retrieve employee data
+        // retrieve employee data
         $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
 
-        # retrieve corporate / partner
+        // retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
 
-        # retrieve speaker data
+        // retrieve speaker data
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerBySchoolProgram($sch_prog_id);
 
-        # retrieve university master
+        // retrieve university master
         $universities = $this->universityRepository->getAllUniversities();
 
-        # retrieve collaborators
+        // retrieve collaborators
         $collaborators_school = $this->schoolProgramCollaboratorsRepository->getSchoolCollaboratorsBySchoolProgId($sch_prog_id);
         $collaborators_univ = $this->schoolProgramCollaboratorsRepository->getUnivCollaboratorsBySchoolProgId($sch_prog_id);
         $colaborators_partner = $this->schoolProgramCollaboratorsRepository->getPartnerCollaboratorsBySchoolProgId($sch_prog_id);
@@ -252,11 +257,10 @@ class SchoolProgramController extends Controller
                 'universities' => $universities,
                 'collaborators_school' => $collaborators_school,
                 'collaborators_univ' => $collaborators_univ,
-                'colaborators_partner' => $colaborators_partner
+                'colaborators_partner' => $colaborators_partner,
             ]
         );
     }
-
 
     public function edit(Request $request)
     {
@@ -267,11 +271,11 @@ class SchoolProgramController extends Controller
 
             switch ($type) {
 
-                case "partner":
+                case 'partner':
                     return $this->corporatePicRepository->getAllCorporatePicByCorporateId($id);
                     break;
 
-                case "school":
+                case 'school':
                     return $this->schoolDetailRepository->getAllSchoolDetailsById($id);
                     break;
             }
@@ -280,29 +284,29 @@ class SchoolProgramController extends Controller
         $school_id = strtoupper($request->route('school'));
         $sch_prog_id = $request->route('detail');
 
-        # retrieve school data by id
+        // retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($school_id);
 
-        # retrieve all school data
+        // retrieve all school data
         $schools = $this->schoolRepository->getAllSchools();
 
-        # retrieve all school detail by school id
+        // retrieve all school detail by school id
         $school_detail = $this->schoolDetailRepository->getAllSchoolDetailsById($school_id);
 
-        # retrieve program data
+        // retrieve program data
         $programs = $this->programService->snGetProgramsB2b();
 
-        # retrieve reason data
+        // retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        # retrieve School Program data by id
+        // retrieve School Program data by id
         $school_program = $this->schoolProgramRepository->getSchoolProgramById($sch_prog_id);
 
-        # retrieve employee data
+        // retrieve employee data
         $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
-        # retrieve corporate / partner
+        // retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
 
         return view('pages.program.school-program.form')->with(
@@ -330,7 +334,7 @@ class SchoolProgramController extends Controller
 
         DB::beginTransaction();
         try {
-            
+
             $updated_school_program = $updateSchoolProgramAction->execute($school_id, $sch_prog_id, $school_program_details);
 
             DB::commit();
@@ -339,14 +343,14 @@ class SchoolProgramController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_SCHOOL_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $school_program_details);
 
-            return Redirect::to('program/school/' . strtolower($school_id) . '/detail/' . $sch_prog_id . '/edit')->withError('Failed to update school program' . $e->getMessage());
+            return Redirect::to('program/school/'.strtolower($school_id).'/detail/'.$sch_prog_id.'/edit')->withError('Failed to update school program'.$e->getMessage());
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_SCHOOL_PROGRAM, 'School program has been updated', $updated_school_program->toArray());
 
-        return Redirect::to('program/school/' . strtolower($school_id) . '/detail/' . $sch_prog_id)->withSuccess('School program successfully updated');
+        return Redirect::to('program/school/'.strtolower($school_id).'/detail/'.$sch_prog_id)->withSuccess('School program successfully updated');
     }
 
     public function destroy(Request $request, DeleteSchoolProgramAction $deleteSchoolProgramAction, LogService $log_service)
@@ -359,18 +363,19 @@ class SchoolProgramController extends Controller
         try {
 
             $deleteSchoolProgramAction->execute($sch_prog_id);
-        
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_SCHOOL_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $school_prog->toArray());
-            Log::error('Delete school program failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . strtolower($school_id) . '/detail/' . $sch_prog_id)->withError('Failed to delete school program');
+            Log::error('Delete school program failed : '.$e->getMessage());
+
+            return Redirect::to('program/school/'.strtolower($school_id).'/detail/'.$sch_prog_id)->withError('Failed to delete school program');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_PROGRAM, 'School program has been deleted', $school_prog->toArray());
 
         return Redirect::to('program/school/')->withSuccess('School program successfully deleted');

@@ -4,7 +4,7 @@ namespace App\Http\Traits;
 
 trait CleanStringTrait
 {
-    function cleanString($input)
+    public function cleanString($input)
     {
         // Step 1: Remove all special characters except letters and digits
         $cleaned = preg_replace('/[^A-Za-z0-9 ]/', '', $input);

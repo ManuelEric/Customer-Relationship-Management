@@ -15,12 +15,10 @@ class DeletePartnerProgramAction
 
     public function execute(
         $partner_prog_id,
-    )
-    {
+    ) {
 
-        # deleted partner program
+        // deleted partner program
         $deleted_partner_program = $this->partnerProgramRepository->deletePartnerProgram($partner_prog_id);
-
 
         return $deleted_partner_program;
     }

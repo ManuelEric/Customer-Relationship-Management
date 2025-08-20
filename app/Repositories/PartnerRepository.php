@@ -7,7 +7,7 @@ use App\Models\Corporate;
 use App\Models\Partner;
 use DataTables;
 
-class PartnerRepository implements PartnerRepositoryInterface 
+class PartnerRepository implements PartnerRepositoryInterface
 {
     public function getAllPartnerDataTables()
     {

@@ -57,12 +57,12 @@ class StoreReferralRequest extends FormRequest
             'empl_id' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::whereHas('roles', function ($q) {
+                    if (! User::whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The submitted pic was invalid employee');
                     }
-                }
+                },
             ],
             'additional_prog_name' => 'required_if:referral_type,Out',
             'currency' => 'required|in:IDR,USD,SGD,GBP,AUD,MYR,VND,JPY,CNY,THB',
@@ -74,9 +74,9 @@ class StoreReferralRequest extends FormRequest
             'revenue_idr' => 'required_if:currency,USD,SGD,GBP,AUD,MYR,VND,JPY,CNY,THB',
         ];
 
-        if ($this->input('referral_type') == 'In')
+        if ($this->input('referral_type') == 'In') {
             $rules['prog_id'][] = 'exists:tbl_prog,prog_id';
-
+        }
 
         return $rules;
     }

@@ -28,6 +28,7 @@ class StreamRepository implements StreamRepositoryInterface
     {
         $stream = Stream::findOrFail($stream_id);
         $stream->update($new_stream_details);
+
         return $stream;
     }
 }

@@ -9,11 +9,85 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property string $corp_id
+ * @property string|null $corp_name
+ * @property string|null $user_id
+ * @property int|null $corp_industry
+ * @property int|null $corp_subsector_id
+ * @property string|null $corp_mail
+ * @property string|null $corp_phone
+ * @property string|null $corp_insta
+ * @property string|null $corp_site
+ * @property string|null $corp_region
+ * @property string|null $corp_city
+ * @property string|null $corp_address
+ * @property string|null $corp_note
+ * @property string|null $corp_password
+ * @property string|null $country_type
+ * @property string|null $type
+ * @property string|null $partnership_type
+ * @property int $active_status
+ * @property string|null $corp_status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Collection<int, \App\Models\PartnerProg> $asCollaboratorInPartnerProgram
+ * @property-read int|null $as_collaborator_in_partner_program_count
+ * @property-read Collection<int, \App\Models\SchoolProg> $asCollaboratorInSchoolProgram
+ * @property-read int|null $as_collaborator_in_school_program_count
+ * @property-read Collection<int, \App\Models\ClientEvent> $clientEvent
+ * @property-read int|null $client_event_count
+ * @property-read Collection<int, \App\Models\ClientProgram> $clientProgram
+ * @property-read int|null $client_program_count
+ * @property-read Collection<int, \App\Models\EdufLead> $edufair
+ * @property-read int|null $edufair_count
+ * @property-read Collection<int, \App\Models\Event> $events
+ * @property-read int|null $events_count
+ * @property-read \App\Models\User|null $individualProfessional
+ * @property-read \App\Models\Industry|null $industry
+ * @property-read mixed $partner_name
+ * @property-read Collection<int, \App\Models\PartnerProg> $partnerProgram
+ * @property-read int|null $partner_program_count
+ * @property-read Collection<int, \App\Models\CorporatePic> $pic
+ * @property-read int|null $pic_count
+ * @property-read Collection<int, \App\Models\Referral> $referralProgram
+ * @property-read int|null $referral_program_count
+ * @property-read \App\Models\SubSector|null $subSector
+ *
+ * @method static Builder<static>|Corporate active()
+ * @method static Builder<static>|Corporate newModelQuery()
+ * @method static Builder<static>|Corporate newQuery()
+ * @method static Builder<static>|Corporate query()
+ * @method static Builder<static>|Corporate whereActiveStatus($value)
+ * @method static Builder<static>|Corporate whereCorpAddress($value)
+ * @method static Builder<static>|Corporate whereCorpCity($value)
+ * @method static Builder<static>|Corporate whereCorpId($value)
+ * @method static Builder<static>|Corporate whereCorpIndustry($value)
+ * @method static Builder<static>|Corporate whereCorpInsta($value)
+ * @method static Builder<static>|Corporate whereCorpMail($value)
+ * @method static Builder<static>|Corporate whereCorpName($value)
+ * @method static Builder<static>|Corporate whereCorpNote($value)
+ * @method static Builder<static>|Corporate whereCorpPassword($value)
+ * @method static Builder<static>|Corporate whereCorpPhone($value)
+ * @method static Builder<static>|Corporate whereCorpRegion($value)
+ * @method static Builder<static>|Corporate whereCorpSite($value)
+ * @method static Builder<static>|Corporate whereCorpStatus($value)
+ * @method static Builder<static>|Corporate whereCorpSubsectorId($value)
+ * @method static Builder<static>|Corporate whereCountryType($value)
+ * @method static Builder<static>|Corporate whereCreatedAt($value)
+ * @method static Builder<static>|Corporate wherePartnershipType($value)
+ * @method static Builder<static>|Corporate whereType($value)
+ * @method static Builder<static>|Corporate whereUpdatedAt($value)
+ * @method static Builder<static>|Corporate whereUserId($value)
+ *
+ * @mixin \Eloquent
+ */
 class Corporate extends Model
 {
     use HasFactory;
 
     protected $table = 'tbl_corp';
+
     protected $primaryKey = 'corp_id';
 
     public $incrementing = false;
@@ -21,7 +95,7 @@ class Corporate extends Model
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'corp_id',
@@ -47,7 +121,7 @@ class Corporate extends Model
         'updated_at',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -88,7 +162,6 @@ class Corporate extends Model
         return $model;
     }
 
-
     public function createdAt(): Attribute
     {
         return Attribute::make(
@@ -99,7 +172,7 @@ class Corporate extends Model
     protected function partnerName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->type == "Individual Professional" && $this->user_id != null ? $this->individualProfessional->full_name : $this->corp_name
+            get: fn ($value) => $this->type == 'Individual Professional' && $this->user_id != null ? $this->individualProfessional->full_name : $this->corp_name
         );
     }
 
@@ -108,10 +181,11 @@ class Corporate extends Model
         $query->where('active_status', 1);
     }
 
-
     public static function whereCorpId($id)
     {
-        if (is_array($id) && empty($id)) return new Collection;
+        if (is_array($id) && empty($id)) {
+            return new Collection;
+        }
 
         $instance = new static;
 
@@ -120,7 +194,9 @@ class Corporate extends Model
 
     public static function whereCorpName($name)
     {
-        if (is_array($name) && empty($name)) return new Collection;
+        if (is_array($name) && empty($name)) {
+            return new Collection;
+        }
 
         $instance = new static;
 
@@ -181,7 +257,7 @@ class Corporate extends Model
     {
         return $this->belongsTo(SubSector::class, 'corp_subsector_id', 'id');
     }
-    
+
     public function individualProfessional()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

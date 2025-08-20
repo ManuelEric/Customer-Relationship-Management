@@ -18,14 +18,14 @@ class ExtPartnerController extends Controller
     public function getPartners(Request $request)
     {
         $partner = $this->partnerRepository->getAllPartner();
-        if (!$partner) {
+        if (! $partner) {
             return response()->json([
                 'success' => true,
-                'message' => 'No partner found.'
+                'message' => 'No partner found.',
             ]);
         }
 
-        # map the data that being shown to the user
+        // map the data that being shown to the user
         $mappedPartner = $partner->map(function ($value) {
             return [
                 'partner' => $value->partner_name,
@@ -36,7 +36,7 @@ class ExtPartnerController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'There are partners found.',
-            'data' => $mappedPartner
+            'data' => $mappedPartner,
         ]);
     }
 }

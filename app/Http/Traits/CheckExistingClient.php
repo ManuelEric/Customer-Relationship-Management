@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Http\Traits;
 
 use App\Models\UserClientAdditionalInfo;
 
-trait CheckExistingClient {
-
+trait CheckExistingClient
+{
     public function checkExistingClient($phone = null, $email = null)
     {
         $existClient = [];
@@ -13,14 +14,14 @@ trait CheckExistingClient {
         $clientExistPhone = $this->clientRepository->checkExistingByPhoneNumber($phone);
         $clientExistEmail = $this->clientRepository->checkExistingByEmail($email);
 
-        # if both instruments are exists 
+        // if both instruments are exists
         if ($clientExistPhone && $clientExistEmail) {
 
             $existClient['isExist'] = true;
-            # get the existing client from query that check existing using phone number
+            // get the existing client from query that check existing using phone number
             $existClient['id'] = $clientExistPhone['id'];
 
-        } else if ( $clientExistPhone && !$clientExistEmail ) {
+        } elseif ($clientExistPhone && ! $clientExistEmail) {
 
             $existClient['isExist'] = true;
             $existClient['id'] = $clientExistPhone['id'];
@@ -35,7 +36,7 @@ trait CheckExistingClient {
                 UserClientAdditionalInfo::create($additionalInfo);
             }
 
-        } else if ( !$clientExistPhone && $clientExistEmail ) {
+        } elseif (! $clientExistPhone && $clientExistEmail) {
 
             $existClient['isExist'] = true;
             $existClient['id'] = $clientExistEmail['id'];

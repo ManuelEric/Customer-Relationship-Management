@@ -171,7 +171,7 @@
         function checkInputRadio(item, init, type, itemType = null) {
             $('#' + init + 'New').val('')
 
-            // Sumarize 
+            // Sumarize
             $('#' + init + 'InputPreview').val($(item).val())
             $('#' + init + 'Preview').html($(item).val())
         }

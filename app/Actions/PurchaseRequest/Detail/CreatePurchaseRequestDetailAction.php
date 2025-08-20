@@ -9,6 +9,7 @@ use App\Interfaces\PurchaseDetailRepositoryInterface;
 class CreatePurchaseRequestDetailAction
 {
     use CreateCustomPrimaryKeyTrait, UploadFileTrait;
+
     private PurchaseDetailRepositoryInterface $purchaseDetailRepository;
 
     public function __construct(PurchaseDetailRepositoryInterface $purchaseDetailRepository)
@@ -17,12 +18,10 @@ class CreatePurchaseRequestDetailAction
     }
 
     public function execute(
-        Array $new_item_details
-    )
-    {
-        # store new purchase request
+        array $new_item_details
+    ) {
+        // store new purchase request
         $new_purchase_request = $this->purchaseDetailRepository->createOnePurchaseDetail($new_item_details);
-
 
         return $new_purchase_request;
     }

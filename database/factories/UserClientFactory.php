@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 class UserClientFactory extends Factory
 {
     use StandardizePhoneNumberTrait;
+
     /**
      * Define the model's default state.
      *
@@ -30,7 +31,7 @@ class UserClientFactory extends Factory
             'graduation_year' => rand(2025, 2026),
             'st_abryear' => rand(2025, 2026),
             'st_password' => Hash::make('password'),
-            'category' => 'raw'
+            'category' => 'raw',
         ];
     }
 }

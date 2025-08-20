@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 class ClientEventController extends Controller
 {
     protected ClientEventRepositoryInterface $clientEventRepository;
+
     protected ClientRepositoryInterface $clientRepository;
 
     public function __construct(ClientEventRepositoryInterface $clientEventRepository, ClientRepositoryInterface $clientRepository)
@@ -20,73 +21,73 @@ class ClientEventController extends Controller
 
     public function findClientEvent(Request $request)
     {
-        # initiate base variables
+        // initiate base variables
         $requestedScreeningType = strtoupper($request->route('screening_type'));
         $allowableScreeningType = ['CE', 'PH', 'TKT'];
-        $requestedIdentifier = $request->route('identifier'); # can be clientevent_id or phone_number or ticket id
+        $requestedIdentifier = $request->route('identifier'); // can be clientevent_id or phone_number or ticket id
 
-
-        # validation based on identifier
-        if (!in_array($requestedScreeningType, $allowableScreeningType)) {
+        // validation based on identifier
+        if (! in_array($requestedScreeningType, $allowableScreeningType)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid screening type.',
             ]);
         }
 
-        # validation based on value of the identifier
+        // validation based on value of the identifier
         switch ($requestedScreeningType) {
 
-            # check clientevent_id
+            // check clientevent_id
             case 'CE':
-                if (!$foundClientevent = $this->clientEventRepository->getClientEventById($requestedIdentifier)) {
+                if (! $foundClientevent = $this->clientEventRepository->getClientEventById($requestedIdentifier)) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Could not find the client event.'
+                        'message' => 'Could not find the client event.',
                     ]);
                 }
                 break;
 
-            # check phone number of both user (parent or student) if any
+                // check phone number of both user (parent or student) if any
             case 'PH':
-                # if the identifier is phone_number then parameter event id should be passes
+                // if the identifier is phone_number then parameter event id should be passes
                 $requestedEventId = $request->get('EVT');
-                
-                if (!$foundClient = $this->clientRepository->getClientByPhoneNumber($requestedIdentifier))
-                    return response()->json(['success' => false, 'message' => "We apologize, but we couldn't locate an account associated with the information provided. Please double-check your credentials or create a new account."]);
 
+                if (! $foundClient = $this->clientRepository->getClientByPhoneNumber($requestedIdentifier)) {
+                    return response()->json(['success' => false, 'message' => "We apologize, but we couldn't locate an account associated with the information provided. Please double-check your credentials or create a new account."]);
+                }
 
                 $foundClientevent = $foundClient->clientEvent()->where('event_id', $requestedEventId)->first();
-                if (!$foundClientevent)
+                if (! $foundClientevent) {
                     return response()->json(['success' => false, 'message' => "It seems we don't have your information on record yet. To provide you with the best possible service, could you please register first? It's quick and easy!"]);
+                }
 
                 break;
 
-            # find a client event data using ticket ID
+                // find a client event data using ticket ID
             case 'TKT':
                 $foundClientevent = $this->clientEventRepository->getClientEventByTicketId($requestedIdentifier);
-                if (!$foundClientevent)
+                if (! $foundClientevent) {
                     return response()->json(['success' => false, 'message' => "The system isn't recognizing the ticket ID you entered. Would you like to try again?"]);
+                }
 
                 break;
 
         }
-        
 
-        # create an array of information that need to be brought up to front-end
+        // create an array of information that need to be brought up to front-end
         $informations = $this->createResponse($foundClientevent);
 
         return response()->json([
             'success' => true,
             'message' => 'Client event was found.',
-            'data' => $informations
+            'data' => $informations,
         ]);
-        
+
     }
 
     private function createResponse(object $foundClientevent)
     {
-        # first we need to create the general information
+        // first we need to create the general information
         $roleAndHaveChild = app('App\Http\Controllers\Api\v1\ExtClientController')->getRole($foundClientevent);
         $informations = [
             'role' => $roleAndHaveChild['role'],
@@ -107,12 +108,12 @@ class ClientEventController extends Controller
                 'status' => $foundClientevent->registration_type,
                 'referral' => $foundClientevent->referral_code,
                 'client_type' => $foundClientevent->notes,
-            ]
+            ],
         ];
 
-        # secondly we need to add client information but it depends on their role (previously was register_by) 
-        # for example, if they are student then we will add student object, 
-        # but when they are parent we will add the parent as well as the student.
+        // secondly we need to add client information but it depends on their role (previously was register_by)
+        // for example, if they are student then we will add student object,
+        // but when they are parent we will add the parent as well as the student.
         switch ($foundClientevent->client->roles->count() > 0) {
 
             case $foundClientevent->client->roles()->where('role_name', 'student')->exists():
@@ -131,21 +132,21 @@ class ClientEventController extends Controller
                         'grade' => $foundClientevent->client->st_grade,
                     ],
                     'dreams_countries' => $foundClientevent->client->destinationCountries->map(function ($country) {
-                            return [
-                                'country_id' => $country->id,
-                                'country_name' => $country->name
-                            ];
-                        }),
+                        return [
+                            'country_id' => $country->id,
+                            'country_name' => $country->name,
+                        ];
+                    }),
                 ];
-                
+
                 break;
 
             case $foundClientevent->client->roles()->where('role_name', 'parent')->exists():
-                
-                # the point of make student information separated from parent
-                # because of not all parents have a children which we're not gonna show the student information while the parent doesn't have a child
 
-                # general parent information
+                // the point of make student information separated from parent
+                // because of not all parents have a children which we're not gonna show the student information while the parent doesn't have a child
+
+                // general parent information
                 $clientInformation = [
                     'parent' => [
                         'name' => $foundClientevent->client->full_name,
@@ -153,10 +154,10 @@ class ClientEventController extends Controller
                         'last_name' => $foundClientevent->client->last_name,
                         'mail' => $foundClientevent->client->mail,
                         'phone' => $foundClientevent->client->phone,
-                    ]
+                    ],
                 ];
 
-                # if the parent has children that attached to the client event
+                // if the parent has children that attached to the client event
                 if ($foundClientevent->children) {
 
                     $studentInformation = [
@@ -174,11 +175,11 @@ class ClientEventController extends Controller
                             'grade' => $foundClientevent->children->st_grade,
                         ],
                         'dreams_countries' => $foundClientevent->children->destinationCountries->map(function ($country) {
-                                return [
-                                    'country_id' => $country->id,
-                                    'country_name' => $country->name
-                                ];
-                            }),
+                            return [
+                                'country_id' => $country->id,
+                                'country_name' => $country->name,
+                            ];
+                        }),
                     ];
 
                     $clientInformation = array_merge($clientInformation, $studentInformation);

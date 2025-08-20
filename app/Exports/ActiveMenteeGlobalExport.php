@@ -2,7 +2,6 @@
 
 namespace App\Exports;
 
-use App\Models\UserClient;
 use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -33,7 +32,7 @@ class ActiveMenteeGlobalExport implements FromCollection, WithHeadings, WithStyl
             'Package',
             'Curriculum',
             'Profile Building Mentor',
-            'Registered At'
+            'Registered At',
         ];
     }
 
@@ -51,17 +50,16 @@ class ActiveMenteeGlobalExport implements FromCollection, WithHeadings, WithStyl
     }
 
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $collections = [];
-        foreach ($this->active_mentees as $index => $single)
-        {
+        foreach ($this->active_mentees as $index => $single) {
             // # determine which type of mentor does the user has
-            $latest_admission = $single->clientProgram->first(); 
-            // # with orderByPivot, it helps get the latest record 
-            $select_profile_building_mentor = $latest_admission->clientMentor()->first()?->full_name ?? null;    
+            $latest_admission = $single->clientProgram->first();
+            // # with orderByPivot, it helps get the latest record
+            $select_profile_building_mentor = $latest_admission->clientMentor()->first()?->full_name ?? null;
 
             $collections[] = [
                 'no' => $index + 1,
@@ -72,13 +70,14 @@ class ActiveMenteeGlobalExport implements FromCollection, WithHeadings, WithStyl
                 'mentoring_progress_status' => $single->mentoring_progress_status,
                 'joining_year' => Carbon::parse($single->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->success_date)->format('Y'),
                 'program_name' => $latest_admission->invoice_program_name,
-                'free_trial' => preg_match("/free trial/i", $latest_admission->package),
+                'free_trial' => preg_match('/free trial/i', $latest_admission->package),
                 'package' => $latest_admission->package,
                 'curriculum' => $latest_admission->curriculum,
                 'profile_building_mentor' => $select_profile_building_mentor,
-                'registered_at' => Carbon::parse($single->created_at)->format('Y-m-d')
+                'registered_at' => Carbon::parse($single->created_at)->format('Y-m-d'),
             ];
-        };
+        }
+
         return collect($collections);
     }
 }

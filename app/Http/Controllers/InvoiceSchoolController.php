@@ -4,45 +4,47 @@ namespace App\Http\Controllers;
 
 use App\Enum\LogModule;
 use App\Http\Requests\StoreInvoiceB2bRequest;
-use App\Http\Requests\StoreAttachmentB2bRequest;
-use App\Interfaces\ProgramRepositoryInterface;
-use App\Interfaces\SchoolRepositoryInterface;
-use App\Interfaces\SchoolProgramRepositoryInterface;
+use App\Http\Traits\CreateInvoiceIdTrait;
+use App\Http\Traits\LoggingTrait;
+use App\Interfaces\AxisRepositoryInterface;
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
-use App\Interfaces\AxisRepositoryInterface;
-use App\Http\Traits\CreateInvoiceIdTrait;
-use App\Http\Traits\LoggingTrait;
+use App\Interfaces\SchoolProgramRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\Invb2b;
 use App\Services\Log\LogService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
-use PDF;
-
-use function PHPUnit\Framework\isEmpty;
 
 class InvoiceSchoolController extends InvoiceB2BBaseController
 {
     use CreateInvoiceIdTrait;
     use LoggingTrait;
+
     protected SchoolRepositoryInterface $schoolRepository;
+
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
+
     protected ProgramRepositoryInterface $programRepository;
+
     protected InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
+
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
+
     protected ReceiptRepositoryInterface $receiptRepository;
+
     protected AxisRepositoryInterface $axisRepository;
+
     public $module;
 
     public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, AxisRepositoryInterface $axisRepository)
@@ -85,7 +87,7 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
 
         $school_id = $school_program->sch_id;
 
-        # retrieve school data by id
+        // retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($school_id);
 
         return view('pages.invoice.school-program.form')->with(
@@ -124,7 +126,7 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
             'invb2b_duedate',
             'invb2b_notes',
             'invb2b_tnc',
-            'is_full_amount'
+            'is_full_amount',
         ]);
 
         $installments = $request->only(
@@ -141,12 +143,10 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
             ]
         );
 
-
         $cursrate = [
             'invdtl_cursrate' => $invoices['curs_rate'],
             'invdtl_currency' => $invoices['currency'],
         ];
-
 
         switch ($invoices['select_currency']) {
             case 'other':
@@ -177,8 +177,6 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
                 unset($installments['invdtl_amountidr_other']);
                 break;
         }
-
-
 
         unset($invoices['invb2b_participants_other']);
         unset($invoices['invb2b_priceidr_other']);
@@ -218,11 +216,11 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_INVOICE_SCHOOL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
-            return Redirect::to('invoice/school-program/' . $sch_prog_id . '/detail/create')->withError('Failed to create a new invoice');
+            return Redirect::to('invoice/school-program/'.$sch_prog_id.'/detail/create')->withError('Failed to create a new invoice');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_INVOICE_SCHOOL, 'New invoice has been added', $invoices);
 
         return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully created');
@@ -396,14 +394,14 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_INVOICE_SCHOOL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
-            return Redirect::to('invoice/school-program/' . $sch_prog_id . '/detail/' . $inv_num)->withError('Failed to update invoice');
+            return Redirect::to('invoice/school-program/'.$sch_prog_id.'/detail/'.$inv_num)->withError('Failed to update invoice');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_INVOICE_SCHOOL, 'Invoice school has been updated', $invoices);
 
-        return Redirect::to('invoice/school-program/' . $sch_prog_id . '/detail/' . $inv_num)->withSuccess('Invoice successfully updated');
+        return Redirect::to('invoice/school-program/'.$sch_prog_id.'/detail/'.$inv_num)->withSuccess('Invoice successfully updated');
     }
 
     public function destroy(Request $request, LogService $log_service)
@@ -422,17 +420,17 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_INVOICE_SCHOOL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice->toArray());
 
-            return Redirect::to('invoice/school-program/' . $sch_prog_id . '/detail/' . $inv_num)->withError('Failed to delete invoice');
+            return Redirect::to('invoice/school-program/'.$sch_prog_id.'/detail/'.$inv_num)->withError('Failed to delete invoice');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_INVOICE_SCHOOL, 'Invoice has been deleted', $invoice->toArray());
 
         return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully deleted');
     }
 
-    protected function extract_installment($inv_id, $currency, array $cursrate,  array $installments)
+    protected function extract_installment($inv_id, $currency, array $cursrate, array $installments)
     {
         if ($currency == 'other') {
             for ($i = 0; $i < count($installments['invdtl_installment_other']); $i++) {

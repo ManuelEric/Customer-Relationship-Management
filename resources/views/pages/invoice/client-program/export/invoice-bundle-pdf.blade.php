@@ -80,7 +80,7 @@
                             <p>
                                 <strong> {{ $bundle->details[$i]->client_program->program->program_name }} </strong>
                             </p>
-                        
+
                         @endfor
                     </div>
 

@@ -18,20 +18,18 @@ use romanzipp\QueueMonitor\Traits\IsMonitored;
 class ProcessUpdateGradeAndGraduationYearNow implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    use IsMonitored;
     use GetGradeAndGraduationYear;
+    use IsMonitored;
 
     protected ClientRepositoryInterface $clientRepository;
-    protected $client_id;
 
+    protected $client_id;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-
-
     public function __construct($client_id)
     {
         $this->client_id = $client_id;
@@ -51,33 +49,32 @@ class ProcessUpdateGradeAndGraduationYearNow implements ShouldQueue
 
             $grade_now = $graduation_year_now = null;
 
-            if($client->st_grade != null){
-                if($client->graduation_year == null){
+            if ($client->st_grade != null) {
+                if ($client->graduation_year == null) {
                     $grade_now = $client->st_grade;
-                }else{
+                } else {
                     $grade_now = $this->getRealGrade(date('Y'), Carbon::parse($client->created_at)->format('Y'), date('m'), Carbon::parse($client->created_at)->format('m'), $client->st_grade);
                 }
                 $graduation_year_now = $this->getGraduationYearNow($grade_now);
-            }else{
+            } else {
                 $grade_now = $this->getGradeByGraduationYear($client->graduation_year);
-                if($client->graduation_year != null){
+                if ($client->graduation_year != null) {
                     $graduation_year_now = $client->graduation_year;
-                }else{
+                } else {
                     $graduation_year_now = $this->getGraduationYearNow($grade_now);
                 }
             }
 
             $client->st_grade == null && $client->graduation_year == null ? $grade_now = $graduation_year_now = null : null;
 
-            # Update grade now and graduation year now to tbl_client
+            // Update grade now and graduation year now to tbl_client
             $clientRepository->updateClientWithTrashed($client->id, ['grade_now' => $grade_now, 'graduation_year_now' => $graduation_year_now, 'updated_at' => $client->updated_at]);
-
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to update grade and graduation now : ' . $e->getMessage() . ' on line ' . $e->getLine());
+            Log::error('Failed to update grade and graduation now : '.$e->getMessage().' on line '.$e->getLine());
         }
 
         Log::notice('Successfully update grade and graduation now  : ', $client->toArray());

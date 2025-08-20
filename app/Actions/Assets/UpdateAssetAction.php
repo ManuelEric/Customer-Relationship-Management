@@ -14,11 +14,10 @@ class UpdateAssetAction
     }
 
     public function execute(
-        String $asset_id,
-        Array $new_asset_details
-    )
-    {
-        # Update asset
+        string $asset_id,
+        array $new_asset_details
+    ) {
+        // Update asset
         $updated_asset = $this->assetRepository->updateAsset($asset_id, $new_asset_details);
 
         return $updated_asset;

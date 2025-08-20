@@ -1,6 +1,6 @@
   {{-- Alert  --}}
 
-@if($countAlarm['sales'] > 0) 
+@if($countAlarm['sales'] > 0)
     <div class="col">
         <fieldset class="border p-2 rounded shadow">
             <legend class="float-none w-auto fs-6 mx-3">
@@ -22,7 +22,7 @@
                                             than the
                                             target
                                         </small>
-                                    @else 
+                                    @else
                                         <small class="">
                                             There are 3 times in a row the Admissions Mentoring program has failed.
                                         </small>

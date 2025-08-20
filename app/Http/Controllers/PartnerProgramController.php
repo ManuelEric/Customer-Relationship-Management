@@ -9,29 +9,26 @@ use App\Enum\LogModule;
 use App\Http\Requests\StorePartnerProgramRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
-use App\Interfaces\PartnerProgramRepositoryInterface;
-use App\Interfaces\PartnerProgramAttachRepositoryInterface;
-use App\Interfaces\SchoolProgramRepositoryInterface;
-use App\Interfaces\SchoolProgramAttachRepositoryInterface;
-use App\Interfaces\SchoolRepositoryInterface;
-use App\Interfaces\SchoolDetailRepositoryInterface;
-use App\Interfaces\ProgramRepositoryInterface;
-use App\Interfaces\UserRepositoryInterface;
-use App\Interfaces\ReasonRepositoryInterface;
-use App\Interfaces\CorporateRepositoryInterface;
-use App\Interfaces\CorporatePicRepositoryInterface;
-use App\Interfaces\UniversityRepositoryInterface;
-use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
+use App\Interfaces\CorporatePicRepositoryInterface;
+use App\Interfaces\CorporateRepositoryInterface;
+use App\Interfaces\PartnerProgramAttachRepositoryInterface;
 use App\Interfaces\PartnerProgramCollaboratorsRepositoryInterface;
+use App\Interfaces\PartnerProgramRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\ReasonRepositoryInterface;
+use App\Interfaces\SchoolDetailRepositoryInterface;
+use App\Interfaces\SchoolProgramAttachRepositoryInterface;
+use App\Interfaces\SchoolProgramRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\UniversityPicRepositoryInterface;
+use App\Interfaces\UniversityRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use App\Services\Log\LogService;
 use App\Services\Master\ProgramService;
 use App\Services\Master\ReasonService;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -42,21 +39,37 @@ class PartnerProgramController extends Controller
     use LoggingTrait;
 
     protected SchoolRepositoryInterface $schoolRepository;
+
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
+
     protected PartnerProgramRepositoryInterface $partnerProgramRepository;
+
     protected PartnerProgramAttachRepositoryInterface $partnerProgramAttachRepository;
+
     protected SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository;
+
     protected ProgramRepositoryInterface $programRepository;
+
     protected UserRepositoryInterface $userRepository;
+
     protected ReasonRepositoryInterface $reasonRepository;
+
     protected CorporateRepositoryInterface $corporateRepository;
+
     protected CorporatePicRepositoryInterface $corporatePicRepository;
+
     protected UniversityRepositoryInterface $universityRepository;
+
     protected UniversityPicRepositoryInterface $universityPicRepository;
+
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
+
     protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
+
     protected PartnerProgramCollaboratorsRepositoryInterface $partnerProgramCollaboratorsRepository;
+
     protected ProgramService $programService;
+
     protected ReasonService $reasonService;
 
     public function __construct(
@@ -97,8 +110,6 @@ class PartnerProgramController extends Controller
         $this->reasonService = $reasonService;
     }
 
-
-
     public function index(Request $request)
     {
 
@@ -115,15 +126,16 @@ class PartnerProgramController extends Controller
                     'end_date',
                 ]);
             }
+
             return $this->partnerProgramRepository->getAllPartnerProgramsDataTables($filter);
         }
 
         $partners = $this->corporateRepository->getAllCorporate();
 
-        # retrieve program data
+        // retrieve program data
         $programs = $this->programService->snGetProgramsB2b();
 
-        # retrieve employee data
+        // retrieve employee data
         $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
 
         return view('pages.program.corporate-program.index')->with(
@@ -141,7 +153,7 @@ class PartnerProgramController extends Controller
         $corp_id = strtoupper($request->route('corp'));
 
         $partner_program_details = $request->all();
-    
+
         DB::beginTransaction();
         try {
 
@@ -154,13 +166,13 @@ class PartnerProgramController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_PARTNER_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $partner_program_details);
 
-            return Redirect::to('program/corporate/' . strtolower($corp_id) . '/detail/create')->withError('Failed to create partner program' . $e->getMessage());
+            return Redirect::to('program/corporate/'.strtolower($corp_id).'/detail/create')->withError('Failed to create partner program'.$e->getMessage());
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_PARTNER_PROGRAM, 'New partner program has been added', $new_partner_program->toArray());
 
-        return Redirect::to('program/corporate/' . strtolower($corp_id) . '/detail/' . $partner_prog_id)->withSuccess('Partner program successfully created');
+        return Redirect::to('program/corporate/'.strtolower($corp_id).'/detail/'.$partner_prog_id)->withSuccess('Partner program successfully created');
     }
 
     public function create(Request $request)
@@ -169,16 +181,16 @@ class PartnerProgramController extends Controller
 
         $programs = $this->programService->snGetProgramsB2b();
 
-        # retrieve partner data
+        // retrieve partner data
         $partner = $this->corporateRepository->getCorporateById($corp_id);
         $partners = $this->corporateRepository->getAllCorporate();
 
-        # retrieve reason data
+        // retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        # retrieve employee data
-        # because for now 29/03/2023 there aren't partnership team, so we use client management
+        // retrieve employee data
+        // because for now 29/03/2023 there aren't partnership team, so we use client management
         $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.program.corporate-program.form')->with(
@@ -187,7 +199,7 @@ class PartnerProgramController extends Controller
                 'programs' => $programs,
                 'reasons' => $reasons,
                 'partner' => $partner,
-                'partners' => $partners
+                'partners' => $partners,
             ]
         );
     }
@@ -200,10 +212,10 @@ class PartnerProgramController extends Controller
         // # retrieve school data by id
         // $school = $this->schoolRepository->getSchoolById($schoolId);
 
-        # retrieve all school data
+        // retrieve all school data
         $schools = $this->schoolRepository->getAllSchools();
 
-        # retrieve all univ data
+        // retrieve all univ data
         $universities = $this->universityRepository->getAllUniversities();
 
         // # retrieve all school detail by school id
@@ -211,27 +223,27 @@ class PartnerProgramController extends Controller
 
         $programs = $this->programService->snGetProgramsB2b();
 
-        # retrieve reason data
+        // retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        # retrieve partner data
+        // retrieve partner data
         $partner = $this->corporateRepository->getCorporateById($corp_id);
         $partners = $this->corporateRepository->getAllCorporate();
 
-        # retrieve partner program data
+        // retrieve partner program data
         $partner_program = $this->partnerProgramRepository->getPartnerProgramById($corp_prog_id);
 
-        # retrieve partner Program Attach data by corpProgId
+        // retrieve partner Program Attach data by corpProgId
         $partner_program_attachs = $this->partnerProgramAttachRepository->getAllPartnerProgramAttachsByPartnerProgId($corp_prog_id);
 
-        # retrieve employee data
+        // retrieve employee data
         $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
 
-        # retrieve speaker data
+        // retrieve speaker data
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerByPartnerProgram($corp_prog_id);
 
-        # retrieve collaborators
+        // retrieve collaborators
         $collaborators_school = $this->partnerProgramCollaboratorsRepository->getSchoolCollaboratorsByPartnerProgId($corp_prog_id);
         $collaborators_univ = $this->partnerProgramCollaboratorsRepository->getUnivCollaboratorsByPartnerProgId($corp_prog_id);
         $colaborators_partner = $this->partnerProgramCollaboratorsRepository->getPartnerCollaboratorsByPartnerProgId($corp_prog_id);
@@ -253,11 +265,10 @@ class PartnerProgramController extends Controller
                 'attach' => true,
                 'collaborators_school' => $collaborators_school,
                 'collaborators_univ' => $collaborators_univ,
-                'colaborators_partner' => $colaborators_partner
+                'colaborators_partner' => $colaborators_partner,
             ]
         );
     }
-
 
     public function edit(Request $request)
     {
@@ -268,11 +279,11 @@ class PartnerProgramController extends Controller
 
             switch ($type) {
 
-                case "partner":
+                case 'partner':
                     return $this->corporatePicRepository->getAllCorporatePicByCorporateId($id);
                     break;
 
-                case "school":
+                case 'school':
                     return $this->schoolDetailRepository->getAllSchoolDetailsById($id);
                     break;
             }
@@ -281,29 +292,29 @@ class PartnerProgramController extends Controller
         $corp_id = strtoupper($request->route('corp'));
         $partner_prog_id = $request->route('detail');
 
-        # retrieve school data by id
+        // retrieve school data by id
         // $school = $this->schoolRepository->getSchoolById($schoolId);
 
-        # retrieve all school data
+        // retrieve all school data
         $schools = $this->schoolRepository->getAllSchools();
 
-        # retrieve all school detail by school id
+        // retrieve all school detail by school id
         // $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
 
         $programs = $this->programService->snGetProgramsB2b();
 
-        # retrieve reason data
+        // retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        # retrieve Partner Program data by id
+        // retrieve Partner Program data by id
         // $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
         $partner_program = $this->partnerProgramRepository->getPartnerProgramById($partner_prog_id);
 
-        # retrieve employee data
+        // retrieve employee data
         $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
-        # retrieve corporate / partner
+        // retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
         $partner = $this->corporateRepository->getCorporateById($corp_id);
 
@@ -330,7 +341,7 @@ class PartnerProgramController extends Controller
         $partner_program_details = $request->all();
 
         DB::beginTransaction();
-        try {   
+        try {
 
             $updated_partner_program = $updatePartnerProgramAction->execute($partner_prog_id, $corp_id, $partner_program_details);
 
@@ -339,14 +350,14 @@ class PartnerProgramController extends Controller
 
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_CLIENT_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $partner_program_details);
-            
-            return Redirect::to('program/corporate/' . strtolower($corp_id) . '/detail/' . $partner_prog_id . '/edit')->withError('Failed to update partner program' . $e->getMessage());
+
+            return Redirect::to('program/corporate/'.strtolower($corp_id).'/detail/'.$partner_prog_id.'/edit')->withError('Failed to update partner program'.$e->getMessage());
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_PARTNER_PROGRAM, 'Partner program has been updated', $updated_partner_program->toArray());
 
-        return Redirect::to('program/corporate/' . strtolower($corp_id) . '/detail/' . $partner_prog_id)->withSuccess('Partner program successfully updated');
+        return Redirect::to('program/corporate/'.strtolower($corp_id).'/detail/'.$partner_prog_id)->withSuccess('Partner program successfully updated');
     }
 
     public function destroy(Request $request, DeletePartnerProgramAction $deletePartnerProgramAction, LogService $log_service)
@@ -366,11 +377,11 @@ class PartnerProgramController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_PARTNER_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $partner_prog->toArray());
 
-            return Redirect::to('program/corporate/' . strtolower($corp_id) . '/detail/' . $partner_prog_id)->withError('Failed to delete partner program');
+            return Redirect::to('program/corporate/'.strtolower($corp_id).'/detail/'.$partner_prog_id)->withError('Failed to delete partner program');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_PARTNER_PROGRAM, 'Partner program has been deleted', $partner_prog->toArray());
 
         return Redirect::to('program/corporate/')->withSuccess('Partner program successfully deleted');

@@ -1,22 +1,15 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Embed\PublicRegistrationController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientProgramController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Embed\PublicRegistrationController;
+use App\Http\Controllers\PaymentGatewayController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VolunteerController;
-use App\Jobs\JobCoba;
-use App\Models\UserClient;
-use App\Models\ClientProgram;
 use App\Models\ClientEvent;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -29,37 +22,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-# AUTH START --------------------------------
+// AUTH START --------------------------------
 
 Route::middleware('guest')->group(function () {
     Route::get('/', function () {
         return view('auth.login');
     });
-    Route::get('/test', function () {
-        try {
-            $client_progs = ClientProgram::where('prog_id', 'EVENTAWM')->where('status', 1)->get();
-            $a = [];
-            foreach ($client_progs as $client_prog) {
-                if (!ClientEvent::where('client_id', $client_prog->client_id)->where('event_id', 'EVT-0049')->first()) {
-                    $a['client_id'] = $client_prog->client_id;
-                    $a['event_id'] = 'EVT-0049';
-                    $a['lead_id'] = 'LS061';
-                    $a['registration_type'] = 'PR';
-                    $a['number_of_attend'] = '1';
-                    $a['joined_date'] = '2025-03-12';
-
-                    $b = ClientEvent::create($a);
-                    Log::debug($b->toArray);
-                }
-            }
-        } catch (Exception $err) {
-            Log::error('Error create client event wishful', $err->getMessage());
-        }
-    });
-
-    Route::get('404', function () {
-        return view('auth.404');
-    })->name('auth.404');
 
     Route::get('login', function () {
         return view('auth.login');
@@ -67,19 +35,7 @@ Route::middleware('guest')->group(function () {
 
     Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
     Route::get('login/expired', [AuthController::class, 'logoutFromExpirationTime'])->name('logout.expiration');
-
-    // Testing Email 
-    Route::get('/test-email', function () {
-        Mail::raw('Test for mailing system.', function ($message) {
-            $message->to('hafidz.fanany@edu-all.com','manuel.eric@edu-all.com')
-                ->subject('Email Test');
-        });
-
-        return 'Email test telah dikirim.';
-    });
 });
-
-
 
 Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
@@ -91,10 +47,9 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
     });
 });
 
-# AUTH END ------------------------------------
+// AUTH END ------------------------------------
 
-
-# FORM EVENT EMBED START ------------------------
+// FORM EVENT EMBED START ------------------------
 
 Route::get('form/event', [ClientEventController::class, 'fnCreateFormEmbed'])->name('form.event.create');
 Route::post('form/events', [ClientEventController::class, 'storeFormEmbed'])->name('form.event.store');
@@ -138,42 +93,19 @@ Route::get('sample/form', function () {
     return view('form-embed.form-sample');
 });
 
-# FORM EVENT EMBED END --------------------------------
+// FORM EVENT EMBED END --------------------------------
 
-
-// User 
+// User
 Route::resource('user/volunteer', VolunteerController::class);
 
-# PROFILE START ---------------------------------------
+// PROFILE START ---------------------------------------
 
 Route::resource('profile', ProfileController::class);
 
-# PROFILE END -----------------------------------------
+// PROFILE END -----------------------------------------
 
-# PAYMENT GATEWAY START -----------------------------
+// PAYMENT GATEWAY START -----------------------------
 
-Route::get('paymentpage/web/payment-page/render-page', function (Request $request) {
-    $query = array(
-        'pgid' => $request->query('pgid'),
-        'keyId' => $request->query('keyId'),
-        'pkg' => $request->query('pkg'),
-    );
-    $redirect = env('PAYMENT_WEB_URI') . '/paymentpage/web/payment-page/render-page?' . http_build_query($query);
-    // return view('pages.payment-page.render-page', [
-    //     'redirectUrl' => $redirect,
-    // ]);
+Route::get('paymentpage/web/payment-page/render-page', [PaymentGatewayController::class, 'renderPage'])->name('payment-web.render-page');
 
-    return Redirect::to($redirect);
-})->name('payment-web.render-page');
-
-# PAYMENT GATEWAY END -------------------------------
-
-
-# ELK TEST START -----------------------------------------
-Route::get('log-test', function () {
-    Log::info('this is info');
-    Log::warning('this is warning');
-    Log::error('this is error');
-    echo "Log recorded";
-});
-# ELK TEST END -----------------------------------------
+// PAYMENT GATEWAY END -------------------------------

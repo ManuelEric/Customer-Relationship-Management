@@ -15,7 +15,7 @@
     @if($errors->any())
     {{ implode('', $errors->all('<div>:message</div>')) }}
 @endif
-    {{--     
+    {{--
     @if ($open_information_for_tutor)
     <div class="alert alert-danger">
         The specific field that needs your attention is "Session Detail". Currently, it appears to be blank, and we kindly request you to provide the necessary information.
@@ -883,7 +883,7 @@
             // }
         })
 
- 
+
         function changeProgramStatus() {
 
             // prevent to trigger this function if options within select program name are null
@@ -902,7 +902,7 @@
 
             // if (programName) {
             try {
-                switch (parseInt(programStatus)) 
+                switch (parseInt(programStatus))
                 {
                     // program status = pending
                     case 0:
@@ -911,7 +911,7 @@
                             // open form detail of admissions mentoring
                             $("#pending_mentoring").removeClass('d-none')
                         }
-                        else if (programMainProg.includes('Test Preparation') || programMainProg.includes('Subject Tutoring') || programMainProg.includes('Competition') || programMainProg.includes('Skillset Tutoring')) 
+                        else if (programMainProg.includes('Test Preparation') || programMainProg.includes('Subject Tutoring') || programMainProg.includes('Competition') || programMainProg.includes('Skillset Tutoring'))
                         {
                             // open form detail of tutoring program
                             $("#pending_tutoring").removeClass('d-none')
@@ -940,12 +940,12 @@
                             else
                             {
                                 // default open form for test preparation exclude SAT/ACT, subject tutoring, competition, and skillset tutoring
-                                resetDetailTutoring(programMainProg, 1, programSubProg) 
+                                resetDetailTutoring(programMainProg, 1, programSubProg)
                                 $("#success_tutoring").removeClass('d-none')
                             }
                         }
 
-                        // Mentor & Tutor Needs Check 
+                        // Mentor & Tutor Needs Check
                         switch (prog_mentor) {
                             case "Mentor":
                                 $("#available-mentor").removeClass("d-none")
@@ -1093,7 +1093,7 @@
                     getProgramName(main_prog_id, '')
                     return
                 }
-            
+
                 let html = '<option data-placeholder="true"></option>';
                 $.each(obj, function (i, item) {
                     html += '<option value="' + item.id + '">' + item.sub_prog_name + '</option>';
@@ -1136,7 +1136,7 @@
             var link = '{{ url('api/get/program/') }}/main/' + main_prog_id + '/sub/'
             if ( sub_prog_id )
                 link = link + sub_prog_id
-            
+
 
             axios.get(link, {
                 headers: {
@@ -1158,7 +1158,7 @@
                             ' data-sprog="' + sub_prog_name + '"' +
                             ' value="' + prog_id + '">' + prog_program + '</option>';
                 });
-                
+
                 @if (!isset($edit))
 
                     $('#program_name').html(html).select2({
@@ -1183,7 +1183,7 @@
                 @elseif (isset($clientProgram))
                     $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
                 @endif
-                
+
             })
             .catch(function (error) {
                 swal.close()
@@ -1207,7 +1207,7 @@
                 if(!$('#check-'+ phase_detail_id).is(":checked")){
                     $('#qty-' + phase_detail_id).addClass('uncheck')
                     link = '{{ url('api/program-phase') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id
-                    
+
                     axios.delete(link, {
                         headers:{
                             'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}',
@@ -1229,7 +1229,7 @@
                 }else{
                     $('#qty-' + phase_detail_id).removeClass('uncheck')
                     link = '{{ url('api/program-phase/') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id
-                    
+
                     axios.post(link, null,
                         {
                             headers:{
@@ -1241,7 +1241,7 @@
                     .then(function(response) {
 
                         let obj = response.data;
-                        
+
                         $('#quota-' + phase_detail_id).prop("disabled", false);
                         Swal.close()
                         notification('success', "Successfully add item program bought");
@@ -1262,7 +1262,7 @@
                 var quota = this.value;
 
                 link = '{{ url('api/program-phase') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id + '/quota'
-                    
+
                 axios.patch(link, {quota: quota}, {
                     headers:{
                         'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}',
@@ -1280,7 +1280,7 @@
                     notification('error', error)
                 })
             });
-   		
+
             var baseUrl = "{{ url('/') }}/api/v1/get/referral/list";
 
             $(".select-referral").select2({
@@ -1301,17 +1301,17 @@
                 }
             });
 
-            
+
             @if (old('referral_code') !== NULL)
                 // Set the value, creating a new option if necessary
                 if ($('#referral_code').find("option[value= {{ old('referral_code') }} ]").length) {
                     $('#referral_code').val('{{ old("referral_code") }}').trigger('change');
-                } else { 
+                } else {
                     // Create a DOM Option and pre-select by default
                 var newOption = new Option('{{ old("old_refname") }}', '{{ old("referral_code") }}', true, true);
                     // Append it to the select
                     $('#referral_code').append(newOption).trigger('change');
-                } 
+                }
             @endif
 
             $('#referral_code').on('change', function(){

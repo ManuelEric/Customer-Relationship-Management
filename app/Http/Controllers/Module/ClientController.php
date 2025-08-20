@@ -4,19 +4,20 @@ namespace App\Http\Controllers\Module;
 
 use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
-use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 
 class ClientController extends Controller
 {
     protected SchoolRepositoryInterface $schoolRepository;
+
     protected ClientRepositoryInterface $clientRepository;
+
     protected TagRepositoryInterface $tagRepository;
 
     public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository)
@@ -28,11 +29,11 @@ class ClientController extends Controller
 
     private function basicVariables(string $client_type, $request)
     {
-        # the difference information
-        # depends on client type (student, parent, teacher)
+        // the difference information
+        // depends on client type (student, parent, teacher)
         switch ($client_type) {
 
-            case "parent":
+            case 'parent':
                 $parent_details = $request->only([
                     'pr_firstname',
                     'pr_lastname',
@@ -54,7 +55,7 @@ class ClientController extends Controller
                     'gap_year',
                     // 'st_abrcountry',
                     'st_note',
-                    'referral_code'
+                    'referral_code',
                 ]);
 
                 $parent_details['first_name'] = $request->pr_firstname;
@@ -66,11 +67,11 @@ class ClientController extends Controller
                 $parent_details['is_verified'] = 'Y';
                 // $parent_details['st_abrcountry'] = json_encode($request->st_abrcountry);
 
-                # set lead_id based on lead_id & kol_lead_id 
-                # when lead_id is kol then put kol_lead_id to lead_id
-                # otherwise
-                # when lead_id is not kol then lead_id is lead_id
-                if ($request->lead_id == "kol") {
+                // set lead_id based on lead_id & kol_lead_id
+                // when lead_id is kol then put kol_lead_id to lead_id
+                // otherwise
+                // when lead_id is not kol then lead_id is lead_id
+                if ($request->lead_id == 'kol') {
                     unset($parent_details['lead_id']);
                     $parent_details['lead_id'] = $request->kol_lead_id;
                 }
@@ -95,16 +96,17 @@ class ClientController extends Controller
                     'is_funding' => $request->is_funding ?? 0,
                     'register_by' => $request->register_by,
                     'referral_code' => $request->referral_code,
-                    'is_verified' => 'Y'
+                    'is_verified' => 'Y',
                 ];
 
-                if (isset($request->is_funding))
+                if (isset($request->is_funding)) {
                     $student_details['is_funding'] = $request->is_funding;
+                }
 
                 return compact('student_details', 'parent_details');
                 break;
 
-            case "student":
+            case 'student':
                 $student_details = $request->only([
                     'first_name',
                     'last_name',
@@ -131,29 +133,30 @@ class ClientController extends Controller
                     'pr_id_old',
                     // 'is_funding',
                     'register_by',
-                    'referral_code'
+                    'referral_code',
                 ]);
 
                 // update also the gradenow //! not used
                 // $student_details['grade_now'] = $student_details['st_grade'];
 
-                if (isset($request->is_funding))
+                if (isset($request->is_funding)) {
                     $student_details['is_funding'] = $request->is_funding;
+                }
 
                 $student_details['phone'] = $this->tnNormalizePhoneNumber($request->phone);
-                $student_details['is_verified'] = "Y";
+                $student_details['is_verified'] = 'Y';
                 // $student_details['st_abrcountry'] = json_encode($request->st_abrcountry);
 
-                # set lead_id based on lead_id & kol_lead_id 
-                # when lead_id is kol then put kol_lead_id to lead_id
-                # otherwise
-                # when lead_id is not kol then lead_id is lead_id
-                if ($request->lead_id == "kol") {
+                // set lead_id based on lead_id & kol_lead_id
+                // when lead_id is kol then put kol_lead_id to lead_id
+                // otherwise
+                // when lead_id is not kol then lead_id is lead_id
+                if ($request->lead_id == 'kol') {
                     unset($student_details['lead_id']);
                     $student_details['lead_id'] = $request->kol_lead_id;
                 }
 
-                # initiate variable parent details
+                // initiate variable parent details
                 // $parent_details = [
                 //     'first_name' => $request->pr_firstname,
                 //     'last_name' => $request->pr_lastname,
@@ -176,7 +179,7 @@ class ClientController extends Controller
                 return compact('student_details');
                 break;
 
-            case "teacher":
+            case 'teacher':
                 $teacher_details = $request->only([
                     'first_name',
                     'last_name',
@@ -194,18 +197,18 @@ class ClientController extends Controller
                     'kol_lead_id',
                     'event_id',
                     'st_levelinterest',
-                    'referral_code'
+                    'referral_code',
                 ]);
                 $teacher_details['phone'] = $this->tnNormalizePhoneNumber($request->phone);
                 $teacher_details['is_verified'] = 'Y';
 
-                # set lead_id based on lead_id & kol_lead_id
-                # when lead_id is kol
-                # then put kol_lead_id to lead_id
-                # otherwise
-                # when lead_id is not kol 
-                # then lead_id is lead_id
-                if ($request->lead_id == "kol") {
+                // set lead_id based on lead_id & kol_lead_id
+                // when lead_id is kol
+                // then put kol_lead_id to lead_id
+                // otherwise
+                // when lead_id is not kol
+                // then lead_id is lead_id
+                if ($request->lead_id == 'kol') {
 
                     unset($teacher_details['lead_id']);
                     $teacher_details['lead_id'] = $request->kol_lead_id;
@@ -219,12 +222,12 @@ class ClientController extends Controller
 
     public function initializeVariablesForStoreAndUpdate(string $client_type, Request $request)
     {
-        # initiate variables student details
+        // initiate variables student details
         $student_details = $this->basicVariables($client_type, $request)['student_details'] ??= [];
         $parent_details = $this->basicVariables($client_type, $request)['parent_details'] ??= [];
         $teacher_details = $this->basicVariables($client_type, $request)['teacher_details'] ??= [];
 
-        # initiate variable school details
+        // initiate variable school details
         $school_details = $request->only([
             'sch_id',
             'sch_name',
@@ -234,16 +237,16 @@ class ClientController extends Controller
             'sch_curriculum',
         ]);
 
-        # initiate variable interest program details
+        // initiate variable interest program details
         // $interestPrograms = $request->prog_id ??= [];
 
-        # initiate variable abroad country details
+        // initiate variable abroad country details
         $abroad_countries = $request->st_abrcountry ??= [];
 
-        # initiate variable abroad university details
+        // initiate variable abroad university details
         $abroad_universities = $request->st_abruniv ??= [];
 
-        # initiate variable interest major details
+        // initiate variable interest major details
         $interest_majors = $request->st_abrmajor ??= [];
 
         return compact(
@@ -260,14 +263,15 @@ class ClientController extends Controller
 
     public function createSchoolIfAddNew(array $school_details)
     {
-        # when sch_id is "add-new" 
+        // when sch_id is "add-new"
         $choosen_school = $school_details['sch_id'];
-        if ($choosen_school == "add-new") {
+        if ($choosen_school == 'add-new') {
 
             $school_curriculums = $school_details['sch_curriculum'];
 
-            # create a new school
+            // create a new school
             $school = $this->schoolRepository->createSchoolIfNotExists($school_details, $school_curriculums);
+
             return $school->sch_id;
         }
 
@@ -276,35 +280,37 @@ class ClientController extends Controller
 
     public function createParentsIfAddNew(array $parent_details, array $student_details)
     {
-        # when pr_id is "add-new" 
+        // when pr_id is "add-new"
         $choosen_parent = $student_details['pr_id'];
-        if (isset($choosen_parent) && $choosen_parent == "add-new") {
+        if (isset($choosen_parent) && $choosen_parent == 'add-new') {
 
             $parent = $this->clientRepository->createClient('Parent', $parent_details);
+
             return $parent->id;
         }
 
         return $choosen_parent ?? $student_details['pr_id_old'];
     }
 
-    public function createDestinationCountries(array $abroad_countries, String $newStudentId)
+    public function createDestinationCountries(array $abroad_countries, string $newStudentId)
     {
         if (isset($abroad_countries) && count($abroad_countries) > 0) {
 
-            # hari senin lanjutin utk insert destination countries
-            # dan hubungin score nya melalui client view
+            // hari senin lanjutin utk insert destination countries
+            // dan hubungin score nya melalui client view
             for ($i = 0; $i < count($abroad_countries); $i++) {
                 $destination_country_details[] = $this->tagRepository->getCountryById($abroad_countries[$i])->id;
             }
 
             $destination_country = $this->clientRepository->createDestinationCountry($newStudentId, $destination_country_details);
+
             return $destination_country;
         }
 
         return true;
     }
 
-    public function createInterestedUniversities(array $abroad_universities, String $newStudentId)
+    public function createInterestedUniversities(array $abroad_universities, string $newStudentId)
     {
         if (isset($abroad_universities) && count($abroad_universities) > 0) {
 
@@ -313,13 +319,14 @@ class ClientController extends Controller
             }
 
             $interested_universities = $this->clientRepository->createInterestUniversities($newStudentId, $interest_univ_details);
+
             return $interested_universities;
         }
 
         return true;
     }
 
-    public function createInterestedMajor(array $interest_majors, String $newStudentId)
+    public function createInterestedMajor(array $interest_majors, string $newStudentId)
     {
         if (isset($interest_majors) && count($interest_majors) > 0) {
 
@@ -343,10 +350,11 @@ class ClientController extends Controller
             $log_service->createErrorLog(LogModule::GET_CLIENT_SUGGESTION, $e->getMessage(), $e->getLine(), $e->getFile(), $client_suggestion->toArray());
 
         }
+
         return response()->json(
             [
                 'success' => true,
-                'data' => $client_suggestion
+                'data' => $client_suggestion,
             ], JsonResponse::HTTP_OK, [], options: JSON_INVALID_UTF8_IGNORE
         );
     }

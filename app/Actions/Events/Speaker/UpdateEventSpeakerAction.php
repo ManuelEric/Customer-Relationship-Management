@@ -16,10 +16,10 @@ class UpdateEventSpeakerAction
 
     public function execute(
         StoreSpeakerRequest $request,
-        Array $new_event_speaker_details
+        array $new_event_speaker_details
     ) {
 
-        # Update event speaker
+        // Update event speaker
         $updated_event_speaker = $this->agendaSpeakerRepositoryInterface->updateAgendaSpeaker($request->speaker, $new_event_speaker_details);
 
         return $updated_event_speaker;

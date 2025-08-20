@@ -25,14 +25,14 @@ class ChangeUserStatusRequest extends FormRequest
             'new_status' => 'required|in:activate,deactivate',
             'deactivated_at' => 'required_unless:new_status,activate',
             'new_pic' => 'nullable',
-            'department' => 'nullable'
+            'department' => 'nullable',
         ];
     }
 
     protected function prepareForValidation()
     {
         $this->merge([
-            'active' => $this->new_status == "activate" ? 1 : 0,
+            'active' => $this->new_status == 'activate' ? 1 : 0,
         ]);
     }
 
@@ -46,7 +46,6 @@ class ChangeUserStatusRequest extends FormRequest
 
     /**
      * Get the validation attributes.
-     * 
      */
     public function attributes(): array
     {

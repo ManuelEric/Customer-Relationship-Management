@@ -12,7 +12,7 @@ class CurrencyRateController extends Controller
         $base_currency = strtoupper($request->base_currency);
         $to_currency = $request->to_currency;
 
-        # get currency rate per today
+        // get currency rate per today
         $response = Http::withUrlParameters([
             'apiKey' => 'q7gj9pblo8gc6smvididunjibs6bpf8q42rc65g2a8t0lgq2skcu8',
             'base_currency' => $base_currency,

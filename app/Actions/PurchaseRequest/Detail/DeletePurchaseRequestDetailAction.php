@@ -8,6 +8,7 @@ use App\Interfaces\PurchaseDetailRepositoryInterface;
 class DeletePurchaseRequestDetailAction
 {
     use DeleteFileIfExistTrait;
+
     private PurchaseDetailRepositoryInterface $purchaseDetailRepository;
 
     public function __construct(PurchaseDetailRepositoryInterface $purchaseDetailRepository)
@@ -17,9 +18,8 @@ class DeletePurchaseRequestDetailAction
 
     public function execute(
         $detail_id,
-    )
-    {        
-        # delete purchase request detail
+    ) {
+        // delete purchase request detail
         $deleted_purchase_request_detail = $this->purchaseDetailRepository->deletePurchaseDetail($detail_id);
 
         return $deleted_purchase_request_detail;

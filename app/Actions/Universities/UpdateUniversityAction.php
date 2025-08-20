@@ -14,11 +14,10 @@ class UpdateUniversityAction
     }
 
     public function execute(
-        String $university_id,
-        Array $university_details
-    )
-    {
-        # update university
+        string $university_id,
+        array $university_details
+    ) {
+        // update university
         $updated_university = $this->universityRepository->updateUniversity($university_id, $university_details);
 
         return $updated_university;
