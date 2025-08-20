@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
-
     protected TagRepositoryInterface $tagRepository;
 
     public function __construct(TagRepositoryInterface $tagRepository)
@@ -20,27 +19,27 @@ class TagController extends Controller
     public function getTags(Request $request)
     {
         $countries = $this->tagRepository->getAllCountries();
-        if (!$countries) {
+        if (! $countries) {
             return response()->json([
                 'success' => true,
-                'message' => 'No destination country found.'
+                'message' => 'No destination country found.',
             ]);
         }
 
-        # remove the `other` tag
-        # map the data that being shown to the user
+        // remove the `other` tag
+        // map the data that being shown to the user
         $mapped_tags = $countries->where('name', '!=', 'other')->map(function ($value) {
             return [
                 'id' => $value->id,
                 'country' => $value->name,
-                'tag' => $value->tagCountry->name
+                'tag' => $value->tagCountry->name,
             ];
         });
 
         return response()->json([
             'success' => true,
             'message' => 'There are destination country found.',
-            'data' => $mapped_tags->values()
+            'data' => $mapped_tags->values(),
         ], JsonResponse::HTTP_OK, [], options: JSON_INVALID_UTF8_IGNORE);
     }
 }

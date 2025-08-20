@@ -16,7 +16,7 @@ class LeadTrackerReportAction
 
     public function execute($date_range)
     {
-        [$start_date, $end_date] = ($date_range) ? array_map([$this, "castToCarbon"], explode('-', $date_range)) : $this->selectCurrentWeek();
+        [$start_date, $end_date] = ($date_range) ? array_map([$this, 'castToCarbon'], explode('-', $date_range)) : $this->selectCurrentWeek();
         $end_date = $end_date->endOfDay();
 
         $lead_summary = $this->leadTrackerService->summary($start_date, $end_date);
@@ -34,22 +34,23 @@ class LeadTrackerReportAction
         $mapped_sales = $sales->map(function ($item) {
             return [
                 'id' => $item->id,
-                'name' => $item->full_name
+                'name' => $item->full_name,
             ];
         });
 
         return compact('start_date', 'end_date', 'lead_summary', 'lead_by_product', 'lead_by_sales', 'mapped_sales');
     }
 
-    private function castToCarbon(String $item): Carbon
+    private function castToCarbon(string $item): Carbon
     {
         return Carbon::parse($item);
     }
 
-    private function selectCurrentWeek(): Array
+    private function selectCurrentWeek(): array
     {
         $week_start_date = Carbon::now()->startOfWeek();
         $week_end_date = Carbon::now()->endOfWeek();
+
         return [$week_start_date, $week_end_date];
     }
 }

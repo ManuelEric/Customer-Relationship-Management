@@ -11,5 +11,4 @@ class BankRepository implements BankRepositoryInterface
     {
         return Bank::orderBy('bank_name', 'asc')->get();
     }
-
 }

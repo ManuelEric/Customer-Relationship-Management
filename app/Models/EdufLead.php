@@ -7,6 +7,27 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string|null $sch_id
+ * @property string|null $corp_id
+ * @property string|null $title
+ * @property string|null $location
+ * @property string|null $intr_pic
+ * @property string|null $ext_pic_name
+ * @property string|null $ext_pic_mail
+ * @property string|null $ext_pic_phone
+ * @property string|null $first_discussion_date
+ * @property string|null $last_discussion_date
+ * @property string|null $event_start
+ * @property string|null $event_end
+ * @property int $status
+ * @property string|null $notes
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ *
+ * @mixin \Eloquent
+ */
 class EdufLead extends Model
 {
     use HasFactory;
@@ -16,7 +37,7 @@ class EdufLead extends Model
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'sch_id',
@@ -32,10 +53,10 @@ class EdufLead extends Model
         'event_start',
         'event_end',
         'status',
-        'notes'
+        'notes',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -76,7 +97,6 @@ class EdufLead extends Model
         return $model;
     }
 
-
     protected function organizerName(): Attribute
     {
         return Attribute::make(
@@ -86,17 +106,14 @@ class EdufLead extends Model
 
     public function getOrganizerName()
     {
-        if ($this->sch_id != NULL && $this->corp_id == NULL)
-            if ($this->event_start != NULL)
-                return $this->schools->sch_name . ' (' . date('d M Y', strtotime($this->event_start)) . ')';
-            else
-                return $this->schools->sch_name . ' (' . date('d M Y', strtotime($this->created_at)) . ')';
+        $partnerName = $this->sch_id ? $this->schools->sch_name : ($this->corp_id ? $this->corps->partner_name : null);
 
-        else if ($this->sch_id == NULL && $this->corp_id != NULL)
-            if ($this->event_start != NULL)
-                return $this->corps->partner_name . ' (' . date('d M Y', strtotime($this->event_start)) . ')';
-            else
-                return $this->corps->partner_name . ' (' . date('d M Y', strtotime($this->created_at)) . ')';
+        if ($partnerName) {
+            $date = $this->event_start ?? $this->created_at;
+
+            return $partnerName.' ('.date('d M Y', strtotime($date)).')';
+        }
+
     }
 
     public function client()

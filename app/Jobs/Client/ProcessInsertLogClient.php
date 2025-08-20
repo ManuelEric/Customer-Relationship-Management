@@ -5,16 +5,14 @@ namespace App\Jobs\Client;
 use App\Interfaces\ClientLogRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
-use App\Models\ClientLog;
+use App\Models\UserClient;
 use App\Repositories\ClientProgramRepository;
 use Exception;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -26,20 +24,22 @@ class ProcessInsertLogClient implements ShouldQueue
     use IsMonitored;
 
     protected ClientRepositoryInterface $clientRepository;
-    protected ClientProgramRepositoryInterface $clientProgramRepository;
-    protected ClientLogRepositoryInterface $clientLogRepository;
-    protected $clients_data;
-    protected $is_many_request;
 
+    protected ClientProgramRepositoryInterface $clientProgramRepository;
+
+    protected ClientLogRepositoryInterface $clientLogRepository;
+
+    protected $clients_data;
+
+    protected $is_many_request;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    
 
-    # Clients data => [][client_id, first_name(nullable), last_name(nullable), lead_source, inputted_from(nullable), clientprog_id(nullable)]
+    // Clients data => [][client_id, first_name(nullable), last_name(nullable), lead_source, inputted_from(nullable), clientprog_id(nullable)]
     public function __construct($clients_data, $is_many_request = false)
     {
         $this->clients_data = $clients_data;
@@ -53,24 +53,24 @@ class ProcessInsertLogClient implements ShouldQueue
      */
     public function handle(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientLogRepositoryInterface $clientLogRepository)
     {
-        DB::beginTransaction();
+        // DB::beginTransaction();
         try {
 
             foreach ($this->clients_data as $key => $client_data) {
 
-                /* 
+                /*
                     1. Input new client from manual crm
                         - Add log category raw-lead
                         - set new group id
                         - Add log category new-lead
                         - Update category from tbl_client to new-lead
-                    
+
                     2. Input from Import or form embed
                         # Check existing all client (include deleted client)
                         - Update is_verified 'N' (no)
                         - Add log category raw-lead
                         - Update category from tbl_client to raw-lead
-                    
+
                     3. Verified raw client
                         - get latest log client where category raw, if null throw exception
                         - if select_existing true then update client_id log client to client_id existing
@@ -93,11 +93,11 @@ class ProcessInsertLogClient implements ShouldQueue
                         # update
                             - if old_status_program = new_status_program continue / no action
                             - if status program pending no action
-                            - if status program failed 
+                            - if status program failed
                                 then
                                     if old_status_program is success then add log client failed-mentee/non-mentee
                                     if old_status_program is pending then no action
-                            - if status program success 
+                            - if status program success
                                 then
                                     if program is adm then add log client with category mentee else non-mentee
                                     define_category_from_all_program
@@ -107,7 +107,7 @@ class ProcessInsertLogClient implements ShouldQueue
                                     add log client hold/refund-mentee/non-mentee
 
                         # delete
-                            - delete client log sesuai dengan clientprogram_id 
+                            - delete client log sesuai dengan clientprogram_id
 
                         - Define category based on all client programs
                         - Update category from tbl_client with result define category
@@ -115,142 +115,170 @@ class ProcessInsertLogClient implements ShouldQueue
                     6. Delete/trash client
                         - Add log category trash
                         - If Client program status pending then Update status client program to failed
-                        
-                */ 
-                
-                
+
+                */
+
                 switch ($client_data['inputted_from']) {
 
                     case 'manual':
-                        # add log client with category raw
+                        // add log client with category raw
                         $client_data['category'] = 'raw';
                         $new_client_log = $clientRepository->createClientLog($client_data);
-        
-                        # update category from tbl_client to new-lead
+
+                        // update category from tbl_client to new-lead
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N']);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice('[QUEUE PROCESS INSERT LOG CLIENT - MANUAL] Successfully update a client', [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $client_data['category'],
+                        ]);
                         break;
-                    
+
                     case 'import-parent':
                     case 'import-student':
                     case 'import-client-event':
                     case 'import-client-program':
                     case 'form-embed':
                     case 'facebook-api':
-                        # add log client with category raw
+                        // add log client with category raw
                         $client_data['category'] = 'raw';
                         $clientRepository->createClientLog($client_data);
-                        
-                        # update category from tbl_client to new-lead
+
+                        // update category from tbl_client to new-lead
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N', 'deleted_at' => null, 'is_many_request' => $this->is_many_request]);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice('[QUEUE PROCESS INSERT LOG CLIENT - IMPORT / FORM EMBED / API] Successfully update a client', [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $client_data['category'],
+                        ]);
                         break;
 
                     case 'restore':
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
                         $client_data = $this->fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log);
 
-                        # add log client with category raw
+                        // add log client with category raw
                         $client_data['category'] = 'raw';
                         $clientRepository->createClientLog($client_data);
 
-                        # update category from tbl_client to new-lead
+                        // update category from tbl_client to new-lead
                         $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N', 'is_many_request' => $this->is_many_request]);
 
                         $get_client = $clientRepository->getClientById($client_data['client_id']);
 
-                        # update status all client program to failed 
+                        // update status all client program to failed
                         $this->fnSetAllClientProgramToFailed($clientProgramRepository, $get_client);
+
+                        Log::notice('[QUEUE PROCESS INSERT LOG CLIENT - RESTORE] Successfully update a client', [
+                            'client_id' => $client_data['client_id'],
+                            'client_name' => UserClient::withTrashed()->where('id', $client_data['client_id'])->first()->full_name,
+                            'category' => $client_data['category'],
+                        ]);
                         break;
-                    
-                    case 'verified':                        
+
+                    case 'verified':
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
                         $client_data = $this->fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log);
 
-                        # if when verified select existing 
-                        # then update client_id log client to client_id existing
-                        if($client_data['select_existing']){                            
+                        // if when verified select existing
+                        // then update client_id log client to client_id existing
+                        if ($client_data['select_existing']) {
                             $clientLogRepository->updateClientLogByClientUUID($client_data['old_client_id'], ['client_id' => $client_data['client_id']]);
-                            
+
                             Bus::chain([
                                 new ProcessUpdateClientEventRawStudent($client_data['old_client_id'], $client_data['client_id']),
                                 new ProcessUpdateClientProgramRawStudent($client_data['old_client_id'], $client_data['client_id']),
                             ])->onQueue('update-raw-client')->dispatch();
                         }
-                         
+
                         unset($client_data['select_existing']);
                         unset($client_data['old_client_id']);
-                        
-                        # add new log client with category new-lead
+
+                        // add new log client with category new-lead
                         $client_data['category'] = 'new-lead';
                         $clientRepository->createClientLog($client_data);
- 
-                        # if inputted_from import-client-program add log client with category potential
-                        if($latest_client_log != null && $latest_client_log->inputted_from == 'import-client-program')
-                        {
-                            # add new log client with category potential and insert clientprog_id from category raw
+
+                        // if inputted_from import-client-program add log client with category potential
+                        if ($latest_client_log != null && $latest_client_log->inputted_from == 'import-client-program') {
+                            // add new log client with category potential and insert clientprog_id from category raw
                             $client_data['clientprog_id'] = $latest_client_log->clientprog_id;
                             $client_data['category'] = 'potential';
                             $clientRepository->createClientLog($client_data);
-                        }    
+                        }
 
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
-                      
-                        # update category from tbl_client
+
+                        // update category from tbl_client
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice('[QUEUE PROCESS INSERT LOG CLIENT - VERIFIED] Successfully update a client', [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $define_category_from_all_program,
+                        ]);
                         break;
 
-                    # create or client program
+                        // create or client program
                     case 'create-client-program':
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
                         $client_data = $this->fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log);
 
                         $is_admission = $clientProgramRepository->checkProgramIsAdmission($client_data['clientprog_id']);
-                        
-                        switch ($client_data['status_program']) {
-                            case 0: # pending
+
+                        switch ((int) $client_data['status_program']) {
+                            case 0: // pending
                                 unset($client_data['status_program']);
                                 $client_data['category'] = 'potential';
                                 $clientRepository->createClientLog($client_data);
                                 break;
-                                
-                            case 1: # success
+
+                            case 1: // success
                                 unset($client_data['status_program']);
                                 $client_data['category'] = 'potential';
                                 $clientRepository->createClientLog($client_data);
-                                
+
                                 $client_data['category'] = $is_admission ? 'mentee' : 'non-mentee';
                                 $clientRepository->createClientLog($client_data);
+
+                                // if running status program changed from 1 to 2
+                                // then student's category will be defined as alumni-mentee which will be processed using `defineCategoryClient`
+                                // if ( $client_data['old_running_status_program'] == 1 && $client_data['running_status_program'] == 2 ) {
+                                //     $client_data['category'] = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
+                                //     $clientRepository->createClientLog($client_data);
+                                // }
+
                                 break;
-                                
-                            case 2: # failed
+
+                            case 2: // failed
                                 unset($client_data['status_program']);
                                 $client_data['category'] = 'potential';
                                 $clientRepository->createClientLog($client_data);
-                                
+
                                 $client_data['category'] = $is_admission ? 'failed-mentee' : 'failed-non-mentee';
                                 $clientRepository->createClientLog($client_data);
                                 break;
-                                
-                            case 3: # refund
+
+                            case 3: // refund
                                 unset($client_data['status_program']);
                                 $client_data['category'] = $is_admission ? 'refund-mentee' : 'refund-non-mentee';
                                 $clientRepository->createClientLog($client_data);
                                 break;
-                                
-                            case 4: # hold
+
+                            case 4: // hold
                                 unset($client_data['status_program']);
                                 $client_data['category'] = $is_admission ? 'hold-mentee' : 'hold-non-mentee';
                                 $clientRepository->createClientLog($client_data);
                                 break;
-                                
+
                         }
-                        
+
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
-                        # update category from tbl_client
+                        // update category from tbl_client
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice('[QUEUE PROCESS INSERT LOG CLIENT - CREATE CLIENT PROGRAM] Successfully update a client', [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $define_category_from_all_program,
+                        ]);
                         break;
 
                     case 'update-client-program':
@@ -259,36 +287,43 @@ class ProcessInsertLogClient implements ShouldQueue
 
                         $is_admission = $clientProgramRepository->checkProgramIsAdmission($client_data['clientprog_id']);
 
-                        if($client_data['old_status_program'] == $client_data['status_program'])
-                            # no action
+                        if ($client_data['old_status_program'] == $client_data['status_program']) {
+                            // no action
                             break;
+                        }
 
                         switch ($client_data['status_program']) {
-                            case 1: # success
+                            case 1: // success
                                 unset($client_data['old_status_program']);
                                 unset($client_data['status_program']);
                                 $client_data['category'] = $is_admission ? 'mentee' : 'non-mentee';
+
+                                // if running status program changed from 1 to 2
+                                // then student's category will be defined as alumni-mentee which will be processed using `defineCategoryClient`
+                                if ($client_data['old_running_status_program'] == 1 && $client_data['running_status_program'] == 2) {
+                                    $client_data['category'] = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
+                                }
+
                                 $clientRepository->createClientLog($client_data);
                                 break;
-                                
-                            case 2: # failed
-                                if($client_data['old_status_program'] == 1) # success
-                                {
+
+                            case 2: // failed
+                                if ($client_data['old_status_program'] == 1) { // success
                                     unset($client_data['old_status_program']);
                                     unset($client_data['status_program']);
                                     $client_data['category'] = $is_admission ? 'failed-mentee' : 'failed-non-mentee';
                                     $clientRepository->createClientLog($client_data);
-                                }   
+                                }
                                 break;
-                                
-                            case 3: # refund
+
+                            case 3: // refund
                                 unset($client_data['old_status_program']);
                                 unset($client_data['status_program']);
                                 $client_data['category'] = $is_admission ? 'refund-mentee' : 'refund-non-mentee';
                                 $clientRepository->createClientLog($client_data);
                                 break;
-                            
-                            case 4: # hold
+
+                            case 4: // hold
                                 unset($client_data['old_status_program']);
                                 unset($client_data['status_program']);
                                 $client_data['category'] = $is_admission ? 'hold-mentee' : 'hold-non-mentee';
@@ -297,61 +332,73 @@ class ProcessInsertLogClient implements ShouldQueue
                         }
 
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
-                        # update category from tbl_client
+                        // update category from tbl_client
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice('[QUEUE PROCESS INSERT LOG CLIENT - UPDATE CLIENT PROGRAM] Successfully update a client', [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $define_category_from_all_program,
+                        ]);
                         break;
-                        
+
                     case 'delete-client-program':
                         $clientLogRepository->deleteClientLogByClientProgIdAndClientUUID($client_data['clientprog_id'], $client_data['client_id']);
-                        
+
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
-                        # update category from tbl_client
+                        // update category from tbl_client
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice('[QUEUE PROCESS INSERT LOG CLIENT - DELETE CLIENT PROGRAM] Successfully update a client', [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $define_category_from_all_program,
+                        ]);
                         break;
 
                     case 'trash':
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
                         $client_data = $this->fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log);
 
-                        # add log client with category trash
+                        // add log client with category trash
                         $client_data['category'] = 'trash';
                         $clientRepository->createClientLog($client_data);
-                            
-                        # update category from tbl_client to new-lead
+
+                        // update category from tbl_client to new-lead
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_many_request' => $this->is_many_request]);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
- 
-                        # only temporarily and will be removed in crm adjusted
+                        Log::notice('Successfully update client  : ('.json_encode($updated_client).')');
+
+                        // only temporarily and will be removed in crm adjusted
                         $get_client = $clientRepository->getClientById($client_data['client_id']);
-                            
-                        # update status all client program to failed 
-                        $this->fnSetAllClientProgramToFailed($clientProgramRepository, $get_client);                            
+
+                        // update status all client program to failed
+                        $this->fnSetAllClientProgramToFailed($clientProgramRepository, $get_client);
+
+                        Log::notice('[QUEUE PROCESS INSERT LOG CLIENT - TRASH] Successfully update a client', [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                        ]);
                         break;
 
                 }
             }
-            
-           
-            DB::commit();
+
+            // DB::commit();
         } catch (Exception $e) {
 
-            DB::rollBack();
-            Log::error('Failed to insert log client : ' . $e->getMessage() . ' on line ' . $e->getLine());
+            // DB::rollBack();
+            Log::error('Failed to insert log client : '.$e->getMessage().' on '.$e->getFile().' at line '.$e->getLine());
         }
 
-        Log::notice('Successfully insert log client  : (' . json_encode($this->clients_data) . ')');
+        Log::notice('Successfully insert log client  : ('.json_encode($this->clients_data).')');
     }
 
     protected function fnSetAllClientProgramToFailed(ClientProgramRepository $clientProgramRepository, $get_client)
     {
         $get_client_programs = $clientProgramRepository->getClientProgramByClientId($get_client->id);
-       
-        # Get client program where status = 0 (pending)
+
+        // Get client program where status = 0 (pending)
         $clientprog_ids = $get_client_programs->where('status', 0)->pluck('clientprog_id')->toArray();
 
-        # Update stutus client program to failed
+        // Update status client program to failed
         $clientProgramRepository->updateClientPrograms($clientprog_ids, ['status' => 2]);
     }
 
@@ -359,14 +406,15 @@ class ProcessInsertLogClient implements ShouldQueue
     {
         $latest_client_log = null;
 
-        # only temporarily and will be removed in crm adjusted
+        // only temporarily and will be removed in crm adjusted
         $get_client = $clientRepository->getClientById(isset($client_data['select_existing']) && $client_data['select_existing'] ? $client_data['old_client_id'] : $client_data['client_id']);
-            
-        if(isset($get_client->client_log)){
+
+        if (isset($get_client->client_log)) {
             $latest_client_log = $get_client->client_log->sortByDesc('updated_at')->first();
-            
-            if($client_data['inputted_from'] = 'verified')
+
+            if ($client_data['inputted_from'] = 'verified') {
                 $latest_client_log = $get_client->client_log->where('category', 'raw')->sortByDesc('updated_at')->first();
+            }
         }
 
         return $latest_client_log;
@@ -374,13 +422,13 @@ class ProcessInsertLogClient implements ShouldQueue
 
     protected function fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log)
     {
-        if($latest_client_log){
+        if ($latest_client_log) {
             $client_data['unique_key'] = $latest_client_log->unique_key;
             $client_data['lead_source'] = $latest_client_log->lead_source;
-        }else{
+        } else {
             $get_client = $clientRepository->getClientById($client_data['client_id']);
-            
-            # if client no have log then set lead_source from lead_id tbl_client
+
+            // if client no have log then set lead_source from lead_id tbl_client
             $client_data['lead_source'] = $get_client->lead_id;
         }
 

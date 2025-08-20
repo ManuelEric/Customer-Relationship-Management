@@ -25,7 +25,9 @@ class SchoolDetailController extends Controller
     use StandardizePhoneNumberTrait;
 
     protected SchoolRepositoryInterface $schoolRepository;
+
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
+
     protected SchoolService $schoolService;
 
     public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolDetailRepositoryInterface $schoolDetailRepository, SchoolService $schoolService)
@@ -46,8 +48,7 @@ class SchoolDetailController extends Controller
             'schdetail_phone',
             'is_pic',
         ]);
-        
-        
+
         DB::beginTransaction();
         try {
 
@@ -58,13 +59,13 @@ class SchoolDetailController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_SCHOOL_DETAIL, $e->getMessage(), $e->getLine(), $e->getFile(), $validated);
 
-            return Redirect::to('instance/school/' . $request->sch_id)->withError('Failed to create a new contact person');
+            return Redirect::to('instance/school/'.$request->sch_id)->withError('Failed to create a new contact person');
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_SCHOOL_DETAIL, 'New school detail has been added', $validated);
 
-        return Redirect::to('instance/school/' . $request->sch_id)->withSuccess('School contact person successfully created');
+        return Redirect::to('instance/school/'.$request->sch_id)->withSuccess('School contact person successfully created');
     }
 
     public function create(Request $request)
@@ -73,7 +74,7 @@ class SchoolDetailController extends Controller
 
         return view('pages.instance.school.detail.form')->with(
             [
-                'school_id' => $school_id
+                'school_id' => $school_id,
             ]
         );
     }
@@ -82,7 +83,7 @@ class SchoolDetailController extends Controller
     {
         $school_detail_id = $request->route('detail');
 
-        # retrieve school detail data by id
+        // retrieve school detail data by id
         $school_detail = $this->schoolDetailRepository->getSchoolDetailById($school_detail_id);
 
         return response()->json([
@@ -100,11 +101,11 @@ class SchoolDetailController extends Controller
             'schdetail_grade',
             'schdetail_position',
             'schdetail_phone',
-            'is_pic'
+            'is_pic',
         ]);
 
         $school_detail_id = $request->route('detail');
-        
+
         DB::beginTransaction();
         try {
 
@@ -116,13 +117,13 @@ class SchoolDetailController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_SCHOOL_DETAIL, $e->getMessage(), $e->getLine(), $e->getFile(), $validated);
 
-            return Redirect::to('instance/school/' . $request->sch_id)->withError('Failed to update a contact person');
+            return Redirect::to('instance/school/'.$request->sch_id)->withError('Failed to update a contact person');
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_SCHOOL_DETAIL, 'School detail has been updated', $updated_school_detail->toArray());
 
-        return Redirect::to('instance/school/' . $request->sch_id)->withSuccess('Contact person successfully updated');
+        return Redirect::to('instance/school/'.$request->sch_id)->withSuccess('Contact person successfully updated');
     }
 
     public function destroy(Request $request, DeleteSchoolDetailAction $deleteSchoolDetailAction, LogService $log_service)
@@ -141,12 +142,12 @@ class SchoolDetailController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_SCHOOL_DETAIL, $e->getMessage(), $e->getLine(), $e->getFile(), $deleted_school_detail->toArray());
 
-            return Redirect::to('instance/school/' . $school_id)->withError('Failed to delete a contact person');
+            return Redirect::to('instance/school/'.$school_id)->withError('Failed to delete a contact person');
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_DETAIL, 'School detail has been deleted', $deleted_school_detail->toArray());
 
-        return Redirect::to('instance/school/' . $school_id)->withSuccess('Contact person has successfully deleted');
+        return Redirect::to('instance/school/'.$school_id)->withSuccess('Contact person has successfully deleted');
     }
 }

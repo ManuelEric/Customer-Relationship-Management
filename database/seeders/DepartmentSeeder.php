@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Department;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -22,22 +21,22 @@ class DepartmentSeeder extends Seeder
             [
                 'dept_name' => 'Client Management',
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
             [
                 'dept_name' => 'Business Development',
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
             [
                 'dept_name' => 'Finance & Operation',
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
             [
                 'dept_name' => 'Product Development',
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
             [
                 'dept_name' => 'HR',
@@ -47,8 +46,8 @@ class DepartmentSeeder extends Seeder
             [
                 'dept_name' => 'IT',
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
-            ]
+                'updated_at' => Carbon::now(),
+            ],
         ];
 
         Department::insert($seeds);

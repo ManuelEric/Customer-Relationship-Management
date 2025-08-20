@@ -4,11 +4,9 @@ namespace App\Repositories;
 
 use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Models\SchoolVisit;
-use Carbon\Carbon;
 
 class SchoolVisitRepository implements SchoolVisitRepositoryInterface
 {
-
     public function getSchoolVisitById($visitId)
     {
         return SchoolVisit::whereId($visitId)->first();
@@ -37,7 +35,7 @@ class SchoolVisitRepository implements SchoolVisitRepositoryInterface
     public function getReportSchoolVisit($start_date, $end_date)
     {
         return SchoolVisit::whereDate('visit_date', '>=', $start_date)
-                ->whereDate('visit_date', '<=', $end_date)
-                ->get();
+            ->whereDate('visit_date', '<=', $end_date)
+            ->get();
     }
 }

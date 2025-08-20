@@ -3,10 +3,32 @@
 namespace App\Models;
 
 use App\Events\MessageSent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property int $active
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UserClient> $client
+ * @property-read int|null $client_count
+ *
+ * @method static Builder<static>|Major active()
+ * @method static Builder<static>|Major newModelQuery()
+ * @method static Builder<static>|Major newQuery()
+ * @method static Builder<static>|Major query()
+ * @method static Builder<static>|Major whereActive($value)
+ * @method static Builder<static>|Major whereCreatedAt($value)
+ * @method static Builder<static>|Major whereId($value)
+ * @method static Builder<static>|Major whereName($value)
+ * @method static Builder<static>|Major whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Major extends Model
 {
     use HasFactory;
@@ -16,14 +38,14 @@ class Major extends Model
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'name',
         'active',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -64,6 +86,10 @@ class Major extends Model
         return $model;
     }
 
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('active', 1);
+    }
 
     public function createdAt(): Attribute
     {

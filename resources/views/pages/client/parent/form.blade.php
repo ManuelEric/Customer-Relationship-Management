@@ -262,7 +262,7 @@
                             <label>Level of Interest <i class="text-danger font-weight-bold">*</i></label>
                             <select class="select w-100" id="levelInterest" name="st_levelinterest">
                                 <option data-placeholder="true"></option>
-                                <option value="High" 
+                                <option value="High"
                                     @if (isset($parent->st_levelinterest))
                                         {{ $parent->st_levelinterest == "High" ? "selected" : null }}
                                     @elseif (isset($student->st_levelinterest))
@@ -271,7 +271,7 @@
                                         {{ old('st_levelinterest') == "High" ? "selected" : null }}
                                     @endif
                                     >High</option>
-                                <option value="Medium" 
+                                <option value="Medium"
                                     @if (isset($parent->st_levelinterest))
                                         {{ $parent->st_levelinterest == "Medium" ? "selected" : null }}
                                     @elseif (isset($student->st_levelinterest))
@@ -280,7 +280,7 @@
                                         {{ old('st_levelinterest') == "Medium" ? "selected" : null }}
                                     @endif
                                     >Medium</option>
-                                <option value="Low" 
+                                <option value="Low"
                                     @if (isset($parent->st_levelinterest))
                                         {{ $parent->st_levelinterest == "Low" ? "selected" : null }}
                                     @elseif (isset($student->st_levelinterest))
@@ -437,7 +437,7 @@
                                                     <select class="select w-100" name="sch_curriculum[]" multiple id="schCurriculum">
                                                         <option data-placeholder="true"></option>
                                                         @foreach ($curriculums as $curriculum)
-                                                            <option value="{{ $curriculum->id }}" 
+                                                            <option value="{{ $curriculum->id }}"
                                                                     {{ old('sch_curriculum') == $curriculum->name ? "selected" : null }}
                                                                 >{{ $curriculum->name }}</option>
                                                         @endforeach
@@ -475,7 +475,7 @@
                                                         <option value="13"
                                                                 {{ old('st_grade') == 13 ? "selected" : null }}
                                                                 >Not High School</option>
-                                                            
+
                                                     </select>
                                                     @error('st_grade')
                                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -595,7 +595,7 @@
 <script>
     $(document).ready(function() {
         let kids = [];
-        @foreach ($kids as $kid) 
+        @foreach ($kids as $kid)
             kids.push("{{ $kid }}")
         @endforeach
 
@@ -671,14 +671,14 @@
         var current_year = new Date().getFullYear()
 
         if (grade == 13) {
-            
+
             for (var i = current_year ; i > 2009 ; i--) {
-                
+
                 html += "<option value='"+i+"'>"+i+"</option>"
             }
 
         } else {
-            
+
             var max = 13
             var min = 1
             for (var i = current_year ; i <= current_year+(max-grade) ; i++) {
@@ -745,7 +745,7 @@
                 data.forEach(function(currentValue, index, arr) {
                     html += "<option value='"+arr[index].univ_id+"'>"+arr[index].univ_name+" - "+arr[index].univ_country+"</option>"
                 })
-                
+
                 $("#univDestination").append(html)
                 initSelect2("#univDestination")
                 Swal.close()
@@ -755,9 +755,9 @@
                 Swal.close()
                 notification(error.response.data.success, error.response.data.message)
             })
-        
+
         anotherDocument()
-        
+
     })
 
     $(document).ready(function() {
@@ -786,12 +786,12 @@
             // Set the value, creating a new option if necessary
             if ($('#referral_code').find("option[value= {{ old('referral_code') }} ]").length) {
                 $('#referral_code').val('{{ old("referral_code") }}').trigger('change');
-            } else { 
+            } else {
                 // Create a DOM Option and pre-select by default
             var newOption = new Option('{{ old("old_refname") }}', '{{ old("referral_code") }}', true, true);
                 // Append it to the select
                 $('#referral_code').append(newOption).trigger('change');
-            } 
+            }
         @endif
 
         const documentReady = () => {
@@ -809,14 +809,14 @@
                 @foreach (old('child_id') as $key => $val)
                     child_id.push("{{ $val }}")
                 @endforeach
-                
+
                 $("#chName").select2().val(child_id).trigger('change')
             @elseif (old('child_id') !== NULL )
                 var child_id = new Array();
                 @foreach (old('child_id') as $key => $val)
                     child_id.push("{{ $val }}")
                 @endforeach
-                
+
                 $("#chName").select2().val(child_id).trigger('change')
             @endif
 
@@ -856,7 +856,7 @@
             @elseif (old('st_abryear') !== NULL)
                 $("#year").select2().val("{{ old('st_abryear') }}").trigger('change')
             @endif
-            
+
             @if (isset($parent->childrens) && count($parent->childrens) > 0)
                 var st_abrcountry = new Array();
                 @foreach ($parent->childrens()->first()->destinationCountries as $country)
@@ -898,7 +898,7 @@
             //     @foreach ($parent->interestPrograms as $program)
             //         prog_id.push("{{ $program->prog_id }}")
             //     @endforeach
-                
+
             //     $("#interestedProgram").val(prog_id).trigger('change')
 
             // @elseif (old('prog_id') !== NULL && count(old('prog_id')) > 0)

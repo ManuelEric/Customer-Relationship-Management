@@ -44,7 +44,7 @@ function clearPage() {
 function showPdfData() {
     var string = pdf.serializePdf();
     // const obj =JSON.parse(string);
-    
+
     //     console.log(obj[0].objects.length);
 
     $('#dataModal .modal-body pre').first().text(string);

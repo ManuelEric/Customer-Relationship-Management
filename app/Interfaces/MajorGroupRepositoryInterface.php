@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface MajorGroupRepositoryInterface 
+interface MajorGroupRepositoryInterface
 {
     public function getMajorGroups();
 }

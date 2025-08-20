@@ -7,7 +7,7 @@ use App\Models\MasterCountry;
 use App\Models\Tag;
 use DataTables;
 
-class TagRepository implements TagRepositoryInterface 
+class TagRepository implements TagRepositoryInterface
 {
     public function getAllTagsDataTables()
     {
@@ -28,7 +28,7 @@ class TagRepository implements TagRepositoryInterface
     {
         return Tag::find($tagId);
     }
-    
+
     public function getCountryById($country_id)
     {
         return MasterCountry::find($country_id);

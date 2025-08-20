@@ -133,7 +133,7 @@
     {
         showLoading();
 
-        // $('#reminderModal').modal('show'); 
+        // $('#reminderModal').modal('show');
 
         var clientprog_id = $('#clientprog_id').val();
         var parent_fullname = $('#fullname').val();
@@ -145,7 +145,7 @@
         var parent_id = $('#parent_id_checked').val();
         var client_id = $('#client_id').val();
 
-        
+
         var link = '{{ url("/") }}/invoice/client-program/'+clientprog_id+'/remind/by/whatsapp';
         axios.post(link, {
                 parent_fullname : parent_fullname,
@@ -160,15 +160,15 @@
             })
             .then(function(response) {
                 swal.close();
-                $('#reminderModal').modal('hide'); 
-                
-                
+                $('#reminderModal').modal('hide');
+
+
                 let obj = response.data;
                 var link = obj.link;
                 window.open(link)
             })
             .catch(function(error) {
-                $('#reminderModal').modal('hide'); 
+                $('#reminderModal').modal('hide');
                 swal.close();
                 notification('error', error)
             })
@@ -176,7 +176,7 @@
 
     function openModalReminder(params)
     {
-        $('#reminderModal').modal('show'); 
+        $('#reminderModal').modal('show');
 
         var clientprog_id = params[0];
         var parent_fullname = params[1];
@@ -265,7 +265,7 @@
 
     }
 
-    
+
     var widthView = $(window).width();
     $(document).ready(function() {
 
@@ -346,7 +346,7 @@
 
                         var link = "{{ url('invoice/client-program') }}/" + row.clientprog_id
                         var detail_btn = '<a href="' + link + '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>';
-                        
+
                         if ((difference > 0 && difference <= 3))
                         {
                             let whatsapp_params = [
@@ -370,7 +370,7 @@
 
                             detail_btn += whatsapp_btn;
                         }
-                        
+
                         return detail_btn;
                     }
                 }

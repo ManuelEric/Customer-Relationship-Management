@@ -8,13 +8,8 @@ function showLoading()
     Swal.showLoading();
 }
 
-$('form').submit(function(e) {
+$('form:not(#live)').submit(function(e) {
     e.preventDefault();
-    Swal.fire({
-        width: 100,
-        backdrop: '#4e4e4e7d',
-        allowOutsideClick: false,
-    })
-    Swal.showLoading();
+    showLoading()
     this.closest('form').submit();
 })

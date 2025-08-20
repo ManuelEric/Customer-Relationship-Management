@@ -207,24 +207,24 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 				inputElement.remove()
 				var image = new Image();
 				var widthEntirePage = document.documentElement.scrollWidth;
-				
+
 				image.onload = function () {
 					var scaleX, scaleY = 1; var width, height = 0;
 					var canvas_width = fabricObj.width;
 					var canvas_height = fabricObj.height;
 
 					var img = new fabric.Image(image)
-					
+
 					var scaleX = (canvas_width / img.width) * 0.18;
 					var scaleY = (canvas_height / img.height) * 0.066;
-					
+
 					img.setOptions({
 						left: canvas_width*0.688,
 						top: canvas_height*0.707,
 						scaleX: scaleX,
 						scaleY: scaleY
 					})
-					
+
 					// if(type == 'invoice'){
 					// 	if(axis != null && axis.type == 'invoice')
 					// 	{
@@ -253,7 +253,7 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 					// 	}
 					// }
 
-					
+
 					fabricObj.add(img)
 
 					window.scrollTo(0, canvas_height*0.5)
@@ -262,7 +262,7 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 			}, false);
 			reader.readAsDataURL(inputElement.files[0]);
 		}
-		
+
 		document.getElementsByTagName('body')[0].appendChild(inputElement)
 		inputElement.click()
 	}
@@ -308,7 +308,7 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route, type) {
 			if (method == 'print') {
 				doc.autoPrint();
 				doc.save(fileName);
-				
+
 			} else {
 				var data = doc.output('blob');
 				var formData = new FormData();
@@ -332,7 +332,7 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route, type) {
 				}
 
 				formData.append("pdfFile", data, fileName);
-				
+
 				axios.post(route, formData)
 				.then(function (response) {
 					// console.log(response.data);return;

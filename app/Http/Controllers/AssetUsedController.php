@@ -14,14 +14,14 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class AssetUsedController extends Controller
 {
-
     protected AssetRepositoryInterface $assetRepository;
+
     protected AssetUsedRepositoryInterface $assetUsedRepository;
+
     protected UserRepositoryInterface $userRepository;
 
     public function __construct(AssetRepositoryInterface $assetRepository, AssetUsedRepositoryInterface $assetUsedRepository, UserRepositoryInterface $userRepository)
@@ -52,12 +52,12 @@ class AssetUsedController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_ASSET_USED, $e->getMessage(), $e->getLine(), $e->getFile(), $used_details);
 
-            return Redirect::to('master/asset/' . $request->asset_id)->withError('Failed to store user asset');
+            return Redirect::to('master/asset/'.$request->asset_id)->withError('Failed to store user asset');
         }
 
         $log_service->createSuccessLog(LogModule::STORE_ASSET_USED, 'New asset used has been added', $used_details);
 
-        return Redirect::to('master/asset/' . $request->asset_id)->withSuccess('Asset user was successfully noted');
+        return Redirect::to('master/asset/'.$request->asset_id)->withSuccess('Asset user was successfully noted');
     }
 
     public function show(Request $request): JsonResponse
@@ -70,14 +70,13 @@ class AssetUsedController extends Controller
 
         $employees = $this->userRepository->rnGetAllUsersByRole('employee');
 
-
         return response()->json([
             'asset' => $asset,
             'employees' => $employees,
             'user' => $user,
             'usedId' => $used_id,
             'amount_returned' => $user->pivot->returned_detail()->sum('amount_returned'),
-            'request' => $request
+            'request' => $request,
         ]);
     }
 
@@ -96,12 +95,11 @@ class AssetUsedController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_ASSET_USED, $e->getMessage(), $e->getLine(), $e->getFile(), ['asset_id' => $asset_id, 'used_id' => $used_id]);
 
-            return Redirect::to('master/asset/' . $request->asset)->withError('Failed to delete asset used');
+            return Redirect::to('master/asset/'.$request->asset)->withError('Failed to delete asset used');
         }
-
 
         $log_service->createSuccessLog(LogModule::DELETE_ASSET_USED, 'New asset used has been deleted', ['asset_id' => $asset_id, 'used_id' => $used_id]);
 
-        return Redirect::to('master/asset/' . $request->asset)->withSuccess('Asset used successfully deleted');
+        return Redirect::to('master/asset/'.$request->asset)->withSuccess('Asset used successfully deleted');
     }
 }

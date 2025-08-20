@@ -3,10 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Enum\LogModule;
+use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreClientParentRequest;
+use App\Http\Requests\StoreClientRawParentRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\SyncClientTrait;
+use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
@@ -18,45 +23,46 @@ use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redirect;
-use App\Http\Controllers\Module\ClientController;
-use App\Http\Requests\StoreClientRawParentRequest;
-use App\Http\Requests\StoreImportExcelRequest;
-use App\Http\Traits\LoggingTrait;
-use App\Http\Traits\SyncClientTrait;
-use App\Imports\ParentImport;
-use App\Interfaces\ClientEventRepositoryInterface;
 use App\Services\Log\LogService;
 use App\Services\Master\ProgramService;
 use Exception;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 
 class ClientParentController extends ClientController
 {
-
     use CreateCustomPrimaryKeyTrait;
     use FindStatusClientTrait;
-    use StandardizePhoneNumberTrait;
     use LoggingTrait;
+    use StandardizePhoneNumberTrait;
     use SyncClientTrait;
 
     protected ClientRepositoryInterface $clientRepository;
+
     protected ClientEventRepositoryInterface $clientEventRepository;
+
     protected SchoolRepositoryInterface $schoolRepository;
+
     protected LeadRepositoryInterface $leadRepository;
+
     protected EventRepositoryInterface $eventRepository;
+
     protected EdufLeadRepositoryInterface $edufLeadRepository;
+
     protected ProgramRepositoryInterface $programRepository;
+
     protected UniversityRepositoryInterface $universityRepository;
+
     protected MajorRepositoryInterface $majorRepository;
+
     protected CurriculumRepositoryInterface $curriculumRepository;
+
     protected TagRepositoryInterface $tagRepository;
+
     protected SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+
     protected ProgramService $programService;
 
     public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientEventRepositoryInterface $clientEventRepository, ProgramService $programService)
@@ -82,17 +88,17 @@ class ClientParentController extends ClientController
             $as_datatables = true;
             $status_client = $request->get('st');
 
-            # advanced filter purpose
+            // advanced filter purpose
             $have_siblings = $request->get('have_siblings');
 
-            # array for advanced filter request
+            // array for advanced filter request
             $advanced_filter = [
                 'have_siblings' => $have_siblings,
             ];
 
             switch ($status_client) {
 
-                case "inactive":
+                case 'inactive':
                     $model = $this->clientRepository->getInactiveParent($as_datatables);
                     break;
 
@@ -103,7 +109,6 @@ class ClientParentController extends ClientController
             return $this->clientRepository->getDataTables($model);
         }
 
-
         return view('pages.client.parent.index');
     }
 
@@ -111,6 +116,7 @@ class ClientParentController extends ClientController
     {
         if ($request->ajax()) {
             $model = $this->clientRepository->getAllRawClientDataTables('parent', true, []);
+
             return $this->clientRepository->getDataTables($model, true);
         }
 
@@ -119,20 +125,21 @@ class ClientParentController extends ClientController
 
     public function create(Request $request)
     {
-        # ajax
-        # to get university by selected country
+        // ajax
+        // to get university by selected country
         if ($request->ajax()) {
             if (isset($request->country) && count($request->country) > 0) {
                 $universities = $this->universityRepository->getAllUniversitiesByTag($request->country);
+
                 return response()->json($universities);
             }
         }
 
         $student = null;
-        if ($child_id = $request->get('child'))
+        if ($child_id = $request->get('child')) {
             $student = $this->clientRepository->getClientById($child_id);
+        }
 
-    
         $deleted_kids = $kids = [];
 
         $schools = $this->schoolRepository->getAllSchools();
@@ -160,19 +167,19 @@ class ClientParentController extends ClientController
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
-                'student' => $student
+                'student' => $student,
             ]
         );
     }
 
     public function store(StoreClientParentRequest $request, LogService $log_service)
     {
-        # request->queryChilId is the primary key for client student
-        # request->queryClientProgId is the primary key for the client program
-        $q_children_id = isset($request->queryChildId) ? "?child=" . $request->queryChildId : null;
-        $q_client_prog_id = isset($request->queryClientProgId) ? "&client_prog=" . $request->queryClientProgId : null;
+        // request->queryChilId is the primary key for client student
+        // request->queryClientProgId is the primary key for the client program
+        $q_children_id = isset($request->queryChildId) ? '?child='.$request->queryChildId : null;
+        $q_client_prog_id = isset($request->queryClientProgId) ? '&client_prog='.$request->queryClientProgId : null;
 
-        $query = $q_children_id . $q_client_prog_id;
+        $query = $q_children_id.$q_client_prog_id;
 
         $data = $this->initializeVariablesForStoreAndUpdate('parent', $request);
 
@@ -181,29 +188,31 @@ class ClientParentController extends ClientController
         DB::beginTransaction();
         try {
 
-            # case 1
-            # create new user client as parent
-            if (!$parent = $this->clientRepository->createClient('Parent', $data['parent_details']))
+            // case 1
+            // create new user client as parent
+            if (! $parent = $this->clientRepository->createClient('Parent', $data['parent_details'])) {
                 throw new Exception('Failed to store new parent', 1);
+            }
 
             $new_parent_id = $parent->id;
 
-            # case 2
-            # add relation between parent and student
-            # if they didn't insert parents which parentId = NULL
-            # then assumed that register for student only
-            # so no need to create parent children relation
+            // case 2
+            // add relation between parent and student
+            // if they didn't insert parents which parentId = NULL
+            // then assumed that register for student only
+            // so no need to create parent children relation
             if ($childrens) {
 
                 // return $this->clientRepository->createClientRelation($parent_id, $childrenId);
-                if (!$this->clientRepository->createManyClientRelation($new_parent_id, $childrens))
+                if (! $this->clientRepository->createManyClientRelation($new_parent_id, $childrens)) {
                     throw new Exception('Failed to store relation between student and parent', 2);
+                }
             }
 
-            # case 3
-            # create interested program
-            # if they didn't insert interested program 
-            # then skip this case
+            // case 3
+            // create interested program
+            // if they didn't insert interested program
+            // then skip this case
             // if (!$this->createInterestedProgram($data['interestPrograms'], $new_parent_id))
             //     throw new Exception('Failed to store interest program', 3);
 
@@ -227,20 +236,22 @@ class ClientParentController extends ClientController
             }
 
             $log_service->createErrorLog(LogModule::STORE_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['parent_details']);
-            return Redirect::to('client/parent/create' . $query)->withError($e->getMessage());
+
+            return Redirect::to('client/parent/create'.$query)->withError($e->getMessage());
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_PARENT, 'New parent has been added', $data['parent_details']);
 
-        if ($query != NULL) {
-            if ($q_children_id != NULL && $q_client_prog_id == NULL)
-                $link = "client/student/" . $request->queryChildId . "/program/create/";
-            elseif ($q_children_id != NULL && $q_client_prog_id != NULL)
-                $link = 'client/student/' . $request->queryChildId . '/program/' . $request->queryClientProgId;
+        if ($query != null) {
+            if ($q_children_id != null && $q_client_prog_id == null) {
+                $link = 'client/student/'.$request->queryChildId.'/program/create/';
+            } elseif ($q_children_id != null && $q_client_prog_id != null) {
+                $link = 'client/student/'.$request->queryChildId.'/program/'.$request->queryClientProgId;
+            }
 
-            return Redirect::to($link)->withSuccess("Parent Information has been added.");
+            return Redirect::to($link)->withSuccess('Parent Information has been added.');
         }
 
         return Redirect::to('client/parent')->withSuccess('A new parent has been registered.');
@@ -249,8 +260,9 @@ class ClientParentController extends ClientController
     public function show(Request $request)
     {
         $parent_id = $request->route('parent');
-        if ($request->ajax())
+        if ($request->ajax()) {
             return $this->clientEventRepository->getAllClientEventByClientIdDataTables($parent_id);
+        }
 
         $parent_id = $request->route('parent');
         $parent = $this->clientRepository->getClientById($parent_id);
@@ -264,10 +276,11 @@ class ClientParentController extends ClientController
 
     public function edit(Request $request)
     {
-        # ajax
-        # to get university by selected country
+        // ajax
+        // to get university by selected country
         if ($request->ajax()) {
             $universities = $this->universityRepository->getAllUniversitiesByTag($request->country);
+
             return response()->json($universities);
         }
 
@@ -301,7 +314,7 @@ class ClientParentController extends ClientController
                 'kols' => $kols,
                 'programs' => $programs,
                 'countries' => $countries,
-                'majors' => $majors
+                'majors' => $majors,
             ]
         );
     }
@@ -317,31 +330,31 @@ class ClientParentController extends ClientController
         DB::beginTransaction();
         try {
 
-            # set referral code null if lead != referral
-            if ($data['parent_details']['lead_id'] != 'LS005'){
+            // set referral code null if lead != referral
+            if ($data['parent_details']['lead_id'] != 'LS005') {
                 $data['parent_details']['referral_code'] = null;
             }
 
-            # case 1
-            # add relation between parent and student
-            # if they didn't insert parents which parentId = NULL
-            # then assumed that register for student only
-            # so no need to create parent children relation
-            if ($childrens !== NULL) {
+            // case 1
+            // add relation between parent and student
+            // if they didn't insert parents which parentId = NULL
+            // then assumed that register for student only
+            // so no need to create parent children relation
+            if ($childrens !== null) {
 
-                if (!$this->clientRepository->createManyClientRelation($parent_id, $childrens))
+                if (! $this->clientRepository->createManyClientRelation($parent_id, $childrens)) {
                     throw new Exception('Failed to update relation between student and parent', 1);
+                }
             }
 
-
-            # case 2
-            # create interested program
-            # if they didn't insert interested program 
-            # then skip this case
+            // case 2
+            // create interested program
+            // if they didn't insert interested program
+            // then skip this case
             // if (!$this->createInterestedProgram($data['interestPrograms'], $parent_id))
             //     throw new Exception('Failed to store interest program', 3);
 
-            # removing the unnecessary information from the parent_details
+            // removing the unnecessary information from the parent_details
             unset($data['parent_details']['pr_firstname']);
             unset($data['parent_details']['pr_lastname']);
             unset($data['parent_details']['pr_mail']);
@@ -349,13 +362,14 @@ class ClientParentController extends ClientController
             unset($data['parent_details']['pr_dob']);
             unset($data['parent_details']['pr_insta']);
 
-            # removing the kol_lead_id from the parent_details array
+            // removing the kol_lead_id from the parent_details array
             unset($data['parent_details']['kol_lead_id']);
 
-            # case 3
-            # update parent's information
-            if (!$this->clientRepository->updateClient($parent_id, $data['parent_details']))
+            // case 3
+            // update parent's information
+            if (! $this->clientRepository->updateClient($parent_id, $data['parent_details'])) {
                 throw new Exception('Failed to update parent', 3);
+            }
 
             DB::commit();
         } catch (Exception $e) {
@@ -377,14 +391,15 @@ class ClientParentController extends ClientController
             }
 
             $log_service->createErrorLog(LogModule::UPDATE_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['parent_details']);
-            return Redirect::to('client/parent/' . $parent_id . '/edit')->withError($e->getMessage());
+
+            return Redirect::to('client/parent/'.$parent_id.'/edit')->withError($e->getMessage());
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_PARENT, 'Parent has been updated', $data['parent_details']);
 
-        return Redirect::to('client/parent/' . $parent_id)->withSuccess('A parent has been updated.');
+        return Redirect::to('client/parent/'.$parent_id)->withSuccess('A parent has been updated.');
     }
 
     public function updateStatus(Request $request, LogService $log_service)
@@ -392,13 +407,13 @@ class ClientParentController extends ClientController
         $parent_id = $request->route('parent');
         $new_status = $request->route('status');
 
-        # validate status
-        if (!in_array($new_status, [0, 1])) {
+        // validate status
+        if (! in_array($new_status, [0, 1])) {
 
             return response()->json(
                 [
                     'success' => false,
-                    'message' => "Status is invalid"
+                    'message' => 'Status is invalid',
                 ]
             );
         }
@@ -411,44 +426,44 @@ class ClientParentController extends ClientController
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::UPDATE_STATUS_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['parent_id'  => $parent_id, 'new_status' => $new_status]);
+            $log_service->createErrorLog(LogModule::UPDATE_STATUS_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['parent_id' => $parent_id, 'new_status' => $new_status]);
 
             return response()->json(
                 [
                     'success' => false,
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
                 ]
             );
         }
 
-        # Upload success
-        # create log success
-        $log_service->createSuccessLog(LogModule::UPDATE_STATUS_PARENT, 'Status parent has been updated', ['parent_id'  => $parent_id, 'new_status' => $new_status]);
+        // Upload success
+        // create log success
+        $log_service->createSuccessLog(LogModule::UPDATE_STATUS_PARENT, 'Status parent has been updated', ['parent_id' => $parent_id, 'new_status' => $new_status]);
 
         return response()->json(
             [
                 'success' => true,
-                'message' => "Status has been updated",
+                'message' => 'Status has been updated',
             ]
         );
     }
 
     public function getDataParents(Request $request)
     {
-        # use for modal reminder invoice bundle
-        # get data parents from child id
+        // use for modal reminder invoice bundle
+        // get data parents from child id
         $child_id = $request->get('child_id');
 
-        if($child_id !== null){
+        if ($child_id !== null) {
             $parents = $this->clientRepository->getDataParentsByChildId($child_id);
-        }else{
+        } else {
             $parents = $this->clientRepository->getAllClientByRole('Parent');
         }
 
         return response()->json(
             [
                 'success' => true,
-                'data' => $parents
+                'data' => $parents,
             ]
         );
     }
@@ -463,13 +478,15 @@ class ClientParentController extends ClientController
         try {
 
             $raw_client = $this->clientRepository->getViewRawClientById($raw_client_id);
-            if (!isset($raw_client))
+            if (! isset($raw_client)) {
                 return Redirect::to('client/parent/raw')->withError('Data does not exist');
+            }
 
             if ($client_id != null) {
                 $client = $this->clientRepository->getViewClientById($client_id);
-                if (!isset($client))
+                if (! isset($client)) {
                     return Redirect::to('client/parent/raw')->withError('Data does not exist');
+                }
             }
 
             DB::commit();
@@ -485,7 +502,7 @@ class ClientParentController extends ClientController
             case 'comparison':
                 return view('pages.client.parent.raw.form-comparison')->with([
                     'rawClient' => $raw_client,
-                    'client' => $client
+                    'client' => $client,
                 ]);
                 break;
 
@@ -510,10 +527,9 @@ class ClientParentController extends ClientController
             'first_name' => $name['firstname'],
             'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
             'mail' => $request->emailFinal,
-            'phone' => $this->tnSetPhoneNumber($request->phoneFinal),
-            'is_verified' => 'Y'
+            'phone' => $this->tnNormalizePhoneNumber($request->phoneFinal),
+            'is_verified' => 'Y',
         ];
-
 
         DB::beginTransaction();
         try {
@@ -524,7 +540,7 @@ class ClientParentController extends ClientController
 
                     $raw_parent = $this->clientRepository->getViewRawClientById($raw_client_id);
 
-                    # delete parent from raw client
+                    // delete parent from raw client
                     $this->clientRepository->deleteClient($raw_client_id);
 
                     break;
@@ -541,8 +557,6 @@ class ClientParentController extends ClientController
 
                     break;
             }
-
-
 
             DB::commit();
         } catch (Exception $e) {
@@ -566,9 +580,10 @@ class ClientParentController extends ClientController
         DB::beginTransaction();
         try {
 
-            if (!isset($client))
+            if (! isset($client)) {
                 return Redirect::to('client/parent')->withError('Data does not exist');
-    
+            }
+
             $this->clientRepository->deleteClient($client_id);
 
             DB::commit();
@@ -580,8 +595,8 @@ class ClientParentController extends ClientController
             return Redirect::to('client/parent')->withError('Failed to delete parent');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_PARENT, 'Parent has been deleted', $client->toArray());
 
         return Redirect::to('client/student?st=new-leads')->withSuccess('Client student successfully deleted');
@@ -595,8 +610,9 @@ class ClientParentController extends ClientController
         DB::beginTransaction();
         try {
 
-            if (!isset($raw_parent))
+            if (! isset($raw_parent)) {
                 return Redirect::to('client/parent/raw')->withError('Data does not exist');
+            }
 
             $this->clientRepository->deleteClient($raw_client_id);
             DB::commit();
@@ -608,8 +624,8 @@ class ClientParentController extends ClientController
             return Redirect::to('client/parent/raw')->withError('Failed to delete raw parent');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_RAW_PARENT, 'Raw parent has been deleted', $raw_parent->toArray());
 
         return Redirect::to('client/parent/raw')->withSuccess('Raw parent successfully deleted');
@@ -630,13 +646,13 @@ class ClientParentController extends ClientController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DISCONNECT_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['student_id' => $student_id, 'parent_id' => $parent_id]);
 
-            return Redirect::to('client/parent/' . $parent_id)->withError('failed to be diconnect children.');
+            return Redirect::to('client/parent/'.$parent_id)->withError('failed to be diconnect children.');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DISCONNECT_STUDENT, 'Successfully disconnect student', ['student_id' => $student_id, 'parent_id' => $parent_id]);
 
-        return Redirect::to('client/parent/' . $parent_id)->withSuccess('Successfully disconnect children.');
+        return Redirect::to('client/parent/'.$parent_id)->withSuccess('Successfully disconnect children.');
     }
 }

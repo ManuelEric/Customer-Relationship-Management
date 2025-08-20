@@ -25,7 +25,7 @@
                             ]) id="activate-user">
                                 <i class="bi bi-check"></i>
                                 Activate</button>
-                                
+
                             <button @class([
                                 'btn btn-sm btn-outline-danger',
                                 'd-none' => $volunteer->active == 0,
@@ -201,7 +201,7 @@
 
             function changeStatus(status)
             {
-                // show modal 
+                // show modal
                 var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
                 myModal.show()
 
@@ -210,12 +210,12 @@
                     deactivateUser(status)
                 })
 
-                
+
             }
 
             function deactivateUser(status) {
                 showLoading()
-                
+
                 axios.post('{{ route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id]) }}', {
                         _token: '{{ csrf_token() }}',
                         params: {
@@ -247,7 +247,7 @@
                     });
             }
         @endif
-                
+
 
         @if (isset($volunteer))
 

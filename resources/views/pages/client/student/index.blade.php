@@ -40,7 +40,7 @@
                                 class="ms-1">Import</span></a>
                     </div> --}}
                     <div class="col-md-3 offset-lg-6">
-                        <div class="dropdown"> 
+                        <div class="dropdown">
                             <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle w-100"
                                 data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">
                                 <i class="bi bi-funnel me-2"></i> Filter
@@ -447,7 +447,7 @@
                 }
             });
 
-            
+
             $('.modal-select').select2({
                 dropdownParent: $('#assignForm .modal-content'),
                 placeholder: "Select value",
@@ -456,7 +456,7 @@
 
             var get_st = "{{ isset($_GET['st']) ? $_GET['st'] : '' }}"
             var button = [
-                'pageLength', 
+                'pageLength',
                 {
                     extend: 'excel',
                     text: 'Export to Excel',
@@ -469,10 +469,10 @@
                 }
             ];
 
-            // button for DataTable 
+            // button for DataTable
             if (get_st == 'new-leads' || get_st == 'potential') {
                 button = [
-                    'pageLength', 
+                    'pageLength',
                     {
                         extend: 'excel',
                         text: 'Export to Excel',
@@ -501,7 +501,7 @@
             if (get_st == 'new-leads' && ('{{ $isSalesAdmin }}' || '{{ $isSuperAdmin }}') &&
                 '{{ auth()->user()->email }}' != 'ericko.siswanto@all-inedu.com') {
                 button = [
-                    'pageLength', 
+                    'pageLength',
                     {
                         extend: 'excel',
                         text: 'Export to Excel',
@@ -545,7 +545,7 @@
                             columns: ':visible',
                             format: {
                                 body: function ( data, row, column, node) {
-                                    if (column == 0) 
+                                    if (column == 0)
                                         return no++
 
                                     return data
@@ -614,14 +614,14 @@
                                     return '<div class="container" style="padding-left:0;">'
                                             + '<div class="row justify-content-center">'
                                             + '<div class="col-1">'
-                                            + '<h5 onclick="copyLink(\''+ row.id +'\', \'ia-report\')" style="cursor: pointer;"><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Report"></i></h5>' 
+                                            + '<h5 onclick="copyLink(\''+ row.id +'\', \'ia-report\')" style="cursor: pointer;"><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Report"></i></h5>'
                                             + '</div>'
                                             + '<div class="col-1">'
-                                            + '<h5 onclick="copyLink(\''+ row.id +'\', \'ia-answer\')" style="cursor: pointer;"><i class="bi bi-zoom-in text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Answer"></i></h5>' 
+                                            + '<h5 onclick="copyLink(\''+ row.id +'\', \'ia-answer\')" style="cursor: pointer;"><i class="bi bi-zoom-in text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Answer"></i></h5>'
                                             + '</div>'
                                             + '</div>'
                                             + '</div>'
-                                            
+
                                 }
                             }else{
                                 return '<h5><i class="bi bi-dash-square-fill text-danger"  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
@@ -743,7 +743,7 @@
                         className: 'text-center',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
-                            if (row.lead_source == "Referral") {
+                            if (row.lead_source == "Referral" || row.lead_source == "Existing Client Referral") {
                                 return data;
                             } else {
                                 return '-';
@@ -865,7 +865,7 @@
                 table.button(1).disable();
             @endif
 
-            // Tooltip 
+            // Tooltip
             $('#clientTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',
@@ -873,24 +873,24 @@
                 });
             });
 
-            // Hold Student 
+            // Hold Student
             $('#clientTable tbody').on('click', '.holdClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
             });
 
-            // Delete Student 
+            // Delete Student
             $('#clientTable tbody').on('click', '.deleteClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 confirmDelete('client/student', data.id)
             });
 
-            // View More 
+            // View More
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.open("{{ url('client/student') }}/" + data.id, "_blank")
             });
 
-            // Change Active Status 
+            // Change Active Status
             $('#clientTable tbody').on('change', '.status ', function() {
                 const data = table.row($(this).parents('tr')).data();
                 const val = data.st_statusact == 1 ? 0 : 1;
@@ -908,7 +908,7 @@
                 table.ajax.reload(null, false)
             });
 
-            // Change Lead Status 
+            // Change Lead Status
             $('#clientTable tbody').on('change', '#status_lead', function() {
                 var data = table.row($(this).parents('tr')).data();
                 var lead_status = $(this).val();
@@ -1099,7 +1099,7 @@
                     })
             });
 
-           
+
         });
 
         function closeUpdateLead() {
@@ -1165,21 +1165,21 @@
                     // Get the text field
                     copyText = "{{ env('EDUALL_ASSESSMENT_URL') }}login/" + uuid;
                     msg = "Assessment successfully copied ";
-                    
+
                     break;
 
                 case 'ia-report':
                     // Get the text field
                     copyText = "{{ env('EDUALL_ASSESSMENT_URL') }}api/report/" + uuid + "?is_preview=1";
                     msg = "Assessment report successfully copied ";
-                    
+
                     break;
 
                 case 'ia-answer':
                     // Get the text field
                     copyText = "{{ env('EDUALL_ASSESSMENT_URL') }}api/report/" + uuid + "/summary?is_preview=1";
                     msg = "Answer assessment successfully copied ";
-                    
+
                     break;
             }
 
@@ -1208,7 +1208,7 @@
                         'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                     }
                 }).then(function (response) {
-                    
+
                     var data = response.data;
                     var batch_id = data.batch_id;
 
@@ -1220,7 +1220,7 @@
                     html += `<p class="text-center mt-2" id="total">Exporting ...</p>`;
                     html += `</div>`;
 
-                                    
+
                     $("#modal-notif-export").modal('show');
                     $('#content-export-information').html(html);
 
@@ -1237,7 +1237,7 @@
                             $('#bar').css({'width': response.data.progress + '%'});
                             $('#bar').text(response.data.progress + '%');
                             $('#total').html(`Exporting ${response.data.total_imported}/${response.data.total_data}`);
-                                        
+
                             i++;
 
                             if(response.data.progress == 100){
@@ -1286,7 +1286,7 @@
 
                         });
                     }, 3000);
-                    
+
                     swal.close()
                 }).catch(function(error, response) {
                     var msg = error.response.data.error;
@@ -1297,10 +1297,10 @@
                     notification('error', msg);
 
             })
-            
+
         }
 
-    
+
 
     </script>
 @endpush

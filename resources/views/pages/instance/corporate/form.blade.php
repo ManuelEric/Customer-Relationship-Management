@@ -9,7 +9,7 @@
     @php
         $type = ['Corporate', 'Individual/Professionals', 'Course Center', 'Agent', 'Community/NGO', 'University'];
         sort($type);
-        
+
         $partnership_type = ['Market Sharing/Referral Collaboration', 'Program Collaboration', 'Program Contributor', 'Speaker', 'Volunteer', 'Internship', 'Company Visit'];
         sort($partnership_type);
 
@@ -145,7 +145,7 @@
                                         @endforeach
                                     @else
                                         @if(isset($corporate) && $corporate->corp_subsector_id != null)
-                                            <option value="{{ $corporate->corp_subsector_id }}">{{ $corporate->subSector->name }}</option>                                        
+                                            <option value="{{ $corporate->corp_subsector_id }}">{{ $corporate->subSector->name }}</option>
                                         @endif
                                     @endif
                                 </select>
@@ -301,7 +301,7 @@
     </div>
 
     <script>
-        // Select2 Modal 
+        // Select2 Modal
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#programForm .modal-content'),
@@ -311,8 +311,8 @@
 
             $('#corp_industry').on('change', function(){
                 var selected_industry = $(this).select2().find(":selected").val();
-                
-                var baseUrl = "{{ url('/') }}/api/v1/get/subsectors/" + selected_industry;             
+
+                var baseUrl = "{{ url('/') }}/api/v1/get/subsectors/" + selected_industry;
 
                 showLoading();
                 axios.get(baseUrl)
@@ -320,13 +320,13 @@
                     // handle success
                     let sub_sectors = response.data.data
                     let list_option_sub_sector = '<option data-placeholder="true"></option>';
-                    
+
                     sub_sectors.forEach((sub_sector) => {
                         list_option_sub_sector += '<option value="'+sub_sector.id+'">' +sub_sector.name+ '</option>';
                     });
 
                     $('#corp_subsector_id').html(list_option_sub_sector);
-                  
+
                     Swal.close()
                 })
                 .catch(function(error) {
@@ -338,7 +338,7 @@
 
             $('#type').on('change', function(){
                 var selected_type = $(this).select2().find(":selected").val();
-                                
+
                 if(selected_type == 'Individual/Professionals'){
                     $('.professional-name').removeClass('d-none');
                     $('.corporate-name').addClass('d-none');
@@ -353,21 +353,21 @@
                 var user_id = $(this).val();
 
                 if(user_id){
-                    var baseUrl = "{{ url('/') }}/api/v1/get/user/uuid/" + user_id;             
+                    var baseUrl = "{{ url('/') }}/api/v1/get/user/uuid/" + user_id;
 
                     showLoading();
                     axios.get(baseUrl)
                     .then(function(response) {
                         // handle success
-                        
+
                         let user = response.data.data
                         $('#corp_name').val(user.first_name + ' ' + (user.last_name !== '' || user.last_name !== null ? user.last_name : null));
                         $('#corp_mail').val(user.email);
                         $('#corp_phone').val(user.phone);
-                        
+
                         $('#corp_mail').attr('readonly', true);
                         $('#corp_phone').attr('readonly', true);
-                    
+
                         Swal.close()
                     })
                     .catch(function(error) {

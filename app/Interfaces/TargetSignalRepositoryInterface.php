@@ -2,9 +2,9 @@
 
 namespace App\Interfaces;
 
-interface TargetSignalRepositoryInterface 
+interface TargetSignalRepositoryInterface
 {
     public function getTargetSignalByDivisi($divisi);
-    public function getAllTargetSignal();
 
+    public function getAllTargetSignal();
 }

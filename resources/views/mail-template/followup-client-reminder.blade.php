@@ -12,7 +12,7 @@
                     $row = count($schedules);
                     $i = 1;
                 @endphp
-                @foreach ($schedules as $data) 
+                @foreach ($schedules as $data)
                     <tr>
                         <td><b>Name</b></td>
                         <td><b>:</b></td>

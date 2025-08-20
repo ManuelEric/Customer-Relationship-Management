@@ -15,9 +15,8 @@ class UpdateSubjectAction
 
     public function execute(
         $subject_id,
-        Array $new_subject_details
-    )
-    {
+        array $new_subject_details
+    ) {
 
         $updated_subject = $this->subjectRepository->updateSubject($subject_id, $new_subject_details);
 

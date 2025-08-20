@@ -10,8 +10,8 @@ trait RandomDigitTrait
     {
         do {
             $randomize = mt_rand(0000000000, 9999999999);
-        } while ( Transaction::where('trx_id', $randomize)->exists() );
-        
+        } while (Transaction::where('trx_id', $randomize)->exists());
+
         return $randomize;
     }
 }

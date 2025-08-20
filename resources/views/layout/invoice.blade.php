@@ -102,10 +102,10 @@
     <footer>
         <img loading="lazy"  src="{{ public_path('img/pdf/edu-all-footer.webp') }}" width="100%">
     </footer>
-    
+
     <main>
         <div class="" style="padding:0 30px;">
-            
+
             @yield('body')
 
         </div>

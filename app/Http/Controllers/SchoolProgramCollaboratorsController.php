@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Redirect;
 
 class SchoolProgramCollaboratorsController extends Controller
 {
-    
     protected SchoolProgramCollaboratorsRepositoryInterface $schoolProgramCollaboratorsRepository;
 
     public function __construct(SchoolProgramCollaboratorsRepositoryInterface $schoolProgramCollaboratorsRepository)
@@ -31,15 +30,16 @@ class SchoolProgramCollaboratorsController extends Controller
         DB::beginTransaction();
         try {
 
-           $added_collaborators = $createProgramCollaboratorAction->execute($request, $collaborators, $schoolprog_id, $this->schoolProgramCollaboratorsRepository);
+            $added_collaborators = $createProgramCollaboratorAction->execute($request, $collaborators, $schoolprog_id, $this->schoolProgramCollaboratorsRepository);
 
             DB::commit();
 
         } catch (Exception $e) {
-            
+
             DB::rollBack();
 
             $log_service->createErrorLog(LogModule::STORE_SCHOOL_PROGRAM_COLLABORATOR, $e->getMessage(), $e->getLine(), $e->getFile(), $request->all());
+
             return Redirect::back()->withError('Failed to store '.$collaborators.' collaborators. Please try again.');
 
         }
@@ -47,13 +47,13 @@ class SchoolProgramCollaboratorsController extends Controller
         $log_service->createSuccessLog(LogModule::STORE_SCHOOL_PROGRAM_COLLABORATOR, 'New school program collaborator has been added', $added_collaborators);
 
         return Redirect::to('program/school/'.$school_id.'/detail/'.$schoolprog_id)->withSuccess($added_collaborators.' has been added as collaborator.');
-    
+
     }
 
     public function destroy(Request $request, DeleteProgramCollaboratorAction $deleteProgramCollaboratorAction, LogService $log_service)
     {
         $sch_id = $request->route('school');
-        $schprog_id = $request->route('sch_prog'); # same as corp prog id
+        $schprog_id = $request->route('sch_prog'); // same as corp prog id
         $collaborators = $request->route('collaborators');
         $collaborators_id = $request->route('collaborators_id');
 

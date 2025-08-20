@@ -133,7 +133,7 @@
     {
         showLoading();
 
-        // $('#reminderModal').modal('show'); 
+        // $('#reminderModal').modal('show');
 
         var bundling_id = $('#bundling_id').val();
         var parent_fullname = $('#fullname').val();
@@ -145,7 +145,7 @@
         var parent_id = $('#parent_id_checked').val();
         var client_id = $('#client_id').val();
 
-        
+
         var link = '{{ url("/") }}/invoice/client-program/bundle/'+bundling_id+'/remind/by/whatsapp';
         axios.post(link, {
                 parent_fullname : parent_fullname,
@@ -160,15 +160,15 @@
             })
             .then(function(response) {
                 swal.close();
-                $('#reminderModal').modal('hide'); 
-                
-                
+                $('#reminderModal').modal('hide');
+
+
                 let obj = response.data;
                 var link = obj.link;
                 window.open(link)
             })
             .catch(function(error) {
-                $('#reminderModal').modal('hide'); 
+                $('#reminderModal').modal('hide');
                 swal.close();
                 notification('error', error)
             })
@@ -177,8 +177,8 @@
     async function openModalReminder(params)
     {
         try{
-            $('#reminderModal').modal('show'); 
-        
+            $('#reminderModal').modal('show');
+
             var link = '{{ url("/api/client/parent/") }}';
             var client_id = params[8];
             var parents = [];
@@ -190,10 +190,10 @@
                     }
                 });
 
-            
+
             parents = response.data.data;
             swal.close();
-        
+
             var bundling_id = params[0];
             var parent_fullname = params[1];
             var parent_phone = params[2];
@@ -202,7 +202,7 @@
             var total_payment = params[5];
             var payment_method = params[6];
             var parent_id = params[7];
-        
+
             var child_phone = params[9];
 
             var count_parent = parents !== null ? parents?.length : 0;
@@ -285,7 +285,7 @@
 
     }
 
-    
+
     var widthView = $(window).width();
     $(document).ready(function() {
 
@@ -367,7 +367,7 @@
                         var link = "{{ url('invoice/client-program') }}/" + row.uuid
                         var detail_btn = '<a href="' + link + '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>';
 
-                        
+
                         if ((difference > 0 && difference <= 3))
                         {
                             let whatsapp_params = [
@@ -390,9 +390,9 @@
 
                             detail_btn += whatsapp_btn;
                         }
-                        
+
                         return detail_btn;
-                        
+
                     }
                 }
             ],

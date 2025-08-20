@@ -8,19 +8,19 @@ use App\Interfaces\InvoiceProgramRepositoryInterface;
 class UnpaidPaymentReportAction
 {
     private InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     private InvoiceProgramRepositoryInterface $invoiceProgramRepository;
 
     public function __construct(
         InvoiceB2bRepositoryInterface $invoiceB2bRepository,
         InvoiceProgramRepositoryInterface $invoiceProgramRepository
-    )
-    {
+    ) {
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceProgramRepository = $invoiceProgramRepository;
     }
 
-    public function execute(Array $incoming_requests)
-    {        
+    public function execute(array $incoming_requests)
+    {
         $start_date = $incoming_requests['start_date'];
         $end_date = $incoming_requests['end_date'];
 

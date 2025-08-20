@@ -7,7 +7,6 @@ use App\Models\UniversityPic;
 
 class UniversityPicRepository implements UniversityPicRepositoryInterface
 {
-
     public function getAllUniversityPicByUniversityId($universityId)
     {
         return UniversityPic::where('univ_id', $universityId)->get();

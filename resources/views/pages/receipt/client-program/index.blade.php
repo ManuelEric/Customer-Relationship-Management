@@ -180,14 +180,14 @@
         var url = '{{ Request::url() }}';
 
         var searchParams = new URLSearchParams(window.location.search);
-        
+
         if($('#bundleChecked').is(':checked')){
             searchParams.set('b','true')
             var newParams = searchParams.toString()
         }else{
             searchParams.delete('b')
             var newParams = searchParams.toString()
-            
+
         }
 
         window.location.href = url + '?' + newParams;

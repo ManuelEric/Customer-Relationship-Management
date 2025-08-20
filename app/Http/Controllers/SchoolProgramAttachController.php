@@ -15,12 +15,9 @@ use App\Services\Log\LogService;
 
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Str;
 
 class SchoolProgramAttachController extends Controller
 {
@@ -32,8 +29,8 @@ class SchoolProgramAttachController extends Controller
     protected SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository;
 
     public function __construct(
-        // SchoolRepositoryInterface $schoolRepository, 
-        // SchoolProgramRepositoryInterface $schoolProgramRepository, 
+        // SchoolRepositoryInterface $schoolRepository,
+        // SchoolProgramRepositoryInterface $schoolProgramRepository,
         SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository,
 
     ) {
@@ -45,7 +42,6 @@ class SchoolProgramAttachController extends Controller
     public function store(StoreSchoolProgramAttachRequest $request, CreateSchoolProgramAttachAction $createSchoolProgramAttachAction, LogService $log_service)
     {
 
-
         $school_id = $request->route('school');
         $school_program_id = $request->route('sch_prog');
 
@@ -53,7 +49,7 @@ class SchoolProgramAttachController extends Controller
 
         try {
 
-            # insert into school program attachment
+            // insert into school program attachment
             $created_partner_program_attach = $createSchoolProgramAttachAction->execute($request, $school_program_id);
 
             DB::commit();
@@ -62,15 +58,13 @@ class SchoolProgramAttachController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_SCHOOL_PROGRAM_ATTACH, $e->getMessage(), $e->getLine(), $e->getFile(), $request->all());
 
-            return Redirect::to('program/school/' . $school_id . '/detail/create')->withError('Failed to create school program attachments' . $e->getMessage());
+            return Redirect::to('program/school/'.$school_id.'/detail/create')->withError('Failed to create school program attachments'.$e->getMessage());
         }
 
         $log_service->createSuccessLog(LogModule::STORE_SCHOOL_PROGRAM_ATTACH, 'New school program attach has been added', $created_partner_program_attach->toArray());
 
-        return Redirect::to('program/school/' . $school_id . '/detail/' . $school_program_id)->withSuccess('School program attachments successfully created');
+        return Redirect::to('program/school/'.$school_id.'/detail/'.$school_program_id)->withSuccess('School program attachments successfully created');
     }
-
-
 
     public function destroy(Request $request, DeleteSchoolProgramAttachAction $deleteSchoolProgramAttachAction, LogService $log_service)
     {
@@ -88,12 +82,13 @@ class SchoolProgramAttachController extends Controller
 
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_SCHOOL_PROGRAM_ATTACH, $e->getMessage(), $e->getLine(), $e->getFile(), ['attach_id' => $attach_id]);
-            return Redirect::to('program/school/' . $school_id . '/detail/' . $sch_prog_id)->withError('Failed to delete school program attachments' . $e->getMessage());
+
+            return Redirect::to('program/school/'.$school_id.'/detail/'.$sch_prog_id)->withError('Failed to delete school program attachments'.$e->getMessage());
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_PROGRAM_ATTACH, 'School program attach has been deleted', ['attach_id' => $attach_id]);
 
-        return Redirect::to('program/school/' . $school_id . '/detail/' . $sch_prog_id)->withSuccess('School program attachments successfully deleted');
+        return Redirect::to('program/school/'.$school_id.'/detail/'.$sch_prog_id)->withSuccess('School program attachments successfully deleted');
     }
 }

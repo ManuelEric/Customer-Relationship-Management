@@ -10,18 +10,16 @@ use App\Http\Requests\StoreTagRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\TagRepositoryInterface;
 use App\Services\Log\LogService;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class TagController extends Controller
 {
-
     use LoggingTrait;
+
     protected TagRepositoryInterface $tagRepository;
 
     public function __construct(TagRepositoryInterface $tagRepository)
@@ -36,7 +34,6 @@ class TagController extends Controller
             return $this->tagRepository->getAllTagsDataTables();
         }
 
-    
         return view('pages.master.university-tag.index');
     }
 
@@ -61,8 +58,8 @@ class TagController extends Controller
             return Redirect::to('master/university-tags')->withError('Failed to create a new university tags');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_TAG, 'New tag has been added', $new_tag->toArray());
 
         return Redirect::to('master/university-tags')->withSuccess('University tags successfully created');
@@ -90,8 +87,8 @@ class TagController extends Controller
             return Redirect::to('master/university-tags')->withError('Failed to update a university tags');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_TAG, 'Tag has been updated', $updated_tag->toArray());
 
         return Redirect::to('master/university-tags')->withSuccess('University tags successfully updated');
@@ -126,11 +123,10 @@ class TagController extends Controller
             return Redirect::to('master/university-tags')->withError('Failed to delete a university tags');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_TAG, 'Tag has been deleted', $tag->toArray());
 
         return Redirect::to('master/university-tags')->withSuccess('University tags successfully deleted');
     }
-
 }

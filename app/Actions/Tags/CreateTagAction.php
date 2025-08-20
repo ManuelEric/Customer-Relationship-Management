@@ -14,10 +14,9 @@ class CreateTagAction
     }
 
     public function execute(
-        Array $new_tag_details
-    )
-    {
-        # store new subject
+        array $new_tag_details
+    ) {
+        // store new subject
         $new_tag = $this->tagRepository->createTag($new_tag_details);
 
         return $new_tag;

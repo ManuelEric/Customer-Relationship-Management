@@ -20,8 +20,8 @@
                     <div class="fw-bold">{{ $user_subject_by_subject_id->first()->first()->subject->name }}</div>
                     @foreach ($user_subject_by_subject_id as $user_subject_by_year)
                         <hr>
-                        @foreach ($user->user_subjects()->where('subject_id', $user_subject_by_year->first()->subject_id)->where('year', $user_subject_by_year->first()->year)->get() as $user_subject)
-                                <b>{{ $user_subject->year }} {{ $user_subject->grade != null ? '| ' . $user_subject->grade : '' }}</b>  
+                        @foreach ($user->user_subjects()->where('subject_id', $user_subject_by_year->last()->subject_id)->where('year', $user_subject_by_year->last()->year)->get() as $user_subject)
+                                <b>{{ $user_subject->year }} {{ $user_subject->grade != null ? '| ' . $user_subject->grade : '' }}</b>
                                 @if($user_subject->agreement != null && $loop->index == 0)
                                     <div class="d-grid gap-2 d-md-flex mx-auto">
                                         <h6>
@@ -60,11 +60,11 @@
                                         <td> {{ $user_subject->head ?? '-' }}</td>
                                     </tr>
                                 </table>
-    
+
                         @endforeach
                     @endforeach
                 </div>
-                
+
             </li>
         @empty
             <p>
@@ -85,7 +85,7 @@
                 </h4>
             </div>
             <div class="modal-body">
-                <form action="{{ route('user.store.agreement', ['user' => $user->id, 'user_role' =>  Request::route('user_role')]) }}" 
+                <form action="{{ route('user.store.agreement', ['user' => $user->id, 'user_role' =>  Request::route('user_role')]) }}"
                     id="detailForm" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
@@ -131,7 +131,7 @@
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
-                        
+
                         <div class="detail-subject" id="detail-subject-0">
                             <div class="row subject-detail-field px-3 py-2" id="subjectDetailField-0">
                                 <fieldset class="border p-3">
@@ -139,7 +139,7 @@
                                         <input type="hidden" value="1" name="count_agreement_detail[]">
                                         <div class="row">
                                             <div class="input-grade col-md-6 mb-2 d-none">
-                                                <label for="">Grade <sup class="text-danger">*</sup></label>
+                                                <label for="">Grade</label>
                                                 <select name="grade[]" class="grade-select w-50">
                                                     <option data-placeholder="true"></option>
                                                     <option value="9-10">9-10</option>
@@ -184,8 +184,8 @@
                                  </fieldset>
                             </div>
                         </div>
-                        
-                        
+
+
                         <div class="col-md-12 mt-2">
                             <div class="d-flex justify-content-between">
                                 <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
@@ -231,15 +231,15 @@
             var selected_role_id = $(this).select2().find(":selected").data('role-id');
             var edit = $(this).data('edit');
             var selected_subject = $(this).data('edit') === true ? $(this).data('subject') : null;
-            
+
             $('#role-id-user-agreement').val(selected_role_id);
-            
+
             if(selected_role == 'Tutor'){
                 $('.input-grade').removeClass('d-none');
             }else{
                 $('.input-grade').addClass('d-none');
             }
-            
+
             var baseUrl = "{{ url('/') }}/api/v1/get/subjects/" + selected_role;
 
             showLoading();
@@ -247,15 +247,15 @@
             .then(function(response) {
                 // handle success
                 let subjects = response.data.data
-                
+
                 let list_option_subjects = '<option data-placeholder="true"></option>';
-                
+
                 subjects.forEach((subject) => {
                     list_option_subjects += '<option value="'+subject.id+'" '+ (selected_subject !== null && subject.id == selected_subject ? "selected" : "") +'>' +subject.name+ '</option>';
                 });
 
                 $('#subject_id').html(list_option_subjects);
-                
+
                 Swal.close()
             })
             .catch(function(error) {
@@ -269,7 +269,7 @@
     function addDetailAgreement(index = 0) {
         let id = Math.floor((Math.random() * 100) + 1);
         let selected_role = $('#role_agreement').select2().find(":selected").html();
-        let count_subject_detail_field = $('.subject-detail-field').length        
+        let count_subject_detail_field = $('.subject-detail-field').length
 
         $("#detail-subject-"+index).append(
             '<div class="row subject-detail-field px-3 py-2" id="subjectDetailField-'+id+'">' +
@@ -278,7 +278,7 @@
                         '<input type="hidden" value="1" name="count_agreement_detail[]">' +
                         '<div class="row">' +
                             '<div class="input-grade col-md-6 mb-2 '+(selected_role != 'Tutor' ? 'd-none' : '')+'">' +
-                            '<label for="">Grade <sup class="text-danger">*</sup></label>' +
+                            '<label for="">Grade' +
                             '<select name="grade[]" class="grade-select w-100">' +
                                 '<option data-placeholder="true"></option>' +
                                 '<option value="9-10">9-10</option>' +
@@ -340,22 +340,22 @@
     function deleteDetailSubject(id) {
         $('#subjectDetailField-' + id).remove();
     }
-    
+
     function editAgreement(subject_id, year) {
 
-        var baseUrl = "{{ url('/user/'.Request::route("user_role").'/'.$user->id.'/agreement') }}/" + subject_id + "/year/" + year;        
-        
+        var baseUrl = "{{ url('/user/'.Request::route("user_role").'/'.$user->id.'/agreement') }}/" + subject_id + "/year/" + year;
+
         $('#agreementForm').modal('show');
         showLoading();
         axios.get(baseUrl)
         .then(function(response) {
             // handle success
             let user_subjects = response.data.data
-            
+
             var html_agreement = '';
-            var keys = Object.keys(user_subjects) 
-            
-            
+            var keys = Object.keys(user_subjects)
+
+
             $('#role_agreement').attr('data-edit', 'true');
             $('#role_agreement').attr('data-subject', user_subjects[keys[0]].subject_id);
             $('#role_agreement').val(user_subjects[keys[0]].user_role_id).trigger('change');
@@ -365,7 +365,7 @@
             $('#year').val(user_subjects[keys[0]].year).trigger('change');
 
             if(user_subjects[keys[0]].agreement !== null){
-                
+
                 html_agreement += '<button id="btn-download-'+user_subjects[keys[0]].id+'" type="button" class="btn btn-sm btn-info me-2 download" onclick="downloadAgreement('+user_subjects[keys[0]].id+')">' +
                     '<i class="bi bi-download me-2"></i>' +
                         'Download' +
@@ -379,19 +379,19 @@
                     '<input type="file" name="agreement" class="form-control form-control-sm rounded">' +
                     '<i id="btn-roolback-'+user_subjects[keys[0]].id+'" class="bi bi-backspace ms-2 cursor-pointer text-danger rollback" onclick="roolbackAgreement(' + user_subjects[keys[0]].id + ')"></i>' +
                     '</div>' ;
-                    
+
                 $('.file-agreement').html('');
                 $('.file-agreement').html(html_agreement);
             }
-            
+
             var new_html_detail_agreement = '';
             var i = 0;
             Object.keys(user_subjects).forEach(function (key){
-                
+
                 @php
                     $index = 0;
                 @endphp
-                
+
                 var id_field_detail_subject = Math.floor((Math.random() * 100) + 1);
                 new_html_detail_agreement += '<div class="row subject-detail-field px-3 py-2" id="subjectDetailField-'+id_field_detail_subject+'">' +
                     '<fieldset class="border p-3">' +
@@ -446,7 +446,7 @@
                     '</fieldset>' +
                     '</div>';
 
-                    @php 
+                    @php
                         $index++;
                     @endphp
                     i++;
@@ -468,14 +468,14 @@
             Swal.close()
             notification(error.response.data.success, 'Something went wrong. Please try again or contact the administrator.')
         })
-        
+
     }
 
     $('#btn-add-agreement').on('click', function(){
-      
+
         $('#detailForm input[type="text"]').val('');
         $('#detailForm select').val('');
-        
+
         $('#agreementForm').modal('show');
         $('#btn-add-detail-agreement').removeClass('d-none');
 
@@ -506,19 +506,19 @@
 
 
 @if(
-    $errors->has('role_agreement') || 
-    $errors->has('subject_id') || 
-    $errors->has('year') || 
-    $errors->has('grade.*') || 
-    $errors->has('fee_individual.*') || 
-    $errors->has('fee_group.*') || 
-    $errors->has('additional_fee.*') || 
-    $errors->has('head.*') 
+    $errors->has('role_agreement') ||
+    $errors->has('subject_id') ||
+    $errors->has('year') ||
+    $errors->has('grade.*') ||
+    $errors->has('fee_individual.*') ||
+    $errors->has('fee_group.*') ||
+    $errors->has('additional_fee.*') ||
+    $errors->has('head.*')
     )
-            
+
     <script>
         $(document).ready(function(){
-            $('#agreementForm').modal('show'); 
+            $('#agreementForm').modal('show');
         })
 
     </script>

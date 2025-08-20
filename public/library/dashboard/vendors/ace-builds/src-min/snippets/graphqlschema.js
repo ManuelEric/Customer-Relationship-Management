@@ -5,4 +5,3 @@ define("ace/snippets/graphqlschema",["require","exports","module"],function(e,t,
                         }
                     });
                 })();
-            

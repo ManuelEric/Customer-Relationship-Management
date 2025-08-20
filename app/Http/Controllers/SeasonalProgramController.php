@@ -13,8 +13,6 @@ use App\Interfaces\SeasonalProgramRepositoryInterface;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -24,6 +22,7 @@ class SeasonalProgramController extends Controller
     use LoggingTrait;
 
     protected SeasonalProgramRepositoryInterface $seasonalProgramRepository;
+
     protected ProgramRepositoryInterface $programRepository;
 
     public function __construct(SeasonalProgramRepositoryInterface $seasonalProgramRepository, ProgramRepositoryInterface $programRepository)
@@ -40,12 +39,12 @@ class SeasonalProgramController extends Controller
             return $this->seasonalProgramRepository->getDataTables($model);
         }
 
-        # for create modal
+        // for create modal
         $programs = $this->programRepository->getAllPrograms();
 
         return view('pages.master.seasonal-program.index')->with(
             [
-                'programs' => $programs
+                'programs' => $programs,
             ]
         );
     }
@@ -56,12 +55,12 @@ class SeasonalProgramController extends Controller
             'prog_id',
             'start',
             'end',
-            'sales_date'
+            'sales_date',
         ]);
 
         DB::beginTransaction();
         try {
-            
+
             $new_seasonal_program = $createSeasonalProgramAction->execute($seasonal_program_details);
             DB::commit();
 
@@ -74,8 +73,8 @@ class SeasonalProgramController extends Controller
 
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_SEASONAL_PROGRAM, 'New seasonal program has been added', $new_seasonal_program->toArray());
 
         return Redirect::to('master/seasonal-program')->withSuccess('A new seasonal program successfully created');
@@ -99,14 +98,14 @@ class SeasonalProgramController extends Controller
             'prog_id',
             'start',
             'end',
-            'sales_date'
+            'sales_date',
         ]);
 
         $old_seasonal_program = $this->seasonalProgramRepository->getSeasonalProgramById($seasonal_program_id);
 
         DB::beginTransaction();
         try {
-            
+
             $updated_seasonal_program = $updateSeasonalProgramAction->execute($seasonal_program_id, $new_seasonal_program_details);
             DB::commit();
 
@@ -119,8 +118,8 @@ class SeasonalProgramController extends Controller
 
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_SEASONAL_PROGRAM, 'Seasonal program has been updated', $updated_seasonal_program->toArray());
 
         return Redirect::to('master/seasonal-program')->withSuccess('The seasonal program successfully updated');
@@ -145,8 +144,8 @@ class SeasonalProgramController extends Controller
             return Redirect::to('master/seasonal-program')->withError('Failed to delete the seasonal program');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_SEASONAL_PROGRAM, 'Seasonal program has been deleted', $seasonal_program->toArray());
 
         return Redirect::to('master/seasonal-program')->withSuccess('Seasonal program successfully deleted');

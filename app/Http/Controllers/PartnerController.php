@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Redirect;
 class PartnerController extends Controller
 {
     use LoggingTrait;
-    
+
     private PartnerRepositoryInterface $partnerRepository;
 
     public function __construct(PartnerRepositoryInterface $partnerRepository)
@@ -25,14 +25,15 @@ class PartnerController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax())
+        if ($request->ajax()) {
             return $this->partnerRepository->getAllPartnerDataTables();
+        }
 
         return view('pages.instance.referral.index');
     }
 
-    public function store(StorePartnerRequest $request) 
-    {  
+    public function store(StorePartnerRequest $request)
+    {
         $partnerDetails = $request->only([
             'pt_name',
             'pt_email',
@@ -51,14 +52,15 @@ class PartnerController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store partner failed : ' . $e->getMessage());
+            Log::error('Store partner failed : '.$e->getMessage());
+
             return Redirect::to('instance/referral')->withError('Failed to create a new partner');
 
         }
 
-        # store Success
-        # create log success
-        $this->logSuccess('store', 'Form Input', 'Partner', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerCreated);
+        // store Success
+        // create log success
+        $this->logSuccess('store', 'Form Input', 'Partner', Auth::user()->first_name.' '.Auth::user()->last_name, $partnerCreated);
 
         return Redirect::to('instance/referral')->withSuccess('Partner successfully created');
     }
@@ -75,7 +77,7 @@ class PartnerController extends Controller
 
         return view('pages.instance.referral.form')->with(
             [
-                'partner' => $partner
+                'partner' => $partner,
             ]
         );
     }
@@ -102,14 +104,15 @@ class PartnerController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update partner failed : ' . $e->getMessage());
+            Log::error('Update partner failed : '.$e->getMessage());
+
             return Redirect::to('instance/referral')->withError('Failed to update partner');
 
         }
 
-        # Update success
-        # create log success
-        $this->logSuccess('update', 'Form Input', 'Partner', Auth::user()->first_name . ' '. Auth::user()->last_name, $newDetails, $oldPartner);
+        // Update success
+        // create log success
+        $this->logSuccess('update', 'Form Input', 'Partner', Auth::user()->first_name.' '.Auth::user()->last_name, $newDetails, $oldPartner);
 
         return Redirect::to('instance/referral')->withSuccess('Partner successfully updated');
     }
@@ -118,7 +121,7 @@ class PartnerController extends Controller
     {
         $partnerId = $request->route('partner');
         $partner = $this->partnerRepository->getPartnerById($partnerId);
-        
+
         DB::beginTransaction();
         try {
 
@@ -128,14 +131,15 @@ class PartnerController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete partner failed : ' . $e->getMessage());
+            Log::error('Delete partner failed : '.$e->getMessage());
+
             return Redirect::to('instance/referral')->withError('Failed to delete partner');
 
         }
 
-        # Delete success
-        # create log success
-        $this->logSuccess('delete', null, 'Partner', Auth::user()->first_name . ' '. Auth::user()->last_name, $partner);
+        // Delete success
+        // create log success
+        $this->logSuccess('delete', null, 'Partner', Auth::user()->first_name.' '.Auth::user()->last_name, $partner);
 
         return Redirect::to('instance/referral')->withSuccess('Partner successfully deleted');
     }

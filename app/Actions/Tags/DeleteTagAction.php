@@ -15,9 +15,8 @@ class DeleteTagAction
 
     public function execute(
         $tag_id
-    )
-    {
-        # delete tag
+    ) {
+        // delete tag
         $deleted_tag = $this->tagRepository->deleteTag($tag_id);
 
         return $deleted_tag;

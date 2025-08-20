@@ -19,16 +19,14 @@ use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Services\LeadTrackerService;
 use App\Services\Log\LogService;
-use Illuminate\Support\Collection;
 use Exception;
 use Illuminate\Http\Request;
-use PDO;
 
 class ReportController extends Controller
 {
     protected ClientEventRepositoryInterface $clientEventRepository;
-    protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
 
+    protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
 
     public function __construct(
         ClientEventRepositoryInterface $clientEventRepository,
@@ -45,11 +43,10 @@ class ReportController extends Controller
         ReportSalesRequest $request,
         SalesReportAction $salesReportAction,
         LogService $log_service
-    ) 
-    {
-        # initialize
+    ) {
+        // initialize
         $validated = $request->safe()->only([
-            'start', 
+            'start',
             'end',
             'main',
             'program',
@@ -61,6 +58,7 @@ class ReportController extends Controller
             $log_service->createErrorLog(LogModule::REPORT_SALES_TRACKING, $e->getMessage(), $e->getLine(), $e->getFile());
         }
         $log_service->createInfoLog(LogModule::REPORT_SALES_TRACKING, 'User accessed report sales tracking');
+
         return view('pages.report.sales-tracking.index')->with($sales_report);
     }
 
@@ -68,24 +66,25 @@ class ReportController extends Controller
         ReportEventRequest $request,
         EventReportAction $eventReportAction,
         LogService $log_service,
-        )
-    {
-        # initialize
+    ) {
+        // initialize
         $filter = $request->safe()->only([
             'event_name',
             'start_date',
-            'end_date'
+            'end_date',
         ]);
 
-        if ($request->ajax()) 
+        if ($request->ajax()) {
             return $this->clientEventRepository->getAllClientEventDataTables($filter);
-        
+        }
+
         try {
             $event_tracking = $eventReportAction->execute($filter['event_name']);
         } catch (Exception $e) {
             $log_service->createErrorLog(LogModule::REPORT_EVENT_TRACKING, $e->getMessage(), $e->getLine(), $e->getFile());
         }
         $log_service->createInfoLog(LogModule::REPORT_EVENT_TRACKING, 'User accessed report event tracking');
+
         return view('pages.report.event-tracking.index')->with($event_tracking);
     }
 
@@ -93,8 +92,7 @@ class ReportController extends Controller
         ReportPartnershipRequest $request,
         PartnershipReportAction $partnershipReportAction,
         LogService $log_service,
-        )
-    {
+    ) {
         $validated = $request->safe()->only(['start_date', 'end_date']);
         try {
             $partnership_report = $partnershipReportAction->execute($validated);
@@ -102,6 +100,7 @@ class ReportController extends Controller
             $log_service->createErrorLog(LogModule::REPORT_PARTNERSHIP, $e->getMessage(), $e->getLine(), $e->getFile());
         }
         $log_service->createInfoLog(LogModule::REPORT_PARTNERSHIP, 'User accessed report partnership');
+
         return view('pages.report.partnership.index')->with($partnership_report);
     }
 
@@ -109,8 +108,7 @@ class ReportController extends Controller
         ReportInvoiceReceiptRequest $request,
         InvoiceReceiptReportAction $invoiceReceiptReportAction,
         LogService $log_service,
-        )
-    {
+    ) {
         $validated = $request->safe()->only(['start_date', 'end_date']);
         try {
             $invoice_receipt_report = $invoiceReceiptReportAction->execute($validated);
@@ -118,6 +116,7 @@ class ReportController extends Controller
             $log_service->createErrorLog(LogModule::REPORT_INVOICE_RECEIPT, $e->getMessage(), $e->getLine(), $e->getFile());
         }
         $log_service->createInfoLog(LogModule::REPORT_INVOICE_RECEIPT, 'User accessed report invoice receipt');
+
         return view('pages.report.invoice.index')->with($invoice_receipt_report);
     }
 
@@ -125,8 +124,7 @@ class ReportController extends Controller
         ReportUnpaidPaymentRequest $request,
         UnpaidPaymentReportAction $unpaidPaymentReportAction,
         LogService $log_service,
-        )
-    {
+    ) {
         $validated = $request->safe()->only(['start_date', 'end_date']);
         try {
             $unpaid_payment_report = $unpaidPaymentReportAction->execute($validated);
@@ -134,14 +132,14 @@ class ReportController extends Controller
             $log_service->createErrorLog(LogModule::REPORT_UNPAID_PAYMENT, $e->getMessage(), $e->getLine(), $e->getFile());
         }
         $log_service->createInfoLog(LogModule::REPORT_UNPAID_PAYMENT, 'User accessed report unpaid payment');
+
         return view('pages.report.unpaid-payment.index')->with($unpaid_payment_report);
     }
 
     public function fnProgramTracking(
         ReportProgramTrackingRequest $request,
         LogService $log_service
-        )
-    {
+    ) {
         $validated = $request->safe()->only(['start_month', 'end_month']);
         $start_month = $validated['start_month'];
         $end_month = $validated['end_month'];
@@ -151,26 +149,31 @@ class ReportController extends Controller
             $log_service->createErrorLog(LogModule::REPORT_PROGRAM_TRACKING, $e->getMessage(), $e->getLine(), $e->getFile());
         }
         $log_service->createInfoLog(LogModule::REPORT_PROGRAM_TRACKING, 'User accessed report program tracking');
+
         return view('pages.report.program-tracking.index')->with(compact('program_tracking'));
     }
 
     public function fnLeadTracking(
         Request $request,
         LeadTrackerReportAction $leadTrackerReportAction,
-        )
-    {
+    ) {
         $date_range = $request->get('daterange');
         $lead_tracker_report = $leadTrackerReportAction->execute($date_range);
+
         return view('pages.report.lead.index')->with($lead_tracker_report);
     }
 
     public function fnDetailLeadTracking(
         Request $request,
         LeadTrackerService $lead_tracker_service
-    ){
+    ) {
         $type = $request->get('type');
         $date_range = $request->get('daterange');
-        $search = $request->get('search');
+        $search = [
+            'search' => $request->get('search'),
+            'lead_source' => $request->get('lead_source'),
+            'utm_content' => $request->get('utm_content'),
+        ];
 
         $leads_tracker = $lead_tracker_service->detailLead($type, $date_range, $search);
 
@@ -185,7 +188,9 @@ class ReportController extends Controller
         return view('pages.report.lead.detail.index')->with(
             [
                 'leads_tracker' => $leads_tracker->paginate(10)->appends($request->query()),
-                'percentage_division' => $precentage_division
+                'percentage_division' => $precentage_division,
+                'lead_source' => $lead_tracker_service->detailLead($type, $date_range, null)->groupBy('lead_source'),
+                'utm_content' => $lead_tracker_service->detailLead($type, $date_range, null)->groupBy('utm_content'),
             ]
         );
     }

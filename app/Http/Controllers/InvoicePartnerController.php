@@ -4,56 +4,56 @@ namespace App\Http\Controllers;
 
 use App\Enum\LogModule;
 use App\Http\Requests\StoreInvoiceB2bRequest;
-use App\Http\Requests\StoreAttachmentB2bRequest;
-use App\Interfaces\ProgramRepositoryInterface;
+use App\Http\Traits\CreateInvoiceIdTrait;
+use App\Http\Traits\LoggingTrait;
+use App\Interfaces\AxisRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
-use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
+use App\Interfaces\PartnerProgramRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
-use App\Interfaces\AxisRepositoryInterface;
-use App\Http\Traits\CreateInvoiceIdTrait;
-use App\Http\Traits\DirectorListTrait;
-use App\Http\Traits\LoggingTrait;
 use App\Models\Invb2b;
 use App\Services\Log\LogService;
-use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Storage;
-use PDF;
-
 
 class InvoicePartnerController extends InvoiceB2BBaseController
 {
     use CreateInvoiceIdTrait;
     use LoggingTrait;
+
     protected CorporateRepositoryInterface $corporateRepository;
+
     protected PartnerProgramRepositoryInterface $partnerProgramRepository;
+
     protected ProgramRepositoryInterface $programRepository;
+
     protected InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
+
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
+
     protected ReceiptRepositoryInterface $receiptRepository;
+
     protected AxisRepositoryInterface $axisRepository;
+
     public $module;
 
     public function __construct(
-        CorporateRepositoryInterface $corporateRepository, 
-        PartnerProgramRepositoryInterface $partnerProgramRepository, 
-        ProgramRepositoryInterface $programRepository, 
-        InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, 
-        InvoiceB2bRepositoryInterface $invoiceB2bRepository, 
-        InvoiceDetailRepositoryInterface $invoiceDetailRepository, 
-        ReceiptRepositoryInterface $receiptRepository, 
+        CorporateRepositoryInterface $corporateRepository,
+        PartnerProgramRepositoryInterface $partnerProgramRepository,
+        ProgramRepositoryInterface $programRepository,
+        InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository,
+        InvoiceB2bRepositoryInterface $invoiceB2bRepository,
+        InvoiceDetailRepositoryInterface $invoiceDetailRepository,
+        ReceiptRepositoryInterface $receiptRepository,
         AxisRepositoryInterface $axisRepository)
     {
         $this->corporateRepository = $corporateRepository;
@@ -93,7 +93,7 @@ class InvoicePartnerController extends InvoiceB2BBaseController
 
         // $partnerId = $partner_program->sch_id;
 
-        # retrieve partner data by id
+        // retrieve partner data by id
         // $partner = $this->corporateRepository->getSchoolById($partnerId);
 
         return view('pages.invoice.corporate-program.form')->with(
@@ -132,7 +132,7 @@ class InvoicePartnerController extends InvoiceB2BBaseController
             'invb2b_duedate',
             'invb2b_notes',
             'invb2b_tnc',
-            'is_full_amount'
+            'is_full_amount',
         ]);
 
         $installments = $request->only(
@@ -185,14 +185,11 @@ class InvoicePartnerController extends InvoiceB2BBaseController
                 break;
         }
 
-
-
         unset($invoices['invb2b_participants_other']);
         unset($invoices['invb2b_priceidr_other']);
         unset($invoices['invb2b_discidr_other']);
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
-
 
         $now = Carbon::now();
         $this_month = $now->month;
@@ -213,7 +210,6 @@ class InvoicePartnerController extends InvoiceB2BBaseController
         }
         unset($installments);
 
-
         DB::beginTransaction();
         try {
 
@@ -227,11 +223,11 @@ class InvoicePartnerController extends InvoiceB2BBaseController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_INVOICE_PARTNER, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
-            return Redirect::to('invoice/corporate-program/' . $partner_prog_id . '/detail/create')->withError('Failed to create a new invoice');
+            return Redirect::to('invoice/corporate-program/'.$partner_prog_id.'/detail/create')->withError('Failed to create a new invoice');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_INVOICE_PARTNER, 'New invoice partner has been added', $invoices);
 
         return Redirect::to('invoice/corporate-program/status/list')->withSuccess('Invoice successfully created');
@@ -303,7 +299,7 @@ class InvoicePartnerController extends InvoiceB2BBaseController
             'invb2b_duedate',
             'invb2b_notes',
             'invb2b_tnc',
-            'is_full_amount'
+            'is_full_amount',
         ]);
 
         $installments = $request->only(
@@ -345,7 +341,6 @@ class InvoicePartnerController extends InvoiceB2BBaseController
                 unset($invoices['invb2b_totprice']);
                 unset($invoices['invb2b_words']);
                 unset($invoices['currency']);
-
 
                 unset($installments['invdtl_installment_other']);
                 unset($installments['invdtl_duedate_other']);
@@ -393,14 +388,14 @@ class InvoicePartnerController extends InvoiceB2BBaseController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_INVOICE_PARTNER, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
-            return Redirect::to('invoice/corporate-program/' . $partner_prog_id . '/detail/' . $inv_num)->withError('Failed to update invoice');
+            return Redirect::to('invoice/corporate-program/'.$partner_prog_id.'/detail/'.$inv_num)->withError('Failed to update invoice');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_INVOICE_PARTNER, 'Invoice partner has been updated', $invoices);
 
-        return Redirect::to('invoice/corporate-program/' . $partner_prog_id . '/detail/' . $inv_num)->withSuccess('Invoice successfully updated');
+        return Redirect::to('invoice/corporate-program/'.$partner_prog_id.'/detail/'.$inv_num)->withSuccess('Invoice successfully updated');
     }
 
     public function destroy(Request $request, LogService $log_service)
@@ -419,11 +414,11 @@ class InvoicePartnerController extends InvoiceB2BBaseController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_INVOICE_PARTNER, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice->toArray());
 
-            return Redirect::to('invoice/corporate-program/' . $partner_prog_id . '/detail/' . $inv_num)->withError('Failed to delete invoice');
+            return Redirect::to('invoice/corporate-program/'.$partner_prog_id.'/detail/'.$inv_num)->withError('Failed to delete invoice');
         }
-        
-        # Delete success
-        # create log success
+
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_INVOICE_PARTNER, 'Invoice partner has been deleted', $invoice->toArray());
 
         return Redirect::to('invoice/corporate-program/status/list')->withSuccess('Invoice successfully deleted');

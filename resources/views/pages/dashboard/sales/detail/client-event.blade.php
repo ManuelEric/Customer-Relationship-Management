@@ -111,7 +111,7 @@
     }
 </script>
 <script>
-    // Percentage 
+    // Percentage
     let lbl_client_event = [{
         formatter: (value, ctx) => {
             let datasets = ctx.chart.data.datasets;
@@ -138,7 +138,7 @@
         backgroundColor: '#fff',
     }]
 
-    // Client Event 
+    // Client Event
     const event = document.getElementById('client_event');
 
     const dataset_participants = new Array()
@@ -206,7 +206,7 @@
     });
 
 
-    // Concersion Lead 
+    // Concersion Lead
 
     $('.client-event-lead canvas').remove()
     $('.client-event-lead').append('<canvas id="client_event_lead"></canvas>')

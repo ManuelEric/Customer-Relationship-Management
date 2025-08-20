@@ -29,7 +29,7 @@
                     {{-- View of Create  --}}
                     <div class="mb-4">
                         <form action="{{ $url }}" method="POST">
-                            @csrf 
+                            @csrf
                             @if (isset($isUpdate) && $isUpdate === true)
                                 @method('PUT')
                             @endif
@@ -41,7 +41,7 @@
                                         @forelse ($alumnis as $alumni)
                                             <option value="{{ $alumni->id }}">{{ $alumni->full_name }}</option>
                                         @empty
-                                            
+
                                         @endforelse
                                     </select>
                                     @error('alumni')
@@ -63,7 +63,7 @@
                                                     @forelse ($universities as $university)
                                                         <option value="{{ $university->univ_id }}">{{ $university->univ_name }}</option>
                                                     @empty
-                                                        
+
                                                     @endforelse
                                                 </select>
                                                 @error('uni_id.0')
@@ -77,7 +77,7 @@
                                                     @forelse ($major_groups as $major_group)
                                                         <option value="{{ $major_group->id }}">{{ $major_group->mg_name }}</option>
                                                     @empty
-                                                        
+
                                                     @endforelse
                                                 </select>
                                                 @error('major_group.0')
@@ -111,7 +111,7 @@
                                     </div>
                                 </div>
                             </div>
-    
+
                             <div class="col-md-12 text-center">
                                 <button class="btn btn-sm btn-primary">
                                     <i class="bi bi-safe"></i>
@@ -131,7 +131,7 @@
                     <h6 class="p-2 m-0">University Acceptance Tracker</h6>
                 </div>
                 <div class="card-body">
-                    <div class="border rounded mt-4 ps-2 pe-2"> 
+                    <div class="border rounded mt-4 ps-2 pe-2">
                         <table class="table">
                             <thead>
                                 <tr>
@@ -210,7 +210,7 @@
 
     //             notification('error', error.message);
     //         });
-    // }); 
+    // });
 
     var index = 1
     $('#add_univ').click(function() {
@@ -230,16 +230,16 @@
 
     function getUnivListForm(id) {
 
-        const message = 
+        const message =
             '<div class="row align-items-end g-2 mb-3" id="univ_' + id + '">' +
                 '<div class="col-md-4 univ-'+ id +'">' +
                 '<label>University Name</label>' +
                 '<select name="uni_id[]" id="" class="select w-100">' +
-                    '<option data-placeholder="true"></option>' + 
+                    '<option data-placeholder="true"></option>' +
                     @forelse ($universities as $university)
                         '<option value="{{ $university->univ_id }}">{{ $university->univ_name }}</option>' +
                     @empty
-                        
+
                     @endforelse
                 '</select>' +
                 '</div>' +
@@ -250,7 +250,7 @@
                     @forelse ($major_groups as $major_group)
                         '<option value="{{ $major_group->id }}">{{ $major_group->mg_name }}</option>' +
                     @empty
-                        
+
                     @endforelse
                 '</select>' +
                 '</div>' +

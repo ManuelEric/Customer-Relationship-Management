@@ -17,20 +17,20 @@
              <div class="list-group-item d-flex flex-wrap gap-2 align-items-center">
                 @if( isset($partnerProgram))
                     @forelse ($partnerProgramAttachs as $partnerProgramAttach)
-                    
+
                         <div class="d-flex me-2 border px-2 py-1 rounded">
                             <a href="{{ Storage::url('attachment/partner_prog_attach/' . $partnerProgramAttach->partner_prog_id . '/' . $partnerProgramAttach->corprog_attach) }}" class="text-muted text-decoration-none">
                                     <i class="bi bi-download me-1"></i> {{ $partnerProgramAttach->corprog_file }}
                                 </a>
                                 <div class="text-end cursor-pointer ms-4">
-                                
+
                                     <i class="bi bi-x text-danger" onclick="confirmDelete('{{ 'program/corporate/' . $partner->corp_id . '/detail/' . $partnerProgram->id . '/attach' }}', {{$partnerProgramAttach->id}})"></i>
                                 </div>
                         </div>
-                    
+
 
                     @empty
-                        No Attachment Yet  
+                        No Attachment Yet
                     @endforelse
                 @endif
              </div>
@@ -53,7 +53,7 @@
                     <small class="text-danger fw-light">{{ $message }}</small>
                 @enderror
                  <form action="{{ url(
-                    'program/corporate/' . $partner->corp_id . '/detail/' . $partnerProgram->id . '/attach' 
+                    'program/corporate/' . $partner->corp_id . '/detail/' . $partnerProgram->id . '/attach'
                         )}}" method="POST" id="formPosition" enctype="multipart/form-data">
                      @csrf
                      <div class="put"></div>
@@ -66,7 +66,7 @@
                                  class="form-control form-control-sm rounded" value="{{ $errors->has('corprog_file') || $errors->has('corprog_attach')  ? old('corprog_file') : '' }}">
                             @error('corprog_file')
                                  <small class="text-danger fw-light">{{ $message }}</small>
-                            @enderror 
+                            @enderror
                          </div>
                          <div class="col-md-12 mb-2">
                              <label for="">
@@ -79,7 +79,7 @@
                             </div>
                             @error('corprog_attach')
                                  <small class="text-danger fw-light">{{ $message }}</small>
-                            @enderror 
+                            @enderror
                          </div>
                      </div>
                      <hr>
@@ -108,12 +108,12 @@
  </script>
 
     @if($errors->has('corprog_file') || $errors->has('corprog_attach') || $errors->has('partner_prog_id'))
-            
+
     <script>
         $(document).ready(function(){
-            $('#attachmentPartnerProg').modal('show'); 
+            $('#attachmentPartnerProg').modal('show');
         })
-    
+
     </script>
 
     @endif

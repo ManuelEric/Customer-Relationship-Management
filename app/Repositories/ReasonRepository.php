@@ -5,11 +5,9 @@ namespace App\Repositories;
 use App\Interfaces\ReasonRepositoryInterface;
 use App\Models\Reason;
 use App\Models\v1\Reason as V1Reason;
-use DataTables;
 
 class ReasonRepository implements ReasonRepositoryInterface
 {
-
     public function getAllReasons()
     {
         return Reason::all();
@@ -29,7 +27,7 @@ class ReasonRepository implements ReasonRepositoryInterface
     {
         return Reason::where('reason_name', 'like', '%'.$reasonName.'%')->first();
     }
-    
+
     public function getReasonByName($reasonName)
     {
         return Reason::where('reason_name', $reasonName)->first();
@@ -55,7 +53,7 @@ class ReasonRepository implements ReasonRepositoryInterface
         return Reason::find($reasonId)->update($newReasons);
     }
 
-    # CRM
+    // CRM
     public function getAllReasonFromCRM()
     {
         return V1Reason::all();

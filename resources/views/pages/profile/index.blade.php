@@ -124,7 +124,7 @@
                             <div class="col-md-6">
                                 <div class="mb-2">
                                     <label for="">
-                                        Confirmation 
+                                        Confirmation
                                     </label>
                                     <input type="password" name="password_confirmation" class="form-control form-control-sm rounded">
                                 </div>

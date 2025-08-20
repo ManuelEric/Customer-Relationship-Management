@@ -3,13 +3,12 @@
 namespace App\Repositories;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\School;
 use App\Models\SchoolAliases;
-use App\Models\V1\School as V1School;
-use Carbon\Carbon;
 use App\Models\SchoolDetail;
+use App\Models\V1\School as V1School;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -26,12 +25,11 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getAllSchoolDataTables($isRaw = false)
     {
-        $query = School::
-                    when($isRaw, function ($subQuery) {
-                        $subQuery->isNotVerified();
-                    }, function ($subQuery) {
-                        $subQuery->isVerified();
-                    });
+        $query = School::when($isRaw, function ($subQuery) {
+            $subQuery->isNotVerified();
+        }, function ($subQuery) {
+            $subQuery->isVerified();
+        });
 
         return Datatables::eloquent($query)->rawColumns(['sch_location'])
             ->addColumn('sch_type_text', function ($data) {
@@ -41,18 +39,20 @@ class SchoolRepository implements SchoolRepositoryInterface
                 $no = 1;
                 $curriculums = '';
                 foreach ($data->curriculum as $curriculum) {
-                    if ($no == 1)
+                    if ($no == 1) {
                         $curriculums = $curriculum->name;
-                    else
-                        $curriculums .= ', ' . $curriculum->name;
+                    } else {
+                        $curriculums .= ', '.$curriculum->name;
+                    }
 
                     $no++;
                 }
+
                 return $curriculums;
             })
             ->filterColumn('curriculum', function ($query, $keyword) {
                 $query->whereHas('curriculum', function ($q) use ($keyword) {
-                    $q->where('name', 'like', '%' . $keyword . '%');
+                    $q->where('name', 'like', '%'.$keyword.'%');
                 });
             })
             ->make(true);
@@ -151,19 +151,20 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function createSchoolIfNotExists(array $schoolDetails, array $schoolCurriculums)
     {
-        # find request school name from databases
-        if ($school = $this->getSchoolByName($schoolDetails['sch_name']))
+        // find request school name from databases
+        if ($school = $this->getSchoolByName($schoolDetails['sch_name'])) {
             return $school;
+        }
 
-        $last_id = School::max('sch_id');
+        $last_id = School::withTrashed()->max('sch_id');
         $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-        $school_id_with_label = 'SCH-' . $this->add_digit((int)$school_id_without_label + 1, 4);
+        $school_id_with_label = 'SCH-'.$this->add_digit((int) $school_id_without_label + 1, 4);
 
-        # insert school
+        // insert school
         $school = $this->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails);
         $school_id_after_insert = $school->sch_id;
 
-        # insert school curriculum
+        // insert school curriculum
         $this->schoolCurriculumRepository->createSchoolCurriculum($school_id_after_insert, $schoolCurriculums);
 
         return $school;
@@ -171,7 +172,7 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function findSchoolByTerms($searchTerms)
     {
-        # using fuzzy matching
+        // using fuzzy matching
         return School::whereRaw('sch_name like ?', ["%{$searchTerms}%"])->orWhereHas('aliases', function ($subQuery) use ($searchTerms) {
             $subQuery->whereRaw('alias like ?', ["%{$searchTerms}%"]);
         })->get();
@@ -180,15 +181,16 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function attachCurriculum($schoolId, array $curriculums)
     {
         $school = School::whereSchoolId($schoolId);
+
         return $school->curriculum()->attach($curriculums);
     }
 
     public function getDuplicateSchools()
     {
         return School::isVerified()->select([
-                DB::raw('COUNT(*) as count'),
-                'tbl_sch.sch_name',
-            ])->groupBy('sch_name')->havingRaw('count > 1')->get();
+            DB::raw('COUNT(*) as count'),
+            'tbl_sch.sch_name',
+        ])->groupBy('sch_name')->havingRaw('count > 1')->get();
     }
 
     public function getDuplicateUnverifiedSchools()
@@ -217,7 +219,7 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function getDeletedSchools($asDatatables = false)
     {
         $query = School::onlyTrashed();
-        
+
         return $asDatatables === false ? $query->get() : $query;
     }
 
@@ -231,18 +233,20 @@ class SchoolRepository implements SchoolRepositoryInterface
                     $no = 1;
                     $curriculums = '';
                     foreach ($data->curriculum as $curriculum) {
-                        if ($no == 1)
+                        if ($no == 1) {
                             $curriculums = $curriculum->name;
-                        else
-                            $curriculums .= ', ' . $curriculum->name;
+                        } else {
+                            $curriculums .= ', '.$curriculum->name;
+                        }
 
                         $no++;
                     }
+
                     return $curriculums;
                 })->
                 filterColumn('curriculum', function ($query, $keyword) {
                     $query->whereHas('curriculum', function ($q) use ($keyword) {
-                        $q->where('name', 'like', '%' . $keyword . '%');
+                        $q->where('name', 'like', '%'.$keyword.'%');
                     });
                 })->make(true);
     }
@@ -266,37 +270,37 @@ class SchoolRepository implements SchoolRepositoryInterface
     {
         School::where('sch_type', '=', '-')->update(
             [
-                'sch_type' => null
+                'sch_type' => null,
             ]
         );
 
         School::where('sch_mail', '=', '')->update(
             [
-                'sch_mail' => null
+                'sch_mail' => null,
             ]
         );
 
         School::where('sch_phone', '=', '')->update(
             [
-                'sch_phone' => null
+                'sch_phone' => null,
             ]
         );
 
         School::where('sch_insta', '=', '-')->orWhere('sch_insta', '=', '')->update(
             [
-                'sch_insta' => null
+                'sch_insta' => null,
             ]
         );
 
         School::where('sch_city', '=', '-')->orWhere('sch_city', '=', '')->update(
             [
-                'sch_city' => null
+                'sch_city' => null,
             ]
         );
 
         School::where('sch_location', '=', '-')->orWhere('sch_location', '=', '')->update(
             [
-                'sch_location' => null
+                'sch_location' => null,
             ]
         );
     }
@@ -305,31 +309,31 @@ class SchoolRepository implements SchoolRepositoryInterface
     {
         SchoolDetail::where('schdetail_fullname', '=', '')->update(
             [
-                'schdetail_fullname' => null
+                'schdetail_fullname' => null,
             ]
         );
 
         SchoolDetail::where('schdetail_email', '=', '')->update(
             [
-                'schdetail_email' => null
+                'schdetail_email' => null,
             ]
         );
 
         SchoolDetail::where('schdetail_grade', '=', '')->where('schdetail_grade', '=', ' ')->orWhereNull('schdetail_grade')->update(
             [
-                'schdetail_grade' => null
+                'schdetail_grade' => null,
             ]
         );
 
         SchoolDetail::where('schdetail_position', '=', '')->update(
             [
-                'schdetail_position' => null
+                'schdetail_position' => null,
             ]
         );
 
         SchoolDetail::where('schdetail_phone', '=', '')->orWhere('schdetail_phone', '=', '-')->update(
             [
-                'schdetail_phone' => null
+                'schdetail_phone' => null,
             ]
         );
     }
@@ -337,24 +341,24 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function getReportNewSchool($start_date, $end_date)
     {
         return School::whereDate('created_at', '>=', $start_date)
-                ->whereDate('created_at', '<=', $end_date)
-                ->get();
+            ->whereDate('created_at', '<=', $end_date)
+            ->get();
     }
 
     public function getFeederSchools($eventId)
     {
         $schools = School::join('tbl_client as c', 'c.sch_id', '=', 'tbl_sch.sch_id')
-                            ->join('tbl_client_event as ce', DB::raw('(CASE WHEN ce.child_id is NULL THEN ce.client_id ELSE ce.child_id END)'), '=', 'c.id')
-                            ->join('tbl_client_prog as cp', 'cp.client_id', '=', 'c.id')
-                            ->join('tbl_prog as p', 'p.prog_id', '=', 'cp.prog_id')
-                            ->where('ce.event_id', $eventId)->where('p.main_prog_id', '=', 1)
-        ->select([
-            'tbl_sch.sch_name',
-            'tbl_sch.sch_location',
-            'c.id',
-            'c.first_name',
-            // DB::raw('count(*) as school_has_sent_student')
-        ])->distinct('c.first_name')->
+            ->join('tbl_client_event as ce', DB::raw('(CASE WHEN ce.child_id is NULL THEN ce.client_id ELSE ce.child_id END)'), '=', 'c.id')
+            ->join('tbl_client_prog as cp', 'cp.client_id', '=', 'c.id')
+            ->join('tbl_prog as p', 'p.prog_id', '=', 'cp.prog_id')
+            ->where('ce.event_id', $eventId)->where('p.main_prog_id', '=', 1)
+            ->select([
+                'tbl_sch.sch_name',
+                'tbl_sch.sch_location',
+                'c.id',
+                'c.first_name',
+                // DB::raw('count(*) as school_has_sent_student')
+            ])->distinct('c.first_name')->
             // groupBy(['c.sch_id'])->
             get();
 
@@ -376,13 +380,13 @@ class SchoolRepository implements SchoolRepositoryInterface
         return School::where('sch_id', $school_id)->update(['status' => $newStatus]);
     }
 
-    # CRM v1
+    // CRM v1
     public function getAllSchoolFromV1()
     {
         return V1School::all();
     }
 
-    # alias
+    // alias
     public function createNewAlias($aliasDetail)
     {
         return SchoolAliases::create($aliasDetail);
@@ -393,18 +397,18 @@ class SchoolRepository implements SchoolRepositoryInterface
         return SchoolAliases::find($aliasid)->delete();
     }
 
-    # use for select2 filter client student
+    // use for select2 filter client student
     public function rnGetPaginateSchool($selectColumns = [], $filter = [])
     {
         $query = School::query();
-        if ($selectColumns)
+        if ($selectColumns) {
             $query->select($selectColumns);
+        }
 
-            
         return $query->
-            when(!empty($filter['sch_name']), function ($querySearch) use ($filter) {
-                $querySearch->whereRaw("sch_name like ?", "%{$filter['sch_name']}%");
+            when(! empty($filter['sch_name']), function ($querySearch) use ($filter) {
+                $querySearch->whereRaw('sch_name like ?', "%{$filter['sch_name']}%");
             })
-            ->simplePaginate(10);
+                ->simplePaginate(10);
     }
 }

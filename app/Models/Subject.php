@@ -4,27 +4,53 @@ namespace App\Models;
 
 use App\Events\MessageSent;
 use App\Models\pivot\UserSubject;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string|null $role
+ * @property int $is_active
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read UserSubject|null $pivot
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $user
+ * @property-read int|null $user_count
+ *
+ * @method static Builder<static>|Subject active()
+ * @method static Builder<static>|Subject newModelQuery()
+ * @method static Builder<static>|Subject newQuery()
+ * @method static Builder<static>|Subject query()
+ * @method static Builder<static>|Subject whereCreatedAt($value)
+ * @method static Builder<static>|Subject whereId($value)
+ * @method static Builder<static>|Subject whereIsActive($value)
+ * @method static Builder<static>|Subject whereName($value)
+ * @method static Builder<static>|Subject whereRole($value)
+ * @method static Builder<static>|Subject whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Subject extends Model
 {
     use HasFactory;
 
     protected $table = 'tbl_subjects';
-    
+
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'id',
-        'name', 
+        'name',
+        'is_active',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -65,7 +91,6 @@ class Subject extends Model
         return $model;
     }
 
-
     public function createdAt(): Attribute
     {
         return Attribute::make(
@@ -80,9 +105,13 @@ class Subject extends Model
         );
     }
 
+    public function scopeActive(Builder $query)
+    {
+        $query->where('is_active', 1);
+    }
+
     public function user()
     {
         return $this->belongsToMany(User::class, 'tbl_user_subjects', 'subject_id', 'user_id')->using(UserSubject::class)->withPivot('feehours', 'feesession')->withTimestamps();
     }
-
 }

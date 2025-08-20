@@ -3,15 +3,13 @@
 namespace App\Repositories;
 
 use App\Interfaces\SubProgRepositoryInterface;
-use App\Models\MainProg;
 use App\Models\SubProg;
 
-class SubProgRepository implements SubProgRepositoryInterface 
+class SubProgRepository implements SubProgRepositoryInterface
 {
-
     public function getSubProgByMainProgId($mainProg)
     {
-        return SubProg::whereHas('mainProgram', function($query) use ($mainProg) {
+        return SubProg::whereHas('mainProgram', function ($query) use ($mainProg) {
             $query->where('id', $mainProg);
         })->get();
     }
@@ -30,7 +28,7 @@ class SubProgRepository implements SubProgRepositoryInterface
 
     public function getSubProgByMainProgName($mainProg)
     {
-        return SubProg::whereHas('mainProgram', function($query) use ($mainProg) {
+        return SubProg::whereHas('mainProgram', function ($query) use ($mainProg) {
             $query->where('prog_name', $mainProg);
         })->get();
     }

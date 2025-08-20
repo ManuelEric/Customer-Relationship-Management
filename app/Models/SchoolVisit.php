@@ -2,11 +2,38 @@
 
 namespace App\Models;
 
-use App\Models\SchoolDetail;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $sch_id
+ * @property string $internal_pic
+ * @property int $school_pic
+ * @property string $visit_date
+ * @property string|null $notes
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $status
+ * @property-read \App\Models\User $pic_from_allin
+ * @property-read \App\Models\SchoolDetail $pic_from_school
+ * @property-read \App\Models\School $school
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit whereInternalPic($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit whereSchId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit whereSchoolPic($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SchoolVisit whereVisitDate($value)
+ *
+ * @mixin \Eloquent
+ */
 class SchoolVisit extends Model
 {
     use HasFactory;
@@ -16,7 +43,7 @@ class SchoolVisit extends Model
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'sch_id',

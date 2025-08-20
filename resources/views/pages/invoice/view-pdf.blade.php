@@ -5,14 +5,14 @@
     @media print {
         #pdf-container > .canvas-container{
             position: unset !important;
-            
+
         }
         canvas, .canvas-container {
             box-shadow: none !important;
             -webkit-box-shadow: none !important;
         }
     }
-    
+
 </style>
     <div class="toolbar">
         <div class="tool">
@@ -23,7 +23,7 @@
                     onclick="enableSelector(event)"></i></button>
         </div>
         <div class="tool">
-            <button class="btn btn-light btn-sm" 
+            <button class="btn btn-light btn-sm"
                 @if (isset($attachment) && $attachment->inv_id != NULL)
                     onclick="savePDF('print','{{$attachment->attachment}}')"><i class="fa fa-print"
                 @elseif (isset($invoiceAttachment))
@@ -38,10 +38,12 @@
  {{-- var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$invoiceAttachment->attachment) }}", { --}}
  <script src="https://fastly.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        @if (isset($attachment) && $attachment->inv_id != NULL)
-            var file = "{{ Storage::url('invoice/client/'.$attachment->attachment) }}"
+        @if (isset($attachment) && $attachment->inv_id != NULL && !isset($attachment_from_s3))
+            var file = "{{ Storage::url('project/crm/invoice/client/'.$attachment->attachment) }}"
         @elseif (isset($invoiceAttachment))
             var file = "{{ Storage::url($invoiceAttachment->attachment) }}"
+        @elseif (isset($attachment_from_s3) && $attachment_from_s3 != null)
+            var file = "{{ $attachment_from_s3 }}"
         @endif
 
         var pdf = new PDFAnnotate("pdf-container", file, {
@@ -67,7 +69,7 @@
                 }
             });
         }
-        
+
         function printPDF()
         {
             $(".toolbar").css({'display': 'none'});

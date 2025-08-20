@@ -1,14 +1,14 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Embed\PublicRegistrationController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientProgramController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Embed\PublicRegistrationController;
+use App\Http\Controllers\PaymentGatewayController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VolunteerController;
-use App\Jobs\JobCoba;
-use App\Models\UserClient;
+use App\Models\ClientEvent;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,17 +22,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-# AUTH START --------------------------------
+// AUTH START --------------------------------
 
 Route::middleware('guest')->group(function () {
     Route::get('/', function () {
         return view('auth.login');
     });
-    
-    Route::get('404', function () {
-        return view('auth.404');
-    })->name('auth.404');
-    
+
     Route::get('login', function () {
         return view('auth.login');
     })->name('login');
@@ -41,22 +37,19 @@ Route::middleware('guest')->group(function () {
     Route::get('login/expired', [AuthController::class, 'logoutFromExpirationTime'])->name('logout.expiration');
 });
 
-
-
 Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('dashboard/{division}', [DashboardController::class, 'index'])->name('index');
+    Route::get('dashboard/{division}/{tab?}', [DashboardController::class, 'index'])->name('index');
 
     Route::get('import', function () {
         return view('pages.import.index');
     });
 });
 
-# AUTH END ------------------------------------
+// AUTH END ------------------------------------
 
-
-# FORM EVENT EMBED START ------------------------
+// FORM EVENT EMBED START ------------------------
 
 Route::get('form/event', [ClientEventController::class, 'fnCreateFormEmbed'])->name('form.event.create');
 Route::post('form/events', [ClientEventController::class, 'storeFormEmbed'])->name('form.event.store');
@@ -100,14 +93,19 @@ Route::get('sample/form', function () {
     return view('form-embed.form-sample');
 });
 
-# FORM EVENT EMBED END --------------------------------
+// FORM EVENT EMBED END --------------------------------
 
-
-// User 
+// User
 Route::resource('user/volunteer', VolunteerController::class);
 
-# PROFILE START ---------------------------------------
+// PROFILE START ---------------------------------------
 
 Route::resource('profile', ProfileController::class);
 
-# PROFILE END -----------------------------------------
+// PROFILE END -----------------------------------------
+
+// PAYMENT GATEWAY START -----------------------------
+
+Route::get('paymentpage/web/payment-page/render-page', [PaymentGatewayController::class, 'renderPage'])->name('payment-web.render-page');
+
+// PAYMENT GATEWAY END -------------------------------

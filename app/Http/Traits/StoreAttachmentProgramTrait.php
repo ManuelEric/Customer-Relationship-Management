@@ -8,11 +8,10 @@ use Illuminate\Support\Str;
 
 trait StoreAttachmentProgramTrait
 {
-
     public function getFileNameAttachment($file)
     {
 
-        $file_name = Str::slug($file, "_") . '_' . Str::slug(Carbon::now(), "_");
+        $file_name = Str::slug($file, '_').'_'.Str::slug(Carbon::now(), '_');
 
         return $file_name;
     }
@@ -29,10 +28,10 @@ trait StoreAttachmentProgramTrait
                 $directory_type = 'partner_prog_attach';
                 break;
         }
-        $file_location = 'project/crm/attachment/'. $directory_type .'/' . $id . '/';
-        $file_attachment = $file_location . $file_name . '.' . $extension;
+        $file_location = 'project/crm/attachment/'.$directory_type.'/'.$id.'/';
+        $file_attachment = $file_location.$file_name.'.'.$extension;
         Storage::disk('s3')->put($file_attachment, file_get_contents($file));
-        
-        return $file_name . '.' . $extension;
+
+        return $file_name.'.'.$extension;
     }
 }

@@ -1,14 +1,8 @@
 <?php
 
-use App\Http\Controllers\ReceiptController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ReceiptSchoolController;
-use App\Http\Controllers\ReceiptReferralController;
-use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\RecycleClientController;
 use App\Http\Controllers\RecycleInstanceController;
-use App\Http\Controllers\RefundPartnerController;
-use App\Http\Controllers\RefundSchoolController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +17,6 @@ use App\Http\Controllers\RefundSchoolController;
 
 /* RESTORE CLIENT */
 Route::put('client/{target}/{client}', [RecycleClientController::class, 'restore']);
-
 
 /* RESTORE INSTANCE */
 Route::put('instance/{target}/{instance}', [RecycleInstanceController::class, 'restore']);

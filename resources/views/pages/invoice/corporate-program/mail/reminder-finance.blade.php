@@ -12,7 +12,7 @@
 </style>
 @endsection
 @section('content')
-    <p style="margin:0;">Dear {{ $finance_name }},</p>
+    <p style="margin:0;">Dear Team,</p>
     <p>
         Here are the following partner information has not been completed:
     </p>
@@ -30,6 +30,6 @@
     </table>
     <br>
     <p>
-        Please complete the following partner's email so we can send them a reminder
+        Please complete the following partner's PIC email so we can send them a reminder
     </p>
 @endsection

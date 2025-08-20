@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -16,7 +14,7 @@ return new class extends Migration
     {
         DB::statement("
         CREATE OR REPLACE VIEW agenda AS
-        SELECT 
+        SELECT
             asp.id as agenda_id,
             asp.sch_prog_id,
             asp.partner_prog_id,
@@ -52,9 +50,9 @@ return new class extends Migration
             mp2.prog_name as partner_main_program,
             sp2.sub_prog_name as partner_sub_program
         FROM tbl_agenda_speaker asp
-        LEFT JOIN tbl_events e 
+        LEFT JOIN tbl_events e
             ON e.event_id = asp.event_id
-        LEFT JOIN tbl_corp_pic cp 
+        LEFT JOIN tbl_corp_pic cp
             ON cp.id = asp.partner_pic_id
                 LEFT JOIN tbl_corp corp
                     ON corp.corp_id = cp.corp_id
@@ -64,7 +62,7 @@ return new class extends Migration
                     ON s.sch_id = sd.sch_id
         LEFT JOIN tbl_univ_pic up
             ON up.id = asp.univ_pic_id
-                LEFT JOIN tbl_univ u 
+                LEFT JOIN tbl_univ u
                     ON u.univ_id = up.univ_id
         LEFT JOIN users rs
             ON rs.id = asp.empl_id
@@ -86,12 +84,12 @@ return new class extends Migration
                             ON sp2.id = p2.sub_prog_id
         LEFT JOIN tbl_eduf_lead edl
             ON edl.id = asp.eduf_id
-            
+
         ");
 
         DB::statement("
         CREATE OR REPLACE VIEW program AS
-        SELECT 
+        SELECT
             pr.prog_id as prog_id,
             pr.main_prog_id as main_prog_id,
             pr.sub_prog_id as sub_prog_id,
@@ -104,32 +102,33 @@ return new class extends Migration
             sp.sub_prog_name as sub_prog_name,
             pr.active,
             pr.created_at,
-            (CASE WHEN pr.sub_prog_id > 0 THEN
-                (CASE WHEN mp.prog_name = sp.sub_prog_name THEN
-                    CONCAT(mp.prog_name, ' : ', pr.prog_program)
-                ELSE 
-                    CONCAT(mp.prog_name, ' / ', sp.sub_prog_name, ' : ', pr.prog_program) 
-                END)
-            ELSE
-                CONCAT(mp.prog_name, ' : ', pr.prog_program)
-            END) as program_name
+            --(CASE WHEN pr.sub_prog_id > 0 THEN
+            --    (CASE WHEN mp.prog_name = sp.sub_prog_name THEN
+            --        CONCAT(mp.prog_name, ' : ', pr.prog_program)
+            --    ELSE
+            --        CONCAT(mp.prog_name, ' / ', sp.sub_prog_name, ' : ', pr.prog_program)
+            --    END)
+            --ELSE
+            --    CONCAT(mp.prog_name, ' : ', pr.prog_program)
+            --END) as program_name
 
         FROM tbl_prog pr
-        LEFT JOIN tbl_main_prog mp 
+        LEFT JOIN tbl_main_prog mp
             ON mp.id = pr.main_prog_id
-            LEFT JOIN tbl_sub_prog sp 
-                ON sp.id = pr.sub_prog_id 
+            LEFT JOIN tbl_sub_prog sp
+                ON sp.id = pr.sub_prog_id
         ");
 
         DB::statement('
         CREATE OR REPLACE VIEW clientprogram AS
-        SELECT cp.*,
-            (SELECT pic.user_id 
+        SELECT
+            cp.*,
+            (SELECT pic.user_id
                         FROM tbl_pic_client pic
                     LEFT JOIN users u on u.id = pic.user_id
                     WHERE pic.client_id = c.id AND pic.status = 1)
              as pic_client,
-            (CASE 
+            (CASE
                 WHEN cp.referral_code is not null THEN GetReferralNameByRefCode (cp.referral_code)
                 ELSE NULL
             END) AS referral_name,
@@ -161,19 +160,19 @@ return new class extends Migration
             END) AS program_status,
             CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) AS pic_name,
             u.email as pic_mail,
-            (CASE 
+            (CASE
                 WHEN cl.department_id = 1 THEN "Sales"
                 WHEN cl.department_id = 2 THEN "Partnership"
                 WHEN cl.department_id = 7 THEN "Digital"
-            END) AS lead_from,            
+            END) AS lead_from,
             cl.lead_id as lead_source_id,
-            (CASE 
+            (CASE
                 WHEN cl.main_lead = "KOL" THEN CONCAT("KOL - ", cl.sub_lead)
                 WHEN cl.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", cedl.title)
                 WHEN cl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", cec.event_title)
                 ELSE cl.main_lead
             END) AS lead_source,
-            (CASE 
+            (CASE
                 WHEN cpl.main_lead = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead)
                 WHEN cpl.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", edl.title)
                 WHEN cpl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title)
@@ -184,7 +183,7 @@ return new class extends Migration
             DATEDIFF(cp.success_date, cp.first_discuss_date) AS conversion_time,
             (SELECT GROUP_CONCAT(CONCAT(squ.first_name, " ", squ.last_name)) FROM tbl_client_mentor sqcm
                     LEFT JOIN users squ ON squ.id = sqcm.user_id
-                    WHERE sqcm.clientprog_id = cp.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name        
+                    WHERE sqcm.clientprog_id = cp.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name
         FROM tbl_client_prog cp
             LEFT JOIN program p
                 ON p.prog_id = cp.prog_id
@@ -221,11 +220,9 @@ return new class extends Migration
                 GROUP BY cp.clientprog_id;
         ');
 
-        
-
         DB::statement("
         CREATE OR REPLACE VIEW client_lead AS
-        SELECT 
+        SELECT
             cl.id,
             CONCAT(cl.first_name, ' ', COALESCE(cl.last_name, '')) as name,
             cl.st_grade -12 as grade,
@@ -246,7 +243,7 @@ return new class extends Migration
                     WHERE substring_index(substring_index(interested_country, ',', 1), ',', -1) = ctyctg.value) as country_categorization,
             (SELECT id FROM tbl_major_categorization_lead mjrctg
                     WHERE mjrctg.value = (CASE major WHEN major is null THEN 'Decided' ELSE 'Undecided' END)) as major_categorization,
-            
+
             (SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
                     JOIN tbl_roles role ON role.id = clrole.role_id
                     WHERE clrole.client_id = cl.id) as roles,
@@ -254,7 +251,7 @@ return new class extends Migration
             GetClientType(cl.id) as type
 
         FROM tbl_client cl
-        LEFT JOIN tbl_sch sc 
+        LEFT JOIN tbl_sch sc
             ON sc.sch_id = cl.sch_id
 
             WHERE (SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
@@ -265,7 +262,7 @@ return new class extends Migration
 
         DB::statement('
         CREATE OR REPLACE VIEW target_signal_view AS
-            SELECT 
+            SELECT
                 id,
                 divisi,
                 contribution_in_percent,
@@ -275,8 +272,8 @@ return new class extends Migration
                 SetHotLeadsByDivision(SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target)), divisi), divisi) as hot_leads_target,
                 SetLeadsNeededByDivision(SetHotLeadsByDivision(SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target)), divisi), divisi), divisi) as lead_needed,
                 GetRevenueTarget(MONTH(now()), YEAR(now())) as revenue_target
-                
-            FROM contribution_calculation_tmp 
+
+            FROM contribution_calculation_tmp
         ');
 
         DB::statement('
@@ -287,7 +284,7 @@ return new class extends Migration
 
         DB::statement('
         CREATE OR REPLACE VIEW client_acceptance AS
-        SELECT 
+        SELECT
             ac.id,
             c.id as client_id,
             CONCAT(c.first_name, " ", COALESCE(c.last_name, "")) as full_name,
@@ -315,7 +312,7 @@ return new class extends Migration
 
         DB::statement('
         CREATE OR REPLACE VIEW outstanding_payment_view AS
-        SELECT 
+        SELECT
             i.id,
             i.inv_id as invoice_id,
             SUBSTRING_INDEX(SUBSTRING_INDEX(i.inv_id, "/", 1), "/", -1) as inv_id_num,
@@ -327,16 +324,16 @@ return new class extends Migration
             id.invdtl_installment as installment_name,
             "B2C" as type,
             (CASE
-                WHEN i.inv_paymentmethod = "Full Payment" THEN 
-                    i.inv_totalprice_idr 
-                WHEN i.inv_paymentmethod = "Installment" THEN 
+                WHEN i.inv_paymentmethod = "Full Payment" THEN
+                    i.inv_totalprice_idr
+                WHEN i.inv_paymentmethod = "Installment" THEN
                     id.invdtl_amountidr
                 ELSE null
             END) as total,
-            (CASE 
-                WHEN i.inv_paymentmethod = "Full Payment" THEN 
-                    i.inv_duedate 
-                WHEN i.inv_paymentmethod = "Installment" THEN 
+            (CASE
+                WHEN i.inv_paymentmethod = "Full Payment" THEN
+                    i.inv_duedate
+                WHEN i.inv_paymentmethod = "Installment" THEN
                     id.invdtl_duedate
             END) as invoice_duedate,
             i.clientprog_id,
@@ -348,18 +345,18 @@ return new class extends Migration
             "client_prog" as typeprog,
             i.inv_paymentmethod as payment_method
                 FROM tbl_inv i
-                LEFT JOIN tbl_invdtl id ON i.inv_id = id.inv_id 
-                LEFT JOIN tbl_receipt ir ON 
+                LEFT JOIN tbl_invdtl id ON i.inv_id = id.inv_id
+                LEFT JOIN tbl_receipt ir ON
                     (CASE
-                        WHEN i.inv_paymentmethod = "Full Payment" THEN 
-                            ir.inv_id 
-                        WHEN i.inv_paymentmethod = "Installment" THEN 
+                        WHEN i.inv_paymentmethod = "Full Payment" THEN
+                            ir.inv_id
+                        WHEN i.inv_paymentmethod = "Installment" THEN
                                 ir.invdtl_id
                         ELSE null
                     END) = (CASE
-                        WHEN i.inv_paymentmethod = "Full Payment" THEN 
-                            i.inv_id 
-                        WHEN i.inv_paymentmethod = "Installment" THEN 
+                        WHEN i.inv_paymentmethod = "Full Payment" THEN
+                            i.inv_id
+                        WHEN i.inv_paymentmethod = "Installment" THEN
                                 id.invdtl_id
                         ELSE null
                     END)
@@ -376,27 +373,27 @@ return new class extends Migration
                 SUBSTRING_INDEX(SUBSTRING_INDEX(ib2b.invb2b_id, "/", 1), "/", -1) as inv_id_num,
                 SUBSTRING_INDEX(SUBSTRING_INDEX(ib2b.invb2b_id, "/", 4), "/", -1) as inv_id_month,
                 SUBSTRING_INDEX(SUBSTRING_INDEX(ib2b.invb2b_id, "/", 5), "/", -1) as inv_id_year,
-                (CASE 
+                (CASE
                     WHEN ib2b.schprog_id > 0 THEN ib2bs.sch_name
                     WHEN ib2b.partnerprog_id > 0 THEN ib2bc.corp_name
                     WHEN ib2b.ref_id > 0 THEN ib2bc.corp_name
                     ELSE NULL
                 END) as full_name,
-                (CASE 
+                (CASE
                     WHEN ib2b.schprog_id > 0 THEN ib2b.schprog_id
                     WHEN ib2b.partnerprog_id > 0 THEN ib2b.partnerprog_id
                     WHEN ib2b.ref_id > 0 THEN ib2b.ref_id
                     ELSE NULL
                 END) as client_prog_id,
                 (CASE
-                    WHEN ib2b.ref_id > 0 THEN ib2brf.additional_prog_name 
+                    WHEN ib2b.ref_id > 0 THEN ib2brf.additional_prog_name
                     ELSE
                         ib2bp.program_name
                 END) AS program_name,
                 ib2bd.invdtl_installment as installment_name,
                 "B2B" as type,
                 (CASE
-                    WHEN ib2b.invb2b_pm = "Full Payment" THEN ib2b.invb2b_totpriceidr 
+                    WHEN ib2b.invb2b_pm = "Full Payment" THEN ib2b.invb2b_totpriceidr
                     WHEN ib2b.invb2b_pm = "Installment" THEN ib2bd.invdtl_amountidr
                     ELSE null
                 END) as total,
@@ -411,7 +408,7 @@ return new class extends Migration
                 null as parent_phone,
                 null as parent_name,
                 null as parent_id,
-                (CASE 
+                (CASE
                     WHEN ib2b.schprog_id > 0 THEN "sch_prog"
                     WHEN ib2b.partnerprog_id > 0 THEN "partner_prog"
                     WHEN ib2b.ref_id > 0 THEN "referral"
@@ -420,17 +417,17 @@ return new class extends Migration
                 ib2b.invb2b_pm as payment_method
                     FROM tbl_invb2b ib2b
                     LEFT JOIN tbl_invdtl ib2bd ON ib2bd.invb2b_id = ib2b.invb2b_id
-                    LEFT JOIN tbl_receipt ib2br ON 
+                    LEFT JOIN tbl_receipt ib2br ON
                         (CASE
-                            WHEN ib2b.invb2b_pm = "Full Payment" THEN 
-                                ib2br.invb2b_id 
-                            WHEN ib2b.invb2b_pm = "Installment" THEN 
+                            WHEN ib2b.invb2b_pm = "Full Payment" THEN
+                                ib2br.invb2b_id
+                            WHEN ib2b.invb2b_pm = "Installment" THEN
                                     ib2br.invdtl_id
                             ELSE null
                         END ) = (CASE
-                            WHEN ib2b.invb2b_pm = "Full Payment" THEN 
-                                ib2b.invb2b_id 
-                            WHEN ib2b.invb2b_pm = "Installment" THEN 
+                            WHEN ib2b.invb2b_pm = "Full Payment" THEN
+                                ib2b.invb2b_id
+                            WHEN ib2b.invb2b_pm = "Installment" THEN
                                     ib2bd.invdtl_id
                             ELSE null
                         END)
@@ -438,12 +435,12 @@ return new class extends Migration
                     LEFT JOIN tbl_sch ib2bs ON ib2bs.sch_id = ib2bsp.sch_id
                     LEFT JOIN tbl_partner_prog ib2bpp ON ib2bpp.id = ib2b.partnerprog_id
                     LEFT JOIN tbl_referral ib2brf ON ib2brf.id = ib2b.ref_id
-                    LEFT JOIN tbl_corp ib2bc ON ib2bc.corp_id = (CASE 
-                            WHEN ib2b.partnerprog_id > 0 THEN ib2bpp.corp_id 
-                            WHEN ib2b.ref_id > 0 THEN ib2brf.partner_id 
-                            ELSE NULL 
+                    LEFT JOIN tbl_corp ib2bc ON ib2bc.corp_id = (CASE
+                            WHEN ib2b.partnerprog_id > 0 THEN ib2bpp.corp_id
+                            WHEN ib2b.ref_id > 0 THEN ib2brf.partner_id
+                            ELSE NULL
                         END)
-                    LEFT JOIN program ib2bp ON ib2bp.prog_id = (CASE 
+                    LEFT JOIN program ib2bp ON ib2bp.prog_id = (CASE
                             WHEN ib2b.schprog_id > 0 THEN ib2bsp.prog_id
                                 WHEN ib2b.partnerprog_id > 0 THEN ib2bpp.prog_id
                             ELSE NULL
@@ -461,17 +458,17 @@ return new class extends Migration
         ORDER BY inv_id_year ASC, inv_id_month ASC, inv_id_num ASC
         ');
 
-        # deleted column:
-        # second_client_real_grade
-        # second_client_grade_now
-        # second_client_year_gap
-        # second_client_graduation_year_real
-        # real_grade
-        # year_gap
-        # graduation_year_real
+        // deleted column:
+        // second_client_real_grade
+        // second_client_grade_now
+        // second_client_year_gap
+        // second_client_graduation_year_real
+        // real_grade
+        // year_gap
+        // graduation_year_real
         DB::statement('
         CREATE OR REPLACE VIEW raw_client AS
-        SELECT 
+        SELECT
             rc.id,
             CONCAT(rc.first_name, " ", COALESCE(rc.last_name, "")) as fullname,
             SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 1), " ", -1) as fname,
@@ -491,11 +488,11 @@ return new class extends Migration
             second_client.grade_now AS second_client_grade_now,
             second_client.gap_year AS second_client_year_gap,
             second_client.graduation_year_now AS second_client_graduation_year_now,
-            (SELECT 
+            (SELECT
                 GROUP_CONCAT(
                     (CASE
                         WHEN sqtag.name = "Other" THEN sqcountry.name
-                        ELSE sqtag.name 
+                        ELSE sqtag.name
                     END)
                     SEPARATOR ", "
                 ) FROM tbl_client_abrcountry sqac
@@ -525,11 +522,11 @@ return new class extends Migration
             rc.graduation_year_now,
             rc.graduation_year,
             rc.lead_id,
-            (CASE 
+            (CASE
                 WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)
                 ELSE l.main_lead
             END) AS lead_source,
-            (CASE 
+            (CASE
                 WHEN rc.referral_code is not null THEN (SELECT CONCAT(qcc.first_name, " ", qcc.last_name) FROM tbl_client qcc where qcc.secondary_id = (rc.referral_code))
                 ELSE NUll
             END) AS referral_name,
@@ -537,7 +534,7 @@ return new class extends Migration
             (SELECT GROUP_CONCAT(
                 (CASE
                     WHEN sqtag.name = "Other" THEN sqcountry.name
-                    ELSE sqtag.name 
+                    ELSE sqtag.name
                 END)
                 SEPARATOR ", "
             ) FROM tbl_client_abrcountry sqac
@@ -550,12 +547,12 @@ return new class extends Migration
             (SELECT GROUP_CONCAT(sr.role_name SEPARATOR ", ") FROM tbl_client_roles scr
                 LEFT JOIN tbl_roles sr ON scr.role_id = sr.id AND sr.role_name != "mentee" AND sr.role_name != "alumni"
                 WHERE scr.client_id = rc.id) as roles,
-            (CASE 
-                WHEN (SELECT roles) = "Parent" THEN scsch.sch_name 
+            (CASE
+                WHEN (SELECT roles) = "Parent" THEN scsch.sch_name
                 ELSE sch.sch_name
             END) AS school_name,
-            (CASE 
-                WHEN (SELECT roles) = "Parent" THEN scsch.is_verified 
+            (CASE
+                WHEN (SELECT roles) = "Parent" THEN scsch.is_verified
                 ELSE sch.is_verified
             END) AS is_verifiedschool,
             CountRawClientRelation((SELECT rc.id), (SELECT roles)) as count_second_client,
@@ -567,29 +564,29 @@ return new class extends Migration
             (SELECT GROUP_CONCAT(DISTINCT sqp.prog_program SEPARATOR ", ") FROM tbl_interest_prog sqip
                 LEFT JOIN tbl_prog sqp ON sqp.prog_id = sqip.prog_id
                 WHERE sqip.client_id = rc.id GROUP BY sqip.client_id) as interest_prog,
-            (SELECT pic.user_id 
+            (SELECT pic.user_id
                     FROM tbl_pic_client pic
                 LEFT JOIN users u on u.id = pic.user_id
                 WHERE pic.client_id = rc.id AND pic.status = 1 LIMIT 1)
              as pic,
-             (SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
+             (SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, ""))
                         FROM tbl_pic_client pic
                     LEFT JOIN users u on u.id = pic.user_id
                     WHERE pic.client_id = rc.id AND pic.status = 1 LIMIT 1)
              as pic_name
-            
-            
+
+
         FROM tbl_client rc
             INNER JOIN tbl_client_roles crl ON crl.client_id = rc.id
             INNER JOIN tbl_roles rl ON rl.id = crl.role_id AND rl.role_name != "mentee" AND rl.role_name != "alumni"
 
             LEFT JOIN tbl_client_relation cr
-                ON (CASE 
+                ON (CASE
                         WHEN rl.role_name = "Student" THEN cr.child_id
                         WHEN rl.role_name = "Parent" THEN cr.parent_id
                     END) = rc.id
             LEFT JOIN tbl_client second_client
-                ON second_client.id = (CASE 
+                ON second_client.id = (CASE
                                         WHEN rl.role_name = "Student" THEN cr.parent_id
                                         WHEN rl.role_name = "Parent" THEN cr.child_id
                                     END)
@@ -605,27 +602,27 @@ return new class extends Migration
 
         DB::statement('
         CREATE OR REPLACE VIEW eduf_lead AS
-        SELECT 
-            edl.id, 
+        SELECT
+            edl.id,
             edl.sch_id,
             edl.corp_id,
             s.sch_name,
             corp.corp_name,
             edl.event_start,
             edl.created_at,
-            (CASE 
+            (CASE
                 WHEN edl.title is not null THEN
-                    CONCAT("External Edufair - ", edl.title) 
+                    CONCAT("External Edufair - ", edl.title)
                 WHEN edl.sch_id is not null THEN
                     (CASE WHEN edl.event_start is not null THEN
                         CONCAT(s.sch_name, " (",DATE_FORMAT(edl.event_start, "%d %b %Y"), ")")
-                    ELSE 
+                    ELSE
                         CONCAT(s.sch_name, " (",DATE_FORMAT(edl.created_at, "%d %b %Y"), ")")
                     END)
                 WHEN edl.corp_id is not null THEN
                     (CASE WHEN edl.event_start is not null THEN
                         CONCAT(corp.corp_name, " (",DATE_FORMAT(edl.event_start, "%d %b %Y"), ")")
-                    ELSE 
+                    ELSE
                         CONCAT(corp.corp_name, " (",DATE_FORMAT(edl.created_at, "%d %b %Y"), ")")
                     END)
                 ELSE
@@ -646,22 +643,22 @@ return new class extends Migration
                     WHERE cref.secondary_id = c.referral_code
             ) AS referral_name,
             s.sch_name as school_name,
-            (CASE 
+            (CASE
                 WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)
                 WHEN l.main_lead = "External Edufair" THEN (CASE WHEN c.eduf_id is not null THEN vel.organizer_name else "External Edufair" END)
                 WHEN l.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", ts.event_title)
                 ELSE l.main_lead
             END) AS lead_source,
             GetTotalScore (
-                s.sch_score, 
-                l.score, 
+                s.sch_score,
+                l.score,
                 (CASE
                     WHEN year(CURDATE()) - c.graduation_year = 0 THEN 7
                     WHEN year(CURDATE()) - c.graduation_year = 1 THEN 5
                     WHEN year(CURDATE()) - c.graduation_year = 2 THEN 4
                     WHEN year(CURDATE()) - c.graduation_year = 3 THEN 3
-                    ELSE 1 
-                END), 
+                    ELSE 1
+                END),
                 (SELECT MAX(t.score) FROM tbl_client_abrcountry ab
                     JOIN tbl_country ct ON ct.id = ab.country_id
                     JOIN tbl_tag t ON t.id = ct.tag
@@ -680,9 +677,7 @@ return new class extends Migration
                     LEFT JOIN tbl_prog sqp ON sqp.prog_id = sqip.prog_id
                     LEFT JOIN tbl_main_prog sqmp ON sqmp.id = sqp.main_prog_id
                     WHERE sqip.client_id = c.id GROUP BY sqip.client_id) as interest_prog,
-            (SELECT GROUP_CONCAT(
-                        ct.name
-                    ) FROM tbl_client_abrcountry sqac
+            (SELECT GROUP_CONCAT(ct.name) FROM tbl_client_abrcountry sqac
                     JOIN tbl_country ct ON ct.id = sqac.country_id
                     WHERE sqac.client_id = c.id GROUP BY sqac.client_id) as abr_country,
             (SELECT GROUP_CONCAT(sqm.name) FROM tbl_dreams_major sqdm
@@ -692,7 +687,7 @@ return new class extends Migration
                     LEFT JOIN tbl_initial_program_lead ipl ON clt.initialprogram_id = ipl.id
                     WHERE clt.client_id = c.id AND clt.type = "Program" AND clt.status = 1
                     ORDER BY clt.total_result DESC LIMIT 1) as program_suggest,
-            (SELECT (CASE 
+            (SELECT (CASE
                         WHEN total_result >= 0.65 THEN "Hot"
                         WHEN total_result >= 0.35 AND total_result < 0.65 THEN "Warm"
                         WHEN total_result < 0.35 THEN "Cold"
@@ -701,13 +696,13 @@ return new class extends Migration
                     LEFT JOIN tbl_initial_program_lead ipl2 ON clt2.initialprogram_id = ipl2.id
                     WHERE clt2.client_id = c.id AND clt2.type = "Lead" AND ipl2.name = program_suggest AND clt2.status = 1
                     ORDER BY clt2.total_result DESC LIMIT 1) as status_lead,
-            (CASE 
+            (CASE
                 WHEN
                     (SELECT total_result FROM tbl_client_lead_tracking clt2
                         LEFT JOIN tbl_initial_program_lead ipl2 ON clt2.initialprogram_id = ipl2.id
                         WHERE clt2.client_id = c.id AND clt2.type = "Lead" AND ipl2.name = program_suggest AND clt2.status = 1
                         ORDER BY clt2.total_result DESC LIMIT 1) IS NULL THEN 0
-                ELSE 
+                ELSE
                 (SELECT total_result FROM tbl_client_lead_tracking clt2
                     LEFT JOIN tbl_initial_program_lead ipl2 ON clt2.initialprogram_id = ipl2.id
                     WHERE clt2.client_id = c.id AND clt2.type = "Lead" AND ipl2.name = program_suggest AND clt2.status = 1
@@ -717,18 +712,18 @@ return new class extends Migration
                     WHERE clt3.client_id = c.id AND clt3.type = "Program" AND clt3.status = 1
                     ORDER BY clt3.total_result DESC LIMIT 1) as group_id,
             (SELECT CONVERT(checkParticipated (c.id) USING utf8mb4)) AS participated,
-            (SELECT pic.user_id 
+            (SELECT pic.user_id
                         FROM tbl_pic_client pic
                     LEFT JOIN users u on u.id = pic.user_id
                     WHERE pic.client_id = c.id AND pic.status = 1 LIMIT 1)
              as pic_id,
-            (SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
+            (SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, ""))
                         FROM tbl_pic_client pic
                     LEFT JOIN users u on u.id = pic.user_id
                     WHERE pic.client_id = c.id AND pic.status = 1 LIMIT 1)
              as pic_name
-            
-        
+
+
         FROM tbl_client c
             LEFT JOIN tbl_sch s
                 ON s.sch_id = c.sch_id
@@ -736,7 +731,7 @@ return new class extends Migration
                 ON l.lead_id = c.lead_id
             LEFT JOIN tbl_eduf_lead el
                 ON el.id = c.eduf_id
-            LEFT JOIN eduf_lead vel 
+            LEFT JOIN eduf_lead vel
                 ON vel.id = el.id
             LEFT JOIN tbl_events ts
                 ON ts.event_id = c.event_id
@@ -744,7 +739,7 @@ return new class extends Migration
 
         DB::statement("
         CREATE OR REPLACE VIEW client_lead AS
-        SELECT 
+        SELECT
             cl.id,
             cl.graduation_year,
             CONCAT(cl.first_name, ' ', COALESCE(cl.last_name, '')) as name,
@@ -763,7 +758,7 @@ return new class extends Migration
             (SELECT grade_client_lead) AS grade,
             sc.sch_id as school,
             sc.sch_type as type_school,
-            (CASE 
+            (CASE
                 WHEN l.main_lead = 'Referral' THEN 'Referral'
                 ELSE 'Other'
             END) AS lead_source,
@@ -783,15 +778,15 @@ return new class extends Migration
                 (CASE
                         WHEN (SELECT interested_country) IS NULL AND cl.is_funding != 1 THEN 8
                         WHEN (SELECT interested_country) IS NULL AND cl.is_funding = 1 THEN 9
-                        ELSE 
+                        ELSE
                         (SELECT id FROM tbl_country_categorization_lead ctyctg
                         WHERE substring_index(substring_index(interested_country, ',', 1), ',', -1) = ctyctg.value)
 
                 END) AS country_categorization,
-            
+
             (SELECT id FROM tbl_major_categorization_lead mjrctg
                     WHERE mjrctg.value = (CASE major WHEN major is null THEN 'Decided' ELSE 'Undecided' END)) as major_categorization,
-            
+
             (SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
                     JOIN tbl_roles role ON role.id = clrole.role_id
                     WHERE clrole.client_id = cl.id) as roles,
@@ -803,7 +798,7 @@ return new class extends Migration
         FROM tbl_client cl
         LEFT JOIN client cv
                 ON cv.id = cl.id
-        LEFT JOIN tbl_sch sc 
+        LEFT JOIN tbl_sch sc
             ON sc.sch_id = cl.sch_id
         LEFT JOIN tbl_lead l
             ON l.lead_id = cl.lead_id
@@ -812,7 +807,7 @@ return new class extends Migration
                 SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
                         JOIN tbl_roles role ON role.id = clrole.role_id
                         WHERE clrole.client_id = cl.id
-                ) NOT IN ('Parent') 
+                ) NOT IN ('Parent')
                 AND cl.st_statusact = 1
 
         ");

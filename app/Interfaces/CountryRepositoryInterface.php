@@ -2,10 +2,13 @@
 
 namespace App\Interfaces;
 
-interface CountryRepositoryInterface 
+interface CountryRepositoryInterface
 {
     public function getAllCountries();
+
     public function getCountryNameByUnivCountry($univCountry);
+
     public function getRegionByRegionId($regionId);
+
     public function getAllRegionByLocale($locale);
 }

@@ -50,9 +50,13 @@
             var options = {
                 order: [[1, 'asc']],
                 buttons: [
-                    'pageLength', {
-                        extend: 'excel',
+                    'pageLength',
+                    {
+                        // extend: 'excel',
                         text: 'Export to Excel',
+                        action: function (e, dt, node, config) {
+                            window.location.href = '/instance/corporate/export/xlsx';
+                        }
                     }
                 ],
                 fixedColumns: {
@@ -70,6 +74,16 @@
                     },
                     {
                         data: 'partnership_name',
+                        render: function (data, type, row, meta) {
+                            var badge = '';
+                            if (row.active_status == 0)
+                                badge += '<span class="badge text-bg-danger" style="font-size:8px";>Inactive</span>';
+
+                            if (row.active_status == 1 && row.created_at == Date.now())
+                                badge += '<span class="badge text-bg-success" style="font-size: 8px;">New</span>';
+
+                            return data + ' ' + badge;
+                        }
                     },
                     {
                         data: 'industry_name',
@@ -123,7 +137,7 @@
                 window.open("{{ url('instance/corporate') }}/" + data.corp_id.toLowerCase(), "_blank");
             });
 
-            // Tooltip 
+            // Tooltip
             $('#corporateTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',

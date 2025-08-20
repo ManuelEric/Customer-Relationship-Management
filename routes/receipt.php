@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers\ReceiptController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ReceiptSchoolController;
-use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\ReceiptPartnerController;
+use App\Http\Controllers\ReceiptReferralController;
+use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\RefundPartnerController;
 use App\Http\Controllers\RefundSchoolController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +19,7 @@ use App\Http\Controllers\RefundSchoolController;
 |
 */
 
-// CLIENT 
+// CLIENT
 // Route::get('client-program/', function () {
 //     return view('pages.receipt.client-program.index');
 // });
@@ -40,8 +40,8 @@ Route::resource('client-program', ReceiptController::class, [
         'show' => 'receipt.client-program.show',
         'edit' => 'receipt.client-program.edit',
         'update' => 'receipt.client-program.update',
-        'destroy' => 'receipt.client-program.destroy'
-    ]
+        'destroy' => 'receipt.client-program.destroy',
+    ],
 ])->parameters(['client-program' => 'receipt']);
 
 Route::prefix('client-program')->name('receipt.client-program.')->group(function () {
@@ -51,15 +51,15 @@ Route::prefix('client-program')->name('receipt.client-program.')->group(function
     Route::get('{receipt}/request_sign', [ReceiptController::class, 'requestSign'])->name('request_sign');
     Route::get('{receipt}/preview/{currency}', [ReceiptController::class, 'preview'])->name('preview');
     Route::post('{receipt}/preview/{currency}', [ReceiptController::class, 'uploadSigned'])->name('upload-signed');
-    Route::get('{receipt}/send/{currency}/{type_recipient}', [ReceiptController::class, 'sendToClient'])->name('send_to_client'); # new
+    Route::get('{receipt}/send/{currency}/{type_recipient}', [ReceiptController::class, 'sendToClient'])->name('send_to_client'); // new
     Route::post('{receipt}/update/mail', [ReceiptController::class, 'updateMail']);
 
-    // ======== Bundling ========== 
+    // ======== Bundling ==========
     Route::post('storeBundle', [ReceiptController::class, 'storeBundle'])->name('store_bundle');
 
 });
 
-// CORPORATE 
+// CORPORATE
 Route::get('corporate-program/', function () {
     return view('pages.receipt.corporate-program.index');
 });
@@ -72,7 +72,7 @@ Route::get('corporate-program/1/export/pdf', function () {
     return view('pages.receipt.corporate-program.export.receipt-pdf');
 });
 
-// school 
+// school
 
 Route::prefix('school-program')->name('receipt.school.')->group(function () {
     Route::get('/', [ReceiptSchoolController::class, 'index'])->name('index');
@@ -130,7 +130,7 @@ Route::get('school-program/1/export/pdf', function () {
     return view('pages.receipt.school-program.export.receipt-pdf');
 });
 
-// referral 
+// referral
 // Route::get('referral/', function () {
 //     return view('pages.receipt.referral.index');
 // });

@@ -5,6 +5,32 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $main_prog_id
+ * @property string $sub_prog_name
+ * @property int $sub_prog_status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\MainProg $mainProgram
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SubProg> $program
+ * @property-read int|null $program_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InitialProgram> $spesificConcern
+ * @property-read int|null $spesific_concern_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubProg newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubProg newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubProg query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubProg whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubProg whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubProg whereMainProgId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubProg whereSubProgName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubProg whereSubProgStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubProg whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubProg withAndWhereHas($relation, $constraint)
+ *
+ * @mixin \Eloquent
+ */
 class SubProg extends Model
 {
     use HasFactory;
@@ -14,7 +40,7 @@ class SubProg extends Model
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'sub_prog_name',
@@ -27,7 +53,7 @@ class SubProg extends Model
             ->with([$relation => $constraint]);
     }
 
-    # relation
+    // relation
 
     public function mainProgram()
     {

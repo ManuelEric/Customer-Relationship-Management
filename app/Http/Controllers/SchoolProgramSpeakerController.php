@@ -6,27 +6,17 @@ use App\Actions\SchoolPrograms\Speaker\CreateSchoolProgramSpeakerAction;
 use App\Actions\SchoolPrograms\Speaker\DeleteSchoolProgramSpeakerAction;
 use App\Actions\SchoolPrograms\Speaker\UpdateSchoolProgramSpeakerAction;
 use App\Enum\LogModule;
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreSchoolProgramSpeakerRequest;
 use App\Http\Traits\FindAgendaSpeakerPriorityTrait;
-use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Services\Log\LogService;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
-
 
 class SchoolProgramSpeakerController extends Controller
 {
     use FindAgendaSpeakerPriorityTrait;
-
-    private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
-
-    public function __construct(AgendaSpeakerRepositoryInterface $agendaSpeakerRepository)
-    {
-        $this->agendaSpeakerRepository = $agendaSpeakerRepository;
-    }
 
     public function store(StoreSchoolProgramSpeakerRequest $request, CreateSchoolProgramSpeakerAction $createSchoolProgramSpeakerAction, LogService $log_service)
     {
@@ -42,7 +32,6 @@ class SchoolProgramSpeakerController extends Controller
             'end_time',
         ]);
 
-        
         DB::beginTransaction();
         try {
 
@@ -53,16 +42,16 @@ class SchoolProgramSpeakerController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_SCHOOL_PROGRAM_SPEAKER, $e->getMessage(), $e->getLine(), $e->getFile(), $agenda_details);
 
-            return Redirect::to('program/school/' . strtolower($school_id) . '/detail/' . $school_program_id)->withError('Failed to add speaker' . $e->getMessage());
+            return Redirect::to('program/school/'.strtolower($school_id).'/detail/'.$school_program_id)->withError('Failed to add speaker'.$e->getMessage());
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_SCHOOL_PROGRAM_SPEAKER, 'New school program speaker has been added', $created_school_program_speaker->toArray());
 
-        return Redirect::to('program/school/' . strtolower($school_id) . '/detail/' . $school_program_id)->withSuccess('School program speaker successfully added');
+        return Redirect::to('program/school/'.strtolower($school_id).'/detail/'.$school_program_id)->withSuccess('School program speaker successfully added');
     }
 
-    # get request from event controller
+    // get request from event controller
     public function update(StoreSchoolProgramSpeakerRequest $request, UpdateSchoolProgramSpeakerAction $updateSchoolProgramSpeakerAction, LogService $log_service)
     {
 
@@ -84,14 +73,13 @@ class SchoolProgramSpeakerController extends Controller
 
             $log_service->createErrorLog(LogModule::UPDATE_SCHOOL_PROGRAM_SPEAKER, $e->getMessage(), $e->getLine(), $e->getFile(), ['agenda_id' => $agenda_id, 'status' => $status, 'notes' => $notes]);
 
-            return Redirect::to('program/school/' . strtolower($school_id) . '/detail/' . $sch_prog_id)->withError('Failed to update speaker');
+            return Redirect::to('program/school/'.strtolower($school_id).'/detail/'.$sch_prog_id)->withError('Failed to update speaker');
         }
 
-
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_SCHOOL_PROGRAM_SPEAKER, 'School program speaker has been updated', $updated_school_program_speaker->toArray());
 
-        return Redirect::to('program/school/' . strtolower($school_id) . '/detail/' . $sch_prog_id)->withSuccess('School program speaker successfully updated');
+        return Redirect::to('program/school/'.strtolower($school_id).'/detail/'.$sch_prog_id)->withSuccess('School program speaker successfully updated');
     }
 
     public function destroy(Request $request, DeleteSchoolProgramSpeakerAction $deleteSchoolProgramSpeakerAction, LogService $log_service)
@@ -110,12 +98,13 @@ class SchoolProgramSpeakerController extends Controller
             DB::rollBack();
 
             $log_service->createErrorLog(LogModule::DELETE_SCHOOL_PROGRAM_SPEAKER, $e->getMessage(), $e->getLine(), $e->getFile(), ['agenda_id' => $agenda_id]);
-            return Redirect::to('program/school/' . strtolower($school_id) . '/detail/' . $sch_prog_id)->withError('Failed to remove speaker');
+
+            return Redirect::to('program/school/'.strtolower($school_id).'/detail/'.$sch_prog_id)->withError('Failed to remove speaker');
         }
 
-        # create log success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_PROGRAM_SPEAKER, 'School program speaker has been deleted', ['agenda_id' => $agenda_id]);
-        
-        return Redirect::to('program/school/' . strtolower($school_id) . '/detail/' . $sch_prog_id)->withSuccess('School program speaker successfully removed');
+
+        return Redirect::to('program/school/'.strtolower($school_id).'/detail/'.$sch_prog_id)->withSuccess('School program speaker successfully removed');
     }
 }

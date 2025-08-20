@@ -28,7 +28,7 @@ class StorePartnerRequest extends FormRequest
             'pt_email' => 'required|email',
             'pt_phone' => 'required',
             'pt_institution' => 'required',
-            'pt_address' => 'required'
+            'pt_address' => 'required',
         ];
     }
 }

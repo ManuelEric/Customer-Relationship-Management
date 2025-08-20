@@ -28,7 +28,7 @@
                 <button class="btn btn-danger btn-sm" onclick="clearPage()">Clear Page</button>
             </div>
             <div class="tool">
-                <button class="btn btn-light btn-sm" 
+                <button class="btn btn-light btn-sm"
                 @if(isset($invoice->schprog_id))
                     onclick="savePDF('save','{{ $attachment }}','{{ route('invoice-sch.upload_signed_document', ['invoice' => $invoice->invb2b_num, 'currency' => $currency]) }}')">
                 @elseif(isset($invoice->ref_id))
@@ -75,7 +75,7 @@
                 var file = "{{ Storage::url('invoice/partner_prog/'.$attachment) }}"
             @elseif (isset($invoice->schprog_id))
                 var file = "{{ Storage::url('invoice/sch_prog/'.$attachment) }}"
-            @elseif (isset($invoice->ref_id))    
+            @elseif (isset($invoice->ref_id))
                 var file = "{{ Storage::url('invoice/referral/'.$attachment) }}"
             @endif
         @endif
@@ -91,7 +91,7 @@
             pageImageCompression: "SLOW",
             //  FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
         });
-        
+
     </script>
     <script src="{{ asset('js/pdf-annotation/script-pdf.js') }}"></script>
 @endsection

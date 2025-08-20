@@ -5,4 +5,3 @@ define("ace/snippets/csound_orchestra",["require","exports","module"],function(e
                         }
                     });
                 })();
-            

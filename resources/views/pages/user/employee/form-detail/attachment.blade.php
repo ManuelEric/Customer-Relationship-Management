@@ -47,7 +47,7 @@
                         <select name="bank_name" id="bank_name" class="select w-100">
                             <option value=""></option>
                             @foreach($banks as $bank)
-                                <option value="{{ $bank->bank_name }}" 
+                                <option value="{{ $bank->bank_name }}"
                                     @selected(isset($user->bank_name) && $user->bank_name == $bank->bank_name || isset($user->bank_name) && old('bank_name') == $bank->bank_name)
                                     >{{ $bank->bank_name }}</option>
                             @endforeach
@@ -92,14 +92,14 @@
                     </div>
                     <div class="col-md-6">
                         @if (!isset($user->idcard))
-                            <small>Image <sup class="text-danger">*</sup></small>
+                            <small>Image </small>
                             <input type="file" name="idcard" class="form-control form-control-sm rounded"
                                 value="{{ old('idcard') }}">
                             @error('idcard')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         @else
-                            <small>Image <sup class="text-danger">*</sup></small>
+                            <small>Image </small>
                             <div class="ktp-container">
                                 <button type="button" class="btn btn-sm btn-info download">
                                     <i class="bi bi-download"></i>

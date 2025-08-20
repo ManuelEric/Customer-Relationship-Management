@@ -24,6 +24,6 @@ return new class extends Migration
     {
         Schema::table('tbl_univ', function (Blueprint $table) {
             $table->dropColumn('univ_application_deadline');
-        }); 
+        });
     }
 };

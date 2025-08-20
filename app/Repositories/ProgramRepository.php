@@ -5,7 +5,6 @@ namespace App\Repositories;
 use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
-use App\Models\ClientProgram;
 use App\Models\Program;
 use App\Models\v1\Program as CRMProgram;
 use App\Models\ViewProgram;
@@ -14,8 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class ProgramRepository implements ProgramRepositoryInterface
 {
-
     protected MainProgRepositoryInterface $mainProgRepository;
+
     protected SubProgRepositoryInterface $subProgRepository;
 
     public function __construct(MainProgRepositoryInterface $mainProgRepository, SubProgRepositoryInterface $subProgRepository)
@@ -44,10 +43,9 @@ class ProgramRepository implements ProgramRepositoryInterface
 
     public function getAllProgramByType($type, $active = null)
     {
-        return Program::
-            where('prog_type', $type)->when($active, function ($query) use ($active) {
-                $query->where('active', $active);
-            })->get();
+        return Program::where('prog_type', $type)->when($active, function ($query) use ($active) {
+            $query->where('active', $active);
+        })->get();
     }
 
     public function getProgramById($programId)
@@ -58,6 +56,7 @@ class ProgramRepository implements ProgramRepositoryInterface
     public function getProgramByName($programName)
     {
         $programs = $this->getAllPrograms();
+
         return $programs->where('prog_program', $programName)->first();
         // exit;
         // return Program::where('program_name', $programName)->first();
@@ -75,12 +74,12 @@ class ProgramRepository implements ProgramRepositoryInterface
             unset($programDetails['prog_name']);
         }
 
-        if (!array_key_exists('main_prog_id', $programDetails)) {
+        if (! array_key_exists('main_prog_id', $programDetails)) {
             $programDetails['main_prog_id'] = $programDetails['prog_main'];
             unset($programDetails['prog_main']);
         }
 
-        if (!array_key_exists('sub_prog_id', $programDetails) && array_key_exists('prog_sub', $programDetails)) {
+        if (! array_key_exists('sub_prog_id', $programDetails) && array_key_exists('prog_sub', $programDetails)) {
             $programDetails['sub_prog_id'] = $programDetails['prog_sub'];
             unset($programDetails['prog_sub']);
         }
@@ -92,15 +91,15 @@ class ProgramRepository implements ProgramRepositoryInterface
             unset($programDetails['prog_sub']);
 
             $subProg = $this->subProgRepository->getSubProgById($programDetails['sub_prog_id']);
-            
+
             // $programDetails['prog_sub'] = $subProg->sub_prog_name;
         }
 
-        # fetch prog name & sub prog name
+        // fetch prog name & sub prog name
 
         // $programDetails['prog_main'] = $mainProg->prog_name;
 
-        # disesuaikan dengan main_prog_id & sub_prog_id
+        // disesuaikan dengan main_prog_id & sub_prog_id
         return Program::create($programDetails);
     }
 
@@ -111,7 +110,7 @@ class ProgramRepository implements ProgramRepositoryInterface
 
     public function updateProgram($programId, array $newDetails)
     {
-        # initialize
+        // initialize
         $newDetails['prog_program'] = $newDetails['prog_name'];
         unset($newDetails['prog_name']);
 
@@ -125,44 +124,19 @@ class ProgramRepository implements ProgramRepositoryInterface
             unset($newDetails['prog_sub']);
 
             $subProg = $this->subProgRepository->getSubProgById($newDetails['sub_prog_id']);
-            
+
             // $newDetails['prog_sub'] = $subProg->sub_prog_name;
         }
 
-        # fetch prog name & sub prog name
-        
+        // fetch prog name & sub prog name
+
         // $newDetails['prog_main'] = $mainProg->prog_name;
 
-        # disesuaikan dengan main_prog_id & sub_prog_id
+        // disesuaikan dengan main_prog_id & sub_prog_id
         return tap(Program::whereProgId($programId))->update($newDetails);
     }
 
-    public function cleaningProgram()
-    {
-        $programs = Program::all();
-        foreach ($programs as $program) {
-            # fetch the detail
-            $detail = Program::where('prog_id', $program->prog_id)->first();
-
-            # initialize
-            if ($main_prog = $this->mainProgRepository->getMainProgByName($program->prog_main)) {
-
-                $main_prog_id = $main_prog->id;
-                $detail->main_prog_id = $main_prog_id;
-            }
-
-            if ($sub_prog = $this->subProgRepository->getSubProgBySubProgName($program->prog_sub)) {
-
-                $sub_prog_id = $sub_prog->id;
-                $detail->sub_prog_id = $sub_prog_id;
-            }
-
-            # update
-            $detail->save();
-        }
-    }
-
-    # API
+    // API
     public function getProgramNameByMainProgId($mainProgId)
     {
         return Program::whereHas('main_prog', function ($query) use ($mainProgId) {
@@ -170,26 +144,26 @@ class ProgramRepository implements ProgramRepositoryInterface
         })->get();
     }
 
-    # CRM
+    // CRM
     public function getProgramFromV1()
     {
         $crmprograms = CRMProgram::select([
             'prog_id',
             'main_number',
-            DB::raw('(CASE 
+            DB::raw('(CASE
                 WHEN prog_main = "" THEN NULL ELSE prog_main
             END) as prog_main'),
-            DB::raw('(CASE 
+            DB::raw('(CASE
                 WHEN prog_sub = "" THEN NULL ELSE prog_sub
             END) as prog_sub'),
             'prog_program',
             'prog_type',
             'prog_mentor',
-            'prog_payment'
+            'prog_payment',
         ])->get();
 
         foreach ($crmprograms as $program) {
-            
+
             $main_prog = $this->mainProgRepository->getMainProgByName($program->prog_main);
             $sub_prog = $this->subProgRepository->getSubProgBySubProgName($program->prog_sub);
 
@@ -203,7 +177,7 @@ class ProgramRepository implements ProgramRepositoryInterface
                 'prog_program' => $program->prog_program,
                 'prog_type' => $program->prog_type,
                 'prog_mentor' => $program->prog_mentor,
-                'prog_payment' => $program->prog_payment
+                'prog_payment' => $program->prog_payment,
             ];
         }
 

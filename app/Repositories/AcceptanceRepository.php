@@ -5,7 +5,6 @@ namespace App\Repositories;
 use App\Interfaces\AcceptanceRepositoryInterface;
 use App\Models\ClientAcceptance;
 use App\Models\UserClient;
-use Illuminate\Support\Facades\DB;
 
 class AcceptanceRepository implements AcceptanceRepositoryInterface
 {
@@ -14,9 +13,10 @@ class AcceptanceRepository implements AcceptanceRepositoryInterface
         return ClientAcceptance::find($id);
     }
 
-    public function getAcceptanceByClientId(String $clientId)
+    public function getAcceptanceByClientId(string $clientId)
     {
         $client = UserClient::find($clientId);
+
         return $client->universityAcceptance;
     }
 
@@ -31,5 +31,4 @@ class AcceptanceRepository implements AcceptanceRepositoryInterface
 
         return $client;
     }
-
 }

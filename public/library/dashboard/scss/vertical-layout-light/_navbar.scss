@@ -1,7 +1,7 @@
 /* Navbar */
 
 .navbar {
-  font-weight: 400; 
+  font-weight: 400;
   transition:background $action-transition-duration $action-transition-timing-function;
   -webkit-transition:background $action-transition-duration $action-transition-timing-function;
   -moz-transition:background $action-transition-duration $action-transition-timing-function;
@@ -13,11 +13,11 @@
   }
 
   .navbar-brand-wrapper {
-    background: $sidebar-light-bg; 
+    background: $sidebar-light-bg;
     .sidebar-dark & {
       background: $sidebar-dark-bg;
       @media (max-width: 991px) {
-        background: $sidebar-light-bg; 
+        background: $sidebar-light-bg;
       }
     }
     transition: width $action-transition-duration $action-transition-timing-function, background $action-transition-duration $action-transition-timing-function;
@@ -36,7 +36,7 @@
       margin-right: 0;
       padding: 0;
       line-height: 1;
-      
+
       &.brand-logo-mini {
         display: none;
       }
@@ -59,7 +59,7 @@
     .brand-logo-mini {
       padding-left: 0;
       text-align: center;
-      img { 
+      img {
         width: calc(#{$sidebar-width-icon} - 30px );
         max-width: 100%;
         margin: auto;
@@ -237,17 +237,17 @@
                 display: none;
               }
             }
-          }  
+          }
         }
         &.dropdown {
           .dropdown-menu {
-            @extend .dropdownAnimation;        
+            @extend .dropdownAnimation;
             border: none;
             -webkit-box-shadow: 0px 3px 21px 0px rgba(0, 0, 0, 0.2);
             box-shadow: 0px 3px 21px 0px rgba(0, 0, 0, 0.2);
           }
           .navbar-dropdown {
-            position: absolute;            
+            position: absolute;
             font-size: 0.9rem;
             margin-top: 0;
             right: 0;
@@ -510,7 +510,7 @@
                     color: $white;
                   }
                 }
-                .input-group-text { 
+                .input-group-text {
                   i {
                     color: $white;
                   }

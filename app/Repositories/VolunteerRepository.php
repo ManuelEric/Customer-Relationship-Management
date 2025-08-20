@@ -49,43 +49,43 @@ class VolunteerRepository implements VolunteerRepositoryInterface
     {
         Volunteer::where('volunt_lastname', '=', '')->update(
             [
-                'volunt_lastname' => null
+                'volunt_lastname' => null,
             ]
         );
 
         Volunteer::where('volunt_address', '=', '')->update(
             [
-                'volunt_address' => null
+                'volunt_address' => null,
             ]
         );
 
         Volunteer::where('volunt_mail', '=', '')->update(
             [
-                'volunt_mail' => null
+                'volunt_mail' => null,
             ]
         );
 
         Volunteer::where('volunt_graduatedfr', '=', '')->update(
             [
-                'volunt_graduatedfr' => null
+                'volunt_graduatedfr' => null,
             ]
         );
 
         Volunteer::where('volunt_major', '=', '')->update(
             [
-                'volunt_major' => null
+                'volunt_major' => null,
             ]
         );
 
         Volunteer::where('volunt_idcard', '=', '')->update(
             [
-                'volunt_idcard' => null
+                'volunt_idcard' => null,
             ]
         );
 
         Volunteer::where('volunt_npwp', '=', '')->update(
             [
-                'volunt_idcard' => null
+                'volunt_idcard' => null,
             ]
         );
     }

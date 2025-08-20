@@ -19,14 +19,14 @@ class StoreFormEventEmbedRequest extends FormRequest
     public function messages()
     {
         return [
-            'leadsource' => ':attributes field is required'
+            'leadsource' => ':attributes field is required',
         ];
     }
 
     public function attributes()
     {
         switch ($this->input('role')) {
-            case "parent":
+            case 'parent':
                 return [
                     'fullname.0' => 'name',
                     'email.0' => 'email address',
@@ -34,9 +34,9 @@ class StoreFormEventEmbedRequest extends FormRequest
                     'fullname.1' => 'child name',
                     'email.1' => 'child email address',
                     'fullnumber.1' => 'child phone number',
-                    'leadsource' => 'where do you know this event'
+                    'leadsource' => 'where do you know this event',
                 ];
-            case "student":
+            case 'student':
                 return [
                     'fullname.0' => 'name',
                     'email.0' => 'email address',
@@ -44,7 +44,7 @@ class StoreFormEventEmbedRequest extends FormRequest
                     'fullname.1' => 'parent name',
                     'email.1' => 'parent email address',
                     'fullnumber.1' => 'parent phone number',
-                    'leadsource' => 'where do you know this event'
+                    'leadsource' => 'where do you know this event',
                 ];
                 break;
 
@@ -53,7 +53,7 @@ class StoreFormEventEmbedRequest extends FormRequest
                     'fullname.0' => 'name',
                     'email.0' => 'email address',
                     'fullnumber.0' => 'phone number',
-                    'leadsource' => 'where do you know this event'
+                    'leadsource' => 'where do you know this event',
                 ];
         }
 
@@ -68,12 +68,12 @@ class StoreFormEventEmbedRequest extends FormRequest
     {
         switch ($this->input('role')) {
 
-            case "parent":
-            case "student":
+            case 'parent':
+            case 'student':
                 return $this->validateParentAndStudent();
                 break;
 
-            case "teacher/counsellor":
+            case 'teacher/counsellor':
                 return $this->validateTeacher();
                 break;
         }
@@ -111,7 +111,7 @@ class StoreFormEventEmbedRequest extends FormRequest
 
             'school' => 'required',
             'referral' => 'nullable',
-            'leadsource' => 'required_without:referral|exists:tbl_lead,lead_id'
+            'leadsource' => 'required_without:referral|exists:tbl_lead,lead_id',
         ];
     }
 }

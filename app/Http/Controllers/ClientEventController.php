@@ -6,10 +6,9 @@ use App\Actions\ClientEvents\CreateClientEventAction;
 use App\Actions\ClientEvents\DeleteClientEventAction;
 use App\Actions\ClientEvents\UpdateClientEventAction;
 use App\Enum\LogModule;
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientEventRequest;
-use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Requests\StoreFormEventEmbedRequest;
+use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
@@ -19,26 +18,21 @@ use App\Http\Traits\MailingEventOfflineTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
-use App\Imports\CheckListInvitation;
-use App\Imports\ClientEventImport;
 use App\Imports\InvitationMailInfoImport;
 use App\Imports\InvitationMailVIPImport;
 use App\Imports\InvitationMailVVIPImport;
-use App\Imports\QuestCompleterMailImport;
-use App\Imports\ReminderReferralImport;
-use App\Imports\ReminderRegistrationImport;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
-use App\Interfaces\CurriculumRepositoryInterface;
-use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
+use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
-use App\Interfaces\SchoolRepositoryInterface;
-use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
+use App\Interfaces\SchoolCurriculumRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\RawClient\ProcessVerifyClient;
@@ -49,38 +43,49 @@ use App\Services\Program\ClientEventService;
 use AshAllenDesign\ShortURL\Models\ShortURL;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Cache;
 
 class ClientEventController extends Controller
 {
     use CalculateGradeTrait;
-    use SplitNameTrait;
     use CheckExistingClient;
     use CreateCustomPrimaryKeyTrait;
-    use StandardizePhoneNumberTrait;
-    use MailingEventOfflineTrait;
-    use LoggingTrait;
-    use SyncClientTrait;
     use GenerateTicketIdTrait;
-    protected CurriculumRepositoryInterface $curriculumRepository;
-    protected ClientRepositoryInterface $clientRepository;
-    protected ClientEventRepositoryInterface $clientEventRepository;
-    protected CorporateRepositoryInterface $corporateRepository;
-    protected EdufLeadRepositoryInterface $edufLeadRepository;
-    protected EventRepositoryInterface $eventRepository;
-    protected LeadRepositoryInterface $leadRepository;
-    protected SchoolRepositoryInterface $schoolRepository;
-    protected SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
-    protected RoleRepositoryInterface $roleRepository;
-    protected ClientEventLogMailRepositoryInterface $clientEventLogMailRepository;
-    protected TagRepositoryInterface $tagRepository;
-    protected ClientProgramRepositoryInterface $clientProgramRepository;
+    use LoggingTrait;
+    use MailingEventOfflineTrait;
+    use SplitNameTrait;
+    use StandardizePhoneNumberTrait;
+    use SyncClientTrait;
 
+    protected CurriculumRepositoryInterface $curriculumRepository;
+
+    protected ClientRepositoryInterface $clientRepository;
+
+    protected ClientEventRepositoryInterface $clientEventRepository;
+
+    protected CorporateRepositoryInterface $corporateRepository;
+
+    protected EdufLeadRepositoryInterface $edufLeadRepository;
+
+    protected EventRepositoryInterface $eventRepository;
+
+    protected LeadRepositoryInterface $leadRepository;
+
+    protected SchoolRepositoryInterface $schoolRepository;
+
+    protected SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+
+    protected RoleRepositoryInterface $roleRepository;
+
+    protected ClientEventLogMailRepositoryInterface $clientEventLogMailRepository;
+
+    protected TagRepositoryInterface $tagRepository;
+
+    protected ClientProgramRepositoryInterface $clientProgramRepository;
 
     public function __construct(
         CurriculumRepositoryInterface $curriculumRepository,
@@ -94,8 +99,8 @@ class ClientEventController extends Controller
         SchoolCurriculumRepositoryInterface $schoolCurriculumRepository,
         RoleRepositoryInterface $roleRepository,
         ClientEventLogMailRepositoryInterface $clientEventLogMailRepository,
-        TagRepositoryInterface $tagRepository, 
-        ClientProgramRepositoryInterface $clientProgramRepository, 
+        TagRepositoryInterface $tagRepository,
+        ClientProgramRepositoryInterface $clientProgramRepository,
     ) {
         $this->curriculumRepository = $curriculumRepository;
         $this->clientRepository = $clientRepository;
@@ -135,7 +140,7 @@ class ClientEventController extends Controller
                 'attendance' => $attendance,
                 'registration' => $registration,
                 'start_date' => $start_date,
-                'end_date' => $end_date
+                'end_date' => $end_date,
             ];
 
             return $this->clientEventRepository->getAllClientEventDataTables($filter);
@@ -156,12 +161,12 @@ class ClientEventController extends Controller
             [
                 'events' => $events,
                 'schools' => $schools,
-                'conversion_leads' => $conversion_leads
+                'conversion_leads' => $conversion_leads,
             ]
         );
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $curriculums = $this->curriculumRepository->getAllCurriculums();
         $clients = $this->clientRepository->getAllClients();
@@ -182,6 +187,7 @@ class ClientEventController extends Controller
                 'leads' => $leads,
                 'schools' => $schools,
                 'partners' => $partners,
+                'student_id' => $request->get('student'),
             ]
         );
     }
@@ -191,7 +197,7 @@ class ClientEventController extends Controller
 
         $new_client_details = [];
 
-        # Client existing
+        // Client existing
         $new_client_event_details = $request->safe()->only([
             'client_id',
             'event_id',
@@ -200,14 +206,13 @@ class ClientEventController extends Controller
             'partner_id',
             'status',
             'joined_date',
-            'notes'
+            'notes',
         ]);
 
-        # Client not existing
+        // Client not existing
         if ($request->existing_client == 0) {
 
-
-            # Client as student or teacher
+            // Client as student or teacher
             $new_client_details = $request->safe()->only([
                 'first_name',
                 'last_name',
@@ -224,12 +229,12 @@ class ClientEventController extends Controller
                 'event_id',
                 'graduation_year',
                 'st_levelinterest',
-                'st_password'
+                'st_password',
             ]);
             unset($new_client_details['phone']);
-            $new_client_details['phone'] = $this->tnSetPhoneNumber($request->phone);
+            $new_client_details['phone'] = $this->tnNormalizePhoneNumber($request->phone);
 
-            # Client as parent
+            // Client as parent
             if ($request->status_client == 'Parent') {
                 $new_client_details = $request->only([
                     'first_name',
@@ -262,15 +267,15 @@ class ClientEventController extends Controller
 
             switch ($e->getCode()) {
                 case 1:
-                    Log::error('Store school failed from client event : ' . $e->getMessage());
+                    Log::error('Store school failed from client event : '.$e->getMessage());
                     break;
 
                 case 2:
-                    Log::error('Store client failed from client event : ' . $e->getMessage());
+                    Log::error('Store client failed from client event : '.$e->getMessage());
                     break;
 
                 case 3:
-                    Log::error('Store client event failed : ' . $e->getMessage());
+                    Log::error('Store client event failed : '.$e->getMessage());
                     break;
             }
 
@@ -279,8 +284,8 @@ class ClientEventController extends Controller
             return Redirect::to('program/event/create')->withError('Failed to create client event');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_CLIENT_EVENT, 'New client event has been added', $new_client_event->toArray());
 
         return Redirect::to('program/event')->withSuccess('Client event successfully created');
@@ -358,27 +363,27 @@ class ClientEventController extends Controller
             'partner_id',
             'status',
             'notes',
-            'joined_date'
+            'joined_date',
         ]);
-        
+
         $new_client_event_details = $clientEventService->snSetRequestDataLead($request, $new_client_event_details);
 
         DB::beginTransaction();
         try {
 
             $updated_client_event = $updateClientEventAction->execute($clientevent_id, $new_client_event_details);
-            
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_CLIENT_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_client_event_details);
 
-            return Redirect::to('program/event/' . $clientevent_id)->withError('Failed to update client event');
+            return Redirect::to('program/event/'.$clientevent_id)->withError('Failed to update client event');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_CLIENT_EVENT, 'Client event has been updated', $updated_client_event->toArray());
 
         return Redirect::to('program/event')->withSuccess('Client event successfully updated');
@@ -399,16 +404,15 @@ class ClientEventController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_CLIENT_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $client_event->toArray());
 
-            return Redirect::to('program/event/' . $clientevent_id)->withError('Failed to delete client event');
+            return Redirect::to('program/event/'.$clientevent_id)->withError('Failed to delete client event');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_CLIENT_EVENT, 'Client event has been deleted', $client_event->toArray());
 
         return Redirect::to('program/event')->withSuccess('Client event successfully deleted');
     }
-
 
     public function mailing(StoreImportExcelRequest $request)
     {
@@ -446,8 +450,9 @@ class ClientEventController extends Controller
 
         $requested_event_name = str_replace('&quot;', '"', $request->event_name);
         $requested_event_name = str_replace('&amp;', '&', $requested_event_name);
-        if (!$event = $this->eventRepository->getEventByName(urldecode($requested_event_name)))
+        if (! $event = $this->eventRepository->getEventByName(urldecode($requested_event_name))) {
             abort(404);
+        }
 
         $tags = $this->tagRepository->getAllTags();
 
@@ -590,7 +595,6 @@ class ClientEventController extends Controller
     //             }
     //         }
 
-
     //         DB::commit();
     //     } catch (Exception $e) {
 
@@ -604,11 +608,9 @@ class ClientEventController extends Controller
     //     # create log success
     //     $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $clientEvent);
 
-
     //     # if they regist on the spot then should return view success
     //     if (isset($registration_type) && $registration_type == "ots")
     //         return Redirect::to('form/registration/success?role=' . $choosen_role . '&name=' . $newly_registrant_user->full_name);
-
 
     //     return Redirect::to('form/thanks');
     // }
@@ -731,7 +733,6 @@ class ClientEventController extends Controller
     //         # trigger define category client
     //         ProcessDefineCategory::dispatch([$childId])->onQueue('define-category-client');
 
-            
     //     } else if ($choosen_role == 'student') {
     //         # to prevent empty parent name being stored into database
     //         if (!$parentNameIsNull)
@@ -744,7 +745,6 @@ class ClientEventController extends Controller
     //         ProcessVerifyClient::dispatch([$childId])->onQueue('verifying-client');
     //         # trigger define category client
     //         ProcessDefineCategory::dispatch([$childId])->onQueue('define-category-client');
-
 
     //     } else {
     //         $teacherId = $newClientDetails[0]['id'] = $clientArrayIds[0];
@@ -826,7 +826,7 @@ class ClientEventController extends Controller
     // public function sendMailQrCode($clientEventId, $eventName, $client, $update = false)
     // {
     //     # initiate variables
-        
+
     //     $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
 
     //     $clientEvent->event_id == 'EVT-0008' ? $eventName = "STEM+ Wonderlab" : null;
@@ -846,9 +846,8 @@ class ClientEventController extends Controller
     //     # because of that, the url has changed as well into the api route
     //     $url = url("/api/v1/client-event/CE/{$clientEventId}");
 
-
     //     $event = [
-            
+
     //         'eventDate_start' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
     //         'eventDate_end' => date('M d, Y', strtotime($clientEvent->event->event_enddate)),
     //         'eventTime_start' => date('g A', strtotime($clientEvent->event->event_startdate)),
@@ -857,10 +856,10 @@ class ClientEventController extends Controller
     //     ];
 
     //     try {
-    //         Mail::send($mail_resources, 
+    //         Mail::send($mail_resources,
     //                 [
-    //                     'qr' => $url, 
-    //                     'client' => $client['clientDetails'], 
+    //                     'qr' => $url,
+    //                     'client' => $client['clientDetails'],
     //                     'event' => $event
     //                 ],
     //                 function ($message) use ($subject, $recipientDetails) {
@@ -893,7 +892,7 @@ class ClientEventController extends Controller
 
     public function fnSendMailThanks($client_event_id, $event_name, $client, $update = false)
     {
-        $subject = 'Welcome to the ' . $event_name . '!';
+        $subject = 'Welcome to the '.$event_name.'!';
         $mail_resources = 'mail-template.thanks-email';
 
         $recipient_details = $client['clientDetails'];
@@ -903,7 +902,7 @@ class ClientEventController extends Controller
         $event = [
             'eventName' => $event_name,
             'eventDate' => date('l, d M Y', strtotime($client_event->event->event_startdate)),
-            'eventLocation' => $client_event->event->event_location
+            'eventLocation' => $client_event->event->event_location,
         ];
 
         try {
@@ -915,12 +914,12 @@ class ClientEventController extends Controller
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            Log::error('Failed send email thanks to participant of Event ' . $event_name . ' | error : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+            Log::error('Failed send email thanks to participant of Event '.$event_name.' | error : '.$e->getMessage().' | Line '.$e->getLine());
         }
 
-        # if update is true
-        # meaning that this function being called from scheduler
-        # that updating the client event log mail, so the system no longer have to create the client event log mail
+        // if update is true
+        // meaning that this function being called from scheduler
+        // that updating the client event log mail, so the system no longer have to create the client event log mail
         if ($update === true) {
             return true;
         }
@@ -928,7 +927,7 @@ class ClientEventController extends Controller
         $log_details = [
             'clientevent_id' => $client_event_id,
             'sent_status' => $sent_mail,
-            'category' => 'thanks-mail'
+            'category' => 'thanks-mail',
         ];
 
         return $this->clientEventLogMailRepository->createClientEventLogMail($log_details);
@@ -943,7 +942,6 @@ class ClientEventController extends Controller
     //     $recipientDetails = $client['clientDetails'];
 
     //     $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-
 
     //     $event = [
     //         'eventName' => $eventName,
@@ -1187,7 +1185,7 @@ class ClientEventController extends Controller
     //     DB::beginTransaction();
     //     try {
 
-    //         # when the client parent or student 
+    //         # when the client parent or student
     //         # they need to complete the email or phone for index 1 which is secondary data
     //         if ($isParent || $isStudent) {
 
@@ -1329,7 +1327,7 @@ class ClientEventController extends Controller
     // }
 
     // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
-    # for API User
+    // for API User
     // public function trackReferralURL(Request $request)
     // {
     //     $refcode = $request->route('referral');
@@ -1343,7 +1341,7 @@ class ClientEventController extends Controller
     //         ]
     //     );
     // }
-    # end
+    // end
 
     // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
     // public function qrPage(Request $request)

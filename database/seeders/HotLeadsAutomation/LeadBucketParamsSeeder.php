@@ -2,7 +2,6 @@
 
 namespace Database\Seeders\HotLeadsAutomation;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +26,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 40,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Admission | Grade
@@ -39,7 +38,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 25,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Admission | Country
@@ -51,7 +50,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Admission | Status
@@ -63,7 +62,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 25,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Experiential Learning | School
@@ -75,7 +74,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 40,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Experiential Learning | Grade
@@ -87,7 +86,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 50,
                 'weight_existing_non_mentee' => 30,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Experiential Learning | Status
@@ -99,7 +98,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 30,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Experiential Learning | Major
@@ -111,7 +110,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 50,
                 'weight_existing_non_mentee' => null,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (SAT) | School
@@ -123,7 +122,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 35,
                 'weight_existing_non_mentee' => 40,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (SAT) | Grade
@@ -135,7 +134,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 65,
                 'weight_existing_non_mentee' => 60,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (Academic Tutoring) | School
@@ -147,7 +146,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 30,
                 'weight_existing_non_mentee' => 50,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (Academic Tutoring) | Grade
@@ -159,7 +158,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 70,
                 'weight_existing_non_mentee' => 50,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
         ];

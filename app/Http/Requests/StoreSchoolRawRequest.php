@@ -28,11 +28,11 @@ class StoreSchoolRawRequest extends FormRequest
             'sch_id' => 'required|exists:tbl_sch,sch_id',
             'sch_name' => [
                 'required',
-                Rule::unique('tbl_sch')->ignore($this->input('sch_id'), 'sch_id')
+                Rule::unique('tbl_sch')->ignore($this->input('sch_id'), 'sch_id'),
             ],
             'sch_type' => 'required|in:International,National,National_plus,National_private,Home_schooling',
             'sch_location' => 'nullable',
-            'sch_score' => 'nullable'
+            'sch_score' => 'nullable',
         ];
     }
 }

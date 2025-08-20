@@ -5,24 +5,25 @@ use App\Http\Controllers\AssetReturnedController;
 use App\Http\Controllers\AssetUsedController;
 use App\Http\Controllers\CorporatePartnerEventController;
 use App\Http\Controllers\CurriculumController;
+use App\Http\Controllers\EdufLeadController;
+use App\Http\Controllers\EdufLeadSpeakerController;
+use App\Http\Controllers\EdufReviewController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventSpeakerController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\PurchaseDetailController;
 use App\Http\Controllers\PurchaseRequestController;
+use App\Http\Controllers\SalesTargetController;
 use App\Http\Controllers\SchoolEventController;
+use App\Http\Controllers\SeasonalProgramController;
+use App\Http\Controllers\StreamController;
+use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UniversityEventController;
 use App\Http\Controllers\VendorController;
-use App\Http\Controllers\EdufLeadController;
-use App\Http\Controllers\EdufLeadSpeakerController;
-use App\Http\Controllers\EdufReviewController;
-use App\Http\Controllers\EventSpeakerController;
-use App\Http\Controllers\SalesTargetController;
-use App\Http\Controllers\SeasonalProgramController;
-use App\Http\Controllers\SubjectController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -94,3 +95,4 @@ Route::resource('university-tags', TagController::class);
 Route::resource('seasonal-program', SeasonalProgramController::class);
 
 Route::resource('subject', SubjectController::class);
+Route::resource('stream', StreamController::class);

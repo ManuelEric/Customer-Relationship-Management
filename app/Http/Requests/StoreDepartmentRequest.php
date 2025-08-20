@@ -19,7 +19,7 @@ class StoreDepartmentRequest extends FormRequest
     public function messages()
     {
         return [
-            'dept_name.unique' => 'The department name has already been taken.' 
+            'dept_name.unique' => 'The department name has already been taken.',
         ];
     }
 

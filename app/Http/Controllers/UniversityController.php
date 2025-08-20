@@ -25,8 +25,11 @@ class UniversityController extends Controller
     use LoggingTrait;
 
     private UniversityRepositoryInterface $universityRepository;
+
     private UniversityPicRepositoryInterface $universityPicRepository;
+
     private CountryRepositoryInterface $countryRepository;
+
     private TagRepositoryInterface $tagRepository;
 
     public function __construct(UniversityRepositoryInterface $universityRepository, CountryRepositoryInterface $countryRepository, UniversityPicRepositoryInterface $universityPicRepository, TagRepositoryInterface $tagRepository)
@@ -45,7 +48,7 @@ class UniversityController extends Controller
 
         return view('pages.instance.univ.index')->with(
             [
-                'countries' => $this->countryRepository->getAllCountries()
+                'countries' => $this->countryRepository->getAllCountries(),
             ]
         );
     }
@@ -58,28 +61,30 @@ class UniversityController extends Controller
             'univ_phone',
             'univ_country',
             'univ_address',
-            'univ_application_deadline'
-            
+            'early_action',
+            'early_decision',
+            'regular_deadline',
         ]);
 
         DB::beginTransaction();
         try {
 
             $created_university = $createUniversityAction->execute($university_details);
-            
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_UNIVERSITY, $e->getMessage(), $e->getLine(), $e->getFile(), $university_details);
-            return Redirect::to('instance/university/' . $created_university->univ_id)->withError('Failed to create a new university');
+
+            return Redirect::to('instance/university/'.$created_university->univ_id)->withError('Failed to create a new university');
         }
-        
-        # store Success
-        # create log success
+
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_UNIVERSITY, 'New university has been added', $created_university->toArray());
 
-        return Redirect::to('instance/university/' . $created_university->univ_id)->withSuccess('University successfully created');
+        return Redirect::to('instance/university/'.$created_university->univ_id)->withSuccess('University successfully created');
     }
 
     public function create()
@@ -97,13 +102,13 @@ class UniversityController extends Controller
     {
         $university_id = $request->route('university');
 
-        # retrieve country
+        // retrieve country
         $countries = $this->tagRepository->getAllCountries();
 
-        # retrieve university data by id
+        // retrieve university data by id
         $university = $this->universityRepository->getUniversityByUnivId($university_id);
 
-        # retrieve university pic by university id
+        // retrieve university pic by university id
         $pics = $this->universityPicRepository->getAllUniversityPicByUniversityId($university_id);
 
         // $tags = $this->tagRepository->getAllTags();
@@ -126,13 +131,13 @@ class UniversityController extends Controller
 
         $university_id = $request->route('university');
 
-        # retrieve country
+        // retrieve country
         $countries = $this->tagRepository->getAllCountries();
 
-        # retrieve university data by id
+        // retrieve university data by id
         $university = $this->universityRepository->getUniversityByUnivId($university_id);
-        # put the link to update vendor form below
-        # example
+        // put the link to update vendor form below
+        // example
 
         // $tags = $this->tagRepository->getAllTags();
 
@@ -155,17 +160,19 @@ class UniversityController extends Controller
             'univ_country',
             // 'tag',
             'univ_address',
-            'univ_application_deadline'
+            'early_action',
+            'early_decision',
+            'regular_deadline',
         ]);
 
-        # retrieve vendor id from url
+        // retrieve vendor id from url
         $university_id = $request->route('university');
 
         DB::beginTransaction();
         try {
 
             $updated_university = $updateUniversityAction->execute($university_id, $university_details);
-            
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -175,8 +182,8 @@ class UniversityController extends Controller
             return Redirect::to('instance/university')->withError('Failed to update a university');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_UNIVERSITY, 'University has been updated', $updated_university->toArray());
 
         return Redirect::to('instance/university')->withSuccess('University successfully updated');
@@ -200,8 +207,8 @@ class UniversityController extends Controller
             return Redirect::to('instance/university')->withError('Failed to delete a university');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_UNIVERSITY, 'University has been deleted', $university->toArray());
 
         return Redirect::to('instance/university')->withSuccess('University successfully deleted');

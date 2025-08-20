@@ -317,7 +317,7 @@
                         </h6>
                         <h6 class="mt-2 mb-0 p-0">
                             <i class="bi bi-calendar-week me-2"></i>
-                            {{ isset($invoice) ? 'Date : ' . $invoice->created_at : '' }} 
+                            {{ isset($invoice) ? 'Date : ' . $invoice->created_at : '' }}
                         </h6>
                     </div>
                     <div class="">
@@ -790,7 +790,7 @@
                     $("#client_id").val('{{ $clientProg->client->parents->count() > 0 ? $clientProg->client->parents[0]->id : null}}')
                     $("#mail").val('{{ $clientProg->client->parents->count() > 0 ? $clientProg->client->parents[0]->mail : null }}')
                     break;
-                    
+
                 case 'Client':
                     $("#client_id").val('{{ $clientProg->client->id }}')
                     $("#mail").val('{{ $clientProg->client->mail }}')
@@ -899,7 +899,7 @@
 
             @if (isset($invoice))
 
-                // change the currency-icon 
+                // change the currency-icon
                 var detail = "{{ $invoice->currency }}"
                 $('.currency-icon').html(currencySymbol(detail))
 
@@ -1000,7 +1000,7 @@
                 $('.currency-detail').addClass('d-none')
             }
 
-            // check seesion 
+            // check seesion
             if (session) {
                 checkSession()
             }
@@ -1086,36 +1086,36 @@
             cur = "'" + curr + "'";
 
             const url = "{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/preview/" + curr
-            
+
             $("#previewForm").attr('action', url)
         });
 
         $(document).on('change', '#previewForm input[name=preview_pic_sign]', function() {
             const pickedDir = $(this).val();
-            
+
             var form_action = $("#previewForm").attr('action');
-            
+
             var action = new URL(form_action);
             const find = new URLSearchParams(action.search);
             if (find.has('dir')) {
 
                 action.searchParams.set('dir', pickedDir);
                 action = action.toString();
-                
+
             } else {
-                
+
                 const queryParams = new URLSearchParams({
                     key: 'dashboard',
                     dir: pickedDir
                 });
-    
+
                 action += `?${queryParams.toString()}`;
             }
 
             $(".download-preview").attr('onclick', `downloadFilePreview('${action}')`);
 
             $("#previewForm").attr('action', action);
-            
+
 
         })
 
@@ -1206,7 +1206,7 @@
                     notification('success', 'Sign has been requested')
                     $(".step-one").addClass('active')
                     $("#requestSignModal").modal('hide');
-                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box   
+                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box
                 })
                 .catch(error => {
                     console.log(error)
@@ -1366,7 +1366,7 @@
             var copyText = $("#payment-ga-link");
             copyText.select();
             navigator.clipboard.writeText(copyText.val())
-            
+
             $(this).html('<i class="bi bi-clipboard-check"></i>');
 
             notification('info', 'Payment link copied');

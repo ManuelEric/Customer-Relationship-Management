@@ -9,7 +9,6 @@ use App\Enum\LogModule;
 use App\Http\Requests\StoreLeadRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\CreateReferralCodeTrait;
-use App\Http\Traits\GetDepartmentFromLoggedInUser;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\DepartmentRepositoryInterface;
@@ -19,10 +18,6 @@ use App\Services\Log\LogService;
 use App\Services\Master\LeadService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -30,12 +25,15 @@ use Illuminate\Support\Facades\Redirect;
 class LeadController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
-    use LoggingTrait;
     use CreateReferralCodeTrait;
+    use LoggingTrait;
 
     private LeadRepositoryInterface $leadRepository;
+
     private DepartmentRepositoryInterface $departmentRepository;
+
     private ClientRepositoryInterface $clientRepository;
+
     private LeadService $leadService;
 
     public function __construct(LeadRepositoryInterface $leadRepository, DepartmentRepositoryInterface $departmentRepository, ClientRepositoryInterface $clientRepository, LeadService $leadService)
@@ -56,7 +54,7 @@ class LeadController extends Controller
 
         return view('pages.master.lead.index')->with(
             [
-                'departments' => $departments
+                'departments' => $departments,
             ]
         );
     }
@@ -81,12 +79,13 @@ class LeadController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_LEAD, $e->getMessage(), $e->getLine(), $e->getFile(), $new_lead_details);
 
-            Log::error('Store lead failed : ' . $e->getMessage());
+            Log::error('Store lead failed : '.$e->getMessage());
+
             return Redirect::to('master/lead')->withError('Failed to create a new lead');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_LEAD, 'New asset has been added', $new_lead->toArray());
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully created');
@@ -101,7 +100,7 @@ class LeadController extends Controller
     {
         $lead_id = $request->route('lead');
 
-        # retrieve lead data by id
+        // retrieve lead data by id
         $lead = $this->leadRepository->getLeadById($lead_id);
 
         return response()->json(['lead' => $lead]);
@@ -115,14 +114,14 @@ class LeadController extends Controller
 
         $lead_id = $request->route('lead');
 
-        # retrieve lead data by id
+        // retrieve lead data by id
         $lead = $this->leadRepository->getLeadById($lead_id);
-        # put the link to update lead form below
-        # example
+        // put the link to update lead form below
+        // example
 
         return view('pages.master.lead.index')->with(
             [
-                'lead' => $lead
+                'lead' => $lead,
             ]
         );
     }
@@ -136,9 +135,9 @@ class LeadController extends Controller
             'department_id',
         ]);
 
-        # retrieve lead id from url
+        // retrieve lead id from url
         $lead_id = $request->route('lead');
-        
+
         DB::beginTransaction();
         try {
 
@@ -152,8 +151,8 @@ class LeadController extends Controller
             return Redirect::to('master/lead')->withError('Failed to update lead');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_LEAD, 'Lead has been updated', $updated_lead->toArray());
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully updated');
@@ -178,8 +177,8 @@ class LeadController extends Controller
             return Redirect::to('master/lead')->withError('Failed to delete lead');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_LEAD, 'Lead has been deleted', $lead->toArray());
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully deleted');

@@ -14,22 +14,25 @@ use Illuminate\Support\Facades\Storage;
 use PDF;
 use romanzipp\QueueMonitor\Traits\IsMonitored;
 
-class ProcessEmailRequestSignJobBundle implements ShouldQueue, ShouldBeUniqueUntilProcessing
-// class ProcessEmailRequestSignJob implements ShouldQueue
+class ProcessEmailRequestSignJobBundle implements ShouldBeUniqueUntilProcessing, ShouldQueue
+    // class ProcessEmailRequestSignJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use IsMonitored;
 
     protected $mailDetails;
+
     protected $attachmentDetails;
+
     protected $invoiceId;
 
     public $tries = 3;
+
     public $timeout = 120;
 
     // Priority levels: high, default, low
     public $priority = 'high';
-    
+
     /**
      * Create a new job instance.
      *
@@ -60,23 +63,23 @@ class ProcessEmailRequestSignJobBundle implements ShouldQueue, ShouldBeUniqueUnt
     public function handle()
     {
         $pdf = PDF::loadView(
-                    $this->attachmentDetails['view'], 
-                    [
-                        'bundle' => $this->attachmentDetails['bundle'], 
-                        'companyDetail' => $this->attachmentDetails['company_detail'], 
-                        'director' => $this->attachmentDetails['director'],
-                    ]
-                );
-        Storage::disk('s3')->put('project/crm/invoice/client/' . $this->attachmentDetails['file_name'] . '.pdf', $pdf->output());
+            $this->attachmentDetails['view'],
+            [
+                'bundle' => $this->attachmentDetails['bundle'],
+                'companyDetail' => $this->attachmentDetails['company_detail'],
+                'director' => $this->attachmentDetails['director'],
+            ]
+        );
+        Storage::disk('s3')->put('project/crm/invoice/client/'.$this->attachmentDetails['file_name'].'.pdf', $pdf->output());
 
-        # send email to related person that has authority to give a signature
+        // send email to related person that has authority to give a signature
         Mail::send('pages.invoice.client-program.mail.view-bundle', $this->mailDetails, function ($message) use ($pdf) {
-                
+
             Log::notice('Email request sign has been sent with invoice ID : '.$this->invoiceId);
-            
+
             $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
                 ->subject($this->mailDetails['title'])
-                ->attachData($pdf->output(), $this->invoiceId . '.pdf');
+                ->attachData($pdf->output(), $this->invoiceId.'.pdf');
         });
     }
 }

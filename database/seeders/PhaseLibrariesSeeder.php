@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +14,7 @@ class PhaseLibrariesSeeder extends Seeder
     public function run(): void
     {
         $seeds = [
-            # hands-on activities (workshop/site visit)
+            // hands-on activities (workshop/site visit)
             [
                 'phase_detail_id' => 2,
                 'nation' => 'all',
@@ -80,7 +79,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
-            # talk to professionals
+            // talk to professionals
             [
                 'phase_detail_id' => 3,
                 'nation' => 'all',
@@ -153,7 +152,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
-            # Competition Mentoring
+            // Competition Mentoring
             [
                 'phase_detail_id' => 5,
                 'nation' => 'all',
@@ -234,7 +233,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
-            # Personal Project(15 Hours)
+            // Personal Project(15 Hours)
             [
                 'phase_detail_id' => 7,
                 'nation' => 'US',
@@ -339,7 +338,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
-            # Research Project(10 Hours)
+            // Research Project(10 Hours)
             [
                 'phase_detail_id' => 6,
                 'nation' => 'US',
@@ -444,7 +443,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
-            # Community Service Trip (domestic - summer only by batch)
+            // Community Service Trip (domestic - summer only by batch)
             [
                 'phase_detail_id' => 8,
                 'nation' => 'US',

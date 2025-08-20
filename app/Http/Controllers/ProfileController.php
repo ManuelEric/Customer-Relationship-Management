@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProfileRequest;
 use App\Interfaces\UserRepositoryInterface;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -14,7 +13,6 @@ use Illuminate\Support\Facades\Redirect;
 
 class ProfileController extends Controller
 {
-
     protected UserRepositoryInterface $userRepository;
 
     public function __construct(UserRepositoryInterface $userRepository)
@@ -25,12 +23,13 @@ class ProfileController extends Controller
     public function index()
     {
         $logged_in_user = Auth::user();
-        if (!$logged_in_user)
+        if (! $logged_in_user) {
             return Redirect::to('/');
+        }
 
         return view('pages.profile.index')->with(
             [
-                'my_info' => $logged_in_user
+                'my_info' => $logged_in_user,
             ]
         );
     }
@@ -39,28 +38,29 @@ class ProfileController extends Controller
     {
         $myUserId = Auth::user()->id;
         $changePassword = $request->input('form:password') ?? false;
-        
+
         DB::beginTransaction();
         try {
 
             switch ($changePassword) {
-    
+
                 case true:
                     $newPassword = Hash::make($request->password);
-                    $this->userRepository->rnUpdateUser($myUserId, ['password' => $newPassword ]);
+                    $this->userRepository->rnUpdateUser($myUserId, ['password' => $newPassword]);
                     break;
-    
+
                 case false:
-    
+
                     break;
-    
+
             }
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error("Failed to change password : " . $e->getMessage().' on Line '.$e->getLine());
+            Log::error('Failed to change password : '.$e->getMessage().' on Line '.$e->getLine());
+
             return Redirect::back()->withError('Failed to change password. Please try again or contact your administrator');
 
         }

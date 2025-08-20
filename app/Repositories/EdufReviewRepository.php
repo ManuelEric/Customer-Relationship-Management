@@ -11,6 +11,7 @@ class EdufReviewRepository implements EdufReviewRepositoryInterface
     public function getAllEdufairReviewByEdufairId($edufLId)
     {
         $eduf_lead = EdufLead::find($edufLId);
+
         return $eduf_lead->review;
     }
 
@@ -27,12 +28,14 @@ class EdufReviewRepository implements EdufReviewRepositoryInterface
     public function createEdufairReview($edufLId, array $edufairReviewDetails)
     {
         $edufairReviewDetails['eduf_id'] = $edufLId;
+
         return EdufReview::create($edufairReviewDetails);
     }
 
     public function updateEdufairReview($edufLId, $edufRId, array $newDetails)
     {
         $newDetails['eduf_id'] = $edufLId;
+
         return tap(EdufReview::whereId($edufRId)->first())->update($newDetails);
     }
 }

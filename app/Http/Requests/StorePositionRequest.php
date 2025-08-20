@@ -19,7 +19,7 @@ class StorePositionRequest extends FormRequest
     public function messages()
     {
         return [
-            'position_name.unique' => 'The position name has already been taken.' 
+            'position_name.unique' => 'The position name has already been taken.',
         ];
     }
 

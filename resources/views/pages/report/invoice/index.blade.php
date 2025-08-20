@@ -58,7 +58,7 @@
                         <strong>Total Receipt ({{count($receipts)}})</strong>
                         <div class="text-end">
                                 Rp. {{ number_format($total_receipt) }}
-                           
+
                         </div>
                     </div>
                     <hr class="my-2">
@@ -66,7 +66,7 @@
                         <strong>Total Refund ({{ $count_refund }})</strong>
                         <div class="text-end">
                                 Rp. {{ number_format($total_refund) }}
-                           
+
                         </div>
                     </div>
                 </div>
@@ -86,7 +86,7 @@
                 </div>
                 <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_inv">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_inv" data-invoice="{{ count($invoices) > 0 ? 1 : 0 }}">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -121,10 +121,10 @@
                                                 </div>
                                             @endif
                                         </td>
-                                        
+
                                         {{-- Client Name --}}
                                         @if(isset($invoice->clientprog_id))
-                                            <td>{{ $invoice->clientprog->client->first_name }} {{ $invoice->clientprog->client->last_name }}</td> 
+                                            <td>{{ $invoice->clientprog->client->first_name }} {{ $invoice->clientprog->client->last_name }}</td>
                                         @elseif(isset($invoice->schprog_id))
                                             <td>{{ $invoice->sch_prog->school->sch_name }}</td>
                                         @elseif(isset($invoice->partnerprog_id))
@@ -145,11 +145,11 @@
                                             <td>{{ $invoice->partner_prog->program->program_name }}</td>
                                         @elseif(isset($invoice->ref_id))
                                             <td>{{ $invoice->referral->additional_prog_name }}</td>
-                                        @endif 
+                                        @endif
 
                                         {{-- Method --}}
                                         <td>{{ isset($invoice->inv_id) ? $invoice->inv_paymentmethod : $invoice->invb2b_pm }}</td>
-                                        
+
                                         {{-- Installment --}}
                                         <td class="text-center">
                                             @if(isset($invoice->inv_id))
@@ -166,19 +166,19 @@
                                                 @endif
                                             @endif
                                         </td>
-                                        
+
                                         {{-- Due date --}}
                                         <td>{{ isset($invoice->inv_id) ? date('M d, Y', strtotime($invoice->inv_duedate)) : date('M d, Y', strtotime($invoice->invb2b_duedate)) }}</td>
 
                                         {{-- Amount IDR --}}
                                         <td>{{ $invoice->invoiceTotalpriceIdr }}</td>
-                                        
+
                                         {{-- Amount USD --}}
                                         <td>{{ $invoice->currency == 'usd' ? $invoice->invoiceTotalprice : '-' }}</td>
-                                        
+
                                         {{-- Amount SGD --}}
                                         <td>{{ $invoice->currency == 'sgd' ? $invoice->invoiceTotalprice : '-' }}</td>
-                                        
+
                                         {{-- Amount GBP --}}
                                         <td>{{ $invoice->currency == 'gbp' ? $invoice->invoiceTotalprice : '-' }}</td>
 
@@ -187,7 +187,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center">Not invoice yet</td>
+                                        <td colspan="9" class="text-center" data-invoice="0">No invoice yet</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -207,7 +207,7 @@
                 </div>
                 <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_receipt">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_receipt" data-receipt="{{ count($receipts) > 0 ? 1 : 0 }}">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -237,10 +237,10 @@
                                             @elseif(isset($receipt->invb2b_id))
                                                 <div class="badge badge-{{ $receipt->invoiceB2b->invb2b_status == 2 ? 'danger' : 'success' }} py-1 px-2 ms-2">
                                                     {{ $receipt->invoiceB2b->invb2b_status == 2 ? 'Refund' : 'Success' }}
-                                                </div>                                            
+                                                </div>
                                             @endif
                                         </td>
-                                        
+
                                         {{-- Client Name --}}
                                         @if(isset($receipt->inv_id))
                                             <td>{{ $receipt->invoiceProgram->clientprog->client->first_name }} {{ $receipt->invoiceProgram->clientprog->client->last_name }}</td>
@@ -268,16 +268,16 @@
                                             @elseif((isset($receipt->invoiceB2b->ref_id)))
                                                 <td>{{ $receipt->invoiceB2b->referral->additional_prog_name }}</td>
                                             @endif
-                                        @endif 
+                                        @endif
 
                                         {{-- Method --}}
                                         <td>{{ $receipt->receipt_method }}</td>
-                                        
+
                                         {{-- Installment --}}
                                         <td class="text-center">
                                             {{ isset($receipt->invoiceInstallment) ?  $receipt->invoiceInstallment->invdtl_installment : '-' }}
                                         </td>
-                                        
+
                                         {{-- Paid date --}}
                                         <td>{{ date('M d, Y', strtotime($receipt->created_at)) }}</td>
 
@@ -310,11 +310,11 @@
                                             <td>{{ isset($receipt->invoiceProgram->refund) ? $receipt->invoiceProgram->refund->totalRefundedStr : '-' }}</td>
                                         @elseif(isset($receipt->invb2b_id))
                                             <td>{{ isset($receipt->invoiceB2b->refund) ? $receipt->invoiceB2b->refund->totalRefundedStr : '-' }}</td>
-                                        @endif 
+                                        @endif
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center">Not receipt yet</td>
+                                        <td colspan="9" class="text-center" data-receipt="0">No receipt yet</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -332,13 +332,13 @@
     </div>
 
     <script>
-        @php            
+        @php
             $privilage = $menus['Report']->where('submenu_name', 'Invoice & Receipt')->first();
         @endphp
         $(document).ready(function() {
             @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                    
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });
@@ -347,9 +347,20 @@
 
         function ExportToExcel() {
 
-            var sheetName = ['Invoices', 'Receipts'];
+            var sheetName = []
+            var tableName = []
 
-            var tableName = ['tbl_inv', 'tbl_receipt'];
+            if ( $("#tbl_inv").data('invoice') == 1 && sheetName.indexOf('Invoices') == -1  && tableName.indexOf('tbl_inv') == -1)
+            {
+                sheetName.push('Invoices')
+                tableName.push('tbl_inv')
+            }
+
+            if ( $("#tbl_receipt").data('receipt') == 1 && sheetName.indexOf('Receipts') == -1 && tableName.indexOf('tbl_receipt') == -1 )
+            {
+                sheetName.push('Receipts')
+                tableName.push('tbl_receipt')
+            }
 
             var ws = new Array();
 
@@ -368,7 +379,7 @@
                 var last_col = parseInt(last_ref.slice(last_ref.indexOf('M') + 1)) - 1;
 
                 var col = ['I', 'J', 'K', 'L', 'M']; //  I = Amount IDR, J = USD, K = SGD, L = GBP, M = Refund(IDR)
-                
+
                 col.forEach(function (d, i){
                     // console.log(last_col);
                     for(var i = 2; i <= last_col; i++) {
@@ -401,14 +412,14 @@
                         workbook.Sheets[sheet][index].z = format_cell;
                     }
                     workbook.Sheets[sheet][d + i] = { t:'n', z:format_cell, f: `SUM(${d+2}:` + index +")", F:d + i + ":" + d + i }
-                    
+
 
                 })
 
             })
-           
+
             XLSX.writeFile(workbook, "report-invoice-receipt.xlsx");
-            
+
         }
     </script>
 @endsection

@@ -386,7 +386,7 @@
                         var intArrSuggest = [];
                         for (var i = 0; i < arrSuggest.length; i++)
                             intArrSuggest.push(arrSuggest[i]);
-                        
+
                         showLoading()
                         axios.get("{{ url('api/client/suggestion') }}", {
                                 params: {
@@ -416,7 +416,7 @@
                 confirmDelete('client/parent/raw', data.id)
             });
 
-            // Tooltip 
+            // Tooltip
             $('#rawTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',

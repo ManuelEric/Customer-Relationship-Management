@@ -16,7 +16,6 @@ class UpdateDepartmentAccessRequest extends FormRequest
         return true;
     }
 
-   
     /**
      * Get the validation rules that apply to the request.
      *
@@ -27,12 +26,10 @@ class UpdateDepartmentAccessRequest extends FormRequest
         return [
             'department_id' => 'required|exists:tbl_department,id',
             'menu_id' => 'required|exists:tbl_menus,id',
-            'menu_data' => 'required|in:true,false',
-            'copy_data' => 'required|in:true,false',
-            'export' => 'required|in:true,false',
-            'param' => 'required|in:menu,copy,export'
+            'menu_data' => 'required|boolean',
+            'copy_data' => 'required|boolean',
+            'export_data' => 'required|boolean',
+            'param' => 'required|in:menu,copy,export',
         ];
     }
-
-   
 }

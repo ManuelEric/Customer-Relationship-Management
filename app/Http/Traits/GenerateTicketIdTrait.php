@@ -6,7 +6,8 @@ use Illuminate\Support\Str;
 
 trait GenerateTicketIdTrait
 {
-    public function tnGenerateTicketId(){
+    public function tnGenerateTicketId()
+    {
         do {
 
             $ticket_id = Str::random(4);

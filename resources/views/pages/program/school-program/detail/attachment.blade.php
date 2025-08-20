@@ -6,7 +6,7 @@
                  Attachment
              </h6>
          </div>
-           
+
          <div class="">
              <button class="btn btn-sm btn-outline-primary rounded" data-bs-toggle="modal" data-bs-target="#attachment">
                  <i class="bi bi-plus"></i>
@@ -18,22 +18,22 @@
          <div class="list-group">
              <div class="list-group-item d-flex flex-wrap gap-2 align-items-center">
                 @if( isset($schoolProgram))
-                    
+
                     @forelse ($schoolProgramAttachs as $schoolProgramAttach)
-                    
+
                         <div class="d-flex me-2 border px-2 py-1 rounded">
                             <a href="{{ Storage::url('attachment/sch_prog_attach/' . $schoolProgramAttach->schprog_id . '/' . $schoolProgramAttach->schprog_attach) }}" class="text-muted text-decoration-none">
                                     <i class="bi bi-download me-1"></i> {{ $schoolProgramAttach->schprog_file }}
                                 </a>
                                 <div class="text-end cursor-pointer ms-4">
-                                   
+
                                     <i class="bi bi-x text-danger" onclick="confirmDelete('{{ 'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach' }}', {{$schoolProgramAttach->id}})"></i>
                                 </div>
                         </div>
-                    
+
 
                     @empty
-                        No Attachment Yet  
+                        No Attachment Yet
                     @endforelse
                 @endif
              </div>
@@ -56,7 +56,7 @@
                     <small class="text-danger fw-light">{{ $message }}</small>
                 @enderror
                  <form action="{{ url(
-                    'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach' 
+                    'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach'
                         )}}" method="POST" id="formPosition" enctype="multipart/form-data">
                      @csrf
                      <div class="put"></div>
@@ -70,7 +70,7 @@
 
                             @error('schprog_file')
                                  <small class="text-danger fw-light">{{ $message }}</small>
-                            @enderror 
+                            @enderror
                         </div>
                          <div class="col-md-12 mb-2">
                              <label for="">
@@ -83,7 +83,7 @@
                             </div>
                             @error('schprog_attach')
                                  <small class="text-danger fw-light">{{ $message }}</small>
-                            @enderror 
+                            @enderror
                          </div>
                      </div>
                      <hr>
@@ -111,14 +111,14 @@
      });
 
     </script>
-     
+
     @if($errors->has('schprog_file') || $errors->has('schprog_attach') || $errors->has('schprog_id'))
-        
+
             <script>
                 $(document).ready(function(){
-                    $('#attachment').modal('show'); 
+                    $('#attachment').modal('show');
                 })
-            
+
             </script>
-        
+
     @endif

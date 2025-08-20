@@ -6,12 +6,13 @@ use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use Exception;
 
-class SchoolProgramService 
+class SchoolProgramService
 {
     protected ProgramRepositoryInterface $programRepository;
+
     protected ReasonRepositoryInterface $reasonRepository;
 
-    public function __construct(ProgramRepositoryInterface $programRepository, ReasonRepositoryInterface $reasonRepository) 
+    public function __construct(ProgramRepositoryInterface $programRepository, ReasonRepositoryInterface $reasonRepository)
     {
         $this->programRepository = $programRepository;
         $this->reasonRepository = $reasonRepository;
@@ -21,15 +22,15 @@ class SchoolProgramService
     {
         $reason = [];
 
-        # Purpose:
-        # Set reason if status 2 || 3 || 5
-        # IF reason is other then set reason_name and type, create new reason
-        
-        # status 
-        # 2 = Rejected
-        # 3 = Refund
-        # 5 = Cancel
-        if($schoolPrograms['status'] == '2' || $schoolPrograms['status'] == '3' || $schoolPrograms['status'] == '5'){
+        // Purpose:
+        // Set reason if status 2 || 3 || 5
+        // IF reason is other then set reason_name and type, create new reason
+
+        // status
+        // 2 = Rejected
+        // 3 = Refund
+        // 5 = Cancel
+        if ($schoolPrograms['status'] == '2' || $schoolPrograms['status'] == '3' || $schoolPrograms['status'] == '5') {
 
             switch ($schoolPrograms['status']) {
                 case '2':
@@ -41,7 +42,7 @@ class SchoolProgramService
                     break;
 
                 case '3':
-                    if ($schoolPrograms['reason_refund_id'] == 'other_reason_refund'){
+                    if ($schoolPrograms['reason_refund_id'] == 'other_reason_refund') {
                         $reason['reason_name'] = $schoolPrograms['other_reason_refund'];
                         $reason['type'] = 'Program';
                     } else {
@@ -53,12 +54,13 @@ class SchoolProgramService
                     unset($schoolPrograms['reason_notes_refund']);
                     break;
             }
-          
+
             unset($schoolPrograms['other_reason']);
 
-            if(!$schoolPrograms = $this->snCreateReasonWhenReasonIsOther($schoolPrograms, $reason))
+            if (! $schoolPrograms = $this->snCreateReasonWhenReasonIsOther($schoolPrograms, $reason)) {
                 throw new Exception('Failed to create other reason');
-           
+            }
+
         }
 
         return $schoolPrograms;
@@ -71,7 +73,7 @@ class SchoolProgramService
             $reason_id = $reason_created->reason_id;
             $schoolPrograms['reason_id'] = $reason_id;
         }
-        
+
         return $schoolPrograms;
     }
 }

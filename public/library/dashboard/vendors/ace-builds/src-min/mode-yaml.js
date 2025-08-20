@@ -5,4 +5,3 @@ define("ace/mode/yaml_highlight_rules",["require","exports","module","ace/lib/oo
                         }
                     });
                 })();
-            

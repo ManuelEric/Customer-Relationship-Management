@@ -4,10 +4,8 @@ namespace App\Repositories;
 
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Models\Department;
-use App\Models\User;
-use DataTables;
 
-class DepartmentRepository implements DepartmentRepositoryInterface 
+class DepartmentRepository implements DepartmentRepositoryInterface
 {
     public function getAllDepartment()
     {
@@ -17,6 +15,7 @@ class DepartmentRepository implements DepartmentRepositoryInterface
     public function getEmployeeByDepartment($departmentId)
     {
         $department = Department::find($departmentId);
+
         return $department->users->where('pivot.status', 1);
     }
 }

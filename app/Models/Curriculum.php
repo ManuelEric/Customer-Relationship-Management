@@ -3,27 +3,46 @@
 namespace App\Models;
 
 use App\Events\MessageSent;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
-
+/**
+ * @property int $id
+ * @property string $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\School> $school
+ * @property-read int|null $school_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Curriculum newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Curriculum newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Curriculum query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Curriculum whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Curriculum whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Curriculum whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Curriculum whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Curriculum extends Model
 {
     use HasFactory;
+
     protected $table = 'tbl_curriculum';
+
     protected $primaryKey = 'id';
 
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'name',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -67,14 +86,14 @@ class Curriculum extends Model
     public function createdAt(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => date('M d, Y H:i:s', strtotime($value)),
+            get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
         );
     }
 
     public function updatedAt(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => date('M d, Y H:i:s', strtotime($value)),
+            get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
         );
     }
 

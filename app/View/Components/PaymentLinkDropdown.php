@@ -15,8 +15,7 @@ class PaymentLinkDropdown extends Component
         public bool $installment,
         public int $id,
 
-    )
-    {
+    ) {
         //
     }
 

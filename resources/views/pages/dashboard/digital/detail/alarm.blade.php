@@ -1,5 +1,5 @@
 {{-- Alert  --}}
-@if($countAlarm['digital'] > 0) 
+@if($countAlarm['digital'] > 0)
     <div class="col">
         <fieldset class="border p-2 rounded shadow">
             <legend class="float-none w-auto fs-6 mx-3">

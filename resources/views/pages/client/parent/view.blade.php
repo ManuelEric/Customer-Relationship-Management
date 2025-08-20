@@ -64,8 +64,8 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            {!! $parent->address !!} 
-                            {!! $parent->postal_code ? $parent->postal_code."<br>" : null !!} 
+                            {!! $parent->address !!}
+                            {!! $parent->postal_code ? $parent->postal_code."<br>" : null !!}
                             {{ $parent->city }} {{ $parent->state }}
                         </div>
                     </div>
@@ -222,7 +222,7 @@
 @push('scripts')
 
 <script>
-    // Select2 Modal 
+    // Select2 Modal
     $(document).ready(function() {
         $('.modal-select').select2({
             dropdownParent: $('#programForm .modal-content'),

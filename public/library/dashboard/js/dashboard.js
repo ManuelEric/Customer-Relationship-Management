@@ -42,7 +42,7 @@
               pointBorderColor: ['#fff','#fff','#fff','#fff','#fff','#fff','#fff','#fff','#fff','#fff','#fff','#fff','#fff',],
         }]
       };
-  
+
       var salesTopOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -90,7 +90,7 @@
             text.push('</ul></div>');
             return text.join("");
           },
-          
+
           elements: {
               line: {
                   tension: 0.4,
@@ -148,7 +148,7 @@
               pointBorderColor: ['#222437','#222437','#222437','#222437','#222437','#222437','#222437','#222437','#222437','#222437','#222437','#222437','#222437',],
         }]
       };
-  
+
       var salesTopOptionsDark = {
         responsive: true,
         maintainAspectRatio: false,
@@ -196,7 +196,7 @@
             text.push('</ul></div>');
             return text.join("");
           },
-          
+
           elements: {
               line: {
                   tension: 0.4,
@@ -238,7 +238,7 @@
               pointHoverRadius: [0, 0, 0, 0, 0, 0],
           }]
       };
-  
+
       var statusOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -274,7 +274,7 @@
             }],
           },
           legend:false,
-          
+
           elements: {
               line: {
                   tension: 0.4,
@@ -296,7 +296,7 @@
         // This has to be the same size as the maximum width to
         // prevent clipping
         strokeWidth: 15,
-        trailWidth: 15, 
+        trailWidth: 15,
         easing: 'easeInOut',
         duration: 1400,
         text: {
@@ -314,17 +314,17 @@
         step: function(state, circle) {
           circle.path.setAttribute('stroke', state.color);
           circle.path.setAttribute('stroke-width', state.width);
-  
+
           var value = Math.round(circle.value() * 100);
           if (value === 0) {
             circle.setText('');
           } else {
             circle.setText(value);
           }
-  
+
         }
       });
-  
+
       bar.text.style.fontSize = '0rem';
       bar.animate(.64); // Number from 0.0 to 1.0
     }
@@ -352,17 +352,17 @@
         step: function(state, circle) {
           circle.path.setAttribute('stroke', state.color);
           circle.path.setAttribute('stroke-width', state.width);
-  
+
           var value = Math.round(circle.value() * 100);
           if (value === 0) {
             circle.setText('');
           } else {
             circle.setText(value);
           }
-  
+
         }
       });
-  
+
       bar.text.style.fontSize = '0rem';
       bar.animate(.34); // Number from 0.0 to 1.0
     }
@@ -379,7 +379,7 @@
               ],
               borderWidth: 0,
               fill: true, // 3: no fill
-              
+
           },{
             label: 'This week',
             data: [215, 290, 210, 250, 290, 230, 290, 210, 280, 220, 190, 300],
@@ -391,7 +391,7 @@
             fill: true, // 3: no fill
         }]
       };
-  
+
       var marketingOverviewOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -441,7 +441,7 @@
             text.push('</ul></div>');
             return text.join("");
           },
-          
+
           elements: {
               line: {
                   tension: 0.4,
@@ -471,7 +471,7 @@
               ],
               borderWidth: 0,
               fill: true, // 3: no fill
-              
+
           },{
             label: 'This week',
             data: [215, 290, 210, 250, 290, 230, 290, 210, 280, 220, 190, 300],
@@ -483,7 +483,7 @@
             fill: true, // 3: no fill
         }]
       };
-  
+
       var marketingOverviewOptionsDark = {
         responsive: true,
         maintainAspectRatio: false,
@@ -533,7 +533,7 @@
             text.push('</ul></div>');
             return text.join("");
           },
-          
+
           elements: {
               line: {
                   tension: 0.4,
@@ -568,7 +568,7 @@
             "#81DADA"
           ],
         }],
-  
+
         // These labels appear in the legend and in the tooltips when hovering different arcs
         labels: [
           'Total',
@@ -600,7 +600,7 @@
           text.push('</div></ul>');
           return text.join("");
         },
-        
+
         layout: {
           padding: {
             left: 0,
@@ -618,7 +618,7 @@
               return data['datasets'][0]['data'][tooltipItem['index']];
             }
           },
-            
+
           backgroundColor: '#fff',
           titleFontSize: 14,
           titleFontColor: '#0B0F32',
@@ -647,10 +647,10 @@
               ],
               borderWidth: 0,
               fill: true, // 3: no fill
-              
+
           }]
       };
-  
+
       var leaveReportOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -686,7 +686,7 @@
             }],
           },
           legend:false,
-          
+
           elements: {
               line: {
                   tension: 0.4,
@@ -715,10 +715,10 @@
               ],
               borderWidth: 0,
               fill: true, // 3: no fill
-              
+
           }]
       };
-  
+
       var leaveReportOptionsDark = {
         responsive: true,
         maintainAspectRatio: false,
@@ -754,7 +754,7 @@
             }],
           },
           legend:false,
-          
+
           elements: {
               line: {
                   tension: 0.4,
@@ -770,6 +770,6 @@
           options: leaveReportOptionsDark
       });
     }
-  
+
   });
 })(jQuery);

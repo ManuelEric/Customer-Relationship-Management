@@ -261,7 +261,7 @@ $(document).ready(function(){
 
         axios.get(link)
             .then( function (response) {
-                
+
                 let obj = response.data;
                 let html = obj.ctx;
 
@@ -433,7 +433,7 @@ $(document).ready(function(){
     }
 </script>
 <script>
-    // percentage 
+    // percentage
     let lbl_client_prog = [{
         formatter: (value, ctx) => {
             let datasets = ctx.chart.data.datasets;
@@ -463,7 +463,7 @@ $(document).ready(function(){
     }]
 
     get_client_program_status()
-    // Overall 
+    // Overall
     const all = document.getElementById('clientProgram');
 
     var dataset_program = new Array()
@@ -513,7 +513,7 @@ $(document).ready(function(){
     });
 
 
-    // Admissions Program 
+    // Admissions Program
     const adm = document.getElementById('admissionsProgram');
 
     // create a dataset for admission mentoring by status
@@ -569,11 +569,11 @@ $(document).ready(function(){
 
                 axios.get(link)
                     .then(function (response) {
-                        
+
                         let obj = response.data;
                         console.log(obj);
                         $("#adm_mentor_modal").modal('show');
-                        $("#adm_mentor_modal .adm_mentor_modal_body").html(obj.ctx) 
+                        $("#adm_mentor_modal .adm_mentor_modal_body").html(obj.ctx)
                         swal.close();
                     })
                     .catch(function (error) {
@@ -585,7 +585,7 @@ $(document).ready(function(){
         }
     });
 
-    // Academic Program 
+    // Academic Program
     const acad = document.getElementById('academicProgram');
 
     // create a dataset for admission mentoring by status
@@ -644,7 +644,7 @@ $(document).ready(function(){
 
                         let obj = response.data;
                         $("#acad_prep_modal").modal('show');
-                        $("#acad_prep_modal .acad_prep_modal_body").html(obj.ctx) 
+                        $("#acad_prep_modal .acad_prep_modal_body").html(obj.ctx)
                         swal.close();
                     })
                     .catch(function (error) {
@@ -656,7 +656,7 @@ $(document).ready(function(){
         }
     });
 
-    // Career Program 
+    // Career Program
     const career = document.getElementById('careerProgram');
 
     // create a dataset for admission mentoring by status
@@ -699,7 +699,7 @@ $(document).ready(function(){
                         boxWidth: 10,
                     }
                 }
-            }, 
+            },
             onClick: (e) => {
 
                 var month = $(".qdate").val();
@@ -715,7 +715,7 @@ $(document).ready(function(){
 
                         let obj = response.data;
                         $("#career_exp_modal").modal('show');
-                        $("#career_exp_modal .career_exp_modal_body").html(obj.ctx) 
+                        $("#career_exp_modal .career_exp_modal_body").html(obj.ctx)
                         swal.close();
                     })
                     .catch(function (error) {
@@ -784,7 +784,7 @@ $(document).ready(function(){
 
                         let obj = response.data;
                         $("#init_consult_modal").modal('show');
-                        $("#init_consult_modal .init_consult_modal_body").html(obj.data.ctx) 
+                        $("#init_consult_modal .init_consult_modal_body").html(obj.data.ctx)
                         swal.close();
                     })
                     .catch(function (error) {

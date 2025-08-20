@@ -9,7 +9,7 @@
 .border-alert {
     border:2px solid rgb(242, 121, 16);
     animation: alert 3s infinite;
-    animation-direction:alternate; 
+    animation-direction:alternate;
 }
 
 @keyframes alert{

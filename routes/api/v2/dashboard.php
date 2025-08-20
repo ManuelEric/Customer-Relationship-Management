@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\v2\SalesDashboardController as V2SalesDashboardController;
-use App\Http\Controllers\Api\v2\PartnerDashboardController as V2PartnerDashboardController;
-use App\Http\Controllers\Api\v2\FinanceDashboardController as V2FinanceDashboardController;
 use App\Http\Controllers\Api\v2\DigitalDashboardController as V2DigitalDashboardController;
+use App\Http\Controllers\Api\v2\FinanceDashboardController as V2FinanceDashboardController;
+use App\Http\Controllers\Api\v2\PartnerDashboardController as V2PartnerDashboardController;
+use App\Http\Controllers\Api\v2\SalesDashboardController as V2SalesDashboardController;
 use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Route;
 
 /**
  * New dashboard requirements
@@ -13,7 +13,7 @@ use App\Http\Controllers\DashboardController;
  * for now, not being used
  */
 Route::middleware(['throttle:120,1'])->group(function () {
-    
+
     /**
      * Sales
      */
@@ -36,7 +36,6 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('client-event', [V2SalesDashboardController::class, 'getClientEventByYear']);
     Route::get('outstanding-payment', [DashboardController::class, 'listOustandingPayments']);
 
-    
     /**
      * Partnership
      */
@@ -47,7 +46,6 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('partner/partnership-program/detail', [V2PartnerDashboardController::class, 'getPartnershipProgramDetailByMonth']);
     Route::get('partner/partnership-program/program-comparison', [V2PartnerDashboardController::class, 'getProgramComparison']);
 
-
     /**
      * Digital
      */
@@ -57,7 +55,6 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('digital/detail/lead-source', [V2DigitalDashboardController::class, 'getDetailLeadSource']);
     Route::get('digital/detail/conversion-lead', [V2DigitalDashboardController::class, 'getDetailConversionLead']);
 
-    
     /**
      * Finance
      */

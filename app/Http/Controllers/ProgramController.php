@@ -11,12 +11,9 @@ use App\Http\Traits\LoggingTrait;
 use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
-use App\Models\MainProg;
-use App\Models\SubProg;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -26,7 +23,9 @@ class ProgramController extends Controller
     use LoggingTrait;
 
     protected ProgramRepositoryInterface $programRepository;
+
     protected MainProgRepositoryInterface $mainProgRepository;
+
     protected SubProgRepositoryInterface $subProgRepository;
 
     public function __construct(ProgramRepositoryInterface $programRepository, MainProgRepositoryInterface $mainProgRepository, SubProgRepositoryInterface $subProgRepository)
@@ -72,8 +71,8 @@ class ProgramController extends Controller
             return Redirect::to('master/program')->withError('Failed to create a new program');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_PROGRAM, 'New program has been added', $new_program->toArray());
 
         return Redirect::to('master/program')->withSuccess('Program successfully created');
@@ -83,7 +82,7 @@ class ProgramController extends Controller
     {
         return view('pages.master.program.form')->with(
             [
-                'main_programs' => $this->mainProgRepository->rnGetAllMainProg()
+                'main_programs' => $this->mainProgRepository->rnGetAllMainProg(),
             ]
         );
     }
@@ -102,10 +101,10 @@ class ProgramController extends Controller
             'prog_scope',
             'active',
         ]);
-        
+
         DB::beginTransaction();
         try {
-            
+
             $updated_program = $updateProgramAction->execute($request->old_prog_id, $new_program_details);
             DB::commit();
         } catch (Exception $e) {
@@ -116,8 +115,8 @@ class ProgramController extends Controller
             return Redirect::to('master/program')->withError('Failed to update a program');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_PROGRAM, 'Program has been updated', $updated_program->toArray());
 
         return Redirect::to('master/program')->withSuccess('Program successfully updated');
@@ -131,7 +130,7 @@ class ProgramController extends Controller
         return view('pages.master.program.form')->with(
             [
                 'main_programs' => $this->mainProgRepository->rnGetAllMainProg(),
-                'program' => $program
+                'program' => $program,
             ]
         );
     }
@@ -148,23 +147,25 @@ class ProgramController extends Controller
             $deleteProgramAction->execute($program_id);
             DB::commit();
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $old_program->toArray());
+
             return Redirect::to('master/program')->withError('Failed to delete a program');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_PROGRAM, 'Program has been deleted', $old_program->toArray());
 
         return Redirect::to('master/program')->withSuccess('Program successfully deleted');
     }
 
-    #
+    //
     public function fnGetSubProgram(Request $request)
     {
         $main_prog = $request->route('main_program');
+
         return json_encode($this->subProgRepository->getSubProgByMainProgId($main_prog));
     }
 }

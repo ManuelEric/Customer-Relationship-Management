@@ -4,10 +4,8 @@ namespace App\Http\Controllers\Module;
 
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Modules\GetClientStatusTrait;
-use App\Interfaces\ClientRepositoryInterface;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class AlarmController extends Controller
@@ -38,24 +36,24 @@ class AlarmController extends Controller
         $currMonth = date('m');
         $currYear = date('Y');
         $monthYear = CarbonImmutable::create($currYear, $currMonth);
-        
+
         $allTarget = $this->targetTrackingRepository->getAllTargetTrackingMonthly($today);
         $dataSalesTarget = $this->alarmRepository->getDataTarget($today, 'Sales');
         $dataReferralTarget = $this->alarmRepository->getDataTarget($today, 'Referral');
         $dataDigitalTarget = $this->alarmRepository->getDataTarget($today, 'Digital');
 
-        # Event
+        // Event
         $events = $this->eventRepository->getEventByMonthyear($today);
 
-        # sales
+        // sales
         $actualLeadsSales = $this->alarmRepository->setDataActual($dataSalesTarget);
         $leadSalesTarget = $this->alarmRepository->setDataTarget($dataSalesTarget, $actualLeadsSales);
 
-        # referral
+        // referral
         $actualLeadsReferral = $this->alarmRepository->setDataActual($dataReferralTarget);
         $leadReferralTarget = $this->alarmRepository->setDataTarget($dataReferralTarget, $actualLeadsReferral);
 
-        # digital
+        // digital
         $actualLeadsDigital = $this->alarmRepository->setDataActual($dataDigitalTarget);
         $leadDigitalTarget = $this->alarmRepository->setDataTarget($dataDigitalTarget, $actualLeadsDigital);
 
@@ -64,15 +62,15 @@ class AlarmController extends Controller
         $targetTrackingLead = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today, 'lead');
         $targetTrackingRevenue = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today, 'revenue');
 
-        # Chart lead
+        // Chart lead
         $last3month = date('Y-m', strtotime($monthYear->subMonth(2)));
         for ($i = 2; $i >= 0; $i--) {
-            $dataLeadChart['target'][] = $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->target : 0;
-            $dataLeadChart['actual'][] = $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->actual : 0;
+            $dataLeadChart['target'][] = $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int) $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->target : 0;
+            $dataLeadChart['actual'][] = $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int) $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->actual : 0;
             $dataLeadChart['label'][] = Carbon::now()->startOfMonth()->subMonth($i)->format('F');
 
-            $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->target : 0;
-            $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->actual : 0;
+            $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int) $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->target : 0;
+            $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int) $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->actual : 0;
             $dataRevenueChart['label'][] = Carbon::now()->startOfMonth()->subMonth($i)->format('F');
             $last3month++;
         }
@@ -89,10 +87,8 @@ class AlarmController extends Controller
             'number_of_contribution' => isset($allTarget) ? $allTarget->sum('contribution_target') : 0,
         ];
 
-
-
         $response = [
-            # alarm
+            // alarm
             'alarmLeads' => $alarmLeads,
             'leadSalesTarget' => $leadSalesTarget,
             'leadReferralTarget' => $leadReferralTarget,
@@ -102,10 +98,9 @@ class AlarmController extends Controller
             'actualLeadsReferral' => $actualLeadsReferral,
             'dataLeads' => $dataLeads,
             'dataLeadChart' => $dataLeadChart,
-            'dataRevenueChart' => $dataRevenueChart
+            'dataRevenueChart' => $dataRevenueChart,
         ];
 
         return $response;
     }
-
 }

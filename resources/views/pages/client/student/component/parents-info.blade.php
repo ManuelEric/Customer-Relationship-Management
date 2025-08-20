@@ -157,7 +157,7 @@
 
     $("#list-parent .detail").each(function() {
         $(this).click(function() {
-            
+
             var link = "{{ url('client/parent') }}/" + $(this).data('parentid')
             window.open(link, "_blank")
         })

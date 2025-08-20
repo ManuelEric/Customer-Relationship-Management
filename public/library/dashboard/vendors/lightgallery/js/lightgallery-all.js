@@ -39,14 +39,14 @@
         startClass: 'lg-start-zoom',
         backdropDuration: 150,
 
-        // Set 0, if u don't want to hide the controls 
+        // Set 0, if u don't want to hide the controls
         hideBarsDelay: 6000,
 
         useLeft: false,
 
         // aria-labelledby attribute fot gallery
         ariaLabelledby: '',
-        
+
         //aria-describedby attribute for gallery
         ariaDescribedby: '',
 
@@ -2328,7 +2328,7 @@
 }(this, function ($) {
 
 (function() {
-    
+
         'use strict';
 
         var defaults = {
@@ -2385,7 +2385,7 @@
             _this.core.$el.on('onAfterSlide.lg.tm', function(event, prevIndex) {
                 _this.core.$slide.eq(prevIndex).removeClass('lg-video-playing');
             });
-            
+
             if (_this.core.s.autoplayFirstVideo) {
                 _this.core.$el.on('onAferAppendSlide.lg.tm', function (e, index) {
                     if (!_this.core.lGalleryOn) {
@@ -2916,8 +2916,8 @@
     };
 
     /**
-     * 
-     * @param {Element} el 
+     *
+     * @param {Element} el
      * @return matrix(cos(X), sin(X), -sin(X), cos(X), 0, 0);
      * Get the current transform value
      */
@@ -2991,7 +2991,7 @@
             x: 'offsetWidth'
         };
         if (rotateValue === 90) {
-            // Swap axis 
+            // Swap axis
             if (axis === 'x') {
                 axis = 'y';
             } else {
@@ -3101,12 +3101,12 @@
                 var $image = _this.core.$slide.eq(_this.core.index).find('.lg-object');
 
                 rotateEl = _this.core.$slide.eq(_this.core.index).find('.lg-img-rotate')[0];
-                rotateValue = _this.getCurrentRotation(rotateEl);    
+                rotateValue = _this.getCurrentRotation(rotateEl);
 
                 var dragAllowedAxises = _this.getDragAllowedAxises($image, Math.abs(rotateValue));
                 allowY = dragAllowedAxises.allowY;
                 allowX = dragAllowedAxises.allowX;
-    
+
                 if ((allowX || allowY)) {
                     e.preventDefault();
                     startCoords = _this.getSwipeCords(e, Math.abs(rotateValue));
@@ -3189,7 +3189,7 @@
 
         var rotateValue = 0;
         var rotateEl;
-        
+
         _this.core.$slide.on('mousedown.lg.zoom', function(e) {
             rotateEl = _this.core.$slide.eq(_this.core.index).find('.lg-img-rotate')[0];
             rotateValue = _this.getCurrentRotation(rotateEl);
@@ -3232,7 +3232,7 @@
                 } else {
                     distanceY = -Math.abs(_$el.attr('data-y'));
                 }
-                
+
                 if (allowX) {
                     distanceX = (-Math.abs(_$el.attr('data-x'))) + ((endCoords.x - startCoords.x) * _this.getModifier(rotateValue, 'X', rotateEl));
                 } else {

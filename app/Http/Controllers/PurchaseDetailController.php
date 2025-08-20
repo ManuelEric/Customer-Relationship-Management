@@ -13,12 +13,10 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class PurchaseDetailController extends Controller
 {
-
     private PurchaseDetailRepositoryInterface $purchaseDetailRepository;
 
     public function __construct(PurchaseDetailRepositoryInterface $purchaseDetailRepository)
@@ -35,8 +33,8 @@ class PurchaseDetailController extends Controller
         return response()->json(
             [
                 'success' => $detail ? true : false,
-                'message' => $detail ? "Detail data has been retrieved" : "Couldn't get the detail data",
-                'data' => $detail ? $detail : null
+                'message' => $detail ? 'Detail data has been retrieved' : "Couldn't get the detail data",
+                'data' => $detail ? $detail : null,
             ]
         );
     }
@@ -67,6 +65,7 @@ class PurchaseDetailController extends Controller
         }
 
         $log_service->createSuccessLog(LogModule::STORE_PURCHASE_REQUEST_DETAIL, 'Asset request detail has been added', $new_item->toArray());
+
         return Redirect::to('master/purchase/'.$purchase_id)->withSuccess('Request Item of Purchase Request '.$purchase_id.' successfully added');
     }
 
@@ -119,7 +118,7 @@ class PurchaseDetailController extends Controller
             return Redirect::to('master/purchase/'.$purchase_id)->withError('Failed to delete requested item of Purchase Request '.$purchase_id);
 
         }
-        
+
         $log_service->createSuccessLog(LogModule::DELETE_PURCHASE_REQUEST_DETAIL, 'Purchase request detail has been deleted', ['detail_id' => $detail_id]);
 
         return Redirect::to('master/purchase/'.$purchase_id)->withSuccess('Requested item of Purchase Request '.$purchase_id.' successfully deleted');

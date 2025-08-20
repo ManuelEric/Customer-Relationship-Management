@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\AgendaSpeaker;
 use App\Models\User;
-
+use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEdufLeadSpeakerRequest extends FormRequest
 {
@@ -24,14 +23,12 @@ class StoreEdufLeadSpeakerRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-
     public function messages()
     {
         return [
             'required_if' => 'The :attribute field is required',
         ];
     }
-
 
     public function rules()
     {
@@ -77,19 +74,16 @@ class StoreEdufLeadSpeakerRequest extends FormRequest
         ];
 
         $rules['speaker'] = function ($attribute, $value, $fail) use ($schProgId) {
-            if (!User::whereHas('roles', function ($query) {
+            if (! User::whereHas('roles', function ($query) {
                 $query->where('role_name', 'employee');
             })->find($value)) {
 
-                $fail('The ALL-In speaker is invalid' . $value);
+                $fail('The ALL-In speaker is invalid'.$value);
             } elseif (AgendaSpeaker::where('empl_id', $value)->where('eduf_id', $schProgId)->where('start_time', '=', $this->input('start_time'))->where('end_time', '=', $this->input('end_time'))->first()) {
 
                 $fail('The ALL-In speaker has already added before, cannot add same speaker at the same schedule');
             }
         };
-
-
-
 
         return $rules;
     }

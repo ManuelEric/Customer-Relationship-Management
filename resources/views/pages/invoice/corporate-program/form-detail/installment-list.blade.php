@@ -26,10 +26,10 @@
                             </tr>
                         </table>
                         <div class="ps-1 mt-1">
-                            {{ $inv_dtl->invdtl_amount > 0 ? $inv_dtl->invoicedtlAmount . ' | ' : '' }} 
+                            {{ $inv_dtl->invdtl_amount > 0 ? $inv_dtl->invoicedtlAmount . ' | ' : '' }}
                              {{ $inv_dtl->invoicedtlAmountidr }}
                         </div>
-                    </div> 
+                    </div>
                     <div class="mt-2 text-end">
                         @if(empty($inv_dtl->receipt) && $invoicePartner->invb2b_pm == 'Installment' && $status != 'edit')
                             <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" onclick="checkReceipt('{{isset($inv_dtl->invdtl_amount) ? $inv_dtl->invdtl_amount : $inv_dtl->invdtl_amountidr}}', '{{$invoicePartner->currency != 'idr' ? 'other' : 'idr'}}', '{{isset($inv_dtl->invdtl_amount) ? $inv_dtl->invdtl_amountidr : null}}');setIdentifier('{{ $inv_dtl->invdtl_id }}')">

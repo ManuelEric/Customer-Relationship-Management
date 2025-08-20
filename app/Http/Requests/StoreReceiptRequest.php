@@ -44,10 +44,10 @@ class StoreReceiptRequest extends FormRequest
             'receipt_cat' => 'nullable',
             'created_at' => 'nullable',
 
-            # from form blade
+            // from form blade
             'identifier' => 'nullable',
             'paymethod' => 'nullable',
-            'clientprog_id' => 'required',
+            'clientprog_id' => 'nullable',
             'is_child_program_bundle' => 'nullable',
         ];
     }

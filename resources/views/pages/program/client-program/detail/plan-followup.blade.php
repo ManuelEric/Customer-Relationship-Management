@@ -42,7 +42,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <span>
-                    Plan Follow-Up 
+                    Plan Follow-Up
                 </span>
                 <i class="bi bi-pencil-square"></i>
             </div>

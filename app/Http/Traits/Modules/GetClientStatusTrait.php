@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Http\Traits\Modules;
 
-trait GetClientStatusTrait {
-
+trait GetClientStatusTrait
+{
     public function clientStatus($month)
     {
         $asDatatables = $groupBy = false;
@@ -30,47 +31,47 @@ trait GetClientStatusTrait {
         $total_teacher = $this->clientRepository->countClientByRole('Teacher/Counselor');
         $monthly_new_teacher = $this->clientRepository->countClientByRole('Teacher/Counselor', $month);
 
-        # data at the top of dashboard
+        // data at the top of dashboard
         $response['totalClientInformation'] = [
             'newLeads' => [
                 'old' => $total_newLeads - $monthly_new_newLeads,
                 'new' => $monthly_new_newLeads,
-                'percentage' => $this->calculatePercentage($total_newLeads, $monthly_new_newLeads)
-            ], # prospective
+                'percentage' => $this->calculatePercentage($total_newLeads, $monthly_new_newLeads),
+            ], // prospective
             'potential' => [
                 'old' => $total_potential_client - $monthly_new_potential_client,
                 'new' => $monthly_new_potential_client,
-                'percentage' => $this->calculatePercentage($total_potential_client, $monthly_new_potential_client)
-            ], # potential
+                'percentage' => $this->calculatePercentage($total_potential_client, $monthly_new_potential_client),
+            ], // potential
             'existingMentees' => [
                 'old' => $total_existingMentees - $monthly_new_existingMentees,
                 'new' => $monthly_new_existingMentees,
-                'percentage' => $this->calculatePercentage($total_existingMentees, $monthly_new_existingMentees)
-            ], # current
+                'percentage' => $this->calculatePercentage($total_existingMentees, $monthly_new_existingMentees),
+            ], // current
             'existingNonMentees' => [
                 'old' => $total_existingNonMentees - $monthly_new_existingNonMentees,
                 'new' => $monthly_new_existingNonMentees,
-                'percentage' => $this->calculatePercentage($total_existingNonMentees, $monthly_new_existingNonMentees)
-            ], # current
+                'percentage' => $this->calculatePercentage($total_existingNonMentees, $monthly_new_existingNonMentees),
+            ], // current
             'alumniMentees' => [
                 'old' => $total_alumniMentees - $monthly_new_alumniMentees,
                 'new' => $monthly_new_alumniMentees,
-                'percentage' => $this->calculatePercentage($total_alumniMentees, $monthly_new_alumniMentees)
+                'percentage' => $this->calculatePercentage($total_alumniMentees, $monthly_new_alumniMentees),
             ],
             'alumniNonMentees' => [
                 'old' => $total_alumniNonMentees - $monthly_new_alumniNonMentees,
                 'new' => $monthly_new_alumniNonMentees,
-                'percentage' => $this->calculatePercentage($total_alumniNonMentees, $monthly_new_alumniNonMentees)
+                'percentage' => $this->calculatePercentage($total_alumniNonMentees, $monthly_new_alumniNonMentees),
             ],
             'parent' => [
                 'old' => $total_parent - $monthly_new_parent,
                 'new' => $monthly_new_parent,
-                'percentage' => $this->calculatePercentage($total_parent, $monthly_new_parent)
+                'percentage' => $this->calculatePercentage($total_parent, $monthly_new_parent),
             ],
             'teacher_counselor' => [
                 'old' => $total_teacher - $monthly_new_teacher,
                 'new' => $monthly_new_teacher,
-                'percentage' => $this->calculatePercentage($total_teacher, $monthly_new_teacher)
+                'percentage' => $this->calculatePercentage($total_teacher, $monthly_new_teacher),
             ],
             'raw' => [
                 'student' => $this->clientRepository->countClientByCategory('raw'),
@@ -81,7 +82,7 @@ trait GetClientStatusTrait {
                 'student' => $this->clientRepository->getInactiveStudent(false)->count(),
                 'parent' => $this->clientRepository->getInactiveParent(false)->count(),
                 'teacher' => $this->clientRepository->getInactiveTeacher(false)->count(),
-            ]
+            ],
         ];
         $response['followUpReminder'] = $this->followupRepository->getAllFollowupWithin(7);
         $response['menteesBirthday'] = $this->clientRepository->getMenteesBirthdayMonthly($month);
@@ -91,20 +92,23 @@ trait GetClientStatusTrait {
 
     private function calculatePercentage($total_data, $monthly_data)
     {
-        if ($total_data == 0)
-            return "0,00";
+        if ($total_data == 0) {
+            return '0,00';
+        }
 
-        if (abs($total_data - $monthly_data) == 0)
+        if (abs($total_data - $monthly_data) == 0) {
             return number_format($total_data * 100, 2, ',', '.');
+        }
 
         return number_format(($monthly_data / abs($total_data - $monthly_data)) * 100, 2, ',', '.');
     }
 
     private function calculatePercentageLead($actual, $target)
     {
-        if ($target == 0)
+        if ($target == 0) {
             return 0;
+        }
 
-        return $actual/$target*100;
+        return $actual / $target * 100;
     }
 }

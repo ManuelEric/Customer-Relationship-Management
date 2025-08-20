@@ -2,34 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Interfaces\ProgramRepositoryInterface;
+use App\Http\Requests\StoreRefundSchoolRequest;
+use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Interfaces\CorporateRepositoryInterface;
-use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
+use App\Interfaces\PartnerProgramRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
-use App\Http\Traits\CreateInvoiceIdTrait;
-use App\Http\Requests\StoreRefundSchoolRequest;
 use App\Models\Receipt;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
-use PDF;
-
-
 
 class RefundPartnerController extends Controller
 {
     use CreateInvoiceIdTrait;
+
     protected CorporateRepositoryInterface $corporateRepository;
+
     protected PartnerProgramRepositoryInterface $partnerProgramRepository;
+
     protected ProgramRepositoryInterface $programRepository;
+
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
+
     protected ReceiptRepositoryInterface $receiptRepository;
+
     protected RefundRepositoryInterface $refundRepository;
 
     public function __construct(CorporateRepositoryInterface $corporateRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository)
@@ -70,7 +74,7 @@ class RefundPartnerController extends Controller
             'refund_amount',
             'tax_percentage',
             'tax_amount',
-            'total_refunded'
+            'total_refunded',
         ]);
 
         $refunds['invb2b_id'] = $invb2b_id;
@@ -93,16 +97,16 @@ class RefundPartnerController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create refund failed : ' . $e->getMessage());
+            Log::error('Create refund failed : '.$e->getMessage());
 
             return $e->getMessage();
             exit;
-            return Redirect::to('invoice/corporate-program/' . $partnerprog_id . '/detail/' . $invb2b_num)->withError('Failed to create a new refund');
+
+            return Redirect::to('invoice/corporate-program/'.$partnerprog_id.'/detail/'.$invb2b_num)->withError('Failed to create a new refund');
         }
 
-        return Redirect::to('invoice/corporate-program/' . $partnerprog_id . '/detail/' . $invb2b_num)->withSuccess('Refund successfully created');
+        return Redirect::to('invoice/corporate-program/'.$partnerprog_id.'/detail/'.$invb2b_num)->withSuccess('Refund successfully created');
     }
-
 
     public function destroy(Request $request)
     {
@@ -129,11 +133,11 @@ class RefundPartnerController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete refund failed : ' . $e->getMessage());
+            Log::error('Delete refund failed : '.$e->getMessage());
 
-            return Redirect::to('invoice/corporate-program/' . $partnerprog_id . '/detail/' . $invb2b_num)->withError('Failed to delete a new refund');
+            return Redirect::to('invoice/corporate-program/'.$partnerprog_id.'/detail/'.$invb2b_num)->withError('Failed to delete a new refund');
         }
 
-        return Redirect::to('invoice/corporate-program/' . $partnerprog_id . '/detail/' . $invb2b_num)->withSuccess('Refund successfully canceled');
+        return Redirect::to('invoice/corporate-program/'.$partnerprog_id.'/detail/'.$invb2b_num)->withSuccess('Refund successfully canceled');
     }
 }

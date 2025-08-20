@@ -42,12 +42,12 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8 col-8">
-                                {{ strip_tags($student->address) }} 
-                                {{ $student->postal_code ? $student->postal_code."<br>" : null }} 
+                                {{ strip_tags($student->address) }}
+                                {{ $student->postal_code ? $student->postal_code."<br>" : null }}
                                 {{ $student->city }} {{ $student->state }}
                             </div>
                         </div>
-                        
+
                         @if ($student->school)
                         <div class="row mb-2 g-1">
                             <div class="col d-flex justify-content-between">
@@ -161,14 +161,14 @@
                                 </tbody>
                             </table>
                         @else
-                            There's no parent information yet    
+                            There's no parent information yet
                         @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     @if (isset($clientProgram) && $clientProgram->status == 4 && preg_match("/Admission/i", $clientProgram->program->prog_main) )
     <div class="accordion-item">
         <h2 class="accordion-header">

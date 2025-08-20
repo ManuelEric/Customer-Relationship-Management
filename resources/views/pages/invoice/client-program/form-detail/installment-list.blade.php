@@ -27,7 +27,7 @@
                         </table>
                         <div class="ps-1 mt-1">
                             @if ($detail->invdtl_currency != NULL)
-                            {{ strtoupper($detail->invdtl_currency) }} {{ $detail->invdtl_amount }} |  
+                            {{ strtoupper($detail->invdtl_currency) }} {{ $detail->invdtl_amount }} |
                             @endif
                             {{ $detail->invoicedtl_amountidr }}
                         </div>

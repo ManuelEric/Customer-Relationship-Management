@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Interfaces\AxisRepositoryInterface;
 use App\Models\Axis;
-use Illuminate\Support\Facades\DB;
 
 class AxisRepository implements AxisRepositoryInterface
 {

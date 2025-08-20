@@ -14,12 +14,11 @@ class CreateCorporateEventAction
     }
 
     public function execute(
-        String $event_id,
-        Array $partner_details,
-    )
-    {
+        string $event_id,
+        array $partner_details,
+    ) {
 
-        # store new corporate event
+        // store new corporate event
         $new_corporate_event = $this->corporatePartnerEventRepository->addPartnerEvent($event_id, $partner_details);
 
         return $new_corporate_event;

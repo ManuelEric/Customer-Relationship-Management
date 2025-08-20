@@ -88,7 +88,8 @@
                                     {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     @foreach ($clients as $client)
-                                        <option value="{{ $client->id }}" @selected((isset($clientEvent) && $clientEvent->client_id == $client->id) || old('client_id') == $client->id)>
+                                        <option value="{{ $client->id }}"
+                                            @selected((isset($clientEvent) && $clientEvent->client_id == $client->id) || old('client_id') == $client->id )>
                                             {{ $client->full_name }}</option>
                                     @endforeach
                                 </select>
@@ -494,7 +495,7 @@
                 }
             @endphp
                 @if(isset($client))
-                    
+
                     <div class="card rounded mb-3">
                         <div class="card-header">
                             <div class="">
@@ -584,7 +585,7 @@
                                 <td>Phone Number</td>
                                 <td width="1%">:</td>
                                 <td>{{ $parent->phone }}</td>
-                            </tr>                        
+                            </tr>
                         </table>
                     </div>
                 </div>

@@ -22,7 +22,7 @@
             <script>
                 var widthView = $(window).width();
                 $(document).ready(function() {
-                    
+
                     var options = {
                         order: [[3, 'desc']],
                         buttons: [

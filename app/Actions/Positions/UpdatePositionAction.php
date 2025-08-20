@@ -15,12 +15,10 @@ class UpdatePositionAction
 
     public function execute(
         $position_id,
-        Array $new_position_details
-    )
-    {
+        array $new_position_details
+    ) {
 
         $new_position = $this->positionRepository->updatePosition($position_id, $new_position_details);
-
 
         return $new_position;
     }

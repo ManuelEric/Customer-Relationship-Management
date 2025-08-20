@@ -7,8 +7,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRefundRequest extends FormRequest
 {
-
     private ClientProgramRepositoryInterface $clientProgramRepository;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -38,8 +38,8 @@ class StoreRefundRequest extends FormRequest
         $total_paid = $clientProg->invoice->receipt()->sum('receipt_amount_idr');
 
         return [
-            'total_payment' => 'required|integer|in:' . $total_payment,
-            'total_paid' => 'required|integer|in:' . $total_paid,
+            'total_payment' => 'required|integer|in:'.$total_payment,
+            'total_paid' => 'required|integer|in:'.$total_paid,
             'percentage_refund' => 'required|numeric|min:0',
             'refund_amount' => 'required|numeric|min:0',
             'tax_percentage' => 'required|numeric|min:0',

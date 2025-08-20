@@ -35,7 +35,7 @@
                                 @case('3')
                                     University Agent
                                     @break
-                                    
+
                             @endswitch
                             @if(isset($partnerAgreement->partnerPic))
                                 <br>
@@ -177,18 +177,18 @@
 </script>
 
 @if(
-    $errors->has('agreement_name') | 
-    $errors->has('agreement_type') | 
-    $errors->has('start_date') | 
-    $errors->has('end_date') | 
-    $errors->has('corp_pic') | 
-    $errors->has('empl_id') | 
-    $errors->has('attachment')  
+    $errors->has('agreement_name') |
+    $errors->has('agreement_type') |
+    $errors->has('start_date') |
+    $errors->has('end_date') |
+    $errors->has('corp_pic') |
+    $errors->has('empl_id') |
+    $errors->has('attachment')
     )
-            
+
     <script>
         $(document).ready(function(){
-            $('#agreementForm').modal('show'); 
+            $('#agreementForm').modal('show');
         })
 
     </script>

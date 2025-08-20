@@ -54,28 +54,28 @@
                 <div>
                     <a class="navbar-brand brand-logo" href="
                         @if ($isSuperAdmin || $isSalesAdmin || $isSales)
-                            {{ url('dashboard/sales') }}">
+                            {{ url('dashboard/sales/client-program') }}">
                         @elseif ($isPartnership)
-                            {{ url('dashboard/partnership') }}">
+                            {{ url('dashboard/partnership/agenda') }}">
                         @elseif ($isDigital)
                             {{ url('dashboard/digital') }}">
                         @elseif ($isFinance)
-                            {{ url('dashboard/finance') }}">
+                            {{ url('dashboard/finance/outstanding-payment') }}">
                         @endif
-                    
+
                         <img loading="lazy"  src="{{ asset('img/logo.webp') }}" alt="logo" class="h-auto" />
                     </a>
                     <a class="navbar-brand brand-logo-mini" href="
                         @if ($isSuperAdmin || $isSalesAdmin || $isSales)
-                            {{ url('dashboard/sales') }}">
+                            {{ url('dashboard/sales/client-program') }}">
                         @elseif ($isPartnership)
-                            {{ url('dashboard/partnership') }}">
+                            {{ url('dashboard/partnership/agenda') }}">
                         @elseif ($isDigital)
                             {{ url('dashboard/digital') }}">
                         @elseif ($isFinance)
-                            {{ url('dashboard/finance') }}">
+                            {{ url('dashboard/finance/outstanding-payment') }}">
                         @endif
-                    
+
                         <img loading="lazy"  src="{{ asset('library/dashboard/images/logo-mini.svg') }}" alt="logo" />
                     </a>
                 </div>
@@ -125,7 +125,7 @@
                                     class="position-absolute ms-1 top-1 start-100 translate-middle badge rounded-pill bg-danger"
                                     style="font-size: 11px">
                                     <small>
-                                        {{ $birthDay->count() }}
+                                        {{ count($birthDay) }}
                                     </small>
                                 </span>
                             @endif
@@ -309,8 +309,7 @@
 
                 <footer class="footer">
                     <div class="d-sm-flex justify-content-center justify-content-sm-between">
-                        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">ALL-in
-                            Eduspace</span>
+                        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">EduALL</span>
                         <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Copyright © 2023. All
                             rights
                             reserved.</span>
@@ -349,14 +348,18 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($birthDay as $mentee)
+                                    @forelse ($birthDay as $mentee)
                                         <tr class="text-left">
                                             <td class="text-center">{{ $loop->iteration }}</td>
                                             <td>{{ $mentee->full_name }}</td>
                                             <td>{{ date('D, d M Y', strtotime($mentee->dob)) }}</td>
                                             <td>{{ strip_tags($mentee->address) }}</td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr class="text-left">
+                                            <td class="text-center" col-span="3">No data yet</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -375,7 +378,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" id="modal-body">
-                        @foreach ($followUp as $key => $detail)
+                        @forelse ($followUp as $key => $detail)
                             <h6>
                                 @php
                                     $opener = '(';
@@ -435,7 +438,11 @@
                                 </ul>
                             </div>
                             <hr>
-                        @endforeach
+
+                        @empty
+                            <div>No data to be followed-up</div>
+
+                        @endforelse
 
                     </div>
                 </div>
@@ -534,15 +541,13 @@
                     $('#cancel_follow_up_notes').modal('hide')
                 }
 
-                // function that change followup status to 1 
+                // function that change followup status to 1
                 $("#btn-submit-followup").click(function(e) {
                     e.preventDefault()
                     e.stopPropagation()
 
                     var link = $('#followUpForm').attr('action')
                     var data = $('#followUpForm').serialize()
-
-                    console.log(link);
 
                     var obj = [{
                         "mark": true

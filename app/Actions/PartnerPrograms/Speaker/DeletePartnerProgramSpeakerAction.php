@@ -15,11 +15,9 @@ class DeletePartnerProgramSpeakerAction
 
     public function execute(
         $agenda_id,
-    )
-    {
+    ) {
 
         $deleted_speaker = $this->agendaSpeakerRepository->deleteAgendaSpeaker($agenda_id);
-
 
         return $deleted_speaker;
     }

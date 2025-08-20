@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Interfaces\EventRepositoryInterface;
+use App\Models\Lead;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Models\Lead;
-use App\Interfaces\EventRepositoryInterface;
 
 class StoreClientEventRequest extends FormRequest
 {
@@ -26,7 +26,6 @@ class StoreClientEventRequest extends FormRequest
         $this->eventRepository = $eventRepository;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -39,7 +38,6 @@ class StoreClientEventRequest extends FormRequest
     //          'unique' => 'The :attribute has already been taken at same time.',
     //      ];
     //  }
-
 
     public function attributes()
     {
@@ -62,25 +60,27 @@ class StoreClientEventRequest extends FormRequest
         $rules = [
             'client_id' => [
                 'required',
-                'exists:tbl_client,id'
+                'exists:tbl_client,id',
             ],
             'event_id' => [
                 'required_if:lead_id,LS004',
                 Rule::unique('tbl_client_event')->where(function ($query) {
                     $query->where('client_id', $this->input('client_id'))->where('event_id', $this->input('event_id'));
-                })->when($this->isMethod('PUT'), function ($query) { # when the method is PUT, ignore the client id
+                })->when($this->isMethod('PUT'), function ($query) { // when the method is PUT, ignore the client id
                     $query->ignore($this->input('client_id'), 'client_id');
-                })
+                }),
             ],
             'eduf_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
-                    if ($this->input('lead_id') == 'kol' && empty($value))
+                    if ($this->input('lead_id') == 'kol' && empty($value)) {
                         $fail('The KOL name field is required');
+                    }
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get())
+                    if (! Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) {
                         $fail('The KOL name is invalid');
-                }
+                    }
+                },
             ],
             // 'joined_date' => 'required|date',
             'joined_date' => [
@@ -89,13 +89,13 @@ class StoreClientEventRequest extends FormRequest
                     if (isset($event) && $value > date('Y-m-d', strtotime($event->event_enddate))) {
                         $fail('The Joined Date must be, before event end date');
                     }
-                }
+                },
             ],
             'status' => 'required|in:0,1',
             'notes' => 'nullable',
         ];
 
-        if ($this->input('lead_id') != "kol") {
+        if ($this->input('lead_id') != 'kol') {
             $rules['lead_id'] = 'required|exists:tbl_lead,lead_id';
         }
 
@@ -115,12 +115,12 @@ class StoreClientEventRequest extends FormRequest
             'sch_id' => [
                 'required_if:status_client,Student,Teacher/Conselor',
                 function ($attribute, $value, $fail) {
-                    if ($this->input('sch_id') != "add-new") {
+                    if ($this->input('sch_id') != 'add-new') {
                         Rule::exists('tbl_sch', 'sch_id');
-                    }else{
+                    } else {
                         Rule::unique('tbl_sch', 'sch_name');
                     }
-                }
+                },
             ],
             'st_grade' => 'required_if:status_client,Student,Teacher/Conselor',
             'st_graduation_year' => 'nullable',
@@ -129,24 +129,26 @@ class StoreClientEventRequest extends FormRequest
             'sch_curriculum' => 'required_if:sch_id,add-new',
             'sch_score' => 'required_if:sch_id,add-new',
             'event_id' => [
-                'required_if:lead_id,LS004'
+                'required_if:lead_id,LS004',
             ],
             'eduf_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
-                    if ($this->input('lead_id') == 'kol' && empty($value))
+                    if ($this->input('lead_id') == 'kol' && empty($value)) {
                         $fail('The KOL name field is required');
+                    }
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get())
+                    if (! Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) {
                         $fail('The KOL name is invalid');
-                }
+                    }
+                },
             ],
             'joined_date' => 'required|date',
             'status' => 'required|in:0,1',
             'notes' => 'nullable',
         ];
 
-        if ($this->input('lead_id') != "kol") {
+        if ($this->input('lead_id') != 'kol') {
             $rules['lead_id'] = 'required|exists:tbl_lead,lead_id';
         }
 

@@ -21,7 +21,7 @@ return new class extends Migration
         Schema::table('tbl_lead', function (Blueprint $table) {
             $table->string('description')->nullable()->after('sub_lead');
             $table->boolean('is_online')->default(false)->after('sub_lead');
-            $table->string('type', 50)->after('sub_lead')->nullable(); 
+            $table->string('type', 50)->after('sub_lead')->nullable();
         });
 
         Schema::table('tbl_client', function (Blueprint $table) {
@@ -32,7 +32,7 @@ return new class extends Migration
             DB::statement("ALTER TABLE tbl_client CHANGE COLUMN category category ENUM('trash', 'raw', 'new-lead', 'potential', 'mentee', 'non-mentee', 'alumni-mentee', 'alumni-non-mentee') NULL");
         });
 
-        # create a relation for column country_id
+        // create a relation for column country_id
         Schema::table('tbl_client_abrcountry', function (Blueprint $table) {
             $table->foreign('country_id')->references('id')->on('tbl_country')->onUpdate('cascade')->onDelete('cascade');
         });

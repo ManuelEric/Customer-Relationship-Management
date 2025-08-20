@@ -39,11 +39,11 @@ class StoreSeasonalProgramRequest extends FormRequest
         return [
             'prog_id' => [
                 'exists:tbl_prog,prog_id',
-                Rule::unique('tbl_seasonal_lead')->where( function ($query) use ($progId, $start, $end) {
+                Rule::unique('tbl_seasonal_lead')->where(function ($query) use ($progId, $start, $end) {
                     $query->where('prog_id', $progId)->where('start', $start)->where('end', $end);
                 })->when($seasonalProgramId, function ($query) use ($seasonalProgramId) {
                     $query->ignore($seasonalProgramId, 'id');
-                })
+                }),
             ],
             'start' => 'date',
             'end' => 'date|after_or_equal:start',

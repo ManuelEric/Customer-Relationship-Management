@@ -1,22 +1,23 @@
 <?php
+
 namespace App\Http\Traits;
 
-trait FindDestinationCountryScore {
-
+trait FindDestinationCountryScore
+{
     public function getDestinationCountryScore($country)
     {
         switch ($country) {
-            case "United States":
-            case "United Kingdom":
+            case 'United States':
+            case 'United Kingdom':
                 $score = 6;
                 break;
 
-            case "Canada":
-            case "Australia":
+            case 'Canada':
+            case 'Australia':
                 $score = 4;
                 break;
 
-            case "Asia":
+            case 'Asia':
                 $score = 3;
                 break;
 

@@ -15,9 +15,8 @@ class UpdateProgramAction
 
     public function execute(
         $old_prog_id,
-        Array $new_program_details
-    )
-    {
+        array $new_program_details
+    ) {
 
         $updated_program = $this->programRepository->updateProgram($old_prog_id, $new_program_details);
 

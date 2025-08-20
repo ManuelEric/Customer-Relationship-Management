@@ -8,6 +8,7 @@ use App\Interfaces\AgendaSpeakerRepositoryInterface;
 class DeleteEdufLeadSpeakerAction
 {
     use CreateCustomPrimaryKeyTrait;
+
     private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
 
     public function __construct(AgendaSpeakerRepositoryInterface $agendaSpeakerRepository)
@@ -17,9 +18,8 @@ class DeleteEdufLeadSpeakerAction
 
     public function execute(
         $agenda_id
-    )
-    {
-        # Delete eduf_lead_speaker
+    ) {
+        // Delete eduf_lead_speaker
         $deleted_eduf_lead_speaker = $this->agendaSpeakerRepository->deleteAgendaSpeaker($agenda_id);
 
         return $deleted_eduf_lead_speaker;

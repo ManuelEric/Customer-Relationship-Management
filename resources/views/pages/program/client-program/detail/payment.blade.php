@@ -14,7 +14,7 @@
                     <div class="card-header">
                         <div class="d-flex justify-content-between">
                             <strong>
-                                Invoice ID : {{ $clientProgram->invoice->inv_id }} 
+                                Invoice ID : {{ $clientProgram->invoice->inv_id }}
                             </strong>
                             <a href="{{ route('invoice.client-program.export', ['client_program' => $clientProgram->clientprog_id]) }}" title="See receipt" class="fs-6 text-end">
                                 <i class="bi bi-printer cursor-pointer"></i>
@@ -27,7 +27,7 @@
                             <div class="d-flex justify-content-between {{ $loop->iteration > 1 ? "mt-3 border-top pt-3" : null }}">
                                 <div class="">
                                     <strong>
-                                        Invoice : {{ $clientProgram->invoice->inv_id }} - {{ $invdetail->invdtl_id }} 
+                                        Invoice : {{ $clientProgram->invoice->inv_id }} - {{ $invdetail->invdtl_id }}
                                         @if ($invdetail->receipt)
                                         <i class="bi bi-arrow-right mx-3"></i>
                                         Already Paid (ref: {{ $invdetail->receipt->receipt_id }})

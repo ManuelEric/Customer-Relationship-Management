@@ -27,3 +27,8 @@ composer.lock
 error_log
 .ftpquota
 .htaccess
+.deploy.php
+docker-compose.yml
+.env.production
+.pre-commit-config.yaml
+phpstan.neon

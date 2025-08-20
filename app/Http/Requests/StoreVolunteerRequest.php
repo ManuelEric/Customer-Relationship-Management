@@ -46,7 +46,7 @@ class StoreVolunteerRequest extends FormRequest
             'empl_insurance' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
             'volunt_graduatedfr' => 'nullable|exists:tbl_univ,univ_id',
             'volunt_major' => 'nullable|exists:tbl_major,id',
-            'volunt_position' => 'nullable|exists:tbl_position,id'
+            'volunt_position' => 'nullable|exists:tbl_position,id',
         ];
     }
 
@@ -73,7 +73,7 @@ class StoreVolunteerRequest extends FormRequest
             'empl_insurance' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
             'volunt_graduatedfr' => 'nullable|exists:tbl_univ,univ_id',
             'volunt_major' => 'nullable|exists:tbl_major,id',
-            'volunt_position' => 'nullable|exists:tbl_position,id'
+            'volunt_position' => 'nullable|exists:tbl_position,id',
         ];
     }
 }

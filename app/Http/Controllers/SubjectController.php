@@ -12,7 +12,6 @@ use App\Interfaces\SubjectRepositoryInterface;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -55,9 +54,9 @@ class SubjectController extends Controller
 
             return Redirect::to('master/subject')->withError('Failed to create a new subject');
         }
-        
-        # store Success
-        # create log success
+
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_SUBJECT, 'New subject has been added', $subject_created->toArray());
 
         return Redirect::to('master/subject')->withSuccess('Subject successfully created');
@@ -68,11 +67,12 @@ class SubjectController extends Controller
         $subject_id = $request->route('subject');
 
         try {
-            # retrieve subject
+            // retrieve subject
             $subject = $this->subjectRepository->getSubjectById($subject_id);
         } catch (Exception $e) {
-            
-            Log::error('Failed to show detail subject: ' . $e->getMessage());
+
+            Log::error('Failed to show detail subject: '.$e->getMessage());
+
             return response()->json(['error' => $e->getMessage()], 500);
         }
 
@@ -86,7 +86,7 @@ class SubjectController extends Controller
             'name',
         ]);
 
-        # retrieve vendor id from url
+        // retrieve vendor id from url
         $subject_id = $request->route('subject');
 
         DB::beginTransaction();
@@ -97,14 +97,14 @@ class SubjectController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::STORE_SUBJECT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_subject_details);
+            $log_service->createErrorLog(LogModule::UPDATE_SUBJECT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_subject_details);
 
             return Redirect::to('master/subject')->withError('Failed to update a subject');
         }
 
-        # Update success
-        # create log success
-        $log_service->createSuccessLog(LogModule::STORE_SUBJECT, 'New subject has been added', $updated_subject->toArray());
+        // Update success
+        // create log success
+        $log_service->createSuccessLog(LogModule::UPDATE_SUBJECT, 'New subject has been added', $updated_subject->toArray());
 
         return Redirect::to('master/subject')->withSuccess('Subject successfully updated');
     }
@@ -127,8 +127,8 @@ class SubjectController extends Controller
             return Redirect::to('master/subject')->withError('Failed to delete a subject');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_SUBJECT, 'Subject has been deleted', $subject->toArray());
 
         return Redirect::to('master/subject')->withSuccess('Subject successfully deleted');

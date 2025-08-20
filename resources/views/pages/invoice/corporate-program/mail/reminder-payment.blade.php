@@ -12,6 +12,8 @@
 </style>
 @endsection
 @section('content')
+
+
     <p style="margin:0;">Dear Mr./Mrs. {{ $partner_pic }},</p>
 
     <p>
@@ -36,7 +38,7 @@
             </tr>
         @endif
         <tr>
-            <td>Total Payment IDR</td>
+            <td>Total Payment (IDR)</td>
             <td>{{ $total_payment_idr }}</td>
         </tr>
     </table>

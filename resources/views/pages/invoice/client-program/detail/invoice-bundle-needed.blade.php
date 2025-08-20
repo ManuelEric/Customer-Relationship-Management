@@ -55,7 +55,7 @@
                         return data.substring(0, 3).toUpperCase();
                     }
                 },
-                {   
+                {
                     data: 'uuid',
                     className: 'text-center',
                     render: function(data, type, row) {

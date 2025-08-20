@@ -3,7 +3,13 @@
 namespace App\Enum;
 
 enum LogModule: string
-{   
+{
+    /**
+     * Login
+     */
+    case USER_LOGIN = '[USER LOGIN]';
+    case USER_LOGOUT = '[USER LOGOUT]';
+
     /**
      * Dashboard
      */
@@ -37,14 +43,17 @@ enum LogModule: string
     /**
      * Users
      */
+    case GET_USER = '[GET USER]';
     case STORE_USER = '[STORE USER]';
     case UPDATE_USER = '[UPDATE USER]';
     case DELETE_USER = '[DELETE USER]';
     case CHANGE_USER_ACTIVE_STATUS = '[CHANGE USER ACTIVE STATUS]';
+    case CHANGE_USER_CAPACITY = '[CHANGE USER CAPACITY]';
     case DOWNLOAD_USER_DOCUMENT = '[DOWNLOAD USER DOCUMENT]';
     case DELETE_USER_CONTRACT = '[DELETE USER CONTRACT]';
     case SET_USER_PASSWORD = '[SET USER PASSWORD]';
     case STORE_USER_AGREEMENT = '[STORE USER AGREEMENT]';
+    case UPDATE_USER_AGREEMENT = '[UPDATE USER AGREEMENT]';
     case DELETE_USER_AGREEMENT = '[DELETE USER AGREEMENT]';
 
     /**
@@ -149,6 +158,14 @@ enum LogModule: string
     case DELETE_SUBJECT = '[DELETE SUBJECT]';
 
     /**
+     * Streams
+     */
+    case SHOW_STREAM = '[SHOW STREAM]';
+    case STORE_STREAM = '[STORE STREAM]';
+    case UPDATE_STREAM = '[UPDATE STREAM]';
+    case DELETE_STREAM = '[DELETE STREAM]';
+
+    /**
      * Tags
      */
     case STORE_TAG = '[STORE TAG]';
@@ -174,6 +191,7 @@ enum LogModule: string
      */
     case STORE_CLIENT_PROGRAM = '[STORE CLIENT PROGRAM]';
     case UPDATE_CLIENT_PROGRAM = '[UPDATE CLIENT PROGRAM]';
+    case MULTIPLE_UPDATE_CLIENT_PROGRAM = '[MULTIPLE UPDATE CLIENT PROGRAM]';
     case DELETE_CLIENT_PROGRAM = '[DELETE CLIENT PROGRAM]';
 
     /**
@@ -207,14 +225,14 @@ enum LogModule: string
      */
     case STORE_PARTNER_PROGRAM_COLLABORATOR = '[STORE PARTNER PROGRAM COLLABORATOR]';
     case DELETE_PARTNER_PROGRAM_COLLABORATOR = '[DELETE PARTNER PROGRAM COLLABORATOR]';
-    
+
     /**
      * Partner Program Speaker
      */
     case STORE_PARTNER_PROGRAM_SPEAKER = '[STORE PARTNER PROGRAM SPEAKER]';
     case UPDATE_PARTNER_PROGRAM_SPEAKER = '[UPDATE PARTNER PROGRAM SPEAKER]';
     case DELETE_PARTNER_PROGRAM_SPEAKER = '[DELETE PARTNER PROGRAM SPEAKER]';
-    
+
     /**
      * School Program
      */
@@ -227,27 +245,27 @@ enum LogModule: string
      */
     case STORE_SCHOOL_PROGRAM_ATTACH = '[STORE SCHOOL PROGRAM ATTACH]';
     case DELETE_SCHOOL_PROGRAM_ATTACH = '[DELETE SCHOOL PROGRAM ATTACH]';
-    
+
     /**
      * School Program Collaborator
      */
     case STORE_SCHOOL_PROGRAM_COLLABORATOR = '[STORE SCHOOL PROGRAM COLLABORATOR]';
     case DELETE_SCHOOL_PROGRAM_COLLABORATOR = '[DELETE SCHOOL PROGRAM COLLABORATOR]';
-    
+
     /**
      * School Program Speaker
      */
     case STORE_SCHOOL_PROGRAM_SPEAKER = '[STORE SCHOOL PROGRAM SPEAKER]';
     case UPDATE_SCHOOL_PROGRAM_SPEAKER = '[UPDATE SCHOOL PROGRAM SPEAKER]';
     case DELETE_SCHOOL_PROGRAM_SPEAKER = '[DELETE SCHOOL PROGRAM SPEAKER]';
-    
+
     /**
      * Referral Program
      */
     case STORE_REFERRAL_PROGRAM = '[STORE REFERRAL PROGRAM]';
     case UPDATE_REFERRAL_PROGRAM = '[UPDATE REFERRAL PROGRAM]';
     case DELETE_REFERRAL_PROGRAM = '[DELETE REFERRAL PROGRAM]';
-    
+
     /**
      * Corporate
      */
@@ -261,26 +279,26 @@ enum LogModule: string
     case STORE_CORPORATE_PIC = '[STORE CORPORATE PIC]';
     case UPDATE_CORPORATE_PIC = '[UPDATE CORPORATE PIC]';
     case DELETE_CORPORATE_PIC = '[DELETE CORPORATE PIC]';
-    
+
     /**
      * Corporate Event
      */
     case STORE_CORPORATE_EVENT = '[STORE CORPORATE EVENT]';
     case DELETE_CORPORATE_EVENT = '[DELETE CORPORATE EVENT]';
-    
+
     /**
      * Partner Agreement
      */
     case STORE_PARTNER_AGREEMENT = '[STORE PARTNER AGREEMENT]';
     case DELETE_PARTNER_AGREEMENT = '[DELETE PARTNER AGREEMENT]';
-    
+
     /**
      * School
      */
     case STORE_SCHOOL = '[STORE SCHOOL]';
     case UPDATE_SCHOOL = '[UPDATE SCHOOL]';
     case DELETE_SCHOOL = '[DELETE SCHOOL]';
-    
+
     /**
      * School Detail
      */
@@ -288,27 +306,27 @@ enum LogModule: string
     case UPDATE_SCHOOL_DETAIL = '[UPDATE SCHOOL DETAIL]';
     case DELETE_SCHOOL_DETAIL = '[DELETE SCHOOL DETAIL]';
     case UPDATE_STATUS_SCHOOL = '[UPDATE STATUS SCHOOL]';
-    
+
     /**
      * School Event
      */
     case STORE_SCHOOL_EVENT = '[STORE SCHOOL EVENT]';
     case DELETE_SCHOOL_EVENT = '[DELETE SCHOOL EVENT]';
-    
+
     /**
      * School Raw
      */
     case UPDATE_SCHOOL_RAW = '[UPDATE SCHOOL RAW]';
     case DELETE_SINGLE_SCHOOL_RAW = '[DELETE SINGLE SCHOOL RAW]';
     case DELETE_BULK_SCHOOL_RAW = '[DELETE BULK SCHOOL RAW]';
-    
+
     /**
      * School Visit
      */
     case STORE_SCHOOL_VISIT = '[STORE SCHOOL VISIT]';
     case UPDATE_SCHOOL_VISIT = '[UPDATE SCHOOL VISIT]';
     case DELETE_SCHOOL_VISIT = '[DELETE SCHOOL VISIT]';
-    
+
     /**
      * School Alias
      */
@@ -321,7 +339,7 @@ enum LogModule: string
     case STORE_UNIVERSITY = '[STORE UNIVERSITY]';
     case UPDATE_UNIVERSITY = '[UPDATE UNIVERSITY]';
     case DELETE_UNIVERSITY = '[DELETE UNIVERSITY]';
-    
+
     /**
      * Invoice B2B
      */
@@ -337,7 +355,7 @@ enum LogModule: string
     case STORE_INVOICE_PARTNER = '[STORE INVOICE PARTNER]';
     case UPDATE_INVOICE_PARTNER = '[UPDATE INVOICE PARTNER]';
     case DELETE_INVOICE_PARTNER = '[DELETE INVOICE PARTNER]';
-    
+
     /**
      * Invoice Program
      */
@@ -349,7 +367,9 @@ enum LogModule: string
     case APPROVE_ATTACHMENT_INVOICE_PROGRAM = '[APPROVE ATTACHMENT INVOICE PROGRAM]';
     case PREVIEW_PDF_INVOICE_PROGRAM = '[PREVIEW PDF INVOICE PROGRAM]';
     case SEND_INVOICE_PROGRAM_TO_CLIENT = '[SEND INVOICE PROGRAM TO CLIENT]';
-    
+    case REMINDER_INVOICE_PROGRAM_TO_CLIENT = '[SEND REMINDER INVOICE PROGRAM TO CLIENT]';
+    case REPORT_INVOICE_TO_FINANCE_TEAM = '[SEND REPORT TO FINANCE TEAM]';
+
     /**
      * Invoice Program Bundle
      */
@@ -368,7 +388,7 @@ enum LogModule: string
     case STORE_INVOICE_REFERRAL = '[STORE INVOICE REFERRAL]';
     case UPDATE_INVOICE_REFERRAL = '[UPDATE INVOICE REFERRAL]';
     case DELETE_INVOICE_REFERRAL = '[DELETE INVOICE REFERRAL]';
-    
+
     /**
      * Invoice School
      */
@@ -377,10 +397,12 @@ enum LogModule: string
     case DELETE_INVOICE_SCHOOL = '[DELETE INVOICE SCHOOL]';
 
     /**
-     * Receipt 
+     * Receipt
      */
     case STORE_RECEIPT_PROGRAM = '[STORE RECEIPT PROGRAM]';
     case STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA = '[STORE RECEIPT PROGRAM FROM PAYMENT GA]';
+    case SEND_RECEIPT_TO_CLIENT = '[EMAIL RECEIPT TO CLIENT]';
+    case UPDATE_SEND_STATUS = '[UPDATE SEND RECEIPT TO CLIENT STATUS]';
 
     /**
      * Report
@@ -398,7 +420,7 @@ enum LogModule: string
     case RESTORE_STUDENT = '[RESTORE STUDENT]';
     case RESTORE_PARENT = '[RESTORE PARENT]';
     case RESTORE_TEACHER = '[RESTORE TEACHER]';
-    
+
     /**
      * Parent
      */
@@ -469,11 +491,33 @@ enum LogModule: string
     /**
      * Mentee Update
      */
-    case UPDATE_MENTEE_GDRIVE = '[UPDATE MENTEE GDRIVE]';
+    case UPDATE_MENTEE_PROFILE = '[UPDATE MENTEE PROFILE]';
 
     /**
      * Payment Link
      */
     case CREATE_PAYMENT_LINK = '[CREATE PAYMENT LINK]';
     case CHECK_PAYMENT_STATUS = '[CHECK PAYMENT STATUS]';
+
+    /**
+     * Mentee Packages Bought
+     */
+    case GET_MENTEE_PACKAGES_BOUGHT = '[GET MENTEE PACKAGES BOUGHT]';
+
+    /**
+     * Mentor Education History
+     */
+    case ADD_EDUCATION_INFO = '[ADD EDUCATION INFO]';
+    case DELETE_EDUCATION_INFO = '[DELETE EDUCATION INFO]';
+
+    /**
+     * Reminder Contract Expiration
+     */
+    case SEND_EXPIRATION_CONTRACT = '[SEND EXPIRATION CONTRACT]';
+    case SEND_REMINDER_FOLLOWUP = '[SEND REMINDER FOLLOWUP]';
+
+    /**
+     * Sub Sector by Industry
+     */
+    case GET_SUB_SECTOR_BY_INDUSTRY = '[GET SUB SECTOR BY INDUSTRY]';
 }

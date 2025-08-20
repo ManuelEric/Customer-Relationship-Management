@@ -14,10 +14,9 @@ class CreateSubjectAction
     }
 
     public function execute(
-        Array $new_subject_details
-    )
-    {
-        # store new subject
+        array $new_subject_details
+    ) {
+        // store new subject
         $new_subject = $this->subjectRepository->createSubject($new_subject_details);
 
         return $new_subject;

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +26,7 @@ class CalculationTMPSeeder extends Seeder
             [
                 'divisi' => 'Digital',
                 'contribution_in_percent' => 33.33,
-            ]
+            ],
         ];
 
         DB::table('contribution_calculation_tmp')->insert($seeds);

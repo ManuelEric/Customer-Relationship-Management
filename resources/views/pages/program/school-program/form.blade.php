@@ -34,11 +34,11 @@
                             </button>
                         </div>
                     @endif
-                   
+
                 </div>
             </div>
 
-            
+
             @include('pages.program.school-program.detail.school')
 
             {{-- Refund detail --}}
@@ -57,7 +57,7 @@
                 <label class="px-2 w-100 mb-2 border-bottom">
                     <h4>Collaborators</h4>
                 </label>
-    
+
                 @include('pages.program.school-program.detail.school-collab')
                 @include('pages.program.school-program.detail.univ')
                 @include('pages.program.school-program.detail.partner')
@@ -75,7 +75,7 @@
                         </h6>
                     </div>
                 </div>
-                
+
 
                 <div class="card-body">
 
@@ -89,7 +89,7 @@
                             <label for="">
                                 Program Name <sup class="text-danger">*</sup>
                             </label>
-                            
+
                         </div>
                         <div class="col-md-9">
                             <select name="prog_id" id="" class="select w-100" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
@@ -101,7 +101,7 @@
                                                 {{$program->program_name }}
                                             </option>
                                         @endforeach
-                                    @else        
+                                    @else
                                         <option value="{{ $schoolProgram->prog_id }}" selected>
                                             {{  $schoolProgram->program->program_name }}
                                         </option>
@@ -112,7 +112,7 @@
                                             {{$program->program_name }}
                                         </option>
                                     @endforeach
-                              
+
                                 @endif
                             </select>
                             @error('prog_id')
@@ -130,9 +130,9 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <small>First Discuss <sup class="text-danger">*</sup> </small>
-                                    <input type="date" name="first_discuss" id="" 
+                                    <input type="date" name="first_discuss" id=""
                                     value="{{ isset($schoolProgram->first_discuss) ? date('Y-m-d', strtotime($schoolProgram->first_discuss)) :  old('first_discuss') }}"
-                                        class="form-control form-control-sm rounded" 
+                                        class="form-control form-control-sm rounded"
                                         {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
 
                                 </div>
@@ -246,7 +246,7 @@
 
                                 {{-- Refund --}}
                                 <div class="col-md-6 refund_status d-none my-2">
-                                
+
                                         <label>Reason <sup class="text-danger">*</sup> </label>
                                         <div class="classReasonRefund">
                                             <select name="reason_refund_id" class="select w-100"
@@ -255,7 +255,7 @@
                                                 {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                                 <option data-placeholder="true"></option>
                                                     @if(isset($schoolProgram->reason_id) || isset($edit))
-                                                        @if(isset($edit))    
+                                                        @if(isset($edit))
                                                             @foreach ($reasons as $reason)
                                                                 <option value="{{ $reason->reason_id }}" {{ $schoolProgram->reason_id == $reason->reason_id ? 'selected' : ''}}>
                                                                     {{ $reason->reason_name }}
@@ -267,7 +267,7 @@
                                                         @else
                                                                 <option value="{{ $schoolProgram->reason_id }}" selected>
                                                                     {{ $schoolProgram->reason->reason_name }}
-                                                                </option>        
+                                                                </option>
                                                         @endif
                                                     @elseif(empty($schoolProgram))
                                                         @foreach ($reasons as $reason)
@@ -286,9 +286,9 @@
                                                 @error('other_reason_refund')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
-                                            
+
                                         </div>
-                                            
+
                                         <div class="d-flex align-items-center d-none" id="inputReasonRefund">
                                             <input type="text" name="other_reason_refund"
                                                 class="form-control form-control-sm rounded">
@@ -298,7 +298,7 @@
                                                 </b>
                                             </div>
                                         </div>
-    
+
                                 </div>
                                 <div class="col-md-6 refund_status d-none my-2">
                                     <small>Reason Notes </small>
@@ -318,11 +318,11 @@
                                     <textarea name="refund_notes" id="" class="w-100"  {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                         {{ isset($schoolProgram->refund_notes) ? $schoolProgram->refund_notes :  old('refund_notes') }}
                                     </textarea>
-                                </div>        
+                                </div>
 
                                 {{-- Reason --}}
                                 <div class="col-md-6 reason d-none my-2">
-                                
+
                                         <label>Reason <sup class="text-danger">*</sup> </label>
                                         <div class="classReason">
                                             <select name="reason_id" class="select w-100"
@@ -331,7 +331,7 @@
                                                 {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                                 <option data-placeholder="true"></option>
                                                     @if(isset($schoolProgram->reason_id) || isset($edit))
-                                                        @if(isset($edit))    
+                                                        @if(isset($edit))
                                                             @foreach ($reasons as $reason)
                                                                 <option value="{{ $reason->reason_id }}" {{ $schoolProgram->reason_id == $reason->reason_id ? 'selected' : ''}}>
                                                                     {{ $reason->reason_name }}
@@ -343,7 +343,7 @@
                                                         @else
                                                                 <option value="{{ $schoolProgram->reason_id }}" selected>
                                                                     {{ $schoolProgram->reason->reason_name }}
-                                                                </option>        
+                                                                </option>
                                                         @endif
                                                     @elseif(empty($schoolProgram))
                                                         @foreach ($reasons as $reason)
@@ -362,9 +362,9 @@
                                                 @error('other_reason')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
-    
+
                                         </div>
-                                            
+
                                         <div class="d-flex align-items-center d-none" id="inputReason">
                                             <input type="text" name="other_reason"
                                                 class="form-control form-control-sm rounded">
@@ -373,8 +373,8 @@
                                                     <i class="bi bi-x text-danger"></i>
                                                 </b>
                                             </div>
-                                        </div>              
-                                    
+                                        </div>
+
                                 </div>
                                 <div class="col-md-6 reason d-none my-2">
                                     <small>Reason Notes </small>
@@ -507,15 +507,15 @@
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-6">
-                                    
+
                                     <select name="empl_id" id="" class="select w-100" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
                                          @if(isset($edit))
                                                 @foreach ($employees as $employee)
-                                                    <option value="{{ $employee->id }}" 
+                                                    <option value="{{ $employee->id }}"
                                                         {{ $schoolProgram->empl_id ==  $employee->id ? 'selected' : ''}}>
                                                         {{ $employee->first_name }} {{ $employee->last_name }}</option>
-                                                @endforeach    
+                                                @endforeach
                                         @endif
                                         @if(isset($schoolProgram->empl_id))
                                                 <option value="{{ $schoolProgram->empl_id }}" selected>
@@ -526,7 +526,7 @@
                                                 <option value="{{ $employee->id }}" {{ old('empl_id') == $employee->id ? "selected" : "" }}>{{ $employee->first_name }} {{ $employee->last_name }}</option>
                                             @endforeach
                                         @endif
-                                        
+
                                     </select>
                                     @error('empl_id')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -591,7 +591,7 @@
                         '{{ url('') }}/program/school/{{ strtolower($school->sch_id) }}/detail/{{$schoolProgram->id}}/speaker/' +
                         agendaId
                     console.log(link)
-                @endif 
+                @endif
                 let data = new Array()
 
                 $('#reasonForm').attr('action', link)
@@ -689,7 +689,7 @@
                 $('#inputReasonRefund').addClass('d-none')
                 $('.classReasonRefund').removeClass('d-none')
             }
-            
+
 
             if (value == 'other') {
                 $('.classReason').addClass('d-none')
@@ -711,7 +711,7 @@
 
         function changeSpeaker(type) {
          let id = $('#' + type + '_id').val()
-         @if (isset($schoolProgram))    
+         @if (isset($schoolProgram))
             let link = '{{ url('program/school/' . strtolower($school->sch_id) . '/detail/' . $schoolProgram->id . '/edit') }}'
             let new_link = link + '?type=' + type + '&id=' + id;
          @endif
@@ -756,7 +756,7 @@
                     $('#approach_status').val('{{$schoolProgram->status}}').trigger('change')
                     // $('#selectReason').select2()
                 })
-                
+
             </script>
         @endif
     @else
@@ -774,13 +774,13 @@
             })
         </script>
     @endif
-    
+
 
     @if($errors->has('notes_reason'))
-            
+
         <script>
             $(document).ready(function(){
-                $('#reasonModal').modal('show'); 
+                $('#reasonModal').modal('show');
             })
 
         </script>

@@ -36,14 +36,14 @@
         startClass: 'lg-start-zoom',
         backdropDuration: 150,
 
-        // Set 0, if u don't want to hide the controls 
+        // Set 0, if u don't want to hide the controls
         hideBarsDelay: 6000,
 
         useLeft: false,
 
         // aria-labelledby attribute fot gallery
         ariaLabelledby: '',
-        
+
         //aria-describedby attribute for gallery
         ariaDescribedby: '',
 

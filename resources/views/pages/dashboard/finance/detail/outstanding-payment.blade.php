@@ -15,7 +15,7 @@
                 <div class="row g-1">
                     <div class="col">
                         <label for="">Start Date</label>
-                        <input type="date" name="" id="start_outstanding" onchange="checkFinancebyPeriode()" class="form-control form-control-sm" 
+                        <input type="date" name="" id="start_outstanding" onchange="checkFinancebyPeriode()" class="form-control form-control-sm"
                             value="{{ date('Y-m-d') }}">
                     </div>
                     <div class="col">
@@ -123,7 +123,7 @@
 <script>
     var outstanding_chart = null;
 
-    // percentage 
+    // percentage
     let lbl_outstanding_payment = [{
         formatter: (value, ctx) => {
             let datasets = ctx.chart.data.datasets;
@@ -132,7 +132,7 @@
                 let percentage = Math.round((value / sum) * 100);
                 if(isNaN(percentage))
                     return 0;
-                else 
+                else
                     return percentage + "%";
             } else {
                 return percentage;
@@ -156,7 +156,7 @@
     function checkFinancebyMonth()
     {
         let month = $('#month_outstanding').val()
-        
+
         const rupiah = (number)=>{
             return new Intl.NumberFormat("id-ID", {
             style: "currency",
@@ -164,7 +164,7 @@
             minimumFractionDigits: 0
             }).format(number);
         }
-        
+
         showLoading()
         // Axios here ...
         axios.get('{{ url("api/v1/dashboard/finance/outstanding/") }}/' + month)
@@ -174,8 +174,8 @@
 
 
                 outstanding_chart.data.datasets[0].data = [];
-                outstanding_chart.data.datasets[0].data.push(result.paidPayments.length)                
-                outstanding_chart.data.datasets[0].data.push(result.unpaidPayments.length)                
+                outstanding_chart.data.datasets[0].data.push(result.paidPayments.length)
+                outstanding_chart.data.datasets[0].data.push(result.unpaidPayments.length)
                 outstanding_chart.update()
 
                 var html;
@@ -183,7 +183,7 @@
                 var total_paid = 0;
                 var total_paid_diff = 0;
                 var total_unpaid = 0;
-                
+
                 $('#tbl_paid_payment').empty();
 
                 result.paidPayments.forEach(function (item, index) {
@@ -201,13 +201,13 @@
                     $('#tbl_paid_payment').append(html);
                     no++;
                 })
-                
+
                 $('#tot_paid').html(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
-                
-                html = '';     
-                no = 1;   
+
+                html = '';
+                no = 1;
                 $('#tbl_unpaid_payment').empty();
-                
+
                 result.unpaidPayments.forEach(function (item, index) {
                     html = "<tr>";
                     html += "<td>" + no + "</td>"
@@ -221,14 +221,14 @@
                     $('#tbl_unpaid_payment').append(html);
                     no++;
                 })
-                
+
                 $('#tot_unpaid').html(rupiah(total_unpaid))
                 swal.close()
             }, (error) => {
                 notification('error', error.message)
                 swal.close()
             })
-            
+
             // console.log(data)
             // renderChart(data)
 
@@ -256,10 +256,10 @@
             .then((response) => {
 
                 var result = response.data.data
-                
+
                 outstanding_chart.data.datasets[0].data = [];
-                outstanding_chart.data.datasets[0].data.push(result.paidPayments.length)                
-                outstanding_chart.data.datasets[0].data.push(result.unpaidPayments.length)                
+                outstanding_chart.data.datasets[0].data.push(result.paidPayments.length)
+                outstanding_chart.data.datasets[0].data.push(result.unpaidPayments.length)
                 outstanding_chart.update()
 
                 var html;
@@ -267,7 +267,7 @@
                 var total_paid = 0;
                 var total_paid_diff = 0;
                 var total_unpaid = 0;
-                
+
                 $('#tbl_paid_payment').empty();
 
                 result.paidPayments.forEach(function (item, index) {
@@ -284,15 +284,15 @@
                     total_paid_diff += parseInt(diff);
                     $('#tbl_paid_payment').append(html);
                     no++;
-                    
+
                 })
-                
+
                 $('#tot_paid').html(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
-                
-                html = '';     
-                no = 1;   
+
+                html = '';
+                no = 1;
                 $('#tbl_unpaid_payment').empty();
-                
+
                 result.unpaidPayments.forEach(function (item, index) {
                     html = "<tr>";
                     html += "<td>" + no + "</td>"
@@ -306,17 +306,17 @@
                     $('#tbl_unpaid_payment').append(html);
                     no++;
                 })
-                
+
                 $('#tot_unpaid').html(rupiah(total_unpaid))
-                
+
                 swal.close()
             }, (error) => {
                 notification('error', error.message);
                 swal.close()
             })
-            
+
             // renderCha`rt(data)
-          
+
     }
 
     // $('#payment_chart').remove()

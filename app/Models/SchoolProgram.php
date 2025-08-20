@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-use App\Models\pivot\SchoolCollaboratorFromSchoolProgram;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 
 class SchoolProgram extends Model
@@ -21,7 +19,7 @@ class SchoolProgram extends Model
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         // 'id',
@@ -53,19 +51,22 @@ class SchoolProgram extends Model
 
     /**
      * Summary of scope
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return void
      */
     public function scopeSuccess(Builder $query): void
     {
         $query->where('status', 1)->where('end_program_date', '>=', Carbon::now());
     }
-    
+
     public function scopeProgramIs(Builder $query, string $main_program_name): void
     {
         $query->whereHas('program.main_prog', function ($sub) use ($main_program_name) {
             $sub->where('prog_name', $main_program_name);
         });
+    }
+
+    public function scopeProgramIsGroupOf(Builder $query, string $group_of): void
+    {
+        $query->whereRelation('program.main_prog', 'prog_name', $group_of);
     }
 
     public function scopeActive(Builder $query): void
@@ -140,5 +141,4 @@ class SchoolProgram extends Model
     {
         return $this->belongsToMany(School::class, 'tbl_sch_prog_school', 'schprog_id', 'sch_id')->withTimestamps();
     }
-
 }

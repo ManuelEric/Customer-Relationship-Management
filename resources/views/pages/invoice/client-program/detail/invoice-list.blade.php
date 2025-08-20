@@ -95,7 +95,7 @@
                                     if(parseInt(row.status) === 1){
                                         return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success" style="font-size:8px";>{Bundle '+ bundling_id +'}</span>' : data;
                                     }else{
-                                        return row.is_bundle > 0 ? data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>' + ' <span class="badge text-bg-success" style="font-size:8px";>{Bundle '+ bundling_id +'}</span>' : data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>';  
+                                        return row.is_bundle > 0 ? data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>' + ' <span class="badge text-bg-success" style="font-size:8px";>{Bundle '+ bundling_id +'}</span>' : data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>';
                                     }
                                 }
                             },

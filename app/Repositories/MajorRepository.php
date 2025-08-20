@@ -8,7 +8,6 @@ use DataTables;
 
 class MajorRepository implements MajorRepositoryInterface
 {
-
     public function getAllMajorsDataTables()
     {
         return Datatables::eloquent(Major::query())->make(true);

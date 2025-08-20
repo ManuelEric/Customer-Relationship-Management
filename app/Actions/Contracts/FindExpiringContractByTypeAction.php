@@ -6,7 +6,7 @@ use App\Enum\ContractUserType;
 use App\Interfaces\UserRepositoryInterface;
 use Exception;
 
-class FindExpiringContractByTypeAction 
+class FindExpiringContractByTypeAction
 {
     private UserRepositoryInterface $userRepository;
 
@@ -15,7 +15,7 @@ class FindExpiringContractByTypeAction
         $this->userRepository = $userRepository;
     }
 
-    public function execute(string $type): Array
+    public function execute(string $type): array
     {
         switch ($type) {
             case 'editor':
@@ -42,12 +42,12 @@ class FindExpiringContractByTypeAction
                 $contracts = $this->userRepository->rnFindExpiringContracts(ContractUserType::TUTOR);
                 $title_for_mail_data = 'Tutor';
                 break;
-            
+
             default:
                 throw new Exception('There is no such type');
                 break;
         }
-    
+
         return [$contracts, $title_for_mail_data];
 
     }

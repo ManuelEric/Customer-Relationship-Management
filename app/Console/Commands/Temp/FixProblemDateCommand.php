@@ -3,10 +3,7 @@
 namespace App\Console\Commands\Temp;
 
 use App\Interfaces\ClientProgramRepositoryInterface;
-use App\Interfaces\ClientRepositoryInterface;
-use App\Models\ClientEvent;
 use App\Models\ClientProgram;
-use App\Models\UserClient;
 use App\Models\Unclean\ClientProgram as ClientProgramUnclean;
 use Exception;
 use Illuminate\Console\Command;
@@ -28,7 +25,6 @@ class FixProblemDateCommand extends Command
      * @var string
      */
     protected $description = 'Automatically fix problem date 0000-00-00 afte cleaning data';
-
 
     private ClientProgramRepositoryInterface $clientProgramRepository;
 
@@ -58,10 +54,9 @@ class FixProblemDateCommand extends Command
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::info('Failed to fix problem date : ' . $e->getMessage() . ' on line ' . $e->getLine());
+            Log::info('Failed to fix problem date : '.$e->getMessage().' on line '.$e->getLine());
         }
 
         return Command::SUCCESS;
     }
-
 }

@@ -13,7 +13,7 @@
                         <td>
                             <p>Dear Mr./Mrs. {{ $recipient }}, {{ $child_name != null ? 'parents of ' . $child_name . ',' : null }}</p>
                             <p>
-                                We are excited to announce that ALL-in Eduspace is evolving into EduALL! 
+                                We are excited to announce that ALL-in Eduspace is evolving into EduALL!
                             </p>
                             <p>
                                 In hope to celebrate this milestone, we cordially invite you to our grand launching:
@@ -28,10 +28,10 @@
 
                             {{-- <p style="text-align: center;margin-top: 2.5em auto;">
                                 <a class="button" href="{{ $param['link'] }}"
-                                    style="background: #3b6cde; 
-                                        text-decoration: none; 
+                                    style="background: #3b6cde;
+                                        text-decoration: none;
                                         padding: .6em 1.5em;
-                                        color: #ffffff; 
+                                        color: #ffffff;
                                         border-radius: 2px;
                                         mso-padding-alt:0;
                                         text-underline-color:#156ab3">
@@ -45,7 +45,7 @@
                                     <button style="border-radius: 3px; border: 1px solid #0100D4; color: #FFFFFF; background-color: #0168FF; padding: 15px 25px;">Yes, I'm Attending!</button>
                                 </a>
                             </p>
-                        
+
                             <p>
                                 In EduALL Launchpad, we invite you and your child to gain insights and experience hands-on activities in university application preparation to enter the world’s best universities.
                             </p>
@@ -56,7 +56,7 @@
 
                             <p>
                                 Best regards, <br>
-                                EduALL Team 
+                                EduALL Team
                             </p>
                         </td>
                     </tr>

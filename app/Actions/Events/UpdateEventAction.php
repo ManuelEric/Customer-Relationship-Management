@@ -10,7 +10,8 @@ use App\Interfaces\EventRepositoryInterface;
 
 class UpdateEventAction
 {
-    use CreateCustomPrimaryKeyTrait, UploadFileTrait, DeleteFileIfExistTrait;
+    use CreateCustomPrimaryKeyTrait, DeleteFileIfExistTrait, UploadFileTrait;
+
     private EventRepositoryInterface $eventRepository;
 
     public function __construct(EventRepositoryInterface $eventRepository)
@@ -25,22 +26,22 @@ class UpdateEventAction
         $event_id = $request->route('event');
         $new_pic = $request->user_id;
 
-        # check if the banner event is changed or not
+        // check if the banner event is changed or not
         if (isset($request->change_banner)) {
 
-            # get existing banner as a file
+            // get existing banner as a file
             if ($existing_banner_name = $request->old_event_banner) {
-                # delete file if exists
+                // delete file if exists
                 $this->tnDeleteFile('project/crm/events/', $existing_banner_name);
             }
 
-            $file_name = time() . '-' . $event_id;
+            $file_name = time().'-'.$event_id;
 
-            # upload banner 
+            // upload banner
             $new_event_details['event_banner'] = $this->tnUploadFile($request, 'event_banner', $file_name, 'project/crm/events');
         }
 
-        # Update event
+        // Update event
         $updated_event = $this->eventRepository->updateEvent($event_id, $new_event_details);
 
         $this->eventRepository->updateEventPic($event_id, $new_pic);

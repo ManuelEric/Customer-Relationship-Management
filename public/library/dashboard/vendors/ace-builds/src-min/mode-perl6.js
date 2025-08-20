@@ -5,4 +5,3 @@ define("ace/mode/perl6_highlight_rules",["require","exports","module","ace/lib/o
                         }
                     });
                 })();
-            

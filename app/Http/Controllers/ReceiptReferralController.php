@@ -4,18 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreReceiptAttachmentRequest;
 use App\Http\Requests\StoreReceiptRequest;
-use App\Interfaces\ProgramRepositoryInterface;
-use App\Interfaces\CorporateRepositoryInterface;
-use App\Interfaces\ReferralRepositoryInterface;
-use App\Interfaces\InvoiceB2bRepositoryInterface;
-use App\Interfaces\InvoiceDetailRepositoryInterface;
-use App\Interfaces\ReceiptRepositoryInterface;
-use App\Interfaces\ReceiptAttachmentRepositoryInterface;
-use App\Interfaces\RefundRepositoryInterface;
-use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateReceiptIdTrait;
 use App\Http\Traits\DirectorListTrait;
 use App\Http\Traits\LoggingTrait;
+use App\Interfaces\AxisRepositoryInterface;
+use App\Interfaces\CorporateRepositoryInterface;
+use App\Interfaces\InvoiceB2bRepositoryInterface;
+use App\Interfaces\InvoiceDetailRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\ReceiptAttachmentRepositoryInterface;
+use App\Interfaces\ReceiptRepositoryInterface;
+use App\Interfaces\ReferralRepositoryInterface;
+use App\Interfaces\RefundRepositoryInterface;
 use App\Models\Receipt;
 use Carbon\Carbon;
 use Exception;
@@ -29,21 +29,28 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use PDF;
 
-
-
 class ReceiptReferralController extends Controller
 {
-    use DirectorListTrait;
     use CreateReceiptIdTrait;
+    use DirectorListTrait;
     use LoggingTrait;
+
     protected CorporateRepositoryInterface $corporateRepository;
+
     protected ReferralRepositoryInterface $referralRepository;
+
     protected ProgramRepositoryInterface $programRepository;
+
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
+
     protected ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository;
+
     protected ReceiptRepositoryInterface $receiptRepository;
+
     protected RefundRepositoryInterface $refundRepository;
+
     protected AxisRepositoryInterface $axisRepository;
 
     public function __construct(CorporateRepositoryInterface $corporateRepository, ReferralRepositoryInterface $referralRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository, AxisRepositoryInterface $axisRepository)
@@ -64,13 +71,14 @@ class ReceiptReferralController extends Controller
         if ($request->ajax()) {
             return $this->receiptRepository->getAllReceiptReferralDataTables();
         }
+
         return view('pages.receipt.referral.index');
     }
 
     public function store(StoreReceiptRequest $request)
     {
-        #initialize
-        $identifier = $request->identifier; #invdtl_id
+        // initialize
+        $identifier = $request->identifier; // invdtl_id
 
         $invb2b_num = $request->route('invoice');
         $receipts = $request->only([
@@ -82,7 +90,7 @@ class ReceiptReferralController extends Controller
             'receipt_words_idr',
             'receipt_method',
             'receipt_cheque',
-            'pph23'
+            'pph23',
         ]);
         $receipts['currency'] = $receipts['rec_currency'];
         unset($receipts['rec_currency']);
@@ -104,28 +112,28 @@ class ReceiptReferralController extends Controller
 
         $invb2b_id = $invoice->invb2b_id;
 
-        # generate receipt id
+        // generate receipt id
         $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->max(DB::raw('substr(receipt_id, 1, 4)'));
 
-        # Use Trait Create Invoice Id
+        // Use Trait Create Invoice Id
         $receipt_id = $this->getLatestReceiptId($last_id, 'REF-OUT', $receipts);
 
-        $receipts['receipt_id'] = substr_replace($receipt_id, 'REC', 5) . substr($receipt_id, 8, strlen($receipt_id));
+        $receipts['receipt_id'] = substr_replace($receipt_id, 'REC', 5).substr($receipt_id, 8, strlen($receipt_id));
 
         $receipts['invb2b_id'] = $invb2b_id;
         $invoice_payment_method = $invoice->invb2b_pm;
 
-        # validation nominal
-        # to catch if total invoice not equal to total receipt 
-        if ($invoice_payment_method == "Full Payment") {
+        // validation nominal
+        // to catch if total invoice not equal to total receipt
+        if ($invoice_payment_method == 'Full Payment') {
 
             $total_invoice = $invoice->invb2b_totpriceidr;
             $total_receipt = $request->receipt_amount_idr;
         }
 
-        if ($receipts['pph23'] == 0 && $total_receipt < $total_invoice)
+        if ($receipts['pph23'] == 0 && $total_receipt < $total_invoice) {
             return Redirect::back()->withError('Do double check the amount. Make sure the amount on invoice and the amount on receipt is equal');
-
+        }
 
         DB::beginTransaction();
         try {
@@ -136,16 +144,16 @@ class ReceiptReferralController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create receipt failed : ' . $e->getMessage());
+            Log::error('Create receipt failed : '.$e->getMessage());
 
-            return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invb2b_num)->withError('Failed to create a new receipt');
+            return Redirect::to('invoice/referral/'.$ref_id.'/detail/'.$invb2b_num)->withError('Failed to create a new receipt');
         }
 
-        # store Success
-        # create log success
-        $this->logSuccess('store', 'Form Input', 'Receipt Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $receiptCreated);
+        // store Success
+        // create log success
+        $this->logSuccess('store', 'Form Input', 'Receipt Referral Program', Auth::user()->first_name.' '.Auth::user()->last_name, $receiptCreated);
 
-        return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invb2b_num)->withSuccess('Receipt successfully created');
+        return Redirect::to('invoice/referral/'.$ref_id.'/detail/'.$invb2b_num)->withSuccess('Receipt successfully created');
     }
 
     public function show(Request $request)
@@ -156,7 +164,6 @@ class ReceiptReferralController extends Controller
         $invb2b_id = isset($receiptRef->invdtl_id) ? $receiptRef->invoiceInstallment->invb2b_id : $receiptRef->invb2b_id;
         $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
-
         return view('pages.receipt.referral.form')->with(
             [
 
@@ -166,7 +173,6 @@ class ReceiptReferralController extends Controller
             ]
         );
     }
-
 
     public function destroy(Request $request)
     {
@@ -181,14 +187,14 @@ class ReceiptReferralController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete receipt failed : ' . $e->getMessage());
+            Log::error('Delete receipt failed : '.$e->getMessage());
 
-            return Redirect::to('receipt/referral/' . $receiptId)->withError('Failed to delete receipt');
+            return Redirect::to('receipt/referral/'.$receiptId)->withError('Failed to delete receipt');
         }
 
-        # Delete success
-        # create log success
-        $this->logSuccess('delete', null, 'Receipt Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $receipt);
+        // Delete success
+        // create log success
+        $this->logSuccess('delete', null, 'Receipt Referral Program', Auth::user()->first_name.' '.Auth::user()->last_name, $receipt);
 
         return Redirect::to('receipt/referral')->withSuccess('Receipt successfully deleted');
     }
@@ -198,69 +204,71 @@ class ReceiptReferralController extends Controller
         $receipt_id = $request->route('receipt');
         $currency = $request->route('currency');
 
-        # directors name
+        // directors name
         $choosen_director = $request->get('selectedDirectorMail');
         $name = $this->getDirectorByEmail($choosen_director);
 
         $receiptRef = $this->receiptRepository->getReceiptById($receipt_id);
-        $file_name = str_replace('/', '-', $receiptRef->receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf';       
+        $file_name = str_replace('/', '-', $receiptRef->receipt_id).'-'.($currency == 'idr' ? $currency : 'other').'.pdf';
 
         DB::beginTransaction();
-        if (!$this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency)) {
+        if (! $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency)) {
 
             try {
-                
+
                 $attachmentDetails = [
                     'receipt_id' => $receiptRef->receipt_id,
                     'currency' => $currency,
                     'sign_status' => 'not yet',
-                    'recipient' => $choosen_director, # value of choosen director is email
-                    'send_to_client' => 'not sent'
+                    'recipient' => $choosen_director, // value of choosen director is email
+                    'send_to_client' => 'not sent',
                 ];
                 $this->receiptAttachmentRepository->createReceiptAttachment($attachmentDetails);
-    
+
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::error('Error to store receipt referral attachment : '.$e->getMessage().' | Line '.$e->getLine());
+
                 return response()->json(['message' => $e->getMessage()], 500);
             }
         }
 
-        # generate file
+        // generate file
         try {
 
             $companyDetail = [
                 'name' => env('ALLIN_COMPANY'),
                 'address' => env('ALLIN_ADDRESS'),
                 'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-                'city' => env('ALLIN_CITY')
+                'city' => env('ALLIN_CITY'),
             ];
-    
-            $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf', 
+
+            $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf',
                 [
-                    'receiptRef' => $receiptRef, 
-                    'currency' => $currency, 
+                    'receiptRef' => $receiptRef,
+                    'currency' => $currency,
                     'companyDetail' => $companyDetail,
-                    'director' => $name
+                    'director' => $name,
                 ]);
-    
-            # Update status download
-            $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
+
+            // Update status download
+            $this->receiptRepository->updateReceipt($receipt_id, ['download_'.$currency => 1]);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::info('Export receipt referral failed: ' . $e->getMessage());
+            Log::info('Export receipt referral failed: '.$e->getMessage());
+
             return response()->json(['message' => $e->getMessage()], 500);
 
         }
 
-        # Download success
-        # create log success
-        $this->logSuccess('download', null, 'Receipt Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
+        // Download success
+        // create log success
+        $this->logSuccess('download', null, 'Receipt Referral Program', Auth::user()->first_name.' '.Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
-        return $pdf->download($receiptRef->receipt_id . ".pdf");
+        return $pdf->download($receiptRef->receipt_id.'.pdf');
     }
 
     public function upload(StoreReceiptAttachmentRequest $request)
@@ -274,14 +282,14 @@ class ReceiptReferralController extends Controller
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
         $receipt_id = $receipt->receipt_id;
 
-        $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
+        $file_name = str_replace('/', '-', $receipt_id).'-'.($currency == 'idr' ? $currency : 'other').'.pdf'; // 0001_REC_JEI_EF_I_23_idr.pdf
         $path = 'project/crm/receipt/referral/';
 
         DB::beginTransaction();
         try {
 
-            if (Storage::disk('s3')->put($path . $file_name, file_get_contents($attachment))) {
-                # update request status on receipt attachment
+            if (Storage::disk('s3')->put($path.$file_name, file_get_contents($attachment))) {
+                // update request status on receipt attachment
                 $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
                 $attachment->attachment = $file_name;
                 $attachment->save();
@@ -291,15 +299,16 @@ class ReceiptReferralController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Upload receipt referral failed : ' . $e->getMessage());
-            return Redirect::to('receipt/referral/' . $receipt_identifier)->withError('Failed to upload receipt');
+            Log::error('Upload receipt referral failed : '.$e->getMessage());
+
+            return Redirect::to('receipt/referral/'.$receipt_identifier)->withError('Failed to upload receipt');
         }
 
-        # Upload success
-        # create log success
-        $this->logSuccess('upload', null, 'Receipt Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
+        // Upload success
+        // create log success
+        $this->logSuccess('upload', null, 'Receipt Referral Program', Auth::user()->first_name.' '.Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
-        return Redirect::to('receipt/referral/' . $receipt_identifier)->withSuccess('Receipt successfully uploaded');
+        return Redirect::to('receipt/referral/'.$receipt_identifier)->withSuccess('Receipt successfully uploaded');
     }
 
     public function requestSign(Request $request)
@@ -312,8 +321,8 @@ class ReceiptReferralController extends Controller
         $to = $info->recipient;
         $name = $this->getDirectorByEmail($to);
 
-        # check whether invoiceb2b is installment or not        
-        $is_installment = is_null($receipt->invoiceB2b) ? true : false; 
+        // check whether invoiceb2b is installment or not
+        $is_installment = is_null($receipt->invoiceB2b) ? true : false;
 
         $receipt_id = $receipt->receipt_id;
 
@@ -321,7 +330,7 @@ class ReceiptReferralController extends Controller
 
         $data['email'] = $to;
         $data['recipient'] = $name;
-        $data['title'] = "Request Sign of Receipt Number : " . $receipt_id;
+        $data['title'] = 'Request Sign of Receipt Number : '.$receipt_id;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
@@ -333,7 +342,7 @@ class ReceiptReferralController extends Controller
         DB::beginTransaction();
         try {
 
-            # Update status request
+            // Update status request
             $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested']);
 
             $file_name = str_replace('/', '-', $receipt->receipt_id);
@@ -348,13 +357,14 @@ class ReceiptReferralController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::info('Failed to request sign receipt referral : ' . $e->getMessage());
+            Log::info('Failed to request sign receipt referral : '.$e->getMessage());
+
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
 
-        # Request Sign success
-        # create log success
-        $this->logSuccess('request-sign', null, 'Receipt Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
+        // Request Sign success
+        // create log success
+        $this->logSuccess('request-sign', null, 'Receipt Referral Program', Auth::user()->first_name.' '.Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return true;
     }
@@ -373,7 +383,7 @@ class ReceiptReferralController extends Controller
         $axis = $this->axisRepository->getAxisByType('receipt');
 
         if (isset($receiptAttachment->sign_status) && $receiptAttachment->sign_status == 'signed') {
-            return "Receipt is already signed";
+            return 'Receipt is already signed';
         }
 
         return view('pages.receipt.sign-pdf')->with(
@@ -399,7 +409,7 @@ class ReceiptReferralController extends Controller
 
         $attachmentDetails = [
             'sign_status' => 'signed',
-            'approve_date' => Carbon::now()
+            'approve_date' => Carbon::now(),
         ];
 
         $receiptAttachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
@@ -411,7 +421,7 @@ class ReceiptReferralController extends Controller
         DB::beginTransaction();
         try {
 
-            # if no_data == false
+            // if no_data == false
             if ($request->no_data == 0) {
                 $axis = [
                     'top' => $request->top,
@@ -421,7 +431,7 @@ class ReceiptReferralController extends Controller
                     'angle' => $request->angle,
                     'flipX' => $request->flipX,
                     'flipY' => $request->flipY,
-                    'type' => 'receipt'
+                    'type' => 'receipt',
                 ];
 
                 if (isset($dataAxis)) {
@@ -433,28 +443,29 @@ class ReceiptReferralController extends Controller
             }
 
             $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAttachment->id, $attachmentDetails);
-            if (!Storage::disk('s3')->put('project/crm/receipt/referral/'. $name, file_get_contents($pdfFile)))
+            if (! Storage::disk('s3')->put('project/crm/receipt/referral/'.$name, file_get_contents($pdfFile))) {
                 throw new Exception('Failed to store signed receipt file');
+            }
 
-            $data['title'] = 'Receipt No. ' . $receipt_id . ' has been signed';
+            $data['title'] = 'Receipt No. '.$receipt_id.' has been signed';
             $data['receipt_id'] = $receipt_id;
 
-            # send mail when document has been signed
+            // send mail when document has been signed
             Mail::send('pages.receipt.referral.mail.signed', $data, function ($message) use ($data, $receiptAttachment) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
-                    ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
                     ->attach(Storage::url('receipt/referral/'.$receiptAttachment->attachment));
             });
 
             DB::commit();
         } catch (Exception $e) {
-            Log::error('Failed to update status after being signed : ' . $e->getMessage());
+            Log::error('Failed to update status after being signed : '.$e->getMessage());
+
             return response()->json(['status' => 'error', 'message' => 'Failed to update'], 500);
         }
 
-        # Signed success
-        # create log success
+        // Signed success
+        // create log success
         $this->logSuccess('signed', null, 'Receipt Referral Program', 'Director', ['receipt_id' => $receipt_id]);
 
         return response()->json(['status' => 'success', 'message' => 'Receipt signed successfully']);
@@ -474,10 +485,9 @@ class ReceiptReferralController extends Controller
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
-            env('FINANCE_CC_2')
         ];
         $data['recipient'] = $receipt->invoiceB2b->referral->user->email;
-        $data['title'] = "Receipt of program " . $program_name;
+        $data['title'] = 'Receipt of program '.$program_name;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
@@ -501,13 +511,14 @@ class ReceiptReferralController extends Controller
             $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAttachment->id, $attachmentDetails);
         } catch (Exception $e) {
 
-            Log::info('Failed to send receipt to client : ' . $e->getMessage());
+            Log::info('Failed to send receipt to client : '.$e->getMessage());
+
             return false;
         }
 
-        # Send To Client success
-        # create log success
-        $this->logSuccess('send-to-client', null, 'Receipt Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
+        // Send To Client success
+        // create log success
+        $this->logSuccess('send-to-client', null, 'Receipt Referral Program', Auth::user()->first_name.' '.Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return true;
     }
@@ -533,13 +544,12 @@ class ReceiptReferralController extends Controller
         $currency = $request->route('currency');
 
         $receiptRef = $this->receiptRepository->getReceiptById($receipt_identifier);
-        
+
         $director = $name = null;
-        if(isset($receiptRef->invoiceB2b->invoiceAttachment))
-        {
+        if (isset($receiptRef->invoiceB2b->invoiceAttachment)) {
             $director = $receiptRef->invoiceB2b->invoiceAttachment()->first();
-            if($director->recipient != null){
-                # directors name
+            if ($director->recipient != null) {
+                // directors name
                 $name = $this->getDirectorByEmail($director->recipient);
             }
         }
@@ -548,16 +558,16 @@ class ReceiptReferralController extends Controller
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
             'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
+            'city' => env('ALLIN_CITY'),
         ];
 
-        $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf', 
-                [
-                    'receiptRef' => $receiptRef, 
-                    'currency' => $currency, 
-                    'companyDetail' => $companyDetail,
-                    'director' => $name
-                ]);
+        $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf',
+            [
+                'receiptRef' => $receiptRef,
+                'currency' => $currency,
+                'companyDetail' => $companyDetail,
+                'director' => $name,
+            ]);
 
         return $pdf->stream();
     }

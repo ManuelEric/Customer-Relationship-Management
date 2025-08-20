@@ -264,7 +264,7 @@
         function setMail(e){
             var index = e.getAttribute('data-index');
             e.setAttribute('value', e.value);
-            
+
             $('#prEmailInput_'+index).prop('checked','checked');
             var parent_id = $('#prEmailInput_'+index).data('parentid');
             $("#parent_id_hold").val(parent_id);
@@ -283,7 +283,7 @@
         $(document).on('click', 'input[name=recipients_hold]', function() {
             var index = $(this).data('index');
             var parentId = $(this).data('parentid');
-            
+
             $('#parent_id_hold').val(parentId);
             $('input[name="target_mail_hold"]').val($('#prMail_'+index).prop('value'));
         });

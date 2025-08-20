@@ -22,15 +22,13 @@ class StoreSalesTargetRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
+    public function messages()
+    {
+        return [
+            'unique' => 'The :attribute has already been taken at same time.',
+        ];
+    }
 
-     public function messages()
-     {
-         return [
-             'unique' => 'The :attribute has already been taken at same time.',
-         ];
-     }
-
-     
     public function attributes()
     {
         return [
@@ -42,7 +40,7 @@ class StoreSalesTargetRequest extends FormRequest
     public function rules()
     {
         $prog_id = $this->input('prog_id');
-        $month_year = $this->input('month_year') . '-01';
+        $month_year = $this->input('month_year').'-01';
 
         return [
             'main_prog_id' => 'required|exists:tbl_main_prog,id',

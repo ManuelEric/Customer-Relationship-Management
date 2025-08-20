@@ -1,10 +1,9 @@
 <div class="me-2">
-    <!-- We must ship. - Taylor Otwell -->
     <div class="dropdown">
         <button class="btn btn-outline-warning py-1 dropdown-toggle btn-sm"
-        @if ($installment === true) 
+        @if ($installment === true)
             style="font-size: 11px"
-        @endif 
+        @endif
         type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
             Payment Link
         </button>

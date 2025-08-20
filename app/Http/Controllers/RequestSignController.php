@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 class RequestSignController extends Controller
 {
     protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
+
     protected ReceiptRepositoryInterface $receiptRepository;
 
     public function __construct(InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository)
@@ -23,12 +24,12 @@ class RequestSignController extends Controller
 
             switch ($request->type) {
 
-                case "invoice":
+                case 'invoice':
                     $model = $this->invoiceProgramRepository->getInvoicesNeedToBeSigned(true);
                     $response = $this->invoiceProgramRepository->getDatatables($model);
                     break;
 
-                case "receipt":
+                case 'receipt':
                     $model = $this->receiptRepository->getReceiptsNeedToBeSigned(true);
                     $response = $this->receiptRepository->getDatatables($model);
                     break;
@@ -44,7 +45,7 @@ class RequestSignController extends Controller
         return view('pages.request-sign.index')->with(
             [
                 'total_invoiceNeedToBeSigned' => $total_invoiceNeedToBeSigned,
-                'total_receiptNeedToBeSigned' => $total_receiptNeedToBeSigned
+                'total_receiptNeedToBeSigned' => $total_receiptNeedToBeSigned,
             ]
         );
     }

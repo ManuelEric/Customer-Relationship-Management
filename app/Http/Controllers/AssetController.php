@@ -14,9 +14,7 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Models\Asset;
 use App\Services\Log\LogService;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -27,6 +25,7 @@ class AssetController extends Controller
     use LoggingTrait;
 
     private AssetRepositoryInterface $assetRepository;
+
     private UserRepositoryInterface $userRepository;
 
     public function __construct(AssetRepositoryInterface $assetRepository, UserRepositoryInterface $userRepository)
@@ -56,7 +55,6 @@ class AssetController extends Controller
             'asset_notes',
         ]);
 
-        
         DB::beginTransaction();
         try {
 
@@ -66,14 +64,15 @@ class AssetController extends Controller
 
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_ASSET, $e->getMessage(), $e->getLine(), $e->getFile(), $new_asset_details);
-            return Redirect::to('master/asset/' . $new_asset->id)->withError('Failed to create asset');
+
+            return Redirect::to('master/asset/'.$new_asset->id)->withError('Failed to create asset');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_ASSET, 'New asset has been added', $new_asset->toArray());
 
-        return Redirect::to('master/asset/' . $new_asset->id)->withSuccess('Asset successfully created');
+        return Redirect::to('master/asset/'.$new_asset->id)->withSuccess('Asset successfully created');
     }
 
     public function create()
@@ -93,12 +92,12 @@ class AssetController extends Controller
 
         $employees = $this->userRepository->rnGetAllUsersByRole('employee');
 
-        # put view detail asset below
+        // put view detail asset below
         return view('pages.master.asset.form')->with(
             [
                 'asset' => $asset,
                 'employees' => $employees,
-                'request' => $request
+                'request' => $request,
             ]
         );
     }
@@ -107,10 +106,10 @@ class AssetController extends Controller
     {
         $asset_id = $request->route('asset');
 
-        # retrieve asset data by id
+        // retrieve asset data by id
         $asset = $this->assetRepository->getAssetById($asset_id);
-        # put the link to update asset form below
-        # example
+        // put the link to update asset form below
+        // example
 
         return view('pages.master.asset.form')->with(
             [
@@ -132,7 +131,7 @@ class AssetController extends Controller
             'asset_notes',
         ]);
 
-        # retrieve asset id from url
+        // retrieve asset id from url
         $asset_id = $request->route('asset');
 
         DB::beginTransaction();
@@ -145,11 +144,12 @@ class AssetController extends Controller
 
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_ASSET, $e->getMessage(), $e->getLine(), $e->getFile(), $new_asset_details);
+
             return Redirect::to('master/asset/'.$asset_id)->withError('Failed to update asset');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_ASSET, 'Asset has been updated', $updated_asset->toArray());
 
         return Redirect::to('master/asset/'.$asset_id)->withSuccess('Asset successfully updated');
@@ -168,14 +168,14 @@ class AssetController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete asset failed : ' . $e->getMessage());
+            Log::error('Delete asset failed : '.$e->getMessage());
             $log_service->createErrorLog(LogModule::DELETE_ASSET, $e->getMessage(), $e->getLine(), $e->getFile(), $asset->toArray());
 
             return Redirect::to('master/asset')->withError('Failed to delete asset');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_ASSET, 'Asset has been deleted', $asset->toArray());
 
         return Redirect::to('master/asset')->withSuccess('Asset successfully deleted');

@@ -5,8 +5,8 @@ namespace App\Repositories;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Models\EdufLead;
 use App\Models\v1\Eduf as V1Eduf;
-use Illuminate\Support\Facades\DB;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 
 class EdufLeadRepository implements EdufLeadRepositoryInterface
 {
@@ -18,8 +18,8 @@ class EdufLeadRepository implements EdufLeadRepositoryInterface
                 leftJoin('users', 'users.id', '=', 'tbl_eduf_lead.intr_pic')->
                 select([
                     'tbl_eduf_lead.*', 'tbl_sch.*',
-                    DB::raw("IF (tbl_eduf_lead.sch_id IS NULL, tbl_corp.corp_name, tbl_sch.sch_name) as organizer_name"),
-                    DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS fullname")
+                    DB::raw('IF (tbl_eduf_lead.sch_id IS NULL, tbl_corp.corp_name, tbl_sch.sch_name) as organizer_name'),
+                    DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS fullname"),
                 ])
         )->filterColumn(
             'organizer_name',
@@ -46,7 +46,7 @@ class EdufLeadRepository implements EdufLeadRepositoryInterface
                 'tbl_eduf_lead.ext_pic_name', 'tbl_eduf_lead.ext_pic_mail', 'tbl_eduf_lead.ext_pic_phone', 'tbl_eduf_lead.first_discussion_date',
                 'tbl_eduf_lead.last_discussion_date', 'tbl_eduf_lead.event_start', 'tbl_eduf_lead.event_end', 'tbl_eduf_lead.status', 'tbl_eduf_lead.notes',
                 'tbl_eduf_lead.created_at', 'tbl_eduf_lead.updated_at', 'tbl_eduf_lead.sch_id', 'tbl_eduf_lead.corp_id',
-                DB::raw("IF (tbl_eduf_lead.sch_id IS NOT NULL, tbl_sch.sch_name, tbl_corp.corp_name) as organizer_name")
+                DB::raw('IF (tbl_eduf_lead.sch_id IS NOT NULL, tbl_sch.sch_name, tbl_corp.corp_name) as organizer_name'),
             ])->orderBy('organizer_name', 'asc')->
             get();
     }
@@ -75,13 +75,13 @@ class EdufLeadRepository implements EdufLeadRepositoryInterface
     {
         return tap(EdufLead::whereId($edufLId)->first())->update($newDetails);
     }
-    
+
     public function getEdufairLeadByYear($year)
     {
         return EdufLead::whereYear('event_start', $year)->get();
     }
 
-    # CRM
+    // CRM
     public function getAllEdufFromCRM()
     {
         return V1Eduf::all();

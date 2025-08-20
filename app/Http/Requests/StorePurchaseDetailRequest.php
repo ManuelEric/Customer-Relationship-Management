@@ -46,15 +46,17 @@ class StorePurchaseDetailRequest extends FormRequest
         return [
             'purchase_id' => [
                 function ($attribute, $value, $fail) use ($purchaseId) {
-                    if (!PurchaseRequest::where('purchase_id', $purchaseId)->first())
+                    if (! PurchaseRequest::where('purchase_id', $purchaseId)->first()) {
                         $fail('Purchase request cannot be found');
-                }
+                    }
+                },
             ],
             'id' => [
                 function ($attribute, $value, $fail) use ($detailId) {
-                    if (!PurchaseDetail::find($detailId))
+                    if (! PurchaseDetail::find($detailId)) {
                         $fail('Requested item cannot be found');
-                }
+                    }
+                },
             ],
             'item' => 'required',
             'amount' => 'required|min:1|integer',

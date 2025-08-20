@@ -6,10 +6,11 @@ use Illuminate\Support\Facades\Storage;
 
 trait DeleteFileIfExistTrait
 {
-    public function tnDeleteFile(String $directory, String $file_name)
+    public function tnDeleteFile(string $directory, string $file_name)
     {
-        if (Storage::disk('s3')->exists($directory. $file_name))
-                Storage::disk('s3')->delete($directory. $file_name);
+        if (Storage::disk('s3')->exists($directory.$file_name)) {
+            Storage::disk('s3')->delete($directory.$file_name);
+        }
 
         return null;
     }

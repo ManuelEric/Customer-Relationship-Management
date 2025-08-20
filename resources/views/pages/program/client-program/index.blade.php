@@ -69,6 +69,26 @@
                             </select>
                         </div>
                         <div class="col-md-12 mb-2">
+                            <label>Package</label>
+                            <select name="package[]" class="select form-select form-select-sm w-100" multiple id="package">
+                                @foreach ($packages as $key => $value)
+                                    <option value="{{ $value }}"
+                                        @selected ($request->get('package') !== null && in_array($value, $request->get('package')))
+                                        >{{ $value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label>Curriculum</label>
+                            <select name="curriculum[]" class="select form-select form-select-sm w-100" multiple id="curriculum">
+                                @foreach ($curriculums as $key => $value)
+                                    <option value="{{ $value }}"
+                                        @selected ($request->get('curriculum') !== null && in_array($value, $request->get('curriculum')))
+                                        >{{ $value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
                             <label for="">School Name</label>
                             <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
                                 id="school-name">
@@ -148,7 +168,7 @@
                             <label for="">PIC</label>
                             <select name="pic[]" class="select form-select form-select-sm w-100" multiple id="pic">
                                 @foreach ($pics as $pic)
-                                    <option value="{{ $pic->uuid }}" @selected($picUUID_arr !== null && in_array($pic->uuid, $picUUID_arr))>{{ $pic->pic_name }}
+                                    <option value="{{ $pic->id }}" @selected($picUUID_arr !== null && in_array($pic->id, $picUUID_arr))>{{ $pic->pic_name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -179,6 +199,8 @@
                         <th>School</th>
                         <th>Grade</th>
                         <th>Program Name</th>
+                        <th>Package</th>
+                        <th>Curriculum</th>
                         <th>Register By</th>
                         <th>Parent Name</th>
                         <th>Parent Mail</th>
@@ -204,7 +226,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="17"></td>
+                        <td colspan="19"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -258,7 +280,7 @@
             @endforeach
             $("#main-program").val(main_program).trigger('change')
         @endif
-        
+
         @if ($request->get('program_name') !== null)
             var program_name = new Array();
             @foreach ($request->get('program_name') as $key => $val)
@@ -297,7 +319,7 @@
                     26, 'desc'
                 ],
                 buttons: [
-                    'pageLength', 
+                    'pageLength',
                     {
                         extend: 'excel',
                         text: 'Export to Excel',
@@ -407,6 +429,12 @@
                         // }
                     },
                     {
+                        data: 'package',
+                    },
+                    {
+                        data: 'curriculum',
+                    },
+                    {
                         data: 'register_by',
                         name: 'c.register_by',
 
@@ -439,7 +467,7 @@
                     },
                     {
                         data: 'lead_source',
-                        name: 'c.lead_source',
+                        name: 'cl.main_lead',
                         className: 'text-center'
                     },
                     {
@@ -617,7 +645,7 @@
                 const isSelected = selectedRows.includes(rowData.clientprog_id);
 
                 if(index === -1){
-                    
+
                     selectedRows.push(rowData.clientprog_id);
                     customClientProgId.push(rowData.custom_clientprog_id);
                     bundlingIds.push(rowData.bundling_id);
@@ -634,7 +662,7 @@
             });
 
             table.on('draw', updateRowSelection)
-            
+
             function addBundle() {
                 var html = '';
 
@@ -654,7 +682,7 @@
                                     number: customClientProgId,
                                 })
                                 .then(function(response) {
-                                    
+
                                     html = '';
                                     html += `<ul>`;
 
@@ -676,11 +704,11 @@
                                         notification('success', 'Successfully created a bundle program');
                                         // location.reload();
                                     }
-                                    
+
                                     $("#programTable").DataTable().ajax.reload()
                                 })
                                 .catch(function(error) {
-                                    
+
                                     swal.close();
                                     notification('error', error.message);
                                 })
@@ -700,12 +728,12 @@
                         text: "Please select the client program data first!",
                     });
                 }
-                
+
             }
 
             function cancelBundle(){
                 var html = '';
-                
+
                 if (selectedRows.length > 1) {
                     Swal.fire({
                         title: "Confirmation!",
@@ -793,7 +821,7 @@
                             'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                         }
                     }).then(function (response) {
-                        
+
                         var data = response.data;
                         var batch_id = data.batch_id;
                         html = '';
@@ -804,7 +832,7 @@
                         html += `<p class="text-center mt-2" id="total">Exporting ...</p>`;
                         html += `</div>`;
 
-                                        
+
                         $("#modal-notif-export").modal('show');
                         $('#content-export-information').html(html);
 
@@ -820,7 +848,7 @@
                                 $('#bar').css({'width': response.data.progress + '%'});
                                 $('#bar').text(response.data.progress + '%');
                                 $('#total').html(`Exporting ${response.data.total_imported}/${response.data.total_data}`);
-                                            
+
                                 i++;
 
                                 if(response.data.progress == 100){
@@ -871,7 +899,7 @@
 
                             });
                         }, 3000);
-                        
+
                         swal.close()
                     }).catch(function(error, response) {
                         var msg = error.response.data.error;
@@ -882,7 +910,7 @@
                         notification('error', msg);
 
                 })
-                
+
             }
 
         });

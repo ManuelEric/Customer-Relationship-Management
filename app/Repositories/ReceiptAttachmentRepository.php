@@ -3,11 +3,7 @@
 namespace App\Repositories;
 
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
-use App\Models\Invb2b;
 use App\Models\ReceiptAttachment;
-use Carbon\Carbon;
-use DataTables;
-use Illuminate\Support\Facades\DB;
 
 class ReceiptAttachmentRepository implements ReceiptAttachmentRepositoryInterface
 {
@@ -23,22 +19,22 @@ class ReceiptAttachmentRepository implements ReceiptAttachmentRepositoryInterfac
 
     public function getReceiptAttachmentByInvoiceCurrency($invoiceType, $identifier, $currency)
     {
-        return ReceiptAttachment::when($invoiceType == "Program", function ($query) use ($identifier, $currency) {
+        return ReceiptAttachment::when($invoiceType == 'Program', function ($query) use ($identifier, $currency) {
             $query->where('inv_id', $identifier)->where('currency', $currency);
-        })->when($invoiceType == "B2B", function ($query) use ($identifier, $currency) {
+        })->when($invoiceType == 'B2B', function ($query) use ($identifier, $currency) {
             $query->where('invb2b_id', $identifier)->where('currency', $currency);
-        })->when($invoiceType == "installment", function ($query) use ($identifier, $currency) {
+        })->when($invoiceType == 'installment', function ($query) use ($identifier, $currency) {
             $query->where('invdtl_id', $identifier)->where('currency', $currency);
         })->first();
     }
 
     public function getReceiptAttachmentByInvoiceIdentifier($invoiceType, $identifier)
     {
-        return ReceiptAttachment::when($invoiceType == "Program", function ($query) use ($identifier) {
+        return ReceiptAttachment::when($invoiceType == 'Program', function ($query) use ($identifier) {
             $query->where('inv_id', $identifier);
-        })->when($invoiceType == "B2B", function ($query) use ($identifier) {
+        })->when($invoiceType == 'B2B', function ($query) use ($identifier) {
             $query->where('invb2b_id', $identifier);
-        })->when($invoiceType == "installment", function ($query) use ($identifier) {
+        })->when($invoiceType == 'installment', function ($query) use ($identifier) {
             $query->where('invdtl_id', $identifier);
         })->get();
     }

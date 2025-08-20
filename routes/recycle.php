@@ -1,15 +1,8 @@
 <?php
 
-use App\Http\Controllers\ReceiptController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ReceiptSchoolController;
-use App\Http\Controllers\ReceiptReferralController;
-use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\RecycleClientController;
-use App\Http\Controllers\RecycleController;
 use App\Http\Controllers\RecycleInstanceController;
-use App\Http\Controllers\RefundPartnerController;
-use App\Http\Controllers\RefundSchoolController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +15,7 @@ use App\Http\Controllers\RefundSchoolController;
 |
 */
 
-# route for client
+// route for client
 Route::resource('client/{target}', RecycleClientController::class, [
     'names' => [
         'index' => 'recycle.client.index',
@@ -34,12 +27,11 @@ Route::resource('client/{target}', RecycleClientController::class, [
         'destroy' => 'recycle.client.destroy',
     ],
     'parameters' => [
-        '{target}' => 'client'
-    ]
+        '{target}' => 'client',
+    ],
 ])->parameters(['{target}' => 'client']);
 
-
-# route for instance
+// route for instance
 Route::resource('instance/{target}', RecycleInstanceController::class, [
     'names' => [
         'index' => 'recycle.instance.index',
@@ -51,6 +43,6 @@ Route::resource('instance/{target}', RecycleInstanceController::class, [
         'destroy' => 'recycle.instance.destroy',
     ],
     'parameters' => [
-        '{target}' => 'instance'
-    ]
+        '{target}' => 'instance',
+    ],
 ])->parameters(['{target}' => 'instance']);

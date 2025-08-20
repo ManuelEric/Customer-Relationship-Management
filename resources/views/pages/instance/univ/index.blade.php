@@ -94,7 +94,7 @@
                     }
                 ]
             };
-            
+
             var table = initializeDataTable('#univTable', options, 'rt_university');
 
             $('#univTable tbody').on('click', '.editUniv ', function() {
@@ -102,7 +102,7 @@
                 window.open("{{ url('instance/university') }}/" + data.univ_id.toLowerCase(), "_blank");
             });
 
-            // Tooltip 
+            // Tooltip
             $('#univTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',

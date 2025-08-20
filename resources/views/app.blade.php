@@ -54,7 +54,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
     {{-- <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script> --}}
     {{-- <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script> --}}
-    
+
     <script src="{{ asset('js/jquery/jquery.js') }}"></script>
     <script src="{{ asset('js/sweetalert2/sweetalert2.js') }}"></script>
     <script src="{{ asset('js/bootstrap/bootstrap.bundle.min.js') }}"></script>
@@ -76,8 +76,8 @@
     <script src="{{ asset('js/pusher.min.js') }}"></script>
     {{-- <script src="{{ asset('js/ckeditor.js') }}"></script> --}}
     <script src="https://cdn.ckeditor.com/ckeditor5/12.3.1/classic/ckeditor.js"></script>
-    
- 
+
+
     <script src="{{ asset('js/generate-number.js') }}"></script>
     <script src="{{ asset('js/currency.js') }}"></script>
 
@@ -104,7 +104,7 @@
     <script>
         var myEditor;
 
-        document.querySelectorAll('textarea:not(#review)').forEach(function(element) {
+        document.querySelectorAll('textarea:not(#review):not(#swal2-textarea)').forEach(function(element) {
             ClassicEditor
                 .create(element, {
                     toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList',
@@ -134,6 +134,8 @@
                 .then(editor => {
                     console.log('Editor was initialized', editor);
                     myEditor = editor;
+
+                    element.setAttribute('data-ckeditor-initialized', 'true');
                 })
                 .catch(error => {
                     console.error(error);
@@ -154,7 +156,6 @@
     <script src="{{ asset('js/general-use-script.js') }}"></script>
 
     <script>
-
         function initializeDataTable(selector, options, tableName) {
             var table = $(selector).DataTable({
                 ...options,
@@ -169,12 +170,13 @@
                 },
                 processing: true,
                 serverSide: true,
+                autoWidth: false
             });
 
             // listen channel datatable for datatable
             var channel_datatable = Echo.channel('channel_datatable');
             channel_datatable.listen(".my-event", function(data) {
-                if(data.message == tableName){
+                if (data.message == tableName) {
                     table.ajax.reload(null, false)
                 }
             })
@@ -224,7 +226,7 @@
                     window.location.href = "{{ route('logout.expiration') }}";
                     return;
                 }
-            
+
                 notification('error', 'Oops, Something went wrong when trying to get the data')
             };
         })
@@ -233,20 +235,20 @@
     {{-- Confirm Delete & Deactivate Modal  --}}
     <script>
         function confirmRestore(subject, id) {
-            // show modal 
+            // show modal
             var myModal = new bootstrap.Modal(document.getElementById('restoreModal'))
             myModal.show()
 
-            // change form action 
+            // change form action
             $('#formRestore').attr('action', '{{ url('') }}/' + subject + '/' + id);
         }
 
         function confirmDelete(subject, id) {
-            // show modal 
+            // show modal
             var myModal = new bootstrap.Modal(document.getElementById('deleteItem'))
             myModal.show()
 
-            // change form action 
+            // change form action
             $('#formAction').attr('action', '{{ url('') }}/' + subject + '/' + id);
         }
 
@@ -254,7 +256,7 @@
             var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
             myModal.show()
 
-            // change form action 
+            // change form action
             $('#formActionDeactive').attr('action', '{{ url('') }}/' + subject + '/' + id);
         }
 
@@ -264,7 +266,7 @@
 
             var warningMessage = 'You want to request his/her signature for this document?';
 
-            //     // change form action 
+            //     // change form action
             $("#formActionRequestSign h6").html(warningMessage);
 
             var link = subject;
@@ -280,7 +282,7 @@
 
             var warningMessage = 'You want to send this ' + category + ' to client?';
 
-            // change form action 
+            // change form action
             $("#formActionSendToClient h6").html(warningMessage);
 
             var link = subject + '/' + id;
@@ -294,7 +296,7 @@
         }
 
         function confirmUpdateLeadStatus(link, clientId, initProg, groupId, leadStatusOld, leadStatus) {
-            // show modal 
+            // show modal
             var myModal = new bootstrap.Modal(document.getElementById('updateLeadStatus'))
             myModal.show()
             $('#statusLeadOld').val(leadStatusOld);
@@ -329,7 +331,7 @@
             $('.leads' + id).val(old_status);
             $('#updateLeadStatus').modal('hide');
         }
-        
+
         function singlequote(text) {
             return `'${text}'`;
         }
@@ -386,7 +388,7 @@
     </script>
 
     {{-- TinyMCE  --}}
-    
+
     <script>
         //     tinymce.init({
         //         strict_loading_mode : true,
@@ -396,7 +398,7 @@
         //         // plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
         //         toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
         //     });
-        // 
+        //
     </script>
 
     {{-- Select2  --}}

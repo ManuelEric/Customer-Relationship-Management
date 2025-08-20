@@ -16,24 +16,27 @@ use PDF;
 use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 // class ProcessEmailRequestSignJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
-# Temporary not implementation "ShouldBeUniqueUntilProcessing"
-# Because it makes the job not dispatch successfully
-# "ShouldBeUniqueUntilProcessing" is used for preventive action if the request clicks more than once
+// Temporary not implementation "ShouldBeUniqueUntilProcessing"
+// Because it makes the job not dispatch successfully
+// "ShouldBeUniqueUntilProcessing" is used for preventive action if the request clicks more than once
 class ProcessEmailRequestSignJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use IsMonitored;
 
     protected $mailDetails;
+
     protected $attachmentDetails;
+
     protected $invoiceId;
 
     public $tries = 3;
+
     public $timeout = 120;
 
     // Priority levels: high, default, low
     public $priority = 'high';
-    
+
     /**
      * Create a new job instance.
      *
@@ -65,28 +68,28 @@ class ProcessEmailRequestSignJob implements ShouldQueue
     {
         try {
             $pdf = PDF::loadView(
-                    $this->attachmentDetails['view'], 
-                    [
-                        'clientProg' => $this->attachmentDetails['client_prog'], 
-                        'companyDetail' => $this->attachmentDetails['company_detail'], 
-                        'director' => $this->attachmentDetails['director'],
-                    ]
-                );
+                $this->attachmentDetails['view'],
+                [
+                    'clientProg' => $this->attachmentDetails['client_prog'],
+                    'companyDetail' => $this->attachmentDetails['company_detail'],
+                    'director' => $this->attachmentDetails['director'],
+                ]
+            );
             // Storage::put('public/uploaded_file/invoice/client/' . $this->attachmentDetails['file_name'] . '.pdf', $pdf->output());
-            Storage::disk('s3')->put('project/crm/invoice/client/' . $this->attachmentDetails['file_name'] . '.pdf', $pdf->download());
+            Storage::disk('s3')->put('project/crm/invoice/client/'.$this->attachmentDetails['file_name'].'.pdf', $pdf->download());
 
-            # send email to related person that has authority to give a signature
+            // send email to related person that has authority to give a signature
             Mail::send('pages.invoice.client-program.mail.view', $this->mailDetails, function ($message) use ($pdf) {
-                    
+
                 Log::notice('Email request sign has been sent with invoice ID : '.$this->invoiceId);
-                
+
                 $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
                     ->subject($this->mailDetails['title'])
-                    ->attachData($pdf->output(), $this->invoiceId . '.pdf');
+                    ->attachData($pdf->output(), $this->invoiceId.'.pdf');
             });
-        }catch (Exception $e){
-            Log::error('Failed send request-sign-mail ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Failed send request-sign-mail '.$e->getMessage());
         }
-        
+
     }
 }

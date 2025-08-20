@@ -12,18 +12,16 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Models\Asset;
 use App\Services\Log\LogService;
 use Exception;
-use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
-use Throwable;
 
 class AssetReturnedController extends Controller
 {
-
     protected AssetReturnedRepositoryInterface $assetReturnedRepository;
+
     protected AssetRepositoryInterface $assetRepository;
+
     protected UserRepositoryInterface $userRepository;
 
     public function __construct(AssetReturnedRepositoryInterface $assetReturnedRepository, UserRepositoryInterface $userRepository, AssetRepositoryInterface $assetRepository)
@@ -49,7 +47,7 @@ class AssetReturnedController extends Controller
         try {
 
             $createAssetReturnedAction->execute($request, $new_returned_details);
-            
+
             DB::commit();
 
         } catch (Exception $e) {
@@ -73,16 +71,16 @@ class AssetReturnedController extends Controller
 
         $asset = $this->assetRepository->getAssetById($asset_id);
         $user = $asset->userUsedAsset()->where('tbl_asset_used.id', $used_id)->first();
-        
+
         $employees = $this->userRepository->rnGetAllUsersByRole('employee');
-        
-        # put view detail asset below
-        return view('pages.asset.form')->with(
+
+        // put view detail asset below
+        return view('pages.master.asset.form')->with(
             [
                 'asset' => $asset,
                 'employees' => $employees,
                 'user' => $user,
-                'usedId' => $used_id
+                'usedId' => $used_id,
             ]
         );
     }
@@ -96,7 +94,7 @@ class AssetReturnedController extends Controller
         try {
 
             $deleteAssetReturnedAction->execute($asset_id, $returned_id);
-            
+
             DB::commit();
 
         } catch (Exception $e) {

@@ -32,13 +32,13 @@
             </div> --}}
             <div class="tool">
                 <button class="btn btn-light btn-sm"
-                    @if (isset($receipt->invoiceB2b)) 
+                    @if (isset($receipt->invoiceB2b))
                         @if ($receipt->invoiceB2b->schprog_id)
                             onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/v1/receipt-sch/' . $receipt->id . '/upload/' . $currency) : '' }}')">
                         @elseif($receipt->invoiceB2b->ref_id)
                             onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/v1/receipt-ref/' . $receipt->id . '/upload/' . $currency) : '' }}')">
                         @elseif($receipt->invoiceB2b->partnerprog_id)
-                            onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/v1/receipt-corp/' . $receipt->id . '/upload/' . $currency) : '' }}')"> 
+                            onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/v1/receipt-corp/' . $receipt->id . '/upload/' . $currency) : '' }}')">
                         @endif
                     @else
                         {{-- onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('receipt.client-program.upload-signed', ['receipt' => Request::route('receipt'), 'currency' => Request::route('currency')]) }}')" --}}
@@ -75,7 +75,7 @@
     <script src="https://fastly.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
 
-        
+
         @if (isset($attachment) && gettype($attachment) != "string")
             var file = "{{ Storage::url('receipt/client/'.$attachment->attachment) }}"
         @else
@@ -89,7 +89,7 @@
                 @endif
             @endif
         @endif
-    
+
         var pdf = new PDFAnnotate("pdf-container", file, {
             onPageUpdated(page, oldData, newData) {
                 // console.log(page, oldData, newData);

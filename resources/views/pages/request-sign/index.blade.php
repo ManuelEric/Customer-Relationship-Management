@@ -2,7 +2,7 @@
 
 @section('title', 'Request Sign')
 
-@section('content')    
+@section('content')
     <div class="card bg-secondary mb-1 p-2">
         <div class="d-flex align-items-center justify-content-between">
             <h5 class="text-white m-0">
@@ -99,7 +99,7 @@
                         data: paramType == 'invoice' ? 'inv_id' : 'receipt_id',
                         name: paramType == 'invoice' ? 'tbl_inv.inv_id' : 'tbl_receipt.receipt_id',
                         render: function(data, type, row, meta) {
-                            
+
                             switch (paramType) {
 
                                 case "invoice":
@@ -143,7 +143,7 @@
 
                             var curr_category = row['currency_category'];
                             var currency = row['invoice_currency'];
-                            if (curr_category != 'other') 
+                            if (curr_category != 'other')
                                 return 0;
 
                             switch (currency) {
@@ -161,7 +161,7 @@
                                     currency = 'GBP';
                                     break;
 
-                            }   
+                            }
 
                             return new Intl.NumberFormat(format, {
                                 style: "currency",
@@ -201,7 +201,7 @@
                                         currencyOther = item.currency;
                                     }
                                 });
-                            }else{                                
+                            }else{
                                 row.receipt_attachment.forEach((item) => {
                                     if(item.currency != 'idr'){
                                         isOther = true;
@@ -209,7 +209,7 @@
                                     }
                                 });
                             }
-                          
+
 
                             switch (paramType) {
 

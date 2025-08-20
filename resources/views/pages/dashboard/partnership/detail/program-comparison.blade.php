@@ -142,10 +142,10 @@
                                     <th rowspan="2" class="bg-secondary rounded border-1 border-white">Program Name</th>
                                     <th rowspan="2" class="bg-secondary rounded border-1 border-white">Type</th>
                                     <th colspan="3" class="bg-secondary rounded border-1 border-white">Year</th>
-                                </tr> 
+                                </tr>
                                 <tr class="text-center">
                                     <th class="comparison_start bg-secondary rounded border-1 border-white" id="label-start-table">2022 <br>
-                                       
+
                                     </th>
                                     <th class="comparison_end bg-secondary rounded border-1 border-white" id="label-end-table">2023</th>
                                 </tr>
@@ -187,7 +187,7 @@
 <script>
     var comparison_partner_chart, comparison_school_chart, comparison_referral_chart = null;
 
-    // percentage 
+    // percentage
     let lbl_program_comparison = [{
         formatter: (value, ctx) => {
             let datasets = ctx.chart.data.datasets;
@@ -233,11 +233,11 @@
         if (start != end) {
             $('.comparison_start').html(start)
             $('.comparison_end').html(end)
-            
+
             $('#label-start-table').html(start + '<br><hr>Total Program | Partcipants | Total Fee')
             $('#label-end-table').html(end + '<br><hr>Total Program | Partcipants | Total Fee')
 
-           
+
             comparison_partner_chart.data.labels = [start, end]
             comparison_school_chart.data.labels = [start, end]
             comparison_referral_chart.data.labels = [start, end]
@@ -279,7 +279,7 @@
                         }
                     })
                     comparison_school_chart.update()
-                    
+
                     var total_ref = 0;
                      $('#tot_start_ref').html(rupiah(0))
                      $('#tot_end_ref').html(rupiah(0))
@@ -316,9 +316,9 @@
                         if (value.length > 1) {
                             Object.entries(value).forEach(entry => {
                                 const [key, value] = entry;
-                                html += "<td>" + (value['year'] === start ?  value[start]['count_program'] + ' | ' + 
+                                html += "<td>" + (value['year'] === start ?  value[start]['count_program'] + ' | ' +
                                     value[start]['participants'
-                                ] + ' (' + rupiah(value[start]['total']) + ')' : value[end]['count_program'] + ' | ' +  
+                                ] + ' (' + rupiah(value[start]['total']) + ')' : value[end]['count_program'] + ' | ' +
                                     value[end]['participants'
                                 ] + ' (' + rupiah(value[end]['total']) + ')') + "</td>"
                             })
@@ -399,7 +399,7 @@
                     },
                     datalabels: lbl_program_comparison[0],
                 }
-                
+
             }
         });
 

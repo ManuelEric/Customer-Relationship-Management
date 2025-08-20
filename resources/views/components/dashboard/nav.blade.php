@@ -5,7 +5,7 @@
                 'nav-link',
                 'text-nowrap',
                 'active' => Request::segment(2) == 'sales'
-            ]) aria-current="page" href="{{ url('/dashboard/sales') }}">Sales</a>
+            ]) aria-current="page" href="{{ url('/dashboard/sales/client-program') }}">Sales</a>
         </li>
         @if($isSuperAdmin)
             <li class="nav-item">
@@ -13,7 +13,7 @@
                     'nav-link',
                     'text-nowrap',
                     'active' => Request::segment(2) == 'partnership'
-                ]) aria-current="page" href="{{ url('/dashboard/partnership') }}">Partnership</a>
+                ]) aria-current="page" href="{{ url('/dashboard/partnership/agenda') }}">Partnership</a>
             </li>
         @endif
         <li class="nav-item">
@@ -29,7 +29,7 @@
                     'nav-link',
                     'text-nowrap',
                     'active' => Request::segment(2) == 'finance'
-                ]) aria-current="page" href="{{ url('/dashboard/finance') }}">Finance</a>
+                ]) aria-current="page" href="{{ url('/dashboard/finance/outstanding-payment') }}">Finance</a>
             </li>
         @endif
     @endenv

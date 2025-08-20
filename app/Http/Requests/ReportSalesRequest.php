@@ -29,7 +29,6 @@ class ReportSalesRequest extends FormRequest
         ]);
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -42,7 +41,7 @@ class ReportSalesRequest extends FormRequest
             'end' => 'nullable|date|after_or_equal:start',
             'main' => 'nullable|exists:tbl_main_prog,id',
             'program' => 'nullable|exists:tbl_prog,prog_id',
-            'pic' => 'nullable|exists:users,id'
+            'pic' => 'nullable|exists:users,id',
         ];
     }
 }

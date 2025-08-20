@@ -22,7 +22,7 @@ class UniversityPicController extends Controller
     {
         $this->universityPicRepository = $universityPicRepository;
     }
-    
+
     public function show(Request $request): JsonResponse
     {
         $picId = $request->route('detail');
@@ -32,8 +32,8 @@ class UniversityPicController extends Controller
         return response()->json(
             [
                 'success' => $detail ? true : false,
-                'message' => $detail ? "Detail data has been retrieved" : "Couldn't get the detail data",
-                'data' => $detail ? $detail : null
+                'message' => $detail ? 'Detail data has been retrieved' : "Couldn't get the detail data",
+                'data' => $detail ? $detail : null,
             ]
         );
     }
@@ -48,13 +48,14 @@ class UniversityPicController extends Controller
             'is_pic',
         ]);
 
-        # when the other title has filled 
-        # then put it in title 
-        if ($request->other_title != null)
+        // when the other title has filled
+        // then put it in title
+        if ($request->other_title != null) {
             $picDetails['title'] = $request->other_title;
+        }
 
         $picDetails['univ_id'] = $universityId = $request->route('university');
-        $picDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
+        $picDetails['phone'] = $this->tnNormalizePhoneNumber($request->phone);
 
         DB::beginTransaction();
         try {
@@ -65,7 +66,8 @@ class UniversityPicController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store university pic failed : ' . $e->getMessage());
+            Log::error('Store university pic failed : '.$e->getMessage());
+
             return Redirect::to('instance/university/'.$universityId)->withError('Failed to create a university pic');
 
         }
@@ -77,7 +79,7 @@ class UniversityPicController extends Controller
     {
         $picId = $request->route('detail');
 
-        # retrieve school detail data by id
+        // retrieve school detail data by id
         $picDetail = $this->universityPicRepository->getUniversityPicById($picId);
 
         return response()->json([
@@ -96,15 +98,16 @@ class UniversityPicController extends Controller
             'is_pic',
         ]);
 
-        # when the other title has filled 
-        # then put it in title 
-        if ($request->other_title != null)
+        // when the other title has filled
+        // then put it in title
+        if ($request->other_title != null) {
             $newDetails['title'] = $request->other_title;
+        }
 
         $newDetails['univ_id'] = $universityId = $request->route('university');
         $picId = $request->route('detail');
-        
-        $newDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
+
+        $newDetails['phone'] = $this->tnNormalizePhoneNumber($request->phone);
 
         DB::beginTransaction();
         try {
@@ -115,7 +118,8 @@ class UniversityPicController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update university pic failed : ' . $e->getMessage());
+            Log::error('Update university pic failed : '.$e->getMessage());
+
             return Redirect::to('instance/university/'.$universityId)->withError('Failed to update university pic');
 
         }
@@ -137,7 +141,8 @@ class UniversityPicController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete university pic failed : ' . $e->getMessage());
+            Log::error('Delete university pic failed : '.$e->getMessage());
+
             return Redirect::to('instance/university/'.$universityId)->withError('Failed to delete university pic');
         }
 

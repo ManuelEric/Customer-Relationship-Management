@@ -7,8 +7,11 @@ use Illuminate\View\Component;
 class Nav extends Component
 {
     public bool $needed = false;
+
     public bool $list = false;
+
     public bool $reminder = false;
+
     /**
      * Create a new component instance.
      *
@@ -16,8 +19,7 @@ class Nav extends Component
      */
     public function __construct(
         public string $activeMenu
-    )
-    {
+    ) {
         $this->{$activeMenu} = true;
     }
 

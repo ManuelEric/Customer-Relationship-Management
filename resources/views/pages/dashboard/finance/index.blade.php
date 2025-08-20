@@ -17,11 +17,17 @@
         </li>
     </ul>
 </div>
-
+@php
+    $tab = Request::route('tab') ?: 'client-program';
+@endphp
 <section id="outstanding-payment" class="dashboard-finance">
-    @include('pages.dashboard.finance.detail.outstanding-payment')
+    @if ($tab == 'outstanding-payment')
+        @include('pages.dashboard.finance.detail.outstanding-payment')
+    @endif
 </section>
 
 <section id="revenue" class="dashboard-finance d-none">
-    @include('pages.dashboard.finance.detail.revenue')
+    @if ($tab == 'revenue')
+        @include('pages.dashboard.finance.detail.revenue')
+    @endif
 </section>

@@ -24,7 +24,7 @@ class StoreFollowupRequest extends FormRequest
     public function rules()
     {
         return [
-            'followup_date' => 'required|date'
+            'followup_date' => 'required|date',
         ];
     }
 }

@@ -2,12 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Models\EdufReview;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEdufairReviewRequest extends FormRequest
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -34,7 +32,7 @@ class StoreEdufairReviewRequest extends FormRequest
             'eduf_id' => 'required',
             'reviewer_name' => 'required',
             'score' => 'required',
-            'review' => 'required'
+            'review' => 'required',
         ];
     }
 
@@ -44,7 +42,7 @@ class StoreEdufairReviewRequest extends FormRequest
             'eduf_id' => 'required',
             'reviewer_name' => 'required',
             'score' => 'required',
-            'review' => 'required'
+            'review' => 'required',
         ];
     }
 }

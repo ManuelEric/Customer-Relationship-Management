@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Interfaces\SubSectorRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class ExtCorporateController extends Controller
 {
@@ -17,27 +18,27 @@ class ExtCorporateController extends Controller
         $this->subSectorRepository = $subSectorRepository;
     }
 
-    public function cnGetSubSectorByIndustry(Request $request)
+    public function cnGetSubSectorByIndustry(Request $request, LogService $log_service)
     {
-        $industry_id = $request->route('industry');
+        $industry_id = (int) $request->route('industry');
         try {
             $sub_sectors = $this->subSectorRepository->rnGetSubSectorByIndustryId($industry_id);
-            
-            if (!$sub_sectors) {
+
+            if (! $sub_sectors) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Sub sector not found.'
+                    'message' => 'Sub sector not found.',
                 ]);
             }
         } catch (Exception $e) {
-            Log::error('Failed get sub sector' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::GET_SUB_SECTOR_BY_INDUSTRY, $e->getMessage(), $e->getLine(), $e->getFile(), ['industry_id' => $industry_id]);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'There are subsectors found.',
-            'data' => $sub_sectors
+            'data' => $sub_sectors,
         ]);
-        
+
     }
 }

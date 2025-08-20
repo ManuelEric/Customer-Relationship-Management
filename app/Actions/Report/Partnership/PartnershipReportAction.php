@@ -13,11 +13,17 @@ use App\Interfaces\UniversityRepositoryInterface;
 class PartnershipReportAction
 {
     private PartnerProgramRepositoryInterface $partnerProgramRepository;
+
     private SchoolProgramRepositoryInterface $schoolProgramRepository;
+
     private SchoolRepositoryInterface $schoolRepository;
+
     private SchoolVisitRepositoryInterface $schoolVisitRepository;
+
     private CorporateRepositoryInterface $corporateRepository;
+
     private UniversityRepositoryInterface $universityRepository;
+
     private ReferralRepositoryInterface $referralRepository;
 
     public function __construct(
@@ -28,8 +34,7 @@ class PartnershipReportAction
         CorporateRepositoryInterface $corporateRepository,
         UniversityRepositoryInterface $universityRepository,
         ReferralRepositoryInterface $referralRepository,
-    )
-    {
+    ) {
         $this->partnerProgramRepository = $partnerProgramRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
         $this->schoolRepository = $schoolRepository;
@@ -39,7 +44,7 @@ class PartnershipReportAction
         $this->referralRepository = $referralRepository;
     }
 
-    public function execute(Array $incoming_requests): Array
+    public function execute(array $incoming_requests): array
     {
         $start_date = $incoming_requests['start_date'];
         $end_date = $incoming_requests['end_date'];

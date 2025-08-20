@@ -5,12 +5,9 @@ namespace App\Repositories;
 use App\Interfaces\PartnerAgreementRepositoryInterface;
 use App\Models\PartnerAgreement;
 use Carbon\Carbon;
-use DataTables;
-use Illuminate\Support\Facades\DB;
 
 class PartnerAgreementRepository implements PartnerAgreementRepositoryInterface
 {
-
     public function getAllPartnerAgreementsByPartnerId($corpId)
     {
         return PartnerAgreement::where('corp_id', $corpId)->orderBy('id', 'asc')->get();
@@ -18,24 +15,13 @@ class PartnerAgreementRepository implements PartnerAgreementRepositoryInterface
 
     public function getPartnerAgreementByMonthly($monthYear, $type)
     {
-        $date = Carbon::today()->addDays(7)->format('Y-m-d');
         $today = Carbon::today()->format('Y-m-d');
+        $date = Carbon::today()->addDays(7)->format('Y-m-d');
 
-        $query = PartnerAgreement::query();
+        $query = PartnerAgreement::whereBetween('end_date', [$today, $date]);
 
-        $query->whereBetween('end_date', [$today, $date]);
+        return in_array($type, ['all', 'monthly']) ? $query->count() : ($type === 'list' ? $query->get() : null);
 
-        switch ($type) {
-            case 'all':
-                return $query->count();
-                break;
-            case 'monthly':
-                return $query->count();
-                break;
-            case 'list':
-                return $query->get();
-                break;
-        }
     }
 
     public function getPartnerAgreementById($partnerAgreementId)

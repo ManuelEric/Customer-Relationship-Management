@@ -12,6 +12,7 @@ use Illuminate\Validation\Rule;
 class StoreInvoiceProgramRequest extends FormRequest
 {
     use CreateInvoiceIdTrait;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -34,18 +35,18 @@ class StoreInvoiceProgramRequest extends FormRequest
         $currency[0] = $this->input('currency');
         $currency[1] = $this->input('currency_detail');
 
-        if (in_array('idr', $currency) && $this->input('is_session') == "no") {
-            return $this->rupiahInvoiceWithNoSession($currency); 
+        if (in_array('idr', $currency) && $this->input('is_session') == 'no') {
+            return $this->rupiahInvoiceWithNoSession($currency);
 
-        } elseif (in_array('idr', $currency) && $this->input('is_session') == "yes") {
-            
+        } elseif (in_array('idr', $currency) && $this->input('is_session') == 'yes') {
+
             return $this->rupiahInvoiceWithYesSession($currency);
-        
-        } elseif (in_array('other', $currency) && $this->input('is_session') == "no") {
-            
+
+        } elseif (in_array('other', $currency) && $this->input('is_session') == 'no') {
+
             return $this->otherCurrencyInvoiceWithNoSession($currency);
 
-        } elseif (in_array('other', $currency) && $this->input('is_session') == "yes") {
+        } elseif (in_array('other', $currency) && $this->input('is_session') == 'yes') {
 
             return $this->otherCurrencyInvoiceWithYesSession($currency);
 
@@ -62,7 +63,7 @@ class StoreInvoiceProgramRequest extends FormRequest
         $addQueryInvDtlDueDateOther = $this->input('inv_paymentmethod') == 'installment' ? '|after_or_equal:inv_duedate' : null;
 
         return [
-            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id' . $addQuery,
+            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
             'currency' => [
                 'required',
                 // function ($attribute, $value, $fail) use ($clientProgram) {
@@ -92,7 +93,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             'inv_notes' => 'nullable',
             'inv_tnc' => 'nullable',
 
-            # installment validation
+            // installment validation
             'invdtl_installment.*' => [
                 'required_if:inv_paymentmethod,installment',
                 'distinct',
@@ -116,7 +117,7 @@ class StoreInvoiceProgramRequest extends FormRequest
 
         $addQueryInvDtlDueDateOther = $this->input('inv_paymentmethod') == 'installment' ? '|after_or_equal:inv_duedate' : null;
         $rules = [
-            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id' . $addQuery,
+            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
             'currency' => [
                 'required',
                 // function ($attribute, $value, $fail) use ($clientProgram) {
@@ -156,7 +157,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             'inv_notes' => 'nullable',
             'inv_tnc' => 'nullable',
 
-            # installment validation
+            // installment validation
             'invdtl_installment_other.*' => [
                 'required_if:inv_paymentmethod,installment',
                 'distinct',
@@ -170,8 +171,6 @@ class StoreInvoiceProgramRequest extends FormRequest
             'invdtl_amountidr_other.*' => 'required_if:inv_paymentmethod,installment',
         ];
 
-
-
         return $rules;
     }
 
@@ -183,7 +182,7 @@ class StoreInvoiceProgramRequest extends FormRequest
         $addQuery = $this->isMethod('POST') ? '|unique:tbl_inv,clientprog_id' : null;
 
         $rules = [
-            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id' . $addQuery,
+            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
             'currency' => [
                 'required',
                 // function ($attribute, $value, $fail) use ($clientProgram) {
@@ -221,7 +220,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             'inv_notes' => 'nullable',
             'inv_tnc' => 'nullable',
 
-            # installment validation
+            // installment validation
             'invdtl_installment_other.*' => [
                 'required_if:inv_paymentmethod,installment',
                 'distinct',
@@ -235,8 +234,9 @@ class StoreInvoiceProgramRequest extends FormRequest
             'invdtl_amountidr_other.*' => 'required_if:inv_paymentmethod,installment',
         ];
 
-        if ($this->input('inv_duedate') != NULL && $this->input('inv_paymentmethod') == 'installment')
+        if ($this->input('inv_duedate') != null && $this->input('inv_paymentmethod') == 'installment') {
             $rules['invdtl_duedate_other.*'] .= '|after_or_equal:inv_duedate';
+        }
 
         return $rules;
     }
@@ -248,7 +248,7 @@ class StoreInvoiceProgramRequest extends FormRequest
 
         $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->max(DB::raw('substr(inv_id, 1, 4)'));
 
-        # Use Trait Create Invoice Id
+        // Use Trait Create Invoice Id
         $inv_id = $this->getInvoiceId($last_id, $clientProgram->prog_id);
 
         $addQuery = $this->isMethod('POST') ? '|unique:tbl_inv,clientprog_id' : null;
@@ -276,7 +276,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             'inv_notes' => 'nullable',
             'inv_tnc' => 'nullable',
 
-            # installment validation
+            // installment validation
             'invdtl_installment.*' => [
                 'required_if:inv_paymentmethod,installment',
                 'distinct',

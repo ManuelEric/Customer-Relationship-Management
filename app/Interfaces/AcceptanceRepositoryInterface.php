@@ -2,9 +2,11 @@
 
 namespace App\Interfaces;
 
-interface AcceptanceRepositoryInterface 
+interface AcceptanceRepositoryInterface
 {
     public function getAcceptanceById(int $id);
-    public function getAcceptanceByClientId(String $clientId);
+
+    public function getAcceptanceByClientId(string $clientId);
+
     public function deleteAcceptance(int $id);
 }

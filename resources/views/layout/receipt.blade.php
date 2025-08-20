@@ -99,13 +99,13 @@
     <footer>
         <img loading="lazy"  src="{{ public_path('img/pdf/edu-all-footer.webp') }}" width="100%">
     </footer>
-    
+
     <main>
         <div class="" style="padding:0 30px; margin-top: -75px; z-index:1">
             <h3 style="">
                 PAYMENT RECEIPT
             </h3>
-            
+
             @yield('body')
 
         </div>

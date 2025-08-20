@@ -16,7 +16,7 @@ class SubjectRepository implements SubjectRepositoryInterface
 
     public function getAllSubjects()
     {
-        return Subject::orderBy('name', 'ASC')->get();
+        return Subject::active()->orderBy('name', 'ASC')->get();
     }
 
     public function getSubjectById($subjectId)
@@ -46,6 +46,6 @@ class SubjectRepository implements SubjectRepositoryInterface
 
     public function rnGetAllSubjectsByRole(string $role)
     {
-        return Subject::where('role', $role)->get();
+        return Subject::where('role', $role)->orderBy('name', 'asc')->get();
     }
 }

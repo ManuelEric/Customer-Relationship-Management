@@ -23,7 +23,7 @@
                             <br>
                             In the meantime, if you have any questions, please don't hesitate to reach out to us.<br>
                             <br>
-                            Thank you for registering your child for the <u>{{ $program['name'] }}</u> program. We look forward to seeing them soon!    
+                            Thank you for registering your child for the <u>{{ $program['name'] }}</u> program. We look forward to seeing them soon!
                         </p>
                         <p>
                             Warm regards, <br>

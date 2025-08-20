@@ -14,11 +14,10 @@ class CreateCurriculumAction
     }
 
     public function execute(
-        Array $new_curriculum_details
-    )
-    {
+        array $new_curriculum_details
+    ) {
 
-        # store new curriculum
+        // store new curriculum
         $new_curriculum = $this->curriculumRepository->createOneCurriculum($new_curriculum_details);
 
         return $new_curriculum;

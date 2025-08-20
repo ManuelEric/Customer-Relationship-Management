@@ -16,7 +16,6 @@ class StorePartnerProgramAttachRequest extends FormRequest
         return true;
     }
 
-
     public function messages()
     {
         return [
@@ -34,17 +33,19 @@ class StorePartnerProgramAttachRequest extends FormRequest
     public function rules()
     {
         $partnerProg_id = $this->route('corp_prog');
+
         return [
 
             'corprog_file' => 'required|string',
-            'corprog_attach' => 'required|mimes:pdf'
+            'corprog_attach' => 'required|mimes:pdf',
         ];
 
-        if($partnerProg_id)
+        if ($partnerProg_id) {
             $rules = ['partner_prog_id' => 'required|exists:tbl_partner_prog,id',
             ];
+        }
 
         return $rules;
-        
+
     }
 }

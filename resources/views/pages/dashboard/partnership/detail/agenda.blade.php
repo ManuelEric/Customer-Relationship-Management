@@ -38,7 +38,7 @@
                     </div>
                     <div class="card-body overflow-auto {{!isset($speakerToday) ? 'd-none' : ''}}" id="speaker_list" style="height: 370px">
                         @foreach ($speakerToday as $speaker)
-                            
+
                             <ul class="list-group">
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div class="">
@@ -72,7 +72,7 @@
             end: moment('{{$speaker->end_time}}').format(),
         });
     @endforeach
-    
+
     // console.log(data_speaker)
 
     let date = new Date;
@@ -105,7 +105,7 @@
             },
             dayMaxEventRows: true, // for all non-TimeGrid views
             events: data_speaker,
-            
+
             eventDisplay: 'block',
             eventTimeFormat: {
                 hour: '2-digit',
@@ -146,7 +146,7 @@
                 var result = response.data.data.allSpeaker
                 var start_listgroup = '<ul class="list-group">' +
                             '<li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom:15px">';
-                
+
                 var end_listgroup =  '</li>' +
                                     '</ul>';
                 var html;
@@ -154,7 +154,7 @@
                     $('#speaker_list').removeClass('d-none')
                     $('#speaker_list').empty()
                     result.forEach(function(item, index, arr) {
-                        html = start_listgroup 
+                        html = start_listgroup
                         html += '<div class=""><p>' + item.speaker_name + '</p>'
                         html += '<small>' + item.event_name + '</small></div>'
                         html += '<div class="">' + moment(item.start_time).format('MMM DD, YYYY HH.mm') + ' - ' + moment(item.end_time).format('MMM DD, YYYY HH.mm'); + '</div>'
@@ -170,7 +170,7 @@
                 console.log(error)
                 swal.close()
         })
-            
+
     }
 </script>
 @endpush

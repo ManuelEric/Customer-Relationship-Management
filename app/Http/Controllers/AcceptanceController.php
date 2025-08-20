@@ -13,28 +13,29 @@ use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class AcceptanceController extends Controller
 {
-
     protected ClientRepositoryInterface $clientRepository;
+
     protected MajorRepositoryInterface $majorRepository;
+
     protected UniversityRepositoryInterface $universityRepository;
+
     protected AcceptanceRepositoryInterface $acceptanceRepository;
+
     protected MajorGroupRepositoryInterface $majorGroupRepository;
 
     public function __construct(
-        ClientRepositoryInterface $clientRepository, 
-        MajorRepositoryInterface $majorRepository, 
-        UniversityRepositoryInterface $universityRepository, 
+        ClientRepositoryInterface $clientRepository,
+        MajorRepositoryInterface $majorRepository,
+        UniversityRepositoryInterface $universityRepository,
         AcceptanceRepositoryInterface $acceptanceRepository,
         MajorGroupRepositoryInterface $majorGroupRepository
-        )
-    {
+    ) {
         $this->clientRepository = $clientRepository;
-        $this->majorRepository  = $majorRepository;
+        $this->majorRepository = $majorRepository;
         $this->universityRepository = $universityRepository;
         $this->acceptanceRepository = $acceptanceRepository;
         $this->majorGroupRepository = $majorGroupRepository;
@@ -42,8 +43,9 @@ class AcceptanceController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax()) 
+        if ($request->ajax()) {
             return $this->clientRepository->getClientHasUniversityAcceptance();
+        }
 
         return view('pages.client.student.alumni-acceptance.index');
     }
@@ -62,7 +64,7 @@ class AcceptanceController extends Controller
                 'alumnis' => $alumnis,
                 'universities' => $universities,
                 // 'majors' => $majors,
-                'major_groups' => $major_groups
+                'major_groups' => $major_groups,
             ]
         );
     }
@@ -108,7 +110,8 @@ class AcceptanceController extends Controller
         }
 
         $log_service->createSuccessLog(LogModule::STORE_ALUMNI_ACCEPTANCE, 'New alumni acceptance has been added', $new_details);
-        return Redirect::to('client/acceptance/'. $alumni_id.'/edit')->withSuccess('University acceptance has been stored');
+
+        return Redirect::to('client/acceptance/'.$alumni_id.'/edit')->withSuccess('University acceptance has been stored');
     }
 
     public function edit(Request $request)
@@ -133,7 +136,7 @@ class AcceptanceController extends Controller
                 'alumnis' => $alumnis,
                 'universities' => $universities,
                 // 'majors' => $majors,
-                'major_groups' => $major_groups
+                'major_groups' => $major_groups,
 
             ]
         );
@@ -158,7 +161,7 @@ class AcceptanceController extends Controller
                 'major_group_id' => $major_group[$index],
                 'major_name' => $major_name[$index],
                 'status' => $status[$index],
-                'requirement_link' => $requirement_link[$index]
+                'requirement_link' => $requirement_link[$index],
             ];
 
             $index++;
@@ -180,12 +183,13 @@ class AcceptanceController extends Controller
         }
 
         $log_service->createSuccessLog(LogModule::UPDATE_ALUMNI_ACCEPTANCE, 'Alumni acceptance has been updated', $new_details);
+
         return Redirect::to('client/acceptance/'.$alumni_id.'/edit')->withSuccess('University acceptance has been stored');
     }
 
     public function destroy(Request $request, LogService $log_service)
     {
-        # client on the route param is acceptance ID
+        // client on the route param is acceptance ID
         $acceptance_id = $request->route('client');
         $acceptance = $this->acceptanceRepository->getAcceptanceById($acceptance_id);
         $client_id = $acceptance->client_id;
@@ -206,6 +210,7 @@ class AcceptanceController extends Controller
         }
 
         $log_service->createSuccessLog(LogModule::DELETE_ALUMNI_ACCEPTANCE, 'Alumni acceptance has been deleted', $acceptance->toArray());
+
         return Redirect::to('client/acceptance/'.$client_id.'/edit')->withSuccess('Acceptance has been deleted.');
     }
 }

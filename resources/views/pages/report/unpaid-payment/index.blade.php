@@ -55,7 +55,7 @@
                     {{-- <div class="d-flex justify-content-between">
                         <strong>Paid</strong>
                         <div class="text-end">
-                                Rp. {{ number_format($totalPaid) }} {{ $totalDiff > 0 ? '( Rp. '. number_format($totalDiff) .')' : '' }}                       
+                                Rp. {{ number_format($totalPaid) }} {{ $totalDiff > 0 ? '( Rp. '. number_format($totalDiff) .')' : '' }}
                         </div>
                     </div> --}}
                     {{-- <hr class="my-2">
@@ -102,13 +102,13 @@
                                 </tr> --}}
                             </thead>
                             <tbody>
-                         
+
                                 @forelse ($invoices as $invoice)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ isset($invoice->inv_id) ? $invoice->inv_id : $invoice->invb2b_id}}</td>
                                         <td>{{ isset($invoice->inv_id) ? 'B2C' : 'B2B'}}</td>
-                                        
+
                                         {{-- Client Name --}}
                                         @if(isset($invoice->clientprog_id))
                                             <td>{{ $invoice->clientprog->client->first_name }} {{ $invoice->clientprog->client->last_name }}</td>
@@ -129,7 +129,7 @@
                                             <td>{{ $invoice->partner_prog->program->program_name }}</td>
                                         @elseif(isset($invoice->ref_id))
                                             <td>{{ $invoice->referral->additional_prog_name }}</td>
-                                        @endif 
+                                        @endif
 
                                         {{-- Invoice duedate --}}
                                         <td class="text-center">
@@ -155,7 +155,7 @@
                                         <td>
                                             {{ $invoice->currency == 'usd' ? '$. ' . number_format($invoice->total_price_inv_other) : '-' }}
                                         </td>
-                                        
+
                                         {{-- Amount SGD --}}
                                         <td>
                                             {{ $invoice->currency == 'sgd' ? 'S$. ' . number_format($invoice->total_price_inv_other) : '-' }}
@@ -178,7 +178,7 @@
                                         @else
                                             <td class="text-center">-</td>
                                         @endif --}}
-                                        
+
                                         {{-- Amount --}}
                                          {{-- @if(isset($invoice->receipt_id))
                                             <td>Rp. {{ number_format($invoice->receipt_amount_idr) }} {{ $invoice->receipt_amount_idr > $invoice->total_price_inv ? '( Rp.'. number_format($invoice->receipt_amount_idr - $invoice->total_price_inv) .')' : '' }}</td>
@@ -203,15 +203,15 @@
             </div>
         </div>
     </div>
-    
+
     <script>
-         @php            
+         @php
             $privilage = $menus['Report']->where('submenu_name', 'Unpaid Payment')->first();
         @endphp
         $(document).ready(function() {
             @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                    
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });
@@ -230,7 +230,7 @@
             var last_col = parseInt(last_ref.slice(last_ref.indexOf('L') + 1)) - 1;
 
             var col = ['I', 'J', 'K', 'L']; //  I = Amount IDR, J = USD, K = SGD, L = GBP
-                
+
                 col.forEach(function (d, i){
                     for(var i = 2; i <= last_col; i++) {
                         var index = d + i;
@@ -265,7 +265,7 @@
                 })
 
             XLSX.writeFile(workbook, "report-unpaid-payment.xlsx");
-            
+
         }
     </script>
 @endsection

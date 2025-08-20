@@ -2,7 +2,6 @@
 
 namespace Database\Seeders\HotLeadsAutomation;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +26,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 40,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Admission | Grade
@@ -39,7 +38,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 30,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Admission | Country
@@ -51,7 +50,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Admission | Priority
@@ -63,7 +62,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Admission | Seasonal
@@ -75,7 +74,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Experiential Learning | School
@@ -87,7 +86,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 20,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Experiential Learning | Grade
@@ -99,7 +98,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 70,
                 'weight_existing_non_mentee' => 40,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Experiential Learning | Country
@@ -111,7 +110,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Experiential Learning | Priority
@@ -123,7 +122,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 10,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Experiential Learning | Already Joined
@@ -135,7 +134,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 10,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Experiential Learning | Seasonal
@@ -147,7 +146,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 10,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (SAT) | School
@@ -159,7 +158,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 20,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (SAT) | Grade
@@ -171,7 +170,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 70,
                 'weight_existing_non_mentee' => 40,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (SAT) | Country
@@ -183,7 +182,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (SAT) | Priority
@@ -195,7 +194,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 10,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (SAT) | Seasonal
@@ -207,7 +206,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 10,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (SAT) | Already Joined
@@ -219,7 +218,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 10,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (Academic Tutoring) | School
@@ -231,7 +230,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 20,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (Academic Tutoring) | Grade
@@ -243,7 +242,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 70,
                 'weight_existing_non_mentee' => 40,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (Academic Tutoring) | Country
@@ -255,7 +254,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => null,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (Academic Tutoring) | Priority
@@ -267,7 +266,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 10,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (Academic Tutoring) | Seasonal
@@ -279,7 +278,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 10,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
             // Academic Performance (Academic Tutoring) | Already Joined
@@ -291,7 +290,7 @@ class ProgramBucketParamsSeeder extends Seeder
                 'weight_existing_mentee' => 10,
                 'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ],
 
         ];

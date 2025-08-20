@@ -5,38 +5,35 @@ namespace App\Http\Controllers;
 use App\Enum\LogModule;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\AddParentRequest;
-use App\Http\Requests\StoreClientRawRequest;
 use App\Http\Requests\StoreClientRawStudentRequest;
 use App\Http\Requests\StoreClientStudentRequest;
-use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\CountryRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
+use App\Interfaces\InitialProgramRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
-use App\Interfaces\InitialProgramRepositoryInterface;
-use App\Interfaces\ClientLeadTrackingRepositoryInterface;
-use App\Interfaces\ReasonRepositoryInterface;
-use App\Imports\StudentImport;
 use App\Interfaces\UserRepositoryInterface;
 use App\Jobs\Client\ProcessInsertLogClient;
-use App\Jobs\Client\ProcessUpdateClientEventRawStudent;
-use App\Jobs\Client\ProcessUpdateClientProgramRawStudent;
+use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
 use App\Models\ClientLeadTracking;
+use App\Models\UserClient;
 use App\Services\Log\LogService;
 use App\Services\Master\ProgramService;
 use Carbon\Carbon;
@@ -44,7 +41,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -56,28 +52,46 @@ class ClientStudentController extends ClientController
 {
     use CreateCustomPrimaryKeyTrait;
     use FindStatusClientTrait;
-    use StandardizePhoneNumberTrait;
     use LoggingTrait;
+    use StandardizePhoneNumberTrait;
     use SyncClientTrait;
 
     protected ClientRepositoryInterface $clientRepository;
+
     protected SchoolRepositoryInterface $schoolRepository;
+
     private LeadRepositoryInterface $leadRepository;
+
     private EventRepositoryInterface $eventRepository;
+
     private EdufLeadRepositoryInterface $edufLeadRepository;
+
     private ProgramRepositoryInterface $programRepository;
+
     private UniversityRepositoryInterface $universityRepository;
+
     private MajorRepositoryInterface $majorRepository;
+
     private CurriculumRepositoryInterface $curriculumRepository;
+
     protected TagRepositoryInterface $tagRepository;
+
     private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+
     private ClientProgramRepositoryInterface $clientProgramRepository;
+
     private CountryRepositoryInterface $countryRepository;
+
     private ClientEventRepositoryInterface $clientEventRepository;
+
     private InitialProgramRepositoryInterface $initialProgramRepository;
+
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+
     private ReasonRepositoryInterface $reasonRepository;
+
     private UserRepositoryInterface $userRepository;
+
     private ProgramService $programService;
 
     public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository, CountryRepositoryInterface $countryRepository, ClientEventRepositoryInterface $clientEventRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository, UserRepositoryInterface $userRepository, ProgramService $programService)
@@ -103,19 +117,17 @@ class ClientStudentController extends ClientController
         $this->programService = $programService;
     }
 
-    # ajax start
-    public function getClientProgramByStudentId(Request $request)
+    // ajax start
+    public function getClientProgramByStudentId(UserClient $client)
     {
-        $student_id = $request->route('client');
-        return $this->clientProgramRepository->getAllClientProgramDataTables_DetailUser(['clientId' => $student_id]);
+        return $this->clientProgramRepository->getAllClientProgramDataTables_DetailUser(['clientId' => $client->id]);
     }
 
-    public function getClientEventByStudentId(Request $request)
+    public function getClientEventByStudentId(UserClient $client)
     {
-        $student_id = $request->route('client');
-        return $this->clientEventRepository->getAllClientEventByClientIdDataTables($student_id);
+        return $this->clientEventRepository->getAllClientEventByClientIdDataTables($client->id);
     }
-    # ajax end
+    // ajax end
 
     public function index(Request $request)
     {
@@ -124,7 +136,7 @@ class ClientStudentController extends ClientController
 
             $as_datatables = true;
 
-            # advanced filter purpose
+            // advanced filter purpose
             $school_name = $request->get('school_name');
             $graduation_year = $request->get('graduation_year');
             $leads = $request->get('lead_source');
@@ -135,7 +147,7 @@ class ClientStudentController extends ClientController
             $start_joined_date = $request->get('start_joined_date');
             $end_joined_date = $request->get('end_joined_date');
 
-            # array for advanced filter request
+            // array for advanced filter request
             $advanced_filter = [
                 'school_name' => $school_name,
                 'graduation_year' => $graduation_year,
@@ -145,28 +157,28 @@ class ClientStudentController extends ClientController
                 'active_status' => $active_status,
                 'pic' => $pic,
                 'start_joined_date' => $start_joined_date,
-                'end_joined_date' => $end_joined_date
+                'end_joined_date' => $end_joined_date,
             ];
 
             switch ($status_client) {
 
-                case "new-leads":
+                case 'new-leads':
                     $model = $this->clientRepository->getNewLeads($as_datatables, null, $advanced_filter);
                     break;
 
-                case "potential":
+                case 'potential':
                     $model = $this->clientRepository->getPotentialClients($as_datatables, null, $advanced_filter);
                     break;
 
-                case "mentee":
+                case 'mentee':
                     $model = $this->clientRepository->getExistingMentees($as_datatables, null, $advanced_filter);
                     break;
 
-                case "non-mentee":
+                case 'non-mentee':
                     $model = $this->clientRepository->getExistingNonMentees($as_datatables, null, $advanced_filter);
                     break;
 
-                case "inactive":
+                case 'inactive':
                     $model = $this->clientRepository->getInactiveStudent($as_datatables, null, $advanced_filter);
                     break;
 
@@ -177,7 +189,12 @@ class ClientStudentController extends ClientController
             return $this->clientRepository->getDataTables($model);
         }
 
-        $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
+        if (! Cache::has('advanced_filter')) {
+            $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
+            Cache::put('advanced_filter', $entries, 172800);  // 48 Jam
+        }
+
+        $entries = Cache::get('advanced_filter');
 
         return view('pages.client.student.index')->with($entries + ['st' => $status_client]);
     }
@@ -186,7 +203,7 @@ class ClientStudentController extends ClientController
     {
         if ($request->ajax()) {
 
-            # advanced filter purpose
+            // advanced filter purpose
             $school_name = $request->get('school_name');
             $grade = $request->get('grade');
             $graduation_year = $request->get('graduation_year');
@@ -198,7 +215,7 @@ class ClientStudentController extends ClientController
             $start_joined_date = $request->get('start_joined_date');
             $end_joined_date = $request->get('end_joined_date');
 
-            # array for advanced filter request
+            // array for advanced filter request
             $advanced_filter = [
                 'school_name' => $school_name,
                 'grade' => $grade,
@@ -209,49 +226,44 @@ class ClientStudentController extends ClientController
                 'active_status' => $active_status,
                 'roles' => $roles,
                 'start_joined_date' => $start_joined_date,
-                'end_joined_date' => $end_joined_date
+                'end_joined_date' => $end_joined_date,
             ];
 
             $model = $this->clientRepository->getNewAllRawClientDataTables('student', true, $advanced_filter);
-            
+
             return $this->clientRepository->getDataTables($model, true);
         }
 
-        $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
+        if (! Cache::has('advanced_filter')) {
+            $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
+            Cache::put('advanced_filter', $entries, 172800); // 48 Jam
+        }
+
+        $entries = Cache::get('advanced_filter');
 
         return view('pages.client.student.raw.index')->with($entries);
     }
 
-    public function show(Request $request)
+    public function show(UserClient $student)
     {
-        $student_id = $request->route('student');
-        $student = $this->clientRepository->getClientById($student_id);
-
-        # validate
-        # if user forced to access student that isn't his/her 
-        if (!$this->clientRepository->findHandledClient($student_id))
-            abort(403);
-
         $initial_programs = $this->initialProgramRepository->getAllInitProg();
         // $history_leads = $this->clientLeadTrackingRepository->getHistoryClientLead($student_id);
-        $view_student = $this->clientRepository->getViewClientById($student_id);
+        $view_student = $this->clientRepository->getViewClientById($student->id);
 
         $programs = $this->programService->snGetProgramsB2c();
-        
+
         $sales_teams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         $initial_programs = $this->initialProgramRepository->getAllInitProg();
-        $history_leads = $this->clientLeadTrackingRepository->getHistoryClientLead($student_id);
+        $history_leads = $this->clientLeadTrackingRepository->getHistoryClientLead($student->id);
 
         $parents = $this->clientRepository->getAllClientByRole('Parent');
 
-        $pic_active = null;
-        if (count($student->picClient) > 0){
-            $pic_active = $student->picClient->where('status', 1)->first();
-        }
+        $pic_active = $student?->picClient ? $student->picClient->where('status', 1)->first() : null;
 
-        if (!$student)
+        if (! $student) {
             abort(500);
+        }
 
         return view('pages.client.student.view')->with(
             [
@@ -262,7 +274,7 @@ class ClientStudentController extends ClientController
                 'programs' => $programs,
                 'salesTeams' => $sales_teams,
                 'picActive' => $pic_active,
-                'parents' => $parents
+                'parents' => $parents,
             ]
         );
     }
@@ -275,27 +287,29 @@ class ClientStudentController extends ClientController
         DB::beginTransaction();
         try {
 
-            # case 1
-            # create new school
-            if (!$data['student_details']['sch_id'] = $this->createSchoolIfAddNew($data['school_details']))
+            // case 1
+            // create new school
+            if (! $data['student_details']['sch_id'] = $this->createSchoolIfAddNew($data['school_details'])) {
                 throw new Exception('Failed to store new school', 1);
+            }
 
-            # case 2
-            # create new user client as parents
+            // case 2
+            // create new user client as parents
             // if ($data['student_details']['pr_id'] !== NULL) {
 
             //     if (!$parent_id = $this->createParentsIfAddNew($data['parent_details'], $data['student_details']))
             //         throw new Exception('Failed to store new parent', 2);
             // }
 
-            # case 3
-            # create new user client as student
-            if (!$new_student_details = $this->clientRepository->createClient('Student', $data['student_details']))
+            // case 3
+            // create new user client as student
+            if (! $new_student_details = $this->clientRepository->createClient('Student', $data['student_details'])) {
                 throw new Exception('Failed to store new student', 3);
+            }
 
             $new_student_id = $new_student_details->id;
 
-            # initiate variable for client log
+            // initiate variable for client log
             $clients_data_for_log_client[] = [
                 'client_id' => $new_student_id,
                 'first_name' => $data['student_details']['first_name'],
@@ -303,53 +317,56 @@ class ClientStudentController extends ClientController
                 'lead_source' => $data['student_details']['lead_id'],
                 'inputted_from' => 'manual',
                 'clientprog_id' => null,
-                
+
             ];
-            
-            # trigger to insert log client
+
+            // trigger to insert log client
             ProcessInsertLogClient::dispatch($clients_data_for_log_client)->onQueue('insert-log-client');
-            
-            # case 4 (optional)
-            # add relation between parent and student
-            # if they didn't insert parents which parentId = NULL
-            # then assumed that register for student only
-            # so no need to create parent children relation
+
+            // case 4 (optional)
+            // add relation between parent and student
+            // if they didn't insert parents which parentId = NULL
+            // then assumed that register for student only
+            // so no need to create parent children relation
             // if ($parent_id !== NULL && $data['student_details']['pr_id'] !== NULL) {
 
             //     if (!$this->clientRepository->createClientRelation($parent_id, $new_student_id))
             //         throw new Exception('Failed to store relation between student and parent', 4);
             // }
 
-            # case 5
-            # create interested program
-            # if they didn't insert interested program 
-            # then skip this case
+            // case 5
+            // create interested program
+            // if they didn't insert interested program
+            // then skip this case
             // if (!$this->createInterestedProgram($data['interestPrograms'], $new_student_id))
             //     throw new Exception('Failed to store interest program', 5);
 
-            # case 6.1
-            # create destination countries
-            # if they didn't insert destination countries
-            # then skip this case
-            if (!$this->createDestinationCountries($data['abroad_countries'], $new_student_id))
+            // case 6.1
+            // create destination countries
+            // if they didn't insert destination countries
+            // then skip this case
+            if (! $this->createDestinationCountries($data['abroad_countries'], $new_student_id)) {
                 throw new Exception('Failed to store destination country', 6);
+            }
 
-            # case 6.2
-            # create interested universities
-            # if they didn't insert universities
-            # then skip this case
-            if (!$this->createInterestedUniversities($data['abroad_universities'], $new_student_id))
+            // case 6.2
+            // create interested universities
+            // if they didn't insert universities
+            // then skip this case
+            if (! $this->createInterestedUniversities($data['abroad_universities'], $new_student_id)) {
                 throw new Exception('Failed to store interest universities', 6);
+            }
 
-            # case 7
-            # create interested major
-            # if they didn't insert major
-            # then skip this case
-            if (!$this->createInterestedMajor($data['interest_majors'], $new_student_id))
+            // case 7
+            // create interested major
+            // if they didn't insert major
+            // then skip this case
+            if (! $this->createInterestedMajor($data['interest_majors'], $new_student_id)) {
                 throw new Exception('Failed to store interest major', 7);
+            }
 
-            # case 8
-            # Set default PIC if sales member add student
+            // case 8
+            // Set default PIC if sales member add student
             if (Session::get('user_role') == 'Employee') {
                 $pic_details[] = [
                     'client_id' => $new_student_id,
@@ -370,11 +387,11 @@ class ClientStudentController extends ClientController
                 case 1:
                     $log_service->createErrorLog(LogModule::STORE_SCHOOL_FROM_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['school_details']);
                     break;
-                    
+
                 case 2:
                     $log_service->createErrorLog(LogModule::STORE_PARENT_FROM_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['parent_details']);
                     break;
-                    
+
                 case 3:
                     $log_service->createErrorLog(LogModule::STORE_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['student_details']);
                     break;
@@ -397,11 +414,12 @@ class ClientStudentController extends ClientController
             }
 
             $log_service->createErrorLog(LogModule::STORE_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['student_details']);
+
             return Redirect::to('client/student/create')->withError($e->getMessage());
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_STUDENT, 'New student has been added', $data['student_details']);
 
         return Redirect::to('client/student?st=new-leads')->withSuccess('A new student has been registered.');
@@ -409,10 +427,11 @@ class ClientStudentController extends ClientController
 
     public function create(Request $request)
     {
-        # ajax
-        # to get university by selected country
+        // ajax
+        // to get university by selected country
         if ($request->ajax()) {
             $universities = $this->universityRepository->getAllUniversitiesByTag($request->country);
+
             return response()->json($universities);
         }
 
@@ -448,10 +467,11 @@ class ClientStudentController extends ClientController
 
     public function edit(Request $request)
     {
-        # ajax
-        # to get university by selected country
+        // ajax
+        // to get university by selected country
         if ($request->ajax()) {
             $universities = $this->universityRepository->getAllUniversitiesByTag($request->country);
+
             return response()->json($universities);
         }
         $student_id = $request->route('student');
@@ -499,28 +519,29 @@ class ClientStudentController extends ClientController
         DB::beginTransaction();
         try {
 
-            # set referral code null if lead != referral
-            if ($data['student_details']['lead_id'] != 'LS005'){
+            // set referral code null if lead != referral
+            if (! in_array($data['student_details']['lead_id'], ['LS005', 'LS061'])) {
                 $data['student_details']['referral_code'] = null;
             }
 
-            //! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
-            # update status client lead tracking
+            // ! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
+            // update status client lead tracking
             if ($leads_tracking->count() > 0) {
                 foreach ($leads_tracking as $lead_tracking) {
                     $this->clientLeadTrackingRepository->updateClientLeadTrackingById($lead_tracking->id, ['status' => 0]);
                 }
             }
 
-            # case 1
-            # create new school
-            # when sch_id is "add-new" 
-            if (!$data['student_details']['sch_id'] = $this->createSchoolIfAddNew($data['school_details']))
+            // case 1
+            // create new school
+            // when sch_id is "add-new"
+            if (! $data['student_details']['sch_id'] = $this->createSchoolIfAddNew($data['school_details'])) {
                 throw new Exception('Failed to store new school', 1);
+            }
 
-            # case 2
-            # create new user client as parents
-            # when pr_id is "add-new" 
+            // case 2
+            // create new user client as parents
+            // when pr_id is "add-new"
 
             // if ($data['student_details']['pr_id'] !== NULL) {
             //     if ($data['student_details']['lead_id'] != 'LS005'){
@@ -530,26 +551,28 @@ class ClientStudentController extends ClientController
             //         throw new Exception('Failed to store new parent', 2);
             // }
 
-
-            # removing the kol_lead_id & pr_id from student_details array
-            # if the data still exists it will error because there are no field with kol_lead_id & pr_id
+            // removing the kol_lead_id & pr_id from student_details array
+            // if the data still exists it will error because there are no field with kol_lead_id & pr_id
             unset($data['student_details']['kol_lead_id']);
             // $newParentId = $data['student_details']['pr_id'];
             // $oldParentId = $data['student_details']['pr_id_old'];
             // unset($data['student_details']['pr_id']);
             // unset($data['student_details']['pr_id_old']);
 
-            # case 3
-            # create new user client as student
-            if (!$student = $this->clientRepository->updateClient($student_id, $data['student_details']))
+            // case 3
+            // create new user client as student
+            if (! $student = $this->clientRepository->updateClient($student_id, $data['student_details'])) {
                 throw new Exception('Failed to update student information', 3);
+            }
 
+            // Trigger job update grade
+            ProcessUpdateGradeAndGraduationYearNow::dispatch($student->id)->onQueue('update-grade-and-graduation-year-now');
 
-            # case 4
-            # add relation between parent and student
-            # if they didn't insert parents which parentId = NULL
-            # then assumed that register for student only
-            # so no need to create parent children relation
+            // case 4
+            // add relation between parent and student
+            // if they didn't insert parents which parentId = NULL
+            // then assumed that register for student only
+            // so no need to create parent children relation
             // if ($newParentId !== NULL) {
 
             //     if (!in_array($parent_id, $this->clientRepository->getParentsByStudentId($student_id))) {
@@ -567,34 +590,36 @@ class ClientStudentController extends ClientController
             //     }
             // }
 
-            # case 5
-            # create interested program
-            # if they didn't insert interested program 
-            # then skip this case
+            // case 5
+            // create interested program
+            // if they didn't insert interested program
+            // then skip this case
             // if (!$this->createInterestedProgram($data['interestPrograms'], $student_id))
             //     throw new Exception('Failed to store interest program', 5);
 
-            # case 6.1
-            # create destination countries
-            # if they didn't insert destination countries
-            # then skip this case
-            if (!$this->createDestinationCountries($data['abroad_countries'], $student_id))
+            // case 6.1
+            // create destination countries
+            // if they didn't insert destination countries
+            // then skip this case
+            if (! $this->createDestinationCountries($data['abroad_countries'], $student_id)) {
                 throw new Exception('Failed to store destination country', 6);
+            }
 
-            # case 6.2
-            # create interested universities
-            # if they didn't insert universities
-            # then skip this case
-            if (!$this->createInterestedUniversities($data['abroad_universities'], $student_id))
+            // case 6.2
+            // create interested universities
+            // if they didn't insert universities
+            // then skip this case
+            if (! $this->createInterestedUniversities($data['abroad_universities'], $student_id)) {
                 throw new Exception('Failed to store interest universities', 6);
+            }
 
-
-            # case 7
-            # create interested major
-            # if they didn't insert major
-            # then skip this case
-            if (!$this->createInterestedMajor($data['interest_majors'], $student_id))
+            // case 7
+            // create interested major
+            // if they didn't insert major
+            // then skip this case
+            if (! $this->createInterestedMajor($data['interest_majors'], $student_id)) {
                 throw new Exception('Failed to store interest major', 7);
+            }
 
             DB::commit();
         } catch (Exception $e) {
@@ -632,14 +657,15 @@ class ClientStudentController extends ClientController
             }
 
             $log_service->createErrorLog(LogModule::UPDATE_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['student_details']);
-            return Redirect::to('client/student/' . $student_id . '/edit')->withError($e->getMessage());
+
+            return Redirect::to('client/student/'.$student_id.'/edit')->withError($e->getMessage());
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_STUDENT, 'Student has been updated', $data['student_details']);
 
-        return Redirect::to('client/student/' . $student_id)->withSuccess('A student\'s profile has been updated.');
+        return Redirect::to('client/student/'.$student_id)->withSuccess('A student\'s profile has been updated.');
     }
 
     public function updateStatus(Request $request, LogService $log_service)
@@ -647,13 +673,13 @@ class ClientStudentController extends ClientController
         $student_id = $request->route('student');
         $new_status = $request->route('status');
 
-        # validate status
-        if (!in_array($new_status, [0, 1])) {
+        // validate status
+        if (! in_array($new_status, [0, 1])) {
 
             return response()->json(
                 [
                     'success' => false,
-                    'message' => "Status is invalid"
+                    'message' => 'Status is invalid',
                 ]
             );
         }
@@ -671,19 +697,19 @@ class ClientStudentController extends ClientController
             return response()->json(
                 [
                     'success' => false,
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
                 ]
             );
         }
 
-        # Upload success
-        # create log success
+        // Upload success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_STATUS_STUDENT, 'Status student has been updated', ['student_id' => $student_id, 'status' => $new_status]);
 
         return response()->json(
             [
                 'success' => true,
-                'message' => "Status has been updated",
+                'message' => 'Status has been updated',
             ]
         );
     }
@@ -693,8 +719,7 @@ class ClientStudentController extends ClientController
         $student_id = $request->clientId;
         $init_prog_name = $request->initProg;
         $lead_status = $request->leadStatus;
-        
-        
+
         $group_id = $request->groupId;
         $reason = $request->reason_id;
         $program_score = $lead_score = 0;
@@ -710,7 +735,7 @@ class ClientStudentController extends ClientController
                 [
                     'success' => false,
                     'code' => 400,
-                    'message' => $validator->messages()
+                    'message' => $validator->messages(),
                 ]
             );
         }
@@ -744,8 +769,7 @@ class ClientStudentController extends ClientController
 
         $last_id = ClientLeadTracking::max('group_id');
         $group_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 5) : '00000';
-        $group_id_with_label = 'CLT-' . $this->add_digit($group_id_without_label + 1, 5);
-
+        $group_id_with_label = 'CLT-'.$this->add_digit($group_id_without_label + 1, 5);
 
         $program_details = [
             'group_id' => $group_id_with_label,
@@ -753,7 +777,7 @@ class ClientStudentController extends ClientController
             'initialprogram_id' => $init_prog->id,
             'type' => 'Program',
             'total_result' => $program_score,
-            'status' => 1
+            'status' => 1,
         ];
 
         $lead_status_details = [
@@ -762,7 +786,7 @@ class ClientStudentController extends ClientController
             'initialprogram_id' => $init_prog->id,
             'type' => 'Lead',
             'total_result' => $lead_score,
-            'status' => 1
+            'status' => 1,
         ];
 
         DB::beginTransaction();
@@ -779,18 +803,19 @@ class ClientStudentController extends ClientController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_LEAD_STATUS_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), $lead_status_details);
 
-            Log::error('Update lead status client failed : ' . $e->getMessage());
+            Log::error('Update lead status client failed : '.$e->getMessage());
+
             return response()->json(
                 [
                     'success' => false,
                     'code' => 500,
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
                 ]
             );
         }
 
-        # Upload success
-        # create log success
+        // Upload success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_LEAD_STATUS_STUDENT, 'Lead status has been updated', $lead_status_details);
 
         return response()->json(
@@ -805,6 +830,7 @@ class ClientStudentController extends ClientController
     public function siblings(Request $request)
     {
         $clients = $this->clientRepository->getAlumniMenteesSiblings();
+
         return $clients;
     }
 
@@ -823,14 +849,14 @@ class ClientStudentController extends ClientController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_INTEREST_PROGRAM_FROM_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['student_id' => $student_id, 'interest_program' => $request->interest_program]);
 
-            return Redirect::to('client/student/' . $student_id)->withError('Interest program failed to be added.');
+            return Redirect::to('client/student/'.$student_id)->withError('Interest program failed to be added.');
         }
 
-        # Add interest program success
-        # create log success
+        // Add interest program success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_INTEREST_PROGRAM_FROM_STUDENT, 'Interest program has been added', ['student_id' => $student_id, 'interest_program' => $request->interest_program]);
 
-        return Redirect::to('client/student/' . $student_id)->withSuccess('Interest program successfully added.');
+        return Redirect::to('client/student/'.$student_id)->withSuccess('Interest program successfully added.');
     }
 
     public function removeInterestProgram(Request $request, LogService $log_service)
@@ -849,14 +875,14 @@ class ClientStudentController extends ClientController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_INTEREST_PROGRAM_FROM_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['interest_program' => $interest_program_id, 'prog_id' => $prog_id]);
 
-            return Redirect::to('client/student/' . $student_id)->withError('Interest program failed to be removed.');
+            return Redirect::to('client/student/'.$student_id)->withError('Interest program failed to be removed.');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_INTEREST_PROGRAM_FROM_STUDENT, 'Interest program has been removed', ['interest_program' => $interest_program_id, 'prog_id' => $prog_id]);
 
-        return Redirect::to('client/student/' . $student_id)->withSuccess('interest program successfully removed.');
+        return Redirect::to('client/student/'.$student_id)->withSuccess('interest program successfully removed.');
     }
 
     public function addParent(AddParentRequest $request, LogService $log_service)
@@ -869,27 +895,25 @@ class ClientStudentController extends ClientController
             'first_name',
             'last_name',
             'mail',
-            'phone'
+            'phone',
         ]);
 
-        $parent_details['phone'] = $this->tnSetPhoneNumber($request->phone);
+        $parent_details['phone'] = $this->tnNormalizePhoneNumber($request->phone);
 
         DB::beginTransaction();
         try {
 
-            # Parent Existing
-            if($parent_details['existing_parent'] == 1) {
+            // Parent Existing
+            if ($parent_details['existing_parent'] == 1) {
 
                 $this->clientRepository->createManyClientRelation($parent_details['pr_id'], [$student_id]);
-
-            } else { 
+            } else {
                 unset($parent_details['existing_parent']);
                 unset($parent_details['pr_id']);
 
                 $newParent = $this->clientRepository->createClient('Parent', $parent_details);
 
                 $this->clientRepository->createManyClientRelation($newParent->id, [$student_id]);
-
             }
 
             DB::commit();
@@ -898,14 +922,14 @@ class ClientStudentController extends ClientController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::ADD_PARENT_FROM_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), $parent_details);
 
-            return Redirect::to('client/student/' . $student_id)->withError('Parent failed to be added.');
+            return Redirect::to('client/student/'.$student_id)->withError('Parent failed to be added.');
         }
 
-        # Add interest program success
-        # create log success
+        // Add interest program success
+        // create log success
         $log_service->createSuccessLog(LogModule::ADD_PARENT_FROM_STUDENT, 'Parent has been added', $parent_details);
 
-        return Redirect::to('client/student/' . $student_id)->withSuccess('Parent successfully added.');
+        return Redirect::to('client/student/'.$student_id)->withSuccess('Parent successfully added.');
     }
 
     public function disconnectParent(Request $request, LogService $log_service)
@@ -923,14 +947,14 @@ class ClientStudentController extends ClientController
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DISCONNECT_PARENT_FROM_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['student_id' => $student_id, 'parent_id' => $parent_id]);
 
-            return Redirect::to('client/student/' . $student_id)->withError('failed to be diconnect parent.');
+            return Redirect::to('client/student/'.$student_id)->withError('failed to be diconnect parent.');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DISCONNECT_PARENT_FROM_STUDENT, 'Successfully diconnect parent', ['student_id' => $student_id, 'parent_id' => $parent_id]);
 
-        return Redirect::to('client/student/' . $student_id)->withSuccess('Successfully disconnect parent.');
+        return Redirect::to('client/student/'.$student_id)->withSuccess('Successfully disconnect parent.');
     }
 
     public function cleaningData(Request $request, LogService $log_service)
@@ -946,13 +970,15 @@ class ClientStudentController extends ClientController
             $parents = $this->clientRepository->getAllClientByRole('Parent');
 
             $raw_client = $this->clientRepository->getViewRawClientById($raw_client_id);
-            if (!isset($raw_client))
+            if (! isset($raw_client)) {
                 return Redirect::to('client/student/raw')->withError('Data does not exist');
+            }
 
-            if ($client_id != null){
+            if ($client_id != null) {
                 $client = $this->clientRepository->getViewClientById($client_id);
-                if (!isset($client))
+                if (! isset($client)) {
                     return Redirect::to('client/student/raw')->withError('Data does not exist');
+                }
             }
 
             DB::commit();
@@ -1001,11 +1027,11 @@ class ClientStudentController extends ClientController
             'first_name' => $name['firstname'],
             'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
             'mail' => $request->emailFinal,
-            'phone' => $this->tnSetPhoneNumber($request->phoneFinal),
+            'phone' => $this->tnNormalizePhoneNumber($request->phoneFinal),
             'graduation_year' => $request->graduationFinal,
             'sch_id' => $request->schoolFinal,
             'is_verified' => 'Y',
-            'category' => 'new-lead'
+            'category' => 'new-lead',
         ];
 
         if ($request->parentName != null) {
@@ -1014,8 +1040,8 @@ class ClientStudentController extends ClientController
                 'first_name' => $parent_name['firstname'],
                 'last_name' => isset($parent_name['lastname']) ? $parent_name['lastname'] : null,
                 'mail' => $request->parentMail,
-                'phone' => isset($request->parentPhone) ? $this->tnSetPhoneNumber($request->parentPhone) : null,
-                'is_verified' => 'Y'
+                'phone' => isset($request->parentPhone) ? $this->tnNormalizePhoneNumber($request->parentPhone) : null,
+                'is_verified' => 'Y',
             ];
             $parent_id = $request->parentFinal;
         }
@@ -1029,47 +1055,48 @@ class ClientStudentController extends ClientController
                     $this->clientRepository->updateClient($client_id, $client_details);
 
                     $raw_student = $this->clientRepository->getViewRawClientById($raw_client_id);
-                    
+
                     if ($parent_type == 'new') {
                         if ($request->parentFinal == null) {
-                            # Remove relation parent
+                            // Remove relation parent
                             $student->parents()->count() > 0 ? $student->parents()->detach() : null;
                         } else {
                             $parent_details['lead_id'] = $student->lead_id;
                             $parent_details['register_by'] = $student->register_by;
 
-                            # Add relation new parent
+                            // Add relation new parent
                             $parent = $this->clientRepository->updateClient($parent_id, $parent_details);
                             $this->clientRepository->createClientRelation($parent_id, $client_id);
                         }
-                    } else if ($parent_type == 'exist') {
+                    } elseif ($parent_type == 'exist') {
                         if ($request->parentFinal != null) {
                             $this->clientRepository->updateClient($parent_id, $parent_details);
                             $this->clientRepository->createClientRelation($parent_id, $client_id);
-                        } 
+                        }
                     } elseif ($parent_type == 'exist_select') {
                         $this->clientRepository->createClientRelation($parent_id, $client_id);
                     }
 
-                    # delete student from raw client
+                    // delete student from raw client
                     $this->clientRepository->deleteClient($raw_client_id);
-                    
-                    # sync destination country
-                    if ($raw_student->destinationCountries->count() > 0)
-                        $this->syncDestinationCountry($raw_student->destinationCountries, $student);
 
-                    # insert to client log
+                    // sync destination country
+                    if ($raw_student->destinationCountries->count() > 0) {
+                        $this->syncDestinationCountry($raw_student->destinationCountries, $student);
+                    }
+
+                    // insert to client log
                     $client_data_for_log[] = [
                         'client_id' => $student->id,
                         'first_name' => $client_details['first_name'],
                         'last_name' => $client_details['last_name'],
                         'inputted_from' => 'verified',
                         'old_client_id' => $raw_student->id,
-                        'select_existing' => true
+                        'select_existing' => true,
                     ];
-    
+
                     ProcessInsertLogClient::dispatch($client_data_for_log)->onQueue('insert-log-client');
-    
+
                     break;
 
                 case 'new':
@@ -1086,24 +1113,24 @@ class ClientStudentController extends ClientController
                         $parent_details['lead_id'] = $lead_id;
                         $parent_details['register_by'] = $register_by;
 
-                        # Add relation new parent
+                        // Add relation new parent
                         $this->clientRepository->updateClient($parent_id, $parent_details);
                         $this->clientRepository->createClientRelation($parent_id, $raw_client_id);
-                    } else if ($parent_type == 'exist') {
+                    } elseif ($parent_type == 'exist') {
                         $this->clientRepository->updateClient($parent_id, $parent_details);
                         $this->clientRepository->createClientRelation($parent_id, $raw_client_id);
                     } elseif ($parent_type == 'exist_select') {
                         $this->clientRepository->createClientRelation($parent_id, $raw_client_id);
                     }
 
-                    # insert to client log
+                    // insert to client log
                     $client_data_for_log[] = [
                         'client_id' => $raw_student->id,
                         'first_name' => $client_details['first_name'],
                         'last_name' => $client_details['last_name'],
                         'inputted_from' => 'verified',
                         'old_client_id' => null,
-                        'select_existing' => false
+                        'select_existing' => false,
                     ];
 
                     ProcessInsertLogClient::dispatch($client_data_for_log)->onQueue('insert-log-client');
@@ -1111,10 +1138,8 @@ class ClientStudentController extends ClientController
                     break;
             }
 
-            
-            # Delete raw parent
+            // Delete raw parent
             // $raw_student->parent_uuid != null ? $this->clientRepository->deleteRawClientByUUID($raw_student->parent_uuid) : null;
-          
 
             DB::commit();
         } catch (Exception $e) {
@@ -1127,7 +1152,7 @@ class ClientStudentController extends ClientController
 
         $log_service->createSuccessLog(LogModule::VERIFIED_RAW_STUDENT, 'Raw student has been verified', $client_details);
 
-        return Redirect::to('client/student/'. (isset($client_id) ? $client_id : $raw_client_id))->withSuccess('Convert client successfully.');
+        return Redirect::to('client/student/'.(isset($client_id) ? $client_id : $raw_client_id))->withSuccess('Convert client successfully.');
     }
 
     public function destroy(Request $request, LogService $log_service)
@@ -1138,20 +1163,21 @@ class ClientStudentController extends ClientController
         DB::beginTransaction();
         try {
 
-            if (!isset($client))
+            if (! isset($client)) {
                 return Redirect::to('client/student?st=new-leads')->withError('Data does not exist');
+            }
 
-            # insert to client log
+            // insert to client log
             $clients_data_for_log_client[] = [
                 'client_id' => $client->id,
                 'first_name' => $client->first_name,
                 'last_name' => $client->last_name,
-                'inputted_from' => 'trash',                    
+                'inputted_from' => 'trash',
             ];
-    
-            # trigger to insert log client
+
+            // trigger to insert log client
             ProcessInsertLogClient::dispatch($clients_data_for_log_client)->onQueue('insert-log-client');
-    
+
             $this->clientRepository->deleteClient($client_id);
 
             DB::commit();
@@ -1163,8 +1189,8 @@ class ClientStudentController extends ClientController
             return Redirect::to('client/student?st=new-leads')->withError('Failed to delete client student');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_STUDENT, 'Student has been deleted', $client->toArray());
 
         return Redirect::to('client/student?st=new-leads')->withSuccess('Client student successfully deleted');
@@ -1172,11 +1198,12 @@ class ClientStudentController extends ClientController
 
     public function destroyRaw(Request $request, LogService $log_service)
     {
-        # when is method 'POST' meaning the function come from bulk delete
+        // when is method 'POST' meaning the function come from bulk delete
         $is_bulk = $request->isMethod('POST') ? true : false;
-        if ($is_bulk)
-            return $this->bulk_destroy($request, $log_service); 
-        
+        if ($is_bulk) {
+            return $this->bulk_destroy($request, $log_service);
+        }
+
         return $this->single_destroy($request);
     }
 
@@ -1188,39 +1215,40 @@ class ClientStudentController extends ClientController
         DB::beginTransaction();
         try {
 
-            if (!isset($raw_student))
+            if (! isset($raw_student)) {
                 return Redirect::to('client/student/raw')->withError('Data does not exist');
+            }
 
             $clients_data_for_log_client[] = [
                 'client_id' => $raw_student->id,
                 'first_name' => $raw_student->fname,
                 'last_name' => $raw_student->lname,
-                'inputted_from' => 'trash',                    
+                'inputted_from' => 'trash',
             ];
-    
-            # trigger to insert log client
+
+            // trigger to insert log client
             ProcessInsertLogClient::dispatch($clients_data_for_log_client)->onQueue('insert-log-client');
-    
 
             $this->clientRepository->deleteClient($raw_client_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete raw client student failed : ' . $e->getMessage());
+            Log::error('Delete raw client student failed : '.$e->getMessage());
+
             return Redirect::to('client/student/raw')->withError('Failed to delete raw student');
         }
 
-        # Delete success
-        # create log success
-        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' ' . Auth::user()->last_name, $raw_student);
+        // Delete success
+        // create log success
+        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name.' '.Auth::user()->last_name, $raw_student);
 
         return Redirect::to('client/student/raw')->withSuccess('Raw student successfully deleted');
     }
 
     private function bulk_destroy(Request $request, LogService $log_service)
     {
-        # raw client id that being choose from list raw data client
+        // raw client id that being choose from list raw data client
         $raw_client_ids = $request->choosen;
 
         DB::beginTransaction();
@@ -1228,10 +1256,10 @@ class ClientStudentController extends ClientController
 
             foreach ($raw_client_ids as $raw_client_id) {
                 $client = $this->clientRepository->getClientById($raw_client_id);
-                
-                if (!isset($client))
-                {
+
+                if (! isset($client)) {
                     Log::warning('Failed destroy client: data client with id ('.$raw_client_id.') not found!');
+
                     continue;
                 }
 
@@ -1239,23 +1267,21 @@ class ClientStudentController extends ClientController
                     'client_id' => $client->id,
                     'first_name' => $client->first_name,
                     'last_name' => $client->last_name,
-                    'inputted_from' => 'trash',                    
+                    'inputted_from' => 'trash',
                 ];
-        
-                # trigger to insert log client
+
+                // trigger to insert log client
                 ProcessInsertLogClient::dispatch($clients_data_for_log_client, true)->onQueue('insert-log-client');
             }
 
             $this->clientRepository->moveBulkToTrash($raw_client_ids);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_BULK_STUDENT_RAW, $e->getMessage(), $e->getLine(), $e->getFile(), ['raw_student_ids' => $raw_client_ids]);
 
             return response()->json(['success' => false, 'message' => 'Failed to delete raw client'], 500);
-
         }
 
         $log_service->createSuccessLog(LogModule::DELETE_BULK_STUDENT_RAW, 'Successfully delete raw student', ['raw_student_ids' => $raw_client_ids]);
@@ -1265,25 +1291,27 @@ class ClientStudentController extends ClientController
 
     public function assign(Request $request, LogService $log_service)
     {
-        # raw client id that being choose from list raw data client
+        // raw client id that being choose from list raw data client
         $client_ids = $request->choosen;
         $pic = $request->pic_id;
 
-        # if pic was null 
-        # we don't want to show message "requested failed with status 500" but more to formal
-        if (!$pic)
+        // if pic was null
+        // we don't want to show message "requested failed with status 500" but more to formal
+        if (! $pic) {
             return response()->json(['success' => false, 'message' => 'We require a selection to proceed. Please review the available options and choose one.'], 500);
+        }
 
-        $pic_details = new Collection();
+        $pic_details = new Collection;
 
         DB::beginTransaction();
         try {
 
             foreach ($client_ids as $client_id) {
 
-                if ($pic_details->where('client_id', $client_id)->first())
+                if ($pic_details->where('client_id', $client_id)->first()) {
                     continue;
-                
+                }
+
                 $pic_details->push([
                     'client_id' => $client_id,
                     'user_id' => $pic,
@@ -1291,23 +1319,22 @@ class ClientStudentController extends ClientController
                     'updated_at' => Carbon::now(),
                 ]);
 
-                if ($client = $this->clientRepository->checkActivePICByClient($client_id)) 
+                if ($client = $this->clientRepository->checkActivePICByClient($client_id)) {
                     $this->clientRepository->inactivePreviousPIC($client);
+                }
             }
 
-            # because insert sql need data type as array
-            # meaning: collection has to be converted into array
+            // because insert sql need data type as array
+            // meaning: collection has to be converted into array
             $this->clientRepository->insertPicClient($pic_details->toArray());
-            
-            DB::commit();
 
+            DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             $log_service->createErrorLog(LogModule::ASSIGN_PIC_CLIENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['client_ids' => $client_ids, 'pic' => $pic]);
 
             return response()->json(['success' => false, 'message' => 'Failed to assign client'], 500);
-
         }
 
         $log_service->createSuccessLog(LogModule::ASSIGN_PIC_CLIENT, 'Successfully assign pic client', ['client_ids' => $client_ids, 'pic' => $pic]);
@@ -1333,20 +1360,17 @@ class ClientStudentController extends ClientController
 
             $this->clientRepository->updatePicClient($pic_client_id, $pic_detail);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_PIC_CLIENT, $e->getMessage(), $e->getLine(), $e->getFile(), $pic_detail);
 
             return response()->json(['success' => false, 'message' => 'Failed to update PIC client'], 500);
-
         }
 
         $log_service->createSuccessLog(LogModule::UPDATE_PIC_CLIENT, 'PIC client has been updated', $pic_detail);
 
         return response()->json(['success' => true, 'message' => 'Update PIC client success']);
-
     }
 
     public function getLogsClient(Request $request)
@@ -1356,26 +1380,26 @@ class ClientStudentController extends ClientController
 
         try {
             $client = $this->clientRepository->getClientByUUID($client_uuid);
-    
-            if(isset($client->client_log)){
+
+            if (isset($client->client_log)) {
                 $mapped_client_logs = $client->client_log->mapToGroups(function ($item, int $key) {
                     return [$item['unique_key'] => [
                         'inputted_from' => ucfirst($item['inputted_from']),
                         'category' => ucfirst($item['category']),
-                        'updated_at' => $item['formatted_updated_at']
+                        'updated_at' => $item['formatted_updated_at'],
                     ]];
                 });
             }
         } catch (Exception $e) {
-            Log::error('Failed to get logs client : ' . $e->getMessage());
+            Log::error('Failed to get logs client : '.$e->getMessage());
+
             return response()->json(['success' => false, 'message' => 'Failed to get logs client'], 500);
         }
 
         return response()->json([
             'success' => true,
             'data' => $mapped_client_logs,
-            'message' => "Successfully get client logs."
+            'message' => 'Successfully get client logs.',
         ]);
- 
     }
 }

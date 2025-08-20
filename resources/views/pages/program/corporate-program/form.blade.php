@@ -34,7 +34,7 @@
                             </button>
                         </div>
                     @endif
-                   
+
                 </div>
             </div>
 
@@ -75,7 +75,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    
+
                     <form action="{{ url(isset($edit) ? 'program/corporate/' . strtolower($partner->corp_id) . '/detail/' . $partnerProgram->id : 'program/corporate/' . strtolower($partner->corp_id) . '/detail')  }}" method="POST">
                         @csrf
                         @if(isset($edit))
@@ -97,7 +97,7 @@
                                                     {{ $program->program_name }}
                                                 </option>
                                             @endforeach
-                                        @else        
+                                        @else
                                             <option value="{{ $partnerProgram->prog_id }}" selected>
                                                 {{ $partnerProgram->program->program_name }}
                                             </option>
@@ -108,7 +108,7 @@
                                                 {{ $program->program_name }}
                                             </option>
                                         @endforeach
-                                
+
                                     @endif
                                 </select>
                                 @error('prog_id')
@@ -256,7 +256,7 @@
 
                                     {{-- Refund --}}
                                     <div class="col-md-6 refund_status d-none my-2">
-                                    
+
                                             <label>Reason <sup class="text-danger">*</sup> </label>
                                             <div class="classReasonRefund">
                                                 <select name="reason_refund_id" class="select w-100"
@@ -265,7 +265,7 @@
                                                     {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
                                                     <option data-placeholder="true"></option>
                                                          @if(isset($partnerProgram->reason_id) || isset($edit))
-                                                            @if(isset($edit))    
+                                                            @if(isset($edit))
                                                                 @foreach ($reasons as $reason)
                                                                     <option value="{{ $reason->reason_id }}" {{ $partnerProgram->reason_id == $reason->reason_id ? 'selected' : ''}}>
                                                                         {{ $reason->reason_name }}
@@ -277,7 +277,7 @@
                                                             @else
                                                                    <option value="{{ $partnerProgram->reason_id }}" selected>
                                                                         {{ $partnerProgram->reason->reason_name }}
-                                                                    </option>          
+                                                                    </option>
                                                             @endif
                                                         @elseif(empty($partnerProgram))
                                                             @foreach ($reasons as $reason)
@@ -296,9 +296,9 @@
                                                     @error('other_reason_refund')
                                                         <small class="text-danger fw-light">{{ $message }}</small>
                                                     @enderror
-                                                
+
                                             </div>
-                                                
+
                                             <div class="d-flex align-items-center d-none" id="inputReasonRefund">
                                                 <input type="text" name="other_reason_refund"
                                                     class="form-control form-control-sm rounded">
@@ -308,7 +308,7 @@
                                                     </b>
                                                 </div>
                                             </div>
-        
+
                                     </div>
                                     <div class="col-md-6 refund_status d-none my-2">
                                         <small>Reason Notes </small>
@@ -328,11 +328,11 @@
                                         <textarea name="refund_notes" id="" class="w-100"  {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
                                             {{ isset($partnerProgram->refund_notes) ? $partnerProgram->refund_notes :  old('refund_notes') }}
                                         </textarea>
-                                    </div>  
+                                    </div>
 
                                     {{-- Reason --}}
                                     <div class="col-md-6 reason d-none my-2">
-                                    
+
                                             <label>Reason <sup class="text-danger">*</sup> </label>
                                             <div class="classReason">
                                                 <select name="reason_id" class="select w-100"
@@ -341,7 +341,7 @@
                                                     {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
                                                     <option data-placeholder="true"></option>
                                                         @if(isset($partnerProgram->reason_id) || isset($edit))
-                                                            @if(isset($edit))    
+                                                            @if(isset($edit))
                                                                 @foreach ($reasons as $reason)
                                                                     <option value="{{ $reason->reason_id }}" {{ $partnerProgram->reason_id == $reason->reason_id ? 'selected' : ''}}>
                                                                         {{ $reason->reason_name }}
@@ -353,7 +353,7 @@
                                                             @else
                                                                     <option value="{{ $partnerProgram->reason_id }}" selected>
                                                                         {{ $partnerProgram->reason->reason_name }}
-                                                                    </option>        
+                                                                    </option>
                                                             @endif
                                                         @elseif(empty($partnerProgram))
                                                             @foreach ($reasons as $reason)
@@ -373,7 +373,7 @@
                                                         <small class="text-danger fw-light">{{ $message }}</small>
                                                     @enderror
                                             </div>
-                                                
+
                                             <div class="d-flex align-items-center d-none" id="inputReason">
                                                 <input type="text" name="other_reason"
                                                     class="form-control form-control-sm rounded">
@@ -472,7 +472,7 @@
                                         Partner Program
                                     </div>
                                     <div class="card-body">
-                                        
+
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <small>Participants <sup class="text-danger">*</sup></small></small>
@@ -545,10 +545,10 @@
                                             <option data-placeholder="true"></option>
                                             @if(isset($edit))
                                                 @foreach ($employees as $employee)
-                                                    <option value="{{ $employee->id }}" 
+                                                    <option value="{{ $employee->id }}"
                                                         {{ $partnerProgram->empl_id ==  $employee->id ? 'selected' : ''}}>
                                                         {{ $employee->first_name }} {{ $employee->last_name }}</option>
-                                                @endforeach    
+                                                @endforeach
                                             @endif
                                             @if(isset($partnerProgram->empl_id))
                                                     <option value="{{ $partnerProgram->empl_id }}" selected>
@@ -558,7 +558,7 @@
                                                 @foreach ($employees as $employee)
                                                     <option value="{{ $employee->id }}" {{ old('empl_id') == $employee->id ? "selected" : "" }}>{{ $employee->first_name }} {{ $employee->last_name }}</option>
                                                 @endforeach
-                                            @endif   
+                                            @endif
                                         </select>
                                         @error('empl_id')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -622,7 +622,7 @@
                     '{{ url('') }}/program/corporate/{{ strtolower($partner->corp_id) }}/detail/{{$partnerProgram->id}}/speaker/' +
                     agendaId
                 // console.log(link)
-            @endif 
+            @endif
             let data = new Array()
 
             $('#reasonForm').attr('action', link)
@@ -709,7 +709,7 @@
                 $('.program_date').addClass('d-none')
             }
         }
-       
+
 
         function otherOption(value) {
 
@@ -731,11 +731,11 @@
         }
         $(document).ready(function() {})
 
-        
+
 
         function changeSpeaker(type) {
             let id = $('#' + type + '_id').val()
-         
+
             @if(isset($partnerProgram))
                 let link = '{{ url('program/corporate/' . strtolower($partner->corp_id) . '/detail/' . $partnerProgram->id . '/edit') }}'
                 let new_link = link + '?type=' + type + '&id=' + id;
@@ -775,7 +775,7 @@
 
     @if(isset($partnerProgram))
         @if(empty(old('status')))
-            
+
             <script>
                 $(document).ready(function(){
                     $('#approach_status').val('{{$partnerProgram->status}}').trigger('change')
@@ -802,7 +802,7 @@
     @if($errors->has('notes_reason'))
         <script>
             $(document).ready(function(){
-                $('#reasonModal').modal('show'); 
+                $('#reasonModal').modal('show');
             })
 
         </script>

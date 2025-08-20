@@ -257,7 +257,7 @@
 
             }
 
-            // Sumarize 
+            // Sumarize
             $('#' + init + 'InputPreview').val($(item).val())
             if ($(item).data('name')) {
                 $('#' + init + 'Preview').html($(item).data('name'))

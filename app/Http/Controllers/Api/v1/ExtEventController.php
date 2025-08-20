@@ -8,25 +8,24 @@ use Illuminate\Http\Request;
 
 class ExtEventController extends Controller
 {
-
     protected EventRepositoryInterface $eventRepository;
 
     public function __construct(EventRepositoryInterface $eventRepository)
     {
         $this->eventRepository = $eventRepository;
     }
-    
+
     public function getEvents(Request $request)
     {
         $events = $this->eventRepository->getAllEvents();
-        if (!$events) {
+        if (! $events) {
             return response()->json([
                 'success' => true,
-                'message' => 'No event found.'
+                'message' => 'No event found.',
             ]);
         }
 
-        # map the data that being shown to the user
+        // map the data that being shown to the user
         $mapped_events = $events->map(function ($value) {
             return [
                 'event_id' => $value->event_id,
@@ -35,14 +34,23 @@ class ExtEventController extends Controller
                 'event_location' => $value->event_location,
                 'event_startdate' => $value->event_startdate,
                 'event_enddate' => $value->event_enddate,
-                'event_banner' => $value->event_banner
+                'event_banner' => $value->event_banner,
             ];
         });
 
         return response()->json([
             'success' => true,
             'message' => 'There are events available.',
-            'data' => $mapped_events
+            'data' => $mapped_events,
         ]);
+    }
+
+    public function fnGetUpcomingEvents(Request $request)
+    {
+        $terms = $request->get('terms');
+        $search = compact('terms');
+        $events = $this->eventRepository->getUpcomingEvents($search);
+
+        return response()->json($events);
     }
 }

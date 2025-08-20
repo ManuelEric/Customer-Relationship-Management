@@ -23,7 +23,6 @@ class StoreImportExcelRequest extends FormRequest
         ];
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -33,7 +32,7 @@ class StoreImportExcelRequest extends FormRequest
     {
         return [
 
-            'file' => 'required|mimes:xlsx,csv,xls'
+            'file' => 'required|mimes:xlsx,csv,xls',
         ];
     }
 }

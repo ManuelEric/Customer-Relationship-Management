@@ -47,7 +47,7 @@
                                 style="font-size: 11px">
                                 {{$totalUncompleteSchool}}
                             </span>
-                        @endif                        
+                        @endif
                         <h5 class="m-0 p-0">Total School</h5>
                         <h4 class="m-0 p-0" id="tot_school">
                             {{ $totalSchool }}<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>{{$newSchool}} New</small></span></sup>
@@ -137,7 +137,7 @@
                         </tbody>
                     </table>
                 </div>
-    
+
                 <div class="overflow-auto" style="height: 400px">
                     <table class="table table-striped table-hover" id="listPartnerTable">
                         <thead class="text-center" id="thead-partner">
@@ -161,25 +161,25 @@
             $('#monthly-partnership').removeClass('d-none')
         }else{
             $('#monthly-partnership').addClass('d-none')
-        }   
+        }
         checkPartnerStatusbyMonth()
-     
+
     }
 
     $(".card-partner").each(function() {
         $(this).click(function() {
             showLoading()
-           
+
             let period = $('#period-partnership').val()
             let type = $(this).data('partner-type')
             let month;
 
-            if (period == 'all'){    
+            if (period == 'all'){
                 month = {{date('Y-m')}}
             }else{
                 month = $('#partner_status_month').val()
             }
-            
+
             let url = window.location.origin + '/api/v1/dashboard/partner/detail/'+ month +'/'+ type;
             var html;
 
@@ -195,7 +195,7 @@
                         html += "<th class='bg-secondary rounded border border-white'>Created At</th>"
                         html += "</tr>"
                     break;
-                
+
                 case 'School':
                         html = "<tr class='text-white'>"
                         html += "<th class='bg-secondary rounded border border-white'>No</th>"
@@ -233,7 +233,7 @@
                         html += "<th class='bg-secondary rounded border border-white'>Created At</th>"
                         html += "</tr>"
                     break;
-          
+
             }
             $('#thead-partner').html(html)
 
@@ -242,7 +242,7 @@
                     var result = response.data;
                     $('#list-detail-partner .modal-title').html(result.title)
                     $('#listPartnerTable tbody').html(result.html_ctx)
-                    
+
                     $('#listPartnerTable .detail').each(function(){
                         var link = '';
                         switch ($(this).data('type')) {
@@ -258,7 +258,7 @@
                             case 'agreement':
                                 link = "{{ url('/') }}/instance/corporate/" + $(this).data('corpid') + "/agreement/" + $(this).data('agreementid')
                                 break;
-                        
+
                         }
 
                            $(this).click(function() {
@@ -271,7 +271,7 @@
                                 $('#additionalTable').removeClass('d-none')
                                 $('#thead-additional').html(result.additional_header)
                                 $('#listAdditionalTable tbody').html(result.additional_content)
-                                
+
                                 $("#listAdditionalTable .detail").each(function() {
                                     $(this).click(function() {
                                         var link = "{{ url('/') }}/instance/school/" + $(this).data('schid')
@@ -279,7 +279,7 @@
                                     })
                                 })
                         }else{
-                            
+
                             $('#additionalTable').addClass('d-none')
                         }
                     }else{
@@ -291,7 +291,7 @@
                     $('#list-detail-partner').modal('show')
 
                 }).catch(function(error) {
-                    
+
                     notification('error', 'There was an error while processing your request. Please try again or contact your administrator.');
 
                 })
@@ -301,17 +301,17 @@
     function checkPartnerStatusbyMonth() {
         let month = $('#partner_status_month').val()
         let type = $('#period-partnership').val()
-        
+
         if(type == 'all'){
             month = null;
         }
         // console.log(type)
-      
+
         let data = ({
             'partner': { 'total': {{$totalPartner}}, 'new': {{$newPartner}}, 'percentage': '0,00'},
-            'school': { 'total': {{$totalSchool}}, 'new': {{$newSchool}}, 'percentage': '0,00'},       
-            'university': { 'total': {{$totalUniversity}}, 'new': {{$newUniversity}}, 'percentage': '0,00'},       
-            'agreement': { 'total': {{$totalAgreement}}, 'percentage': '0,00'}       
+            'school': { 'total': {{$totalSchool}}, 'new': {{$newSchool}}, 'percentage': '0,00'},
+            'university': { 'total': {{$totalUniversity}}, 'new': {{$newUniversity}}, 'percentage': '0,00'},
+            'agreement': { 'total': {{$totalAgreement}}, 'percentage': '0,00'}
         });
         showLoading()
 
@@ -355,29 +355,29 @@
                             old = data.university.total
                             news = data.university.new
                             break;
-                  
+
                     }
 
                         if (news > old && news != 0 && old != 0) {
-    
+
                             var textStyling = 'text-success'
                             var icon = "bi-arrow-up-short"
-    
+
                         } else if (old == 0 && news != 0) {
-    
+
                             var textStyling = 'text-success'
                             var icon = "bi-arrow-up-short"
-                        
+
                         }else if (old == 0 && news == 0) {
-    
+
                             var textStyling = ''
                             var icon = ""
-    
+
                         } else {
-    
+
                             var textStyling = 'text-danger'
                             var icon = "bi-arrow-down-short"
-    
+
                         }
 
                         if(type == 'all'){
@@ -392,8 +392,8 @@
                                         '</span><span>Since last month</span>'
 
                         }
-    
-                    
+
+
                     $(this).html(html)
                 })
 
@@ -403,16 +403,16 @@
                 $('#tot_agreement').html(data.agreement.total)
 
                 swal.close();
-                
+
             }, (error) => {
-                
+
                 notification('error', error);
             })
     }
-    
 
 
 
-        
+
+
 </script>
 @endpush

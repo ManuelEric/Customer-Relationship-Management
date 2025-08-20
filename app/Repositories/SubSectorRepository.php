@@ -7,7 +7,6 @@ use App\Models\SubSector;
 
 class SubSectorRepository implements SubSectorRepositoryInterface
 {
-
     public function rnGetAllSubSectors()
     {
         return SubSector::all();

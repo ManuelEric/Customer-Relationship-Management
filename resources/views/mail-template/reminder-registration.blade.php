@@ -16,7 +16,7 @@
                             <p>Dear Mr./Mrs. {{$recipient}}, we've noticed you haven't registered for <b>STEM+ Wonderlab</b> yet. It's not
                                 too late to register for Indonesia's FIRST Student Makerspace Expo!</p>
                             <p>
-                               
+
                             <p style="text-align: center;">
                                 <b>STEM+ Wonderlab</b>
                                 <br>📍{{ strip_tags($event['eventLocation']) }}
@@ -48,10 +48,10 @@
 
                             <p style="text-align: center;margin: 2.5em auto;">
                                 <a class="button" href="{{ $param['link'] }}"
-                                    style="background: #3b6cde; 
-                                    text-decoration: none; 
+                                    style="background: #3b6cde;
+                                    text-decoration: none;
                                     padding: .5em 1.5em;
-                                    color: #ffffff; 
+                                    color: #ffffff;
                                     border-radius: 2px;
                                     mso-padding-alt:0;
                                     text-underline-color:#156ab3">
@@ -60,7 +60,7 @@
                                     <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
                                 </a>
                             </p>
-                            
+
                             <p>
                                 Warm regards, <br>
                                 ALL-in Eduspace
@@ -77,4 +77,3 @@
 @section('footer')
     <img loading="lazy"  src="{{asset('img/makerspace/email_footer.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
 @endsection
-

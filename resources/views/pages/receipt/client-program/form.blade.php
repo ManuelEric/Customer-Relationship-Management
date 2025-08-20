@@ -6,7 +6,7 @@
     <li class="breadcrumb-item active" aria-current="page">View Detail</li>
 @endsection
 @section('content')
-    
+
     @include('pages.receipt.pic-modal')
 
     <div class="row">
@@ -488,7 +488,11 @@
                         @endif
                         <tr>
                             <td>Payment Method :</td>
-                            <td>{{ $receipt->receipt_method }}</td>
+                            <td>{{ $receipt->receipt_method }}
+                                @if (isset($trx) && $trx->bank_id !== NULL)
+                                    - {{ $trx->bank_name }}
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <td>Amount :</td>
@@ -594,7 +598,7 @@
                             value="{{ $client_prog->client->parents->count() > 0 ? $client_prog->client->parents[0]->id : null}}" class="form-control w-100">
                             {{-- value="{{ $client_prog->client->id }}" class="form-control w-100"> --}}
                         <label for="">Email Parent</label>
-                        
+
                         <input type="mail" name="mail" id="mail"
                             value="{{ $client_prog->client->parents->count() > 0 ? $client_prog->client->parents[0]->mail : null }}" class="form-control w-100">
                             {{-- value="{{ $client_prog->client->mail }}" class="form-control w-100"> --}}
@@ -633,7 +637,7 @@
                     $("#client_id").val('{{ $client_prog->client->parents->count() > 0 ? $client_prog->client->parents[0]->id : null}}')
                     $("#mail").val('{{ $client_prog->client->parents->count() > 0 ? $client_prog->client->parents[0]->mail : null }}')
                     break;
-                    
+
                 case 'Client':
                     $("#client_id").val('{{ $client_prog->client->id }}')
                     $("#mail").val('{{ $client_prog->client->mail }}')
@@ -661,7 +665,7 @@
         function updateMail() {
             $("#sendToClient--modal").modal('hide');
             $('#sendToClientModal').modal('hide');
-            
+
             showLoading();
             var linkUpdateMail = '{{ url('/') }}/receipt/client-program/' + $('#receipt_id').val() +
                 '/update/mail';
@@ -699,7 +703,7 @@
         }
 
         function requestAcc(link, currency) {
-                
+
             showLoading();
             var url = '{{ url("/") }}/receipt/client-program/{{ $receipt->id }}/request_sign';
             var inv_rec_pic = $("input[name=pic_sign]:checked").val();
@@ -719,7 +723,7 @@
                     notification('success', 'Sign has been requested')
                     $(".step-three").addClass('active');
                     $("#requestSignModal").modal('hide');
-                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box 
+                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box
 
                 })
                 .catch(error => {
@@ -747,7 +751,7 @@
                 placeholder: "Select value",
                 allowClear: true
             });
-            
+
 
             $("#upload-idr").on('click', function() {
                 $("#currency").val('idr');
@@ -757,7 +761,7 @@
                 $("#currency").val('other');
             })
 
-            
+
         });
 
         function downloadFile(url, type) {
@@ -780,7 +784,7 @@
                 .then(response => {
 
                     var receiptId = "{{ $receipt->receipt_id }}";
-                    
+
                     var file_name = receiptId.replace(/\/|_/g, '-') + "-" + type + ".pdf";
 
                     let blob = new Blob([response.data], {
@@ -812,7 +816,7 @@
                 })
                 .catch(error => {
                     notification('error', 'Something went wrong while exporting the receipt')
-                })  
+                })
         }
 
         function checkCurrency() {
@@ -825,7 +829,7 @@
                 $('.currency-detail').addClass('d-none')
             }
 
-            // check seesion 
+            // check seesion
             if (session) {
                 checkSession()
             }

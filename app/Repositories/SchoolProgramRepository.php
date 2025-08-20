@@ -5,13 +5,11 @@ namespace App\Repositories;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Models\SchoolProgram;
 use App\Models\v1\SchoolProgram as V1SchoolProgram;
-use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
 class SchoolProgramRepository implements SchoolProgramRepositoryInterface
 {
-
     public function getAllSchoolProgramsDataTables($filter = null)
     {
         $program = SchoolProgram::with('program');
@@ -43,7 +41,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                 ->when($filter && isset($filter['pic']), function ($query) use ($filter) {
                     $query->whereIn('users.id', $filter['pic']);
                 })
-                ->when($filter && isset($filter['status']) && !isset($filter['start_date']) && !isset($filter['end_date']), function ($query) use ($filter) {
+                ->when($filter && isset($filter['status']) && ! isset($filter['start_date']) && ! isset($filter['end_date']), function ($query) use ($filter) {
                     $query->whereIn('tbl_sch_prog.status', $filter['status']);
                 })
                 ->when($filter && isset($filter['start_date']) && isset($filter['end_date']), function ($query) use ($filter) {
@@ -59,19 +57,19 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                                     ->where('tbl_sch_prog.status', $filter['status'][0]);
 
                                 // Status == denied
-                            } else if ($filter['status'][0] == 2) {
+                            } elseif ($filter['status'][0] == 2) {
                                 $query->whereDate('tbl_sch_prog.denied_date', '>=', $filter['start_date'])
                                     ->whereDate('tbl_sch_prog.denied_date', '<=', $filter['end_date'])
                                     ->where('tbl_sch_prog.status', $filter['status'][0]);
 
                                 // Status == refund
-                            } else if ($filter['status'][0] == 3) {
+                            } elseif ($filter['status'][0] == 3) {
                                 $query->whereDate('tbl_sch_prog.refund_date', '>=', $filter['start_date'])
                                     ->whereDate('tbl_sch_prog.refund_date', '<=', $filter['end_date'])
                                     ->where('tbl_sch_prog.status', $filter['status'][0]);
 
                                 // Status == pending
-                            } else if ($filter['status'][0] == 0) {
+                            } elseif ($filter['status'][0] == 0) {
                                 $query->whereDate('tbl_sch_prog.created_at', '>=', $filter['start_date'])
                                     ->whereDate('tbl_sch_prog.created_at', '<=', $filter['end_date'])
                                     ->whereIn('tbl_sch_prog.status', $filter['status']);
@@ -87,7 +85,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                             ->whereDate('tbl_sch_prog.created_at', '<=', $filter['end_date']);
                     }
                 })
-                ->when($filter && isset($filter['start_date']) && !isset($filter['end_date']), function ($query) use ($filter) {
+                ->when($filter && isset($filter['start_date']) && ! isset($filter['end_date']), function ($query) use ($filter) {
 
                     if (isset($filter['status'])) {
 
@@ -98,20 +96,18 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                                 $query->whereDate('tbl_sch_prog.success_date', '>=', $filter['start_date'])
                                     ->where('tbl_sch_prog.status', $filter['status'][0]);
 
-
                                 // Status == denied
-                            } else if ($filter['status'][0] == 2) {
+                            } elseif ($filter['status'][0] == 2) {
                                 $query->whereDate('tbl_sch_prog.denied_date', '>=', $filter['start_date'])
                                     ->where('tbl_sch_prog.status', $filter['status'][0]);
 
                                 // Status == refund
-                            } else if ($filter['status'][0] == 3) {
+                            } elseif ($filter['status'][0] == 3) {
                                 $query->whereDate('tbl_sch_prog.refund_date', '>=', $filter['start_date'])
                                     ->where('tbl_sch_prog.status', $filter['status'][0]);
 
-
                                 // Status == pending
-                            } else if ($filter['status'][0] == 0) {
+                            } elseif ($filter['status'][0] == 0) {
                                 $query->whereDate('tbl_sch_prog.created_at', '>=', $filter['start_date'])
                                     ->where('tbl_sch_prog.status', $filter['status'][0]);
                             }
@@ -123,7 +119,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                         $query->whereDate('tbl_sch_prog.created_at', '>=', $filter['start_date']);
                     }
                 })
-                ->when($filter && isset($filter['end_date']) && !isset($filter['start_date']), function ($query) use ($filter) {
+                ->when($filter && isset($filter['end_date']) && ! isset($filter['start_date']), function ($query) use ($filter) {
 
                     if (isset($filter['status'])) {
 
@@ -134,20 +130,18 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                                 $query->whereDate('tbl_sch_prog.success_date', '<=', $filter['end_date'])
                                     ->where('tbl_sch_prog.status', $filter['status'][0]);
 
-
                                 // Status == denied
-                            } else if ($filter['status'][0] == 2) {
+                            } elseif ($filter['status'][0] == 2) {
                                 $query->whereDate('tbl_sch_prog.denied_date', '<=', $filter['end_date'])
                                     ->where('tbl_sch_prog.status', $filter['status'][0]);
 
                                 // Status == refund
-                            } else if ($filter['status'][0] == 3) {
+                            } elseif ($filter['status'][0] == 3) {
                                 $query->whereDate('tbl_sch_prog.refund_date', '<=', $filter['end_date'])
                                     ->where('tbl_sch_prog.status', $filter['status'][0]);
 
-
                                 // Status == pending
-                            } else if ($filter['status'][0] == 0) {
+                            } elseif ($filter['status'][0] == 0) {
                                 $query->whereDate('tbl_sch_prog.created_at', '<=', $filter['end_date'])
                                     ->where('tbl_sch_prog.status', $filter['status'][0]);
                             }
@@ -188,7 +182,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                 'program.program_name'
             )
 
-            # Status (4: Accepted, 5: Cancel) Temporary by created_at
+            // Status (4: Accepted, 5: Cancel) Temporary by created_at
             ->whereYear(
                 DB::raw('(CASE
                             WHEN tbl_sch_prog.status = 0 THEN tbl_sch_prog.created_at
@@ -227,7 +221,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
             DB::raw('SUM(total_fee) as total_fee'),
             DB::raw('COUNT(*) as count_status')
 
-            # Status (4: Accepted, 5: Cancel) Temporary by created_at
+            // Status (4: Accepted, 5: Cancel) Temporary by created_at
         )->whereYear(
             DB::raw('(CASE
                             WHEN status = 0 THEN created_at
@@ -312,12 +306,12 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                 'tbl_sch_prog.prog_id',
                 'program.program_name',
                 DB::raw("'School Program' as type"),
-                DB::raw('(CASE 
+                DB::raw('(CASE
                             WHEN SUM(participants) is null THEN 0
                             ELSE SUM(participants)
                         END) as participants'),
                 DB::raw('DATE_FORMAT(success_date, "%Y") as year'),
-                DB::raw("SUM(total_fee) as total"),
+                DB::raw('SUM(total_fee) as total'),
                 DB::raw('count(tbl_sch_prog.prog_id) as count_program')
             )
             ->active()
@@ -326,8 +320,8 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                 'success_date',
                 '=',
                 DB::raw('(case year(success_date)
-                                when ' . $startYear . ' then ' . $startYear . '
-                                when ' . $endYear . ' then ' . $endYear . '
+                                when '.$startYear.' then '.$startYear.'
+                                when '.$endYear.' then '.$endYear.'
                             end)')
             )
             ->groupBy('tbl_sch_prog.prog_id')
@@ -335,7 +329,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
             ->get();
     }
 
-    # CRM
+    // CRM
     public function getAllSchoolProgramFromCRM()
     {
         return V1SchoolProgram::all();

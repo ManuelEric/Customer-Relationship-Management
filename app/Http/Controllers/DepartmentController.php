@@ -25,7 +25,7 @@ class DepartmentController extends Controller
             $employees = $this->departmentRepository->getEmployeeByDepartment($department_id);
             if ($employees->count() > 0) {
                 foreach ($employees as $employee) {
-    
+
                     $html .= '<li class="list-group-item d-flex justify-content-between cursor-pointer user-menu" id="'.$employee->id.'"
                                     onclick="checkUser(\''.$employee->id.'\')">'.$employee->full_name.'<i class="bi bi-arrow-right"></i>
                                 </li>';
@@ -33,19 +33,19 @@ class DepartmentController extends Controller
             } else {
                 $html .= '<li class="list-group-item d-flex justify-content-between cursor-pointer">No Employee</li>';
             }
-            
-            
+
         } catch (Exception $e) {
-            
+
             Log::error('Failed to get employee by department : '.$e->getMessage());
+
             return response()->json([
-                'message' => 'There was an error getting employee by department'
+                'message' => 'There was an error getting employee by department',
             ], 500);
 
         }
 
         return response()->json([
-            'html_cxt' => $html
+            'html_cxt' => $html,
         ]);
     }
 }

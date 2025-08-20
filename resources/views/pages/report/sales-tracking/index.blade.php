@@ -114,7 +114,7 @@
             </div>
         </div>
     </div>
-    
+
 @endsection
 
 @push('scripts')
@@ -132,13 +132,13 @@
 
         var mainProgId = $(this).val();
         if (mainProgId == "") {
-            
+
             $(".prog-name-cont").addClass('d-none');
             $("#prog_name").html('<option></option>');
             swal.close();
             return;
         }
-        
+
 
         var baseUrl = "{{ url('/') }}/api/get/program/main/" + mainProgId;
 
@@ -148,16 +148,16 @@
                 var html = ""
 
                 let selectedProgram = "{{ Request::get('program') }}"
-                
+
                 for (var key in obj.data) {
                     var selected = "";
-                    if (selectedProgram && obj.data[key].prog_id == selectedProgram) 
+                    if (selectedProgram && obj.data[key].prog_id == selectedProgram)
                         selected = "selected";
-                    
-                    
+
+
                     html += "<option value='" + obj.data[key].prog_id + "' " + selected +">" + obj.data[key].prog_program + "</option>"
-                    
-                        
+
+
 
                 }
 
@@ -234,7 +234,7 @@
         var startDate = _this.data('sdate');
         var endDate = _this.data('edate');
         var subLead = _this.data('sublead');
-        
+
         // added
         var url = "{{ url('/') }}"
         const urlParams = new URLSearchParams(url);

@@ -86,7 +86,7 @@
 <script>
     var school_program_chart, partner_program_chart, referral_program_chart = null;
 
-    // percentage 
+    // percentage
     let lbl_partner_prog = [{
         formatter: (value, ctx) => {
             let datasets = ctx.chart.data.datasets;
@@ -95,7 +95,7 @@
                 let percentage = Math.round((value / sum) * 100);
                 if(isNaN(percentage))
                     return 0;
-                else 
+                else
                     return percentage + "%";
             } else {
                 return percentage;
@@ -127,7 +127,7 @@
             }).format(number);
         }
 
-        // Axios here ... 
+        // Axios here ...
 
         let data = {
             'partner': [0, 0, 0, 0, 0, 0],
@@ -146,7 +146,7 @@
 
                 result.statusSchoolPrograms.forEach(function (item, index, arr) {
 
-                    switch (parseInt(item['status'])) {                        
+                    switch (parseInt(item['status'])) {
                         case 0:
                             school_program_chart.data.datasets[0].data[0] = parseInt(item['count_status']);
                             break;
@@ -165,20 +165,20 @@
                         case 5:
                             school_program_chart.data.datasets[0].data[4] = parseInt(item['count_status']);
                             break;
-                    
+
                         default:
                             break;
                     }
-                    
+
                 })
                 school_program_chart.update()
 
                 $('#tot_school_program').html(rupiah(result.totalSchoolProgram))
-                
+
                 partner_program_chart.data.datasets[0].data = [0,0,0,0,0,0]
                 result.statusPartnerPrograms.forEach(function (item, index, arr) {
-                  
-                    switch (parseInt(item['status'])) {                        
+
+                    switch (parseInt(item['status'])) {
                         case 0:
                             partner_program_chart.data.datasets[0].data[0] = parseInt(item['count_status']);
                             break;
@@ -197,7 +197,7 @@
                         case 5:
                             partner_program_chart.data.datasets[0].data[4] = parseInt(item['count_status']);
                             break;
-                    
+
                         default:
                             break;
                     }
@@ -276,11 +276,11 @@
                             var start_listgroup = '<li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom:10px">';
                             var end_listgroup =  '</li>';
                             var html;
-                            
+
                             $('#partnerProgramDetail').empty()
 
                             result.forEach(function (item, index, array) {
-                                html = start_listgroup 
+                                html = start_listgroup
                                 html += '<div class=""><strong>'+ item.corp_name +'</strong><br>';
                                 html += '<small>'+ item.program_name +'</small></div>';
                                 html += end_listgroup;
@@ -330,21 +330,21 @@
                     axios.get('{{ url("api/v1/dashboard/partner/partnership-program/detail") }}/school/' + label + '/' +  month)
                         .then((response) => {
                             var result = response.data.data
-                  
+
                             var start_listgroup = '<li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom:10px">';
                             var end_listgroup =  '</li>';
                             var html;
-                            
+
                             $('#partnerProgramDetail').empty()
 
                             result.forEach(function (item, index, array) {
-                                html = start_listgroup 
+                                html = start_listgroup
                                 html += '<div class=""><strong>'+ item.school_name +'</strong><br>';
                                 html += '<small>'+ item.program_name +'</small></div>';
                                 html += end_listgroup;
                                 $('#partnerProgramDetail').append(html)
                             })
-                            
+
 
                         }, (error) => {
                             console.log(error)
@@ -392,15 +392,15 @@
                             var result = response.data.data
 
                             swal.close()
-                  
+
                             var start_listgroup = '<li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom:10px">';
                             var end_listgroup =  '</li>';
                             var html;
-                            
+
                             $('#partnerProgramDetail').empty()
 
                             result.forEach(function (item, index, array) {
-                                html = start_listgroup 
+                                html = start_listgroup
                                 html += '<div class=""><strong>'+ item.corp_name +'</strong><br>';
                                 html += '<small>'+ item.program_name +'</small></div>';
                                 html += end_listgroup;

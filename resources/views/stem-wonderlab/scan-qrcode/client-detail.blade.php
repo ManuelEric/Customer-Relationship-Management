@@ -47,7 +47,7 @@
             font-size: .8rem !important;
             color:rgb(55, 98, 227)
         }
-        
+
     </style>
     <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
 @endpush

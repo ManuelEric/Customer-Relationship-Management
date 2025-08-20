@@ -138,7 +138,7 @@
                                 Register By: {{ $lead->register_by ?? 'unknown' }}
                             </div>
                         </div>
-                    
+
                         <hr>
 
                         <label for="">Parent Details:</label>
@@ -183,7 +183,7 @@
                     <div class="d-flex justify-content-between align-items-end">
                         <span class="pe-2 text-left">
                             Appointment: <b class="text-success">{{ date('d M Y, H:i', strtotime($lead->followup_date)) }}</b>
-                            
+
                             <p>
                                 Topic: <a href="javascript:void(0)" class="read-btn" data-bs-toggle="modal" data-bs-target="#followup-modal" data-notes="{{ $lead->notes }}" data-name="{{ $lead->client->full_name }}">Read here</a>
                             </p>
@@ -215,7 +215,7 @@
                     <a href="{{ route('student.show', ['student' => $lead->client->id]) }}" class="text-decoration-none" target="_blank">
                         <h5 class="card-title">{{ $lead->client->full_name }}</h5>
                     </a>
-                    
+
                     <div class="d-flex">
                         <i class="bi bi-calendar"></i>
                         <div class="ms-2">
@@ -304,7 +304,7 @@
 
 @push('scripts')
 <script>
-    
+
     var modal_title = $("#followup-modal .modal-title");
     var modal_content = $('#followup-modal .modal-body');
 
@@ -316,9 +316,9 @@
             var identifier = $(this).data('id');
             var submit_btn = $("#submit-btn");
             var client_name = $('.card').eq(index).find('.card-title').data('name');
-    
+
             switch (column) {
-    
+
                 case "new-opportunity":
                     var form_id = 'setup-appointment-form';
                     var route = '{{ url("/") }}/client/student/'+ identifier +'/followup';
@@ -338,7 +338,7 @@
                                 '<input type="hidden" name="status" value="0" />' +
                             '</div>'+
                             '</form>';
-                            
+
                     modal_content.html(content);
                     modal_title.html("Let's schedule a follow-up to discuss this further.");
                     submit_btn.attr('type', 'submit').attr('form', form_id);
@@ -367,19 +367,19 @@
                                     '<label class="form-label">Would you like to schedule another meeting to discuss this further?</label>'+
                                     '<div class="form-check ms-3 ps-2">' +
                                         '<input class="form-check-input" onchange="changeInputRadio(this.value, '+ identifier +', '+ followup_key +')" type="radio" value="yes" name="next_followup" id="radio-continue-yes">' +
-                                        '<label class="form-check-label" for="radio-continue-yes">' + 
+                                        '<label class="form-check-label" for="radio-continue-yes">' +
                                             'Yes, I would like to schedule another meeting.' +
                                         '</label>' +
                                     '</div>' +
                                     '<div class="form-check ms-3 ps-2">' +
                                         '<input class="form-check-input" onchange="changeInputRadio(this.value, '+ identifier +', '+ followup_key +')" checked type="radio" value="no" name="next_followup" id="radio-continue-no">' +
-                                        '<label class="form-check-label" for="radio-continue-no">' + 
+                                        '<label class="form-check-label" for="radio-continue-no">' +
                                             'No, I think we covered everything for now.' +
                                         '</label>' +
                                     '</div>' +
                                 '</div>'+
                                 '<div class="next-followup-appointment">' +
-                                    
+
                                 '</div>';
                                 '</form>';
 
@@ -387,9 +387,9 @@
                     modal_title.html('How did your meeting with the client go?')
                     submit_btn.attr('type', 'submit').attr('form', form_id);
                     break;
-    
+
             }
-    
+
         })
 
     });
@@ -443,7 +443,7 @@
             $(".minutes-of-meeting-container").slideUp(function () {
                 $(".next-followup-appointment").hide();
 
-                
+
                 var route = '{{ url("/") }}/client/student/'+ identifier +'/followup';
                 $("#setup-appointment-form").attr('action', route);
 
@@ -460,11 +460,11 @@
 
                 $(".next-followup-appointment").html(additional_content).slideDown();
 
-                
+
             });
 
         } else {
-            
+
             $(".next-followup-appointment").slideUp(function () {
                 $(".minutes-of-meeting-container").slideDown();
 
@@ -477,6 +477,6 @@
 
         }
     }
-    
+
 </script>
 @endpush

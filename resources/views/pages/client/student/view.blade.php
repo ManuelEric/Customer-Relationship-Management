@@ -332,7 +332,7 @@
             await axios.get(link)
                 .then(function(response) {
                     var client_logs = response.data.data;
-                    
+
                     var i= 1;
                     if(client_logs.length != 0){
                         for (const [key, value] of Object.entries(client_logs)) {
@@ -346,7 +346,7 @@
                                 i++;
                             }
                         }
-                        
+
                     }else{
                         html += '<tr>'
                         html += `<td colspan="4" class="text-center"> There is no data </td>`
@@ -354,7 +354,7 @@
                     }
 
                     $('#data-log-client').html(html);
-                                        
+
                     Swal.close()
                     $('#modalInfoLogsClient').modal('show');
                     // notification("success", response.data.message)

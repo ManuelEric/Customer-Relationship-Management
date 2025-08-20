@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\MainProgRepositoryInterface;
 use App\Models\MainProg;
 
-class MainProgRepository implements MainProgRepositoryInterface 
+class MainProgRepository implements MainProgRepositoryInterface
 {
     public function rnGetAllMainProg()
     {
@@ -19,9 +19,10 @@ class MainProgRepository implements MainProgRepositoryInterface
 
     public function getMainProgByName($progName)
     {
-        if ($progName == 'Career Exploration')
+        if ($progName == 'Career Exploration') {
             $progName = 'Experiential Learning';
-            
+        }
+
         return MainProg::where('prog_name', $progName)->first();
     }
 

@@ -1,45 +1,31 @@
 <?php
- 
+
 namespace App\Jobs\GoogleSheet;
 
-use App\Http\Controllers\Api\v1\ExtClientController;
-use App\Http\Controllers\GoogleSheetController;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
-use App\Jobs\Client\ProcessDefineCategory;
-use App\Jobs\RawClient\ProcessVerifyClient;
-use App\Jobs\RawClient\ProcessVerifyClientParent;
-use App\Jobs\RawClient\ProcessVerifyClientTeacher;
-use App\Models\Client;
-use App\Models\ClientEvent;
-use App\Models\Event;
 use App\Models\JobBatches;
-use App\Models\Role;
-use App\Models\School;
-use App\Models\UserClient;
-use Carbon\Carbon;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Revolution\Google\Sheets\Facades\Sheets;
 use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class ExportClient implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait;
+    use CreateCustomPrimaryKeyTrait, LoggingTrait, StandardizePhoneNumberTrait, SyncClientTrait, SyncClientTrait;
     use IsMonitored;
 
     public $clientData;
+
     public $type;
+
     /**
      * Create a new job instance.
      */
@@ -56,7 +42,7 @@ class ExportClient implements ShouldQueue
     {
         if ($this->batch()->cancelled()) {
             // Determine if the batch has been cancelled...
- 
+
             return;
         }
 
@@ -66,17 +52,17 @@ class ExportClient implements ShouldQueue
 
         $dataJobBatches = JobBatches::find($this->batch()->id);
 
-        if($dataJobBatches->total_imported == 0){
+        if ($dataJobBatches->total_imported == 0) {
             $i = 0;
-        }else{
+        } else {
             $i = $dataJobBatches->total_imported - 1;
         }
         foreach ($clients as $client) {
 
-            # Get follow up status
-            if ($latestId = $client->followupSchedule()->max('id')){
+            // Get follow up status
+            if ($latestId = $client->followupSchedule()->max('id')) {
                 $status = $client->followupSchedule()->where('id', $latestId)->first()->status;
-    
+
                 switch ($status) {
                     case 0:
                         $followup_status = 'Currently following up';
@@ -85,13 +71,12 @@ class ExportClient implements ShouldQueue
                         $followup_status = 'Awaiting response';
                         break;
                 }
-            }else{
+            } else {
                 $followup_status = '-';
             }
-            
- 
+
             $data[] = [
-                $this->replaceNullValue($client->status_lead_score), 
+                $this->replaceNullValue($client->status_lead_score),
                 $this->replaceNullValue($client->full_name),
                 $this->replaceNullValue($followup_status),
                 $this->replaceNullValue($client->interest_prog),
@@ -148,26 +133,26 @@ class ExportClient implements ShouldQueue
                 break;
         }
 
-        if($dataJobBatches->total_imported == 0){
+        if ($dataJobBatches->total_imported == 0) {
             $index = 2;
-        }else{
+        } else {
             $index = $dataJobBatches->total_imported + 2;
         }
-        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet($sheetName)->range('A'. $index)->update($data);
-        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($data), 'category' => 'Export', 'type' => 'Student']); 
+        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet($sheetName)->range('A'.$index)->update($data);
+        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($data), 'category' => 'Export', 'type' => 'Student']);
 
     }
-    
+
     public function progressCooldown(): int
     {
         return 10; // Wait 10 seconds between each progress update
     }
- 
+
     private function replaceNullValue($value)
     {
-        if($value == null){
+        if ($value == null) {
             return '-';
-        }else{
+        } else {
             return $value;
         }
     }

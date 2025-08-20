@@ -8,7 +8,7 @@
 @section('content')
 
     @include('pages.invoice.pic-modal')
-    
+
     @php
         $invoiceHasRequested = null;
         $invoiceAttachment = null;
@@ -283,7 +283,7 @@
                         </h6>
                         <h6 class="mt-2 mb-0 p-0">
                             <i class="bi bi-calendar-week me-2"></i>
-                            {{ isset($invoicePartner) ? 'Date : ' . $invoicePartner->created_at : '' }} 
+                            {{ isset($invoicePartner) ? 'Date : ' . $invoicePartner->created_at : '' }}
                         </h6>
                     </div>
                     <div class="">
@@ -503,7 +503,7 @@
                             value="{{ isset($invoicePartner->currency) ? $invoicePartner->currency : null }}">
                         <input type="hidden" id="amount_other_inv">
                         <input type="hidden" id="amount_idr_inv">
-    
+
                         <div class="row g-2">
                             <div class="col-md-12">
                                 <div class="mb-1">
@@ -750,7 +750,7 @@
                         totprice = '-'
                         break;
                 }
-                
+
                 $("#receipt_word_other").val(wordConverter(val) + currency)
                 $("#receipt_amount").val(amount_idr)
                 $("#amount_idr_inv").val(amount_idr)
@@ -771,7 +771,7 @@
             }
 
         }
-        
+
 
         function calcPPH23(){
             let pph23 = $('#pph23').val()
@@ -813,8 +813,8 @@
                     $("#receipt_word").val(wordConverter(receipt_amount_idr) + " Rupiah")
 
                 }else{
-                    persenPPh = pph23/100 * (receipt_amount_other) 
-                    persenPPhIdr = pph23/100 * (receipt_amount_idr) 
+                    persenPPh = pph23/100 * (receipt_amount_other)
+                    persenPPhIdr = pph23/100 * (receipt_amount_idr)
                 }
                     totalOther = receipt_amount_other - persenPPh
                     totalIdr = receipt_amount_idr - persenPPhIdr
@@ -823,15 +823,15 @@
                 $("#receipt_word_other").val(wordConverter(Math.round(totalOther)) + currency)
                 $("#receipt_amount").val(Math.round(totalIdr))
                 $("#receipt_word").val(wordConverter(Math.round(totalIdr)) + " Rupiah")
-           
+
             }else{
                 if((pph23.length > 0 && pph23 == 0) || pph23.length < 1){
                     persenPPhIdr = 0
                 }else{
-                    persenPPhIdr = pph23/100 * (receipt_amount_idr) 
+                    persenPPhIdr = pph23/100 * (receipt_amount_idr)
                 }
                     receipt_amount_idr = receipt_amount_idr - persenPPhIdr
-                
+
                 $("#receipt_amount").val(Math.round(receipt_amount_idr))
 
 
@@ -968,12 +968,12 @@
                     notification('error', "We encountered an issue processing the email address. Please double-check the recipient's email address and try again.");
                 })
         }
-        
+
 
         @if (isset($invoicePartner))
 
             function requestAcc(link, currency) {
-                
+
                 var inv_rec_pic = $("input[name=pic_sign]:checked").val();
                 var inv_rec_pic_name = $("input[name=pic_sign]:checked").data('name');
 
@@ -993,7 +993,7 @@
                         notification('success', 'Sign has been requested')
                         setTimeout(location.reload.bind(location), 3000);
                         $("#requestSignModal").modal('hide');
-                        $("#requestSign--modal").modal('hide'); // this modal is for confirmation box  
+                        $("#requestSign--modal").modal('hide'); // this modal is for confirmation box
 
                     })
                     .catch(error => {
@@ -1105,7 +1105,7 @@
             $errors->has('receipt_words') ||
             $errors->has('receipt_words_idr') ||
             $errors->has('receipt_method') ||
-            $errors->has('receipt_cheque') || 
+            $errors->has('receipt_cheque') ||
             $errors->has('pph23')
             )
         <script>

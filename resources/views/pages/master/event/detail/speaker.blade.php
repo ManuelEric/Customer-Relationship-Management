@@ -296,7 +296,7 @@
         $errors->has('school_speaker') ||
         $errors->has('university_speaker') ||
         $errors->has('start_time') ||
-        $errors->has('end_time') 
+        $errors->has('end_time')
         )
         <script>
             $(document).ready(function() {

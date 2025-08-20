@@ -6,7 +6,6 @@ use AshAllenDesign\ShortURL\Facades\ShortURL;
 
 trait CreateShortUrlTrait
 {
-
     public function createShortUrl($destinationUrl, $key)
     {
         $shortUrl = ShortURL::destinationUrl($destinationUrl)

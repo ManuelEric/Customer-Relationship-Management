@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\InvoiceProgramController;
-use App\Http\Controllers\InvoiceSchoolController;
-use App\Http\Controllers\RefundSchoolController;
-use App\Http\Controllers\RefundPartnerController;
 use App\Http\Controllers\InvoicePartnerController;
 use App\Http\Controllers\InvoiceProgramBundleController;
+use App\Http\Controllers\InvoiceProgramController;
 use App\Http\Controllers\InvoiceReferralController;
+use App\Http\Controllers\InvoiceSchoolController;
 use App\Http\Controllers\RefundController;
+use App\Http\Controllers\RefundPartnerController;
+use App\Http\Controllers\RefundSchoolController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// CLIENT 
+// CLIENT
 // Route::get('client-program/create', function () {
 //     return view('pages.invoice.client-program.form', ['status' => 'create']);
 // });
@@ -59,17 +59,17 @@ Route::resource('client-program', InvoiceProgramController::class, [
         'update' => 'invoice.program.update',
         'edit' => 'invoice.program.edit',
         'destroy' => 'invoice.program.destroy',
-    ]
+    ],
 ]);
 
 Route::prefix('client-program')->name('invoice.client-program.')->group(function () {
     Route::post('{client_program}/remind/by/email', [InvoiceProgramController::class, 'remindParentsByEmail']);
     Route::post('{client_program}/remind/by/whatsapp', [InvoiceProgramController::class, 'remindParentsByWhatsapp']);
     Route::post('{client_program}/hold', [InvoiceProgramController::class, 'holdProgram']);
-    
+
     Route::get('{client_program}/print/{currency}', [InvoiceProgramController::class, 'print'])->name('print');
-    Route::get('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'preview'])->name('preview'); # new 
-    Route::post('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'upload'])->name('upload-signed'); # new
+    Route::get('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'preview'])->name('preview'); // new
+    Route::post('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'upload'])->name('upload-signed'); // new
     Route::get('{client_program}/export/{currency?}', [InvoiceProgramController::class, 'export'])->name('export');
     Route::post('{client_program}/refund', [RefundController::class, 'store'])->name('refund');
     Route::delete('{client_program}/refund', [RefundController::class, 'destroy'])->name('refund.destroy');
@@ -86,17 +86,16 @@ Route::prefix('client-program')->name('invoice.client-program.')->group(function
     Route::delete('bundle/{bundle}', [InvoiceProgramBundleController::class, 'destroyBundle'])->name('destroy_bundle');
     Route::get('bundle/{bundle}', [InvoiceProgramBundleController::class, 'showBundle'])->name('show_bundle');
     Route::get('bundle/{bundle}/edit', [InvoiceProgramBundleController::class, 'editBundle'])->name('edit_bundle');
-    Route::get('bundle/{bundle}/preview/{currency}', [InvoiceProgramBundleController::class, 'previewBundle'])->name('preview_bundle'); # new 
-    Route::get('bundle/{bundle}/request_sign', [InvoiceProgramBundleController::class, 'requestSignBundle'])->name('request_sign_bundle'); 
-    Route::post('bundle/{bundle}/preview/{currency}', [InvoiceProgramBundleController::class, 'upload'])->name('upload-signed-bundle'); # new
+    Route::get('bundle/{bundle}/preview/{currency}', [InvoiceProgramBundleController::class, 'previewBundle'])->name('preview_bundle'); // new
+    Route::get('bundle/{bundle}/request_sign', [InvoiceProgramBundleController::class, 'requestSignBundle'])->name('request_sign_bundle');
+    Route::post('bundle/{bundle}/preview/{currency}', [InvoiceProgramBundleController::class, 'upload'])->name('upload-signed-bundle'); // new
     Route::get('bundle/{bundle}/print/{currency}', [InvoiceProgramBundleController::class, 'printBundle'])->name('print_bundle');
     Route::get('bundle/{bundle}/send/{currency}/{type_recipient}', [InvoiceProgramBundleController::class, 'sendToClientBundle'])->name('send_to_client_bundle');
     Route::post('bundle/{bundle}/remind/by/whatsapp', [InvoiceProgramBundleController::class, 'remindParentsByWhatsapp']);
 
 });
 
-
-// PARTNER 
+// PARTNER
 // Route::get('corporate-program/create', function () {
 //     return view('pages.invoice.corporate-program.form', ['status' => 'create']);
 // });
@@ -117,9 +116,7 @@ Route::prefix('client-program')->name('invoice.client-program.')->group(function
 //     return view('pages.invoice.corporate-program.index', ['status' => $status]);
 // });
 
-
-
-// SCHOOL 
+// SCHOOL
 // Route::get('school-program/create', function () {
 //     return view('pages.invoice.school-program.form', ['status' => 'create']);
 // });
@@ -140,9 +137,7 @@ Route::prefix('client-program')->name('invoice.client-program.')->group(function
 //     return view('pages.invoice.school-program.index', ['status' => $status]);
 // });
 
-
-// Referral 
-
+// Referral
 
 Route::prefix('school-program')->name('invoice-sch.')->group(function () {
     Route::resource('{sch_prog}/detail', InvoiceSchoolController::class)->except(['index']);

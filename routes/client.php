@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AcceptanceController;
-use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\ClientHotLeadsController;
 use App\Http\Controllers\ClientMenteeController;
@@ -11,7 +10,6 @@ use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\ClientTeacherCounselorController;
 use App\Http\Controllers\FollowupClientController;
 use App\Http\Controllers\FollowupController;
-use App\Models\Axis;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// User 
+// User
 // Route::get('student/create', function () {
 //     return view('pages.client.student.form');
 // });
@@ -46,13 +44,13 @@ use Illuminate\Support\Facades\Route;
 //     return view('pages.client.student.index-mentee', ['status' => $status]);
 // });
 
-Route::get('student/raw',  [ClientStudentController::class, 'indexRaw']);
+Route::get('student/raw', [ClientStudentController::class, 'indexRaw']);
 Route::get('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'cleaningData']);
 Route::post('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'convertData'])->name('client.convert.student');
 Route::delete('student/raw/{rawclient_id}', [ClientStudentController::class, 'destroyRaw']);
-Route::post('delete/bulk/student/raw', [ClientStudentController::class ,'destroyRaw'])->name('client.raw.bulk.destroy');
-Route::post('assign/bulk/student/', [ClientStudentController::class ,'assign'])->name('client.bulk.assign');
-Route::post('update/pic', [ClientStudentController::class ,'updatePic'])->name('client.update.pic');
+Route::post('delete/bulk/student/raw', [ClientStudentController::class, 'destroyRaw'])->name('client.raw.bulk.destroy');
+Route::post('assign/bulk/student/', [ClientStudentController::class, 'assign'])->name('client.bulk.assign');
+Route::post('update/pic', [ClientStudentController::class, 'updatePic'])->name('client.update.pic');
 
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
@@ -73,14 +71,14 @@ Route::prefix('student')->name('student.')->group(function () {
         Route::resource('{program}/followup', FollowupController::class);
     });
 });
-Route::prefix('alumni')->group(function() {
+Route::prefix('alumni')->group(function () {
 
     Route::resource('mentee', ClientMenteeController::class);
     Route::resource('non-mentee', ClientMenteeController::class);
 });
 Route::resource('alumni', ClientMenteeController::class);
 
-Route::get('teacher-counselor/raw',  [ClientTeacherCounselorController::class, 'indexRaw']);
+Route::get('teacher-counselor/raw', [ClientTeacherCounselorController::class, 'indexRaw']);
 Route::get('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'cleaningData']);
 Route::post('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'convertData'])->name('client.convert.teacher');
 Route::delete('teacher-counselor/raw/{rawclient_id}', [ClientTeacherCounselorController::class, 'destroyRaw']);
@@ -91,11 +89,10 @@ Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function (
     Route::get('{teacher}/status/{status}', [ClientTeacherCounselorController::class, 'updateStatus'])->name('update.status');
 });
 
-
-Route::prefix('parent')->name('parent.')->group(function() {
+Route::prefix('parent')->name('parent.')->group(function () {
     Route::get('{parent}/status/{status}', [ClientParentController::class, 'updateStatus'])->name('update.status');
 });
-Route::get('parent/raw',  [ClientParentController::class, 'indexRaw']);
+Route::get('parent/raw', [ClientParentController::class, 'indexRaw']);
 Route::get('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'cleaningData']);
 Route::post('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'convertData'])->name('client.convert.parent');
 Route::delete('parent/raw/{rawclient_id}', [ClientParentController::class, 'destroyRaw']);
@@ -111,5 +108,5 @@ Route::resource('acceptance', AcceptanceController::class)->parameters(['accepta
 
 Route::get('hot-leads', [ClientHotLeadsController::class, 'index']);
 
-# new for board
+// new for board
 Route::get('board', [BoardController::class, 'index']);

@@ -7,6 +7,34 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $prog_id
+ * @property string|null $start
+ * @property string|null $end
+ * @property string|null $sales_date The date when sales department can start selling
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read mixed $end_string
+ * @property-read mixed $initial_program
+ * @property-read \App\Models\ViewProgram $program
+ * @property-read mixed $sales_date_string
+ * @property-read mixed $start_string
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SeasonalProgram newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SeasonalProgram newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SeasonalProgram query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SeasonalProgram whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SeasonalProgram whereEnd($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SeasonalProgram whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SeasonalProgram whereProgId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SeasonalProgram whereSalesDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SeasonalProgram whereStart($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SeasonalProgram whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SeasonalProgram withAndWhereHas($relation, $constraint)
+ *
+ * @mixin \Eloquent
+ */
 class SeasonalProgram extends Model
 {
     use HasFactory;
@@ -16,16 +44,16 @@ class SeasonalProgram extends Model
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'prog_id',
         'start',
         'end',
-        'sales_date'
+        'sales_date',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -75,7 +103,7 @@ class SeasonalProgram extends Model
     public function initialProgram(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->program->sub_prog, # need to add specific concern / initial program
+            get: fn ($value) => $this->program->sub_prog, // need to add specific concern / initial program
         );
     }
 

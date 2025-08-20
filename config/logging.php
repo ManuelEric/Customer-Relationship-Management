@@ -53,7 +53,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['single', 'sentry', 'logstash'],
             'ignore_exceptions' => false,
         ],
 
@@ -69,7 +69,7 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 365,
             'permission' => 0777,
-            'tap' => [\App\Logging\LogInjector::class]
+            'tap' => [\App\Logging\LogInjector::class],
         ],
 
         'slack' => [
@@ -118,6 +118,23 @@ return [
 
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
+        ],
+
+        'sentry' => [
+            'driver' => 'sentry',
+            // The minimum logging level at which this handler will be triggered
+            // Available levels: debug, info, notice, warning, error, critical, alert, emergency
+            'level' => env('LOG_LEVEL', 'error'),
+            'bubble' => true, // Whether the messages that are handled can bubble up the stack or not
+        ],
+
+        'logstash' => [
+            'driver' => 'monolog',
+            // 'handler' => Monolog\Handler\SocketHandler::class,
+            // 'with' => [
+            //     'connectionString' => 'tcp://localhost:5044',
+            // ],
+            // 'formatter' => Monolog\Formatter\JsonFormatter::class,
         ],
     ],
 

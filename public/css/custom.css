@@ -6,13 +6,25 @@ body {
     color: #494949 !important;
 }
 
+.form-select:disabled {
+    background-color: #F1F1F1 !important;
+}
+
+.form-select {
+    border: 1px solid #e3dcdc;
+}
+
+.form-select-sm {
+    border-radius: 0.5rem !important;
+}
+
 .custom-tooltip {
     --bs-tooltip-bg: #0c58cb;
     --bs-tooltip-color: #fff;
     --bs-tooltip-max-width: 500px;
     --bs-tooltip-opacity: 1;
     --bs-tooltip-padding-y: 10px;
-    --bs-tooltip-padding-x: 20px; 
+    --bs-tooltip-padding-x: 20px;
     --bs-tooltip-font-size: 13px;
 }
 
@@ -147,19 +159,23 @@ input.dt-button {
 /* Invoice alert */
 .animated-gradient {
     animation: animateBg 2s linear infinite;
-    background-image: linear-gradient(90deg,#f50000,#6a2929,#612c19,#f50000,#6a2929);
+    background-image: linear-gradient(90deg, #f50000, #6a2929, #612c19, #f50000, #6a2929);
     background-size: 400% 100%;
-  }
-  @keyframes animateBg {
-    0% { background-position: 100% 0%; }
-    100% { background-position: 0% 0%; }
-  }
+}
 
-  /* Counting in card program bought */
-  
+@keyframes animateBg {
+    0% {
+        background-position: 100% 0%;
+    }
+
+    100% {
+        background-position: 0% 0%;
+    }
+}
+
+/* Counting in card program bought */
+
 
 /* input:disabled{
     background-color:white;
 } */
-     
-  

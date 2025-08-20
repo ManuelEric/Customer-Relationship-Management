@@ -6,15 +6,14 @@
                 'bg-secondary text-white' => Request::is('dashboard/*'),
             ]) href="
                     @if ($isSuperAdmin || $isSalesAdmin || $isSales)
-                        {{ url('dashboard/sales') }}">
+                        {{ url('dashboard/sales/client-program') }}">
                     @elseif ($isPartnership)
-                        {{ url('dashboard/partnership') }}">
+                        {{ url('dashboard/partnership/agenda') }}">
                     @elseif ($isDigital)
                         {{ url('dashboard/digital') }}">
                     @elseif ($isFinance)
-                        {{ url('dashboard/finance') }}">
+                        {{ url('dashboard/finance/outstanding-payment') }}">
                     @endif
-
                 <i class="bi bi-speedometer2 mx-2"></i>
                 <span class="menu-title">Dashboard</span>
             </a>
@@ -40,21 +39,16 @@
                                 $submenu_link = $submenu['submenu_link'];
                                 $explode = explode('/', $submenu_link);
                                 $length = count($explode);
-                            @endphp
-                            @if ($position = strpos($submenu['submenu_link'], '?'))
-                                @php
-                                    $submenu_link = substr($submenu['submenu_link'], 0, $position);
-                                @endphp
-                            @endif
 
-                            @php
-                                
+                                if ($position = strpos($submenu['submenu_link'], '?'))
+                                    $submenu_link = substr($submenu['submenu_link'], 0, $position);
+
                                 /* Removing the ? meaning GET params */
                                 $submenu_active = $submenu['submenu_link'];
                                 if ( $questionmark_pos = strpos($submenu_active, '?') ) {
                                     $submenu_active = substr($submenu_active, 0, $questionmark_pos);
                                 }
-                                
+
                                 /* Extract only 2 words from 'invoice/corporate-program/needed' into 'invoice/corporate-program' */
                                 $url = explode("/", $submenu_active);
                                 if ( count($url) > 2) {
@@ -68,8 +62,9 @@
                                 /* Condition for users menu */
                                 if (end($url) == 'employee')
                                     $submenu_active = 'user';
-                                
-                                
+
+
+
                             @endphp
                             <li class="p-0">
                                 <a @class([
@@ -101,7 +96,7 @@
                 </a>
             </li>
         @endif
-        
+
         @if ($isSuperAdmin)
             <li class="nav-item">
                 <a href="{{ url('request-sign?type=invoice') }}"

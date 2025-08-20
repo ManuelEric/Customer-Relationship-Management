@@ -8,6 +8,7 @@ use App\Interfaces\EventRepositoryInterface;
 class DeleteEventAction
 {
     use CreateCustomPrimaryKeyTrait;
+
     private EventRepositoryInterface $eventRepository;
 
     public function __construct(EventRepositoryInterface $eventRepository)
@@ -16,10 +17,9 @@ class DeleteEventAction
     }
 
     public function execute(
-        String $event_id
-    )
-    {
-        # Delete event
+        string $event_id
+    ) {
+        // Delete event
         $deleted_event = $this->eventRepository->deleteEvent($event_id);
 
         return $deleted_event;

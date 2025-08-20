@@ -17,9 +17,9 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,8 +29,11 @@ class PurchaseRequestController extends Controller
     use LoggingTrait;
 
     private PurchaseRequestRepositoryInterface $purchaseRequestRepository;
+
     private DepartmentRepositoryInterface $departmentRepository;
+
     private UserRepositoryInterface $userRepository;
+
     private PurchaseDetailRepositoryInterface $purchaseDetailRepository;
 
     public function __construct(PurchaseRequestRepositoryInterface $purchaseRequestRepository, DepartmentRepositoryInterface $departmentRepository, UserRepositoryInterface $userRepository, PurchaseDetailRepositoryInterface $purchaseDetailRepository)
@@ -74,11 +77,11 @@ class PurchaseRequestController extends Controller
             return Redirect::to('master/purchase/create')->withError('Failed to create a purchase request');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_PURCHASE_REQUEST, 'New purchase request has been added', $new_purchase_request->toArray());
 
-        return Redirect::to('master/purchase/' . $new_purchase_request->purchase_id)->withSuccess('Purchase request successfully created');
+        return Redirect::to('master/purchase/'.$new_purchase_request->purchase_id)->withSuccess('Purchase request successfully created');
     }
 
     public function create()
@@ -92,7 +95,7 @@ class PurchaseRequestController extends Controller
                 'edit' => true,
                 'departments' => $departments,
                 'employees' => $employees,
-                'requestStatus' => $request_status
+                'requestStatus' => $request_status,
             ]
         );
     }
@@ -101,13 +104,12 @@ class PurchaseRequestController extends Controller
     {
         $purchase_id = $request->route('purchase');
 
-        # retrieve purchase data by id
+        // retrieve purchase data by id
         $purchase_request = $this->purchaseRequestRepository->getPurchaseRequestById($purchase_id);
 
         $departments = $this->departmentRepository->getAllDepartment();
         $employees = $this->userRepository->rnGetAllUsersByRole('employee');
         $request_status = ['Urgent', 'Immediately', 'Can Wait', 'Done'];
-
 
         return view('pages.master.purchase.form')->with(
             [
@@ -115,7 +117,7 @@ class PurchaseRequestController extends Controller
                 'purchaseRequest' => $purchase_request,
                 'departments' => $departments,
                 'employees' => $employees,
-                'requestStatus' => $request_status
+                'requestStatus' => $request_status,
             ]
         );
     }
@@ -143,21 +145,21 @@ class PurchaseRequestController extends Controller
 
             $log_service->createErrorLog(LogModule::UPDATE_PURCHASE_REQUEST, $e->getMessage(), $e->getLine(), $e->getFile(), $new_request_details);
 
-            return Redirect::to('master/purchase/' . $purchase_id)->withError('Failed to update a purchase request');
+            return Redirect::to('master/purchase/'.$purchase_id)->withError('Failed to update a purchase request');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_PURCHASE_REQUEST, 'Purchase request has been updated', $updated_purchase_request->toArray());
 
-        return Redirect::to('master/purchase/' . $purchase_id)->withSuccess('Purchase request successfully updated');
+        return Redirect::to('master/purchase/'.$purchase_id)->withSuccess('Purchase request successfully updated');
     }
 
     public function edit(Request $request)
     {
         $purchase_id = $request->route('purchase');
 
-        # retrieve purchase data by id
+        // retrieve purchase data by id
         $purchase_request = $this->purchaseRequestRepository->getPurchaseRequestById($purchase_id);
 
         $departments = $this->departmentRepository->getAllDepartment();
@@ -170,7 +172,7 @@ class PurchaseRequestController extends Controller
                 'purchaseRequest' => $purchase_request,
                 'departments' => $departments,
                 'employees' => $employees,
-                'requestStatus' => $request_status
+                'requestStatus' => $request_status,
             ]
         );
     }
@@ -183,7 +185,7 @@ class PurchaseRequestController extends Controller
         try {
 
             $purchase = $this->purchaseRequestRepository->getPurchaseRequestById($purchase_id);
-            
+
             $deletePurchaseRequestAction->execute($purchase_id, $purchase);
             DB::commit();
         } catch (Exception $e) {
@@ -191,11 +193,12 @@ class PurchaseRequestController extends Controller
             DB::rollBack();
 
             $log_service->createErrorLog(LogModule::DELETE_PURCHASE_REQUEST, $e->getMessage(), $e->getLine(), $e->getFile(), $purchase->toArray());
+
             return Redirect::to('master/purchase')->withError('Failed to delete purchase request');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_PURCHASE_REQUEST, 'Purchase request has been deleted', $purchase->toArray());
 
         return Redirect::to('master/purchase')->withSuccess('Purchase Request successfully deleted');
@@ -204,37 +207,37 @@ class PurchaseRequestController extends Controller
     public function print(Request $request, PrintPurchaseRequestAction $printPurchaseRequestAction, LogService $log_service)
     {
         $purchase_id = $request->route('purchase');
-       
+
         try {
             $pdf = $printPurchaseRequestAction->execute($purchase_id);
         } catch (Exception $e) {
             $log_service->createErrorLog(LogModule::PRINT_PURCHASE_REQUEST, $e->getMessage(), $e->getLine(), $e->getFile(), ['purchase_id' => $purchase_id]);
 
-            return Redirect::to('master/purchase/' . $purchase_id)->withError('Failed to print a purchase request');
+            return Redirect::to('master/purchase/'.$purchase_id)->withError('Failed to print a purchase request');
         }
 
         $log_service->createSuccessLog(LogModule::PRINT_PURCHASE_REQUEST, 'Successfully print purchase request', ['purchase_id' => $purchase_id]);
 
-        return $pdf->download($purchase_id . '.pdf');
+        return $pdf->download($purchase_id.'.pdf');
     }
 
     public function download($filename)
     {
-        # Check if file exists in public/uploaded_file/finance folder
-        $file_path = 'project/crm/finance/' . $filename;
+        // Check if file exists in public/uploaded_file/finance folder
+        $file_path = 'project/crm/finance/'.$filename;
 
         if (Storage::disk('s3')->exists($file_path)) {
 
-            # Download success
-            # create log success
-            $this->logSuccess('download', null, 'Purchase Request', Auth::user()->first_name . ' '. Auth::user()->last_name, ['filename' => $filename]);
+            // Download success
+            // create log success
+            $this->logSuccess('download', null, 'Purchase Request', Auth::user()->first_name.' '.Auth::user()->last_name, ['filename' => $filename]);
 
-            # Send Download
+            // Send Download
             return Response::download($file_path, $filename, [
-                'Content-Length: ' . filesize($file_path)
+                'Content-Length: '.filesize($file_path),
             ]);
         } else {
-            # Error
+            // Error
             return Redirect::back()->withError('Requested file does not exist on the server');
         }
     }

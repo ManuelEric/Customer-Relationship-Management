@@ -16,7 +16,6 @@ class StoreSchoolProgramAttachRequest extends FormRequest
         return true;
     }
 
-
     public function messages()
     {
         return [
@@ -34,17 +33,19 @@ class StoreSchoolProgramAttachRequest extends FormRequest
     public function rules()
     {
         $schprog_id = $this->route('sch_prog');
+
         return [
 
             'schprog_file' => 'required|string',
-            'schprog_attach' => 'required|mimes:pdf'
+            'schprog_attach' => 'required|mimes:pdf',
         ];
 
-        if($schprog_id)
+        if ($schprog_id) {
             $rules = ['sch_id' => 'required|exists:tbl_sch_prog,id',
             ];
+        }
 
         return $rules;
-        
+
     }
 }

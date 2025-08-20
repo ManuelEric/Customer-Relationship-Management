@@ -125,7 +125,7 @@
               &.menu-arrow {
                 &::before {
                   content: "\e64b";
-                } 
+                }
               }
             }
         }
@@ -164,7 +164,7 @@
         &:hover {
           > .nav-link, &[aria-expanded="true"] {
             background: $sidebar-light-menu-hover-bg;
-            color: $sidebar-light-menu-hover-color;                    
+            color: $sidebar-light-menu-hover-color;
           }
         }
         > .nav-link {
@@ -263,7 +263,7 @@
             }
             .menu-title,
             i {
-              color: $sidebar-dark-menu-active-color; 
+              color: $sidebar-dark-menu-active-color;
             }
           }
         }
@@ -273,7 +273,7 @@
           &:hover {
             > .nav-link {
               background: $sidebar-dark-menu-hover-bg;
-              color: $sidebar-dark-menu-hover-color;  
+              color: $sidebar-dark-menu-hover-color;
               &:before {
                 content: '';
                 width: 2px;
@@ -282,10 +282,10 @@
                 left: 0;
                 top:0;
                 position: absolute;
-              }  
+              }
               .menu-arrow {
                 color: $sidebar-dark-menu-hover-color;
-              }                                
+              }
             }
           }
           .nav-link {

@@ -45,19 +45,19 @@ class ManuallyInsertClientProgramCommand extends Command
 
             foreach ($sql as $value) {
                 $client_id = $value->id;
-    
+
                 ClientProgram::create([
                     'client_id' => $client_id,
                     'prog_id' => 'AAUP',
                     'lead_id' => 'LS008',
-                    'eduf_lead_id' => NULL,
+                    'eduf_lead_id' => null,
                     'first_discuss_date' => '2024-07-20 09:00:00',
                     'status' => 0,
                     'empl_id' => 188,
                     'created_at' => '2024-07-20 09:00:00',
-                    'updated_at' => '2024-07-20 09:00:00'
+                    'updated_at' => '2024-07-20 09:00:00',
                 ]);
-    
+
                 UserClient::where('id', $client_id)->update(['category' => 'potential']);
                 DB::commit();
                 $progressBar->advance();
@@ -67,6 +67,7 @@ class ManuallyInsertClientProgramCommand extends Command
         } catch (\Exception $e) {
             DB::rollBack();
             $this->error($e->getMessage());
+
             return Command::FAILURE;
         }
 

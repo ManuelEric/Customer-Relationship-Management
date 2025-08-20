@@ -11,6 +11,7 @@ use App\Models\Event;
 class CreateEventAction
 {
     use CreateCustomPrimaryKeyTrait, UploadFileTrait;
+
     private EventRepositoryInterface $eventRepository;
 
     public function __construct(EventRepositoryInterface $eventRepository)
@@ -26,16 +27,16 @@ class CreateEventAction
 
         $last_id = Event::max('event_id');
         $event_id_without_label = $this->remove_primarykey_label($last_id, 4);
-        $event_id_with_label = 'EVT-' . $this->add_digit((int)$event_id_without_label + 1, 4);
+        $event_id_with_label = 'EVT-'.$this->add_digit((int) $event_id_without_label + 1, 4);
         $new_event_details['event_id'] = $event_id_with_label;
-        $file_name = time() . '-' . $event_id_with_label;
+        $file_name = time().'-'.$event_id_with_label;
 
-        #upload banner 
+        // upload banner
         $new_event_details['event_banner'] = $this->tnUploadFile($request, 'event_banner', $file_name, 'project/crm/events');
-        
+
         $new_event = $this->eventRepository->createEvent($new_event_details);
 
-        if(isset($employee_id)){
+        if (isset($employee_id)) {
             $this->eventRepository->addEventPic($event_id_with_label, $employee_id);
         }
 

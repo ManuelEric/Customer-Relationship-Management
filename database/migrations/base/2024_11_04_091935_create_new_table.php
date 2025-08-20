@@ -14,7 +14,7 @@ return new class extends Migration
         /**
          * Tbl_client_log used for tracking the client status
          * such as raw, new leads, potential, mentee, non-mentee, etc.
-         * 
+         *
          * and this table is used in lead tracking modules
          */
         Schema::create('tbl_client_log', function (Blueprint $table) {

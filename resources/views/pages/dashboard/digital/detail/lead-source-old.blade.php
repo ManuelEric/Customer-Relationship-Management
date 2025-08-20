@@ -111,7 +111,7 @@
                 <table class="table table-hover table-striped">
                     <thead>
                         <tr id="thead-digital-lead">
-                            
+
                         </tr>
                     </thead>
                     <tbody id="tbody-digital-lead">
@@ -177,8 +177,8 @@
             })
 
 
-        $('#modalLeadDetail').modal('show') 
-        $('#titleLeadDetail').html('Lead Source') 
+        $('#modalLeadDetail').modal('show')
+        $('#titleLeadDetail').html('Lead Source')
         var thead = $("#thead-digital-lead");
         thead.empty()
         thead.html(theadLead)
@@ -199,8 +199,8 @@
                 swal.close()
             })
 
-        $('#modalLeadDetail').modal('show') 
-        $('#titleLeadDetail').html('Conversion Lead') 
+        $('#modalLeadDetail').modal('show')
+        $('#titleLeadDetail').html('Conversion Lead')
         var thead = $("#thead-digital-lead");
         thead.empty()
         thead.html(theadLead)

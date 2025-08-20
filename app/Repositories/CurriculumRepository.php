@@ -6,9 +6,8 @@ use App\Interfaces\CurriculumRepositoryInterface;
 use App\Models\Curriculum;
 use DataTables;
 
-class CurriculumRepository implements CurriculumRepositoryInterface 
+class CurriculumRepository implements CurriculumRepositoryInterface
 {
-
     public function getAllCurriculumsDataTables()
     {
         return Datatables::eloquent(Curriculum::query())->make(true);

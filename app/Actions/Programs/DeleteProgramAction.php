@@ -15,9 +15,8 @@ class DeleteProgramAction
 
     public function execute(
         $program_id
-    )
-    {
-        # delete program
+    ) {
+        // delete program
         $deleted_program = $this->programRepository->deleteProgram($program_id);
 
         return $deleted_program;

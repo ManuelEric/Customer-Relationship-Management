@@ -195,7 +195,7 @@
                                     <select class="select w-100" name="sch_curriculum[]" multiple id="schCurriculum">
                                         <option data-placeholder="true"></option>
                                         @foreach ($curriculums as $curriculum)
-                                            <option value="{{ $curriculum->id }}" 
+                                            <option value="{{ $curriculum->id }}"
                                                     {{ old('sch_curriculum') == $curriculum->name ? "selected" : null }}
                                                 >{{ $curriculum->name }}</option>
                                         @endforeach
@@ -337,21 +337,21 @@
                             <label>Level of Interest <i class="text-danger font-weight-bold">*</i></label>
                             <select class="select w-100" id="levelInterest" name="st_levelinterest">
                                 <option data-placeholder="true"></option>
-                                <option value="High" 
+                                <option value="High"
                                     @if (isset($teacher_counselor->st_levelinterest))
                                         {{ $teacher_counselor->st_levelinterest == "High" ? "selected" : null }}
                                     @else
                                         {{ old('st_levelinterest') == "High" ? "selected" : null }}
                                     @endif
                                     >High</option>
-                                <option value="Medium" 
+                                <option value="Medium"
                                     @if (isset($teacher_counselor->st_levelinterest))
                                         {{ $teacher_counselor->st_levelinterest == "Medium" ? "selected" : null }}
                                     @else
                                         {{ old('st_levelinterest') == "Medium" ? "selected" : null }}
                                     @endif
                                     >Medium</option>
-                                <option value="Low" 
+                                <option value="Low"
                                     @if (isset($teacher_counselor->st_levelinterest))
                                         {{ $teacher_counselor->st_levelinterest == "Low" ? "selected" : null }}
                                     @else
@@ -406,12 +406,12 @@
             // Set the value, creating a new option if necessary
             if ($('#referral_code').find("option[value= {{ old('referral_code') }} ]").length) {
                 $('#referral_code').val('{{ old("referral_code") }}').trigger('change');
-            } else { 
+            } else {
                 // Create a DOM Option and pre-select by default
             var newOption = new Option('{{ old("old_refname") }}', '{{ old("referral_code") }}', true, true);
                 // Append it to the select
                 $('#referral_code').append(newOption).trigger('change');
-            } 
+            }
         @endif
     })
 

@@ -28,18 +28,27 @@ use Illuminate\Support\Facades\Redirect;
 
 class EventController extends Controller
 {
-    use LoggingTrait;
     use CreateCustomPrimaryKeyTrait;
+    use LoggingTrait;
 
     private EventRepositoryInterface $eventRepository;
+
     private UserRepositoryInterface $userRepository;
+
     private UniversityRepositoryInterface $universityRepository;
+
     private UniversityEventRepositoryInterface $universityEventRepository;
+
     private SchoolRepositoryInterface $schoolRepository;
+
     private SchoolEventRepositoryInterface $schoolEventRepository;
+
     private CorporateRepositoryInterface $corporateRepository;
+
     private CorporatePartnerEventRepositoryInterface $corporatePartnerRepository;
+
     private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
+
     private ProgramRepositoryInterface $programRepository;
 
     public function __construct(EventRepositoryInterface $eventRepository, UserRepositoryInterface $userRepository, UniversityRepositoryInterface $universityRepository, UniversityEventRepositoryInterface $universityEventRepository, SchoolRepositoryInterface $schoolRepository, SchoolEventRepositoryInterface $schoolEventRepository, CorporateRepositoryInterface $corporateRepository, CorporatePartnerEventRepositoryInterface $corporatePartnerRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, ProgramRepositoryInterface $programRepository)
@@ -58,8 +67,9 @@ class EventController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax())
+        if ($request->ajax()) {
             return $this->eventRepository->getAllEventDataTables();
+        }
 
         return view('pages.master.event.index');
     }
@@ -70,19 +80,19 @@ class EventController extends Controller
         $event = $this->eventRepository->getEventById($event_id);
         $event_pic = $event->eventPic->pluck('id')->toArray();
         $employees = $this->userRepository->rnGetAllUsersByRole('employee');
-        # universities
+        // universities
         $universities = $this->universityRepository->getAllUniversities();
         $university_event = $this->universityEventRepository->getUniversityByEventId($event_id);
-        # schools
+        // schools
         $schools = $this->schoolRepository->getAllSchools();
         $school_event = $this->schoolEventRepository->getSchoolByEventId($event_id);
-        # corporate / partner
+        // corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
         $partner_event = $this->corporatePartnerRepository->getPartnerByEventId($event_id);
 
         $event_speakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($event_id);
 
-        # retrieve program data
+        // retrieve program data
         $programs = $this->programRepository->getAllPrograms();
 
         return view('pages.master.event.form')->with(
@@ -97,7 +107,7 @@ class EventController extends Controller
                 'partners' => $partners,
                 'partnerEvent' => $partner_event,
                 'eventSpeakers' => $event_speakers,
-                'programs' => $programs
+                'programs' => $programs,
             ]
         );
     }
@@ -112,7 +122,7 @@ class EventController extends Controller
             'event_enddate',
             'event_target',
             'category',
-            'type'
+            'type',
         ]);
 
         DB::beginTransaction();
@@ -129,11 +139,11 @@ class EventController extends Controller
             return Redirect::to('master/event/')->withError('Failed to create new event');
         }
 
-        # store Success
-        # create log success
+        // store Success
+        // create log success
         $log_service->createSuccessLog(LogModule::STORE_EVENT, 'New event has been added', $new_event->toArray());
 
-        return Redirect::to('master/event/' . $new_event->event_id)->withSuccess('Event successfully created');
+        return Redirect::to('master/event/'.$new_event->event_id)->withSuccess('Event successfully created');
     }
 
     public function create()
@@ -143,14 +153,14 @@ class EventController extends Controller
         $digital = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Digital');
         $employees = $partnership->merge($sales)->merge($digital);
 
-        # retrieve program data
+        // retrieve program data
         $programs = $this->programRepository->getAllPrograms();
 
         return view('pages.master.event.form')->with(
             [
                 'edit' => true,
                 'employees' => $employees,
-                'programs' => $programs
+                'programs' => $programs,
             ]
         );
     }
@@ -165,7 +175,7 @@ class EventController extends Controller
             'event_enddate',
             'event_target',
             'category',
-            'type'
+            'type',
         ]);
 
         DB::beginTransaction();
@@ -179,14 +189,14 @@ class EventController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::UPDATE_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_event_details);
 
-            return Redirect::to('master/event/' . $updated_event->event_id)->withError('Failed to update new event');
+            return Redirect::to('master/event/'.$updated_event->event_id)->withError('Failed to update new event');
         }
 
-        # Update success
-        # create log success
+        // Update success
+        // create log success
         $log_service->createSuccessLog(LogModule::UPDATE_EVENT, 'New event has been updated', $updated_event->toArray());
 
-        return Redirect::to('master/event/' . $updated_event->event_id)->withSuccess('Event successfully updated');
+        return Redirect::to('master/event/'.$updated_event->event_id)->withSuccess('Event successfully updated');
     }
 
     public function edit(Request $request)
@@ -201,19 +211,19 @@ class EventController extends Controller
         $digital = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Digital');
         $employees = $partnership->merge($sales)->merge($digital);
 
-        # universities
+        // universities
         $universities = $this->universityRepository->getAllUniversities();
         $university_event = $this->universityEventRepository->getUniversityByEventId($event_id);
-        # schools
+        // schools
         $schools = $this->schoolRepository->getAllSchools();
         $school_event = $this->schoolEventRepository->getSchoolByEventId($event_id);
-        # corporate / partner
+        // corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
         $partner_event = $this->corporatePartnerRepository->getPartnerByEventId($event_id);
 
         $event_speakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($event_id);
 
-        # retrieve program data
+        // retrieve program data
         $programs = $this->programRepository->getAllPrograms();
 
         return view('pages.master.event.form')->with(
@@ -229,7 +239,7 @@ class EventController extends Controller
                 'partners' => $partners,
                 'partnerEvent' => $partner_event,
                 'eventSpeakers' => $event_speakers,
-                'programs' => $programs
+                'programs' => $programs,
             ]
         );
     }
@@ -251,12 +261,13 @@ class EventController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::DELETE_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $event->toArray());
 
-            Log::error('Delete event failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $event_id)->withError('Failed to delete event');
+            Log::error('Delete event failed : '.$e->getMessage());
+
+            return Redirect::to('master/event/'.$event_id)->withError('Failed to delete event');
         }
 
-        # Delete success
-        # create log success
+        // Delete success
+        // create log success
         $log_service->createSuccessLog(LogModule::DELETE_EVENT, 'Event has been deleted', $event->toArray());
 
         return Redirect::to('master/event')->withSuccess('Event successfully deleted');

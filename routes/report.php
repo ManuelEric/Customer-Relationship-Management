@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\LeadTrackerController;
 use App\Http\Controllers\ReportController;
+use App\Livewire\LeadTrackerDetail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-
 
 // Route::get('sales', [SalesTrackingController::class, 'index'])->name('report.sales.tracking');
 Route::get('sales', [ReportController::class, 'fnSalesTracking'])->name('report.sales.tracking');
@@ -32,5 +30,5 @@ Route::get('program', [ReportController::class, 'fnProgramTracking'])->name('rep
 
 Route::get('lead', [ReportController::class, 'fnLeadTracking'])->name('report.lead');
 
-Route::get('lead/detail/', [ReportController::class, 'fnDetailLeadTracking'])->name('report.lead.detail');
-
+// Route::get('lead/detail', [ReportController::class, 'fnDetailLeadTracking'])->name('report.lead.detail');
+Route::get('lead/detail', LeadTrackerDetail::class)->name('report.lead.detail');

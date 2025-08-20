@@ -9,7 +9,9 @@ use App\Interfaces\EventRepositoryInterface;
 class DeleteCorporateEventAction
 {
     private CorporatePicRepositoryInterface $corporatePicRepository;
+
     private CorporatePartnerEventRepositoryInterface $corporatePartnerEventRepository;
+
     private EventRepositoryInterface $eventRepository;
 
     public function __construct(CorporatePicRepositoryInterface $corporatePicRepository, CorporatePartnerEventRepositoryInterface $corporatePartnerEventRepository, EventRepositoryInterface $eventRepository)
@@ -20,17 +22,16 @@ class DeleteCorporateEventAction
     }
 
     public function execute(
-        String $event_id,
-        String $corporate_id
-    )
-    {
+        string $event_id,
+        string $corporate_id
+    ) {
         $event = $this->eventRepository->getEventById($event_id);
 
         if (count($event->partner_speaker()->where('corp_id', $corporate_id)->get()) > 0) {
-            $this->corporatePicRepository->deleteAgendaSpeaker($corporate_id,  $event_id);
+            $this->corporatePicRepository->deleteAgendaSpeaker($corporate_id, $event_id);
         }
 
-        # Delete corporate event
+        // Delete corporate event
         $deleted_corporate_event = $this->corporatePartnerEventRepository->destroyPartnerEvent($event_id, $corporate_id);
 
         return $deleted_corporate_event;

@@ -3,10 +3,20 @@
 namespace App\Models;
 
 use App\Models\pivot\UserTypeDetail;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $user
+ * @property-read int|null $user_count
+ * @property-read UserTypeDetail|null $user_type
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LoginLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LoginLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LoginLog query()
+ *
+ * @mixin \Eloquent
+ */
 class LoginLog extends Model
 {
     use HasFactory;
@@ -16,7 +26,7 @@ class LoginLog extends Model
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'user_type_id',

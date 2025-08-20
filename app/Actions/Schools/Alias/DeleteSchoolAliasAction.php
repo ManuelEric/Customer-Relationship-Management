@@ -15,9 +15,8 @@ class DeleteSchoolAliasAction
 
     public function execute(
         $alias_id
-    )
-    {
-        # Delete school alias
+    ) {
+        // Delete school alias
         $deleted_school_alias = $this->schoolRepository->deleteAlias($alias_id);
 
         return $deleted_school_alias;

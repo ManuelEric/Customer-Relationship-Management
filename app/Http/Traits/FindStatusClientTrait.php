@@ -1,24 +1,25 @@
 <?php
+
 namespace App\Http\Traits;
 
-trait FindStatusClientTrait {
-
+trait FindStatusClientTrait
+{
     public function getStatusClientCode($statusClient)
     {
         switch ($statusClient) {
-            case "new-leads":
+            case 'new-leads':
                 $status = 0;
                 break;
 
-            case "potential":
+            case 'potential':
                 $status = 1;
                 break;
 
-            case "current":
+            case 'current':
                 $status = 2;
                 break;
 
-            case "completed":
+            case 'completed':
                 $status = 3;
                 break;
         }

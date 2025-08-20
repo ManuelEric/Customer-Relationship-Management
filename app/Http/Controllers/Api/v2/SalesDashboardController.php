@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Api\v2;
 
 use App\Enum\LogModule;
-use App\Http\Controllers\Controller;
 use App\Exports\DataClient;
+use App\Http\Controllers\Controller;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SalesTargetRepositoryInterface;
-use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
@@ -22,12 +22,19 @@ use Maatwebsite\Excel\Facades\Excel;
 class SalesDashboardController extends Controller
 {
     protected ClientRepositoryInterface $clientRepository;
+
     protected ClientProgramRepositoryInterface $clientProgramRepository;
+
     protected ClientEventRepositoryInterface $clientEventRepository;
+
     protected FollowupRepositoryInterface $followupRepository;
+
     protected SalesTargetRepositoryInterface $salesTargetRepository;
+
     protected EventRepositoryInterface $eventRepository;
+
     protected ProgramRepositoryInterface $programRepository;
+
     protected ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
 
     public function __construct(
@@ -53,21 +60,20 @@ class SalesDashboardController extends Controller
     public function getClientByMonthAndType(
         Request $request,
         LogService $log_service,
-        )
-    {
+    ) {
         $month = null;
-        if ($request->get('month') != "all")
+        if ($request->get('month') != 'all') {
             $month = $request->get('month');
-
+        }
 
         $type = $request->get('type');
         $asDatatables = false;
         $groupBy = true;
-        $title = str_replace('-', ' ', $type) . ' Client';
+        $title = str_replace('-', ' ', $type).' Client';
 
         try {
             switch ($type) {
-                case "new-leads":
+                case 'new-leads':
                     $clients = $this->clientRepository->getNewLeads($asDatatables, $month, []);
                     if ($month != null) {
                         $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
@@ -75,8 +81,8 @@ class SalesDashboardController extends Controller
                     }
                     $clientType = 0;
                     break;
-    
-                case "potential":
+
+                case 'potential':
                     $clients = $this->clientRepository->getPotentialClients($asDatatables, $month, []);
                     if ($month != null) {
                         $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
@@ -84,8 +90,8 @@ class SalesDashboardController extends Controller
                     }
                     $clientType = 1;
                     break;
-    
-                case "existing-mentees":
+
+                case 'existing-mentees':
                     $clients = $this->clientRepository->getExistingMentees($asDatatables, $month, []);
                     if ($month != null) {
                         $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
@@ -93,8 +99,8 @@ class SalesDashboardController extends Controller
                     }
                     $clientType = 2;
                     break;
-    
-                case "existing-non-mentees":
+
+                case 'existing-non-mentees':
                     $clients = $this->clientRepository->getExistingNonMentees($asDatatables, $month, []);
                     if ($month != null) {
                         $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
@@ -102,66 +108,67 @@ class SalesDashboardController extends Controller
                     }
                     $clientType = 3;
                     break;
-    
-                    # both alumni-mentee & alumni-non-mentee
-                    # never find alumni by month
-                case "alumni-mentee":
+
+                    // both alumni-mentee & alumni-non-mentee
+                    // never find alumni by month
+                case 'alumni-mentee':
                     $clients = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables);
                     $clientType = 'alumni';
                     break;
-    
-                case "alumni-non-mentee":
+
+                case 'alumni-non-mentee':
                     $clients = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables);
                     $clientType = 'alumni';
                     break;
-    
-                case "parent":
+
+                case 'parent':
                     $clients = $this->clientRepository->getParents($asDatatables, $month, []);
                     $clientType = 'parent';
                     break;
-    
-                case "teacher-counselor":
+
+                case 'teacher-counselor':
                     $clients = $this->clientRepository->getTeachers($asDatatables, $month);
                     $clientType = 'teacher/counselor';
                     break;
-    
+
                 default:
                     $title = $clientType = $type;
             }
-    
+
             $index = 1;
             $html = '';
             $data = [];
-            if ($clients->count() == 0)
-                return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $title)), 'data' => $data]);
-    
-            # when is mentee    
-            # special case because already grouped by year
-            # so we need to extract as they are
+            if ($clients->count() == 0) {
+                return response()->json(['title' => 'List of '.ucwords(str_replace('-', ' ', $title)), 'data' => $data]);
+            }
+
+            // when is mentee
+            // special case because already grouped by year
+            // so we need to extract as they are
             if ($clientType == 'alumni') {
-    
+
                 foreach ($clients as $key => $value) {
                     $html .= '<tr>
-                                <td colspan="5">' . $key . '</td>
+                                <td colspan="5">'.$key.'</td>
                             </tr>';
-    
+
                     foreach ($value as $client) {
                         $client_register_date = date('Y-m', strtotime($client->created_at));
                         $now = date('Y-m');
                         $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
-    
+
                         $pic_name = isset($client->handleBy) ? $client->handledBy()->first()->full_name : null;
-    
-                        $html .= '<tr ' . $styling . ' data-detail="' . $client->id . '">
-                                    <td>' . $index++ . '</td>
-                                    <td>' . $client->full_name . '</td>
-                                    <td>' . $pic_name .'</td>
-                                    <td>' . $client->mail . '</td>
-                                    <td>' . $client->phone . '</td>
-                                    <td>' . $client->graduation_year_now . '</td>
-                                    <td>' . date('d F Y H:i', strtotime($client->created_at)) . '</td>
+
+                        $html .= '<tr '.$styling.' data-detail="'.$client->id.'">
+                                    <td>'.$index++.'</td>
+                                    <td>'.$client->full_name.'</td>
+                                    <td>'.$pic_name.'</td>
+                                    <td>'.$client->mail.'</td>
+                                    <td>'.$client->phone.'</td>
+                                    <td>'.$client->graduation_year_now.'</td>
+                                    <td>'.date('d F Y H:i', strtotime($client->created_at)).'</td>
                                 </tr>';
-    
+
                         $data[] = [
                             'id' => $client->id,
                             'full_name' => $client->full_name,
@@ -175,27 +182,28 @@ class SalesDashboardController extends Controller
                 }
             } else {
                 foreach ($clients as $client) {
-    
+
                     $client_register_date = date('Y-m', strtotime($client->created_at));
-    
-                    if ($month == null)
+
+                    if ($month == null) {
                         $month = date('Y-m-d');
-    
+                    }
+
                     $now = date('Y-m', strtotime($month));
                     $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
-    
-                    $clientsPic = $client->handledBy->first()->fullname ?? "-";
-    
-                    $html .= '<tr ' . $styling . ' data-detail="' . $client->id . '">
-                                <td>' . $index++ . '</td>
-                                <td>' . $client->full_name . '</td>
-                                <td class="text-center">' . $clientsPic . '</td>
-                                <td>' . $client->mail . '</td>
-                                <td>' . $client->phone . '</td>
-                                <td>' . $client->graduation_year_now . '</td>
-                                <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
+
+                    $clientsPic = $client->handledBy->first()->fullname ?? '-';
+
+                    $html .= '<tr '.$styling.' data-detail="'.$client->id.'">
+                                <td>'.$index++.'</td>
+                                <td>'.$client->full_name.'</td>
+                                <td class="text-center">'.$clientsPic.'</td>
+                                <td>'.$client->mail.'</td>
+                                <td>'.$client->phone.'</td>
+                                <td>'.$client->graduation_year_now.'</td>
+                                <td>'.date('D, d M Y', strtotime($client->created_at)).'</td>
                             </tr>';
-    
+
                     $data[] = [
                         'id' => $client->id,
                         'full_name' => $client->full_name,
@@ -207,20 +215,22 @@ class SalesDashboardController extends Controller
                     ];
                 }
             }
-    
+
         } catch (Exception $e) {
             $log_service->createErrorLog(LogModule::SALES_DASHBOARD_GET_CLIENT_STATUS, $e->getMessage(), $e->getLine(), $e->getFile());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get detail client status'
+                'message' => 'Failed to get detail client status',
             ], 500);
         }
 
         $log_service->createSuccessLog(LogModule::SALES_DASHBOARD_GET_CLIENT_STATUS, 'Fetch client status on sales dashboard successfully', $data);
+
         return response()->json(
             [
-                'title' => 'List of ' . ucwords($title),
-                'data' => $data
+                'title' => 'List of '.ucwords($title),
+                'data' => $data,
             ]
         );
     }
@@ -228,7 +238,7 @@ class SalesDashboardController extends Controller
     public function getClientStatus(Request $request)
     {
 
-        if ($request->get('month') != "all") {
+        if ($request->get('month') != 'all') {
             $month = $request->get('month') ?? date('Y-m');
             $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
             $type = 'monthly';
@@ -242,17 +252,17 @@ class SalesDashboardController extends Controller
         try {
 
             $asDatatables = $groupBy = false;
-            $last_month_prospective_client =  $this->clientRepository->countClientByCategory('new-lead', $last_month);
+            $last_month_prospective_client = $this->clientRepository->countClientByCategory('new-lead', $last_month);
             $monthly_new_prospective_client = $this->clientRepository->countClientByCategory('new-lead', $month);
 
             $last_month_potential_client = $this->clientRepository->countClientByCategory('potential', $last_month);
-            $monthly_new_potential_client= $this->clientRepository->countClientByCategory('potential', $month);
+            $monthly_new_potential_client = $this->clientRepository->countClientByCategory('potential', $month);
 
             $last_month_current_client = $this->clientRepository->countClientByCategory('mentee', $last_month);
             $monthly_new_current_client = $this->clientRepository->countClientByCategory('mentee', $month);
 
             $last_month_completed_client = $this->clientRepository->countClientByCategory('non-mentee', $last_month);
-            $monthly_new_completed_client =  $this->clientRepository->countClientByCategory('non-mentee', $month);
+            $monthly_new_completed_client = $this->clientRepository->countClientByCategory('non-mentee', $month);
 
             $last_month_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee', $last_month);
             $monthly_new_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee', $month);
@@ -268,26 +278,26 @@ class SalesDashboardController extends Controller
 
             $data = [
                 [
-                    'old' => $type == "all" ? $last_month_prospective_client - $monthly_new_prospective_client : $last_month_prospective_client,
+                    'old' => $type == 'all' ? $last_month_prospective_client - $monthly_new_prospective_client : $last_month_prospective_client,
                     'new' => $monthly_new_prospective_client,
-                    'percentage' => $this->calculatePercentage($type, $last_month_prospective_client, $monthly_new_prospective_client)
+                    'percentage' => $this->calculatePercentage($type, $last_month_prospective_client, $monthly_new_prospective_client),
 
-                ], # prospective
+                ], // prospective
                 [
-                    'old' => $type == "all" ? $last_month_potential_client - $monthly_new_potential_client : $last_month_potential_client,
+                    'old' => $type == 'all' ? $last_month_potential_client - $monthly_new_potential_client : $last_month_potential_client,
                     'new' => $monthly_new_potential_client,
-                    'percentage' => $this->calculatePercentage($type, $last_month_potential_client, $monthly_new_potential_client)
-                ], # potential
+                    'percentage' => $this->calculatePercentage($type, $last_month_potential_client, $monthly_new_potential_client),
+                ], // potential
                 [
-                    'old' => $type == "all" ? $last_month_current_client - $monthly_new_current_client : $last_month_current_client,
+                    'old' => $type == 'all' ? $last_month_current_client - $monthly_new_current_client : $last_month_current_client,
                     'new' => $monthly_new_current_client,
-                    'percentage' => $this->calculatePercentage($type, $last_month_current_client, $monthly_new_current_client)
-                ], # existing mentee
+                    'percentage' => $this->calculatePercentage($type, $last_month_current_client, $monthly_new_current_client),
+                ], // existing mentee
                 [
-                    'old' =>  $type == "all" ? $last_month_completed_client - $monthly_new_completed_client : $last_month_completed_client,
+                    'old' => $type == 'all' ? $last_month_completed_client - $monthly_new_completed_client : $last_month_completed_client,
                     'new' => $monthly_new_completed_client,
-                    'percentage' => $this->calculatePercentage($type, $last_month_completed_client, $monthly_new_completed_client)
-                ], # existing non mentee
+                    'percentage' => $this->calculatePercentage($type, $last_month_completed_client, $monthly_new_completed_client),
+                ], // existing non mentee
                 // [
                 //     'old' => $type == "all" ? $last_month_alumniMentees - $monthly_new_alumniMentees : $last_month_alumniMentees,
                 //     'new' => $monthly_new_alumniMentees,
@@ -300,22 +310,23 @@ class SalesDashboardController extends Controller
                 //     'percentage' => $this->calculatePercentage($type, $last_month_alumniNonMentees, $monthly_new_alumniNonMentees)
                 // ], # alumni-non-mentee
                 [
-                    'old' => $type == "all" ? $last_month_parent - $monthly_new_parent : $last_month_parent,
+                    'old' => $type == 'all' ? $last_month_parent - $monthly_new_parent : $last_month_parent,
                     'new' => $monthly_new_parent,
-                    'percentage' => $this->calculatePercentage($type, $last_month_parent, $monthly_new_parent)
-                ], # parent
+                    'percentage' => $this->calculatePercentage($type, $last_month_parent, $monthly_new_parent),
+                ], // parent
                 [
-                    'old' => $type == "all" ? $last_month_teacher - $monthly_new_teacher : $last_month_teacher,
+                    'old' => $type == 'all' ? $last_month_teacher - $monthly_new_teacher : $last_month_teacher,
                     'new' => $monthly_new_teacher,
-                    'percentage' => $this->calculatePercentage($type, $last_month_teacher, $monthly_new_teacher)
-                ] # teacher / counselor
+                    'percentage' => $this->calculatePercentage($type, $last_month_teacher, $monthly_new_teacher),
+                ], // teacher / counselor
             ];
         } catch (Exception $e) {
 
-            Log::error('Failed to get client status ' . $e->getMessage());
+            Log::error('Failed to get client status '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get client status'
+                'message' => 'Failed to get client status',
             ], 500);
         }
 
@@ -323,7 +334,7 @@ class SalesDashboardController extends Controller
             [
                 'success' => true,
                 'data' => $data,
-                'type' => $type
+                'type' => $type,
             ]
         );
     }
@@ -331,19 +342,21 @@ class SalesDashboardController extends Controller
     private function calculatePercentage($type, $last_month_data, $monthly_data)
     {
         switch ($type) {
-            case "all":
-                # last month data is total data
+            case 'all':
+                // last month data is total data
                 if ($last_month_data == 0) {
-                    return "0,00";
+                    return '0,00';
                 }
+
                 return number_format(($monthly_data / ($last_month_data - $monthly_data)) * 100, 2, ',', '.');
                 break;
 
             default:
-                if ($monthly_data == 0 && $last_month_data == 0)
-                    return "0,00";
-                else if ($last_month_data == 0)
+                if ($monthly_data == 0 && $last_month_data == 0) {
+                    return '0,00';
+                } elseif ($last_month_data == 0) {
                     return number_format((abs($last_month_data - $monthly_data) / $monthly_data) * 100, 2, ',', '.');
+                }
 
                 return number_format((abs($last_month_data - $monthly_data) / $last_month_data) * 100, 2, ',', '.');
         }
@@ -355,21 +368,22 @@ class SalesDashboardController extends Controller
         $cp_filter['quuid'] = $request->get('user') ?? null;
 
         try {
-            
+
             $totalAllClientProgramByStatus = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => null] + $cp_filter);
         } catch (Exception $e) {
 
-            Log::error('Failed to get client program dashboard data ' . $e->getMessage());
+            Log::error('Failed to get client program dashboard data '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get client program'
+                'message' => 'Failed to get client program',
             ], 500);
         }
 
         return response()->json(
             [
                 'success' => true,
-                'data' => $totalAllClientProgramByStatus
+                'data' => $totalAllClientProgramByStatus,
             ]
         );
     }
@@ -384,35 +398,36 @@ class SalesDashboardController extends Controller
 
             $html = '';
             $data = [];
-            if (!$allSuccessProgramByMonth = $this->clientProgramRepository->getSuccessProgramByMonth($cp_filter)) {
+            if (! $allSuccessProgramByMonth = $this->clientProgramRepository->getSuccessProgramByMonth($cp_filter)) {
                 $html .= "There's no success programs";
             } else {
 
                 foreach ($allSuccessProgramByMonth as $program) {
-                    $html .= '<li class="list-group-item d-flex justify-content-between align-items-center cursor-pointer btn-light detail-success-program" data-prog="' . $program->prog_id . '">
-                                <div class="text-start">' . $program->program_name_st . '</div>
-                                <span class="badge badge-primary">' . $program->total_client_per_program . '</span>
+                    $html .= '<li class="list-group-item d-flex justify-content-between align-items-center cursor-pointer btn-light detail-success-program" data-prog="'.$program->prog_id.'">
+                                <div class="text-start">'.$program->program_name_st.'</div>
+                                <span class="badge badge-primary">'.$program->total_client_per_program.'</span>
                             </li>';
-                    
-                    $data [] = [
+
+                    $data[] = [
                         'program_name' => $program->program_name_st,
-                        'total_client' => $program->total_client_per_program
+                        'total_client' => $program->total_client_per_program,
                     ];
                 }
             }
         } catch (Exception $e) {
 
-            Log::error('Failed to get success program dashboard data ' . $e->getMessage());
+            Log::error('Failed to get success program dashboard data '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get success program'
+                'message' => 'Failed to get success program',
             ], 500);
         }
 
         return response()->json(
             [
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             ]
         );
     }
@@ -425,24 +440,21 @@ class SalesDashboardController extends Controller
 
         try {
 
-
             $program = $this->programRepository->getProgramById($cp_filter['progId']);
             $detailClientJoinedProgram = $this->clientProgramRepository->getDetailSuccessProgramByMonthAndProgram($cp_filter);
 
             $content = '';
             $data = [];
-            $html = '<label class="mb-3">Clients joined : <u><br>' . $program->program_name . '</u></label>';
-
-            
+            $html = '<label class="mb-3">Clients joined : <u><br>'.$program->program_name.'</u></label>';
 
             $no = 1;
             foreach ($detailClientJoinedProgram as $client) {
                 $content .= '<tr>
-                        <td>' . $no++ . '.</td>
-                        <td>' . $client->full_name . '</td>
+                        <td>'.$no++.'.</td>
+                        <td>'.$client->full_name.'</td>
                     </tr>';
-                
-                $data[$program->program_name][] = $client->full_name; 
+
+                $data[$program->program_name][] = $client->full_name;
             }
 
             $html .= '<table class="table table-striped table-hover">
@@ -450,21 +462,22 @@ class SalesDashboardController extends Controller
                         <th width="8%">No.</th>
                         <th>Client Name</th>
                     </tr>
-                    ' . $content . '
+                    '.$content.'
                     </table>';
         } catch (Exception $e) {
 
-            Log::error('Failed to get detail of success program dashboard data ' . $e->getMessage());
+            Log::error('Failed to get detail of success program dashboard data '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get detail of success program'
+                'message' => 'Failed to get detail of success program',
             ], 500);
         }
 
         return response()->json(
             [
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             ]
         );
     }
@@ -479,17 +492,18 @@ class SalesDashboardController extends Controller
             $admissions_mentoring = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Admissions Mentoring'] + $cp_filter);
         } catch (Exception $e) {
 
-            Log::error('Failed to get admission program dashboard data ' . $e->getMessage());
+            Log::error('Failed to get admission program dashboard data '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get admission program'
+                'message' => 'Failed to get admission program',
             ], 500);
         }
 
         return response()->json(
             [
                 'success' => true,
-                'data' => $admissions_mentoring
+                'data' => $admissions_mentoring,
             ]
         );
     }
@@ -500,8 +514,8 @@ class SalesDashboardController extends Controller
         $cp_filter['quuid'] = $request->get('user') ?? null;
 
         $date_details = [
-            'start' => $cp_filter['qdate'] . '-01',
-            'end' => $cp_filter['qdate'] . '-31'
+            'start' => $cp_filter['qdate'].'-01',
+            'end' => $cp_filter['qdate'].'-31',
         ];
         try {
 
@@ -517,17 +531,17 @@ class SalesDashboardController extends Controller
             $totalRevenueAdmMentoringByProgramAndMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $cp_filter);
         } catch (Exception $e) {
 
-            Log::error('Failed to get initial consultation dashboard data ' . $e->getMessage());
+            Log::error('Failed to get initial consultation dashboard data '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get initial consult data'
+                'message' => 'Failed to get initial consult data',
             ], 500);
         }
 
-        # declare new variable
+        // declare new variable
         $initial_assessment_making = isset($initialAssessmentMaking) ? (int) $initialAssessmentMaking->initialMaking : 0;
         $conversion_time = isset($conversionTimeProgress) ? (int) $conversionTimeProgress->conversionTime : 0;
-
 
         return response()->json(
             [
@@ -538,12 +552,12 @@ class SalesDashboardController extends Controller
                         $totalInitialConsultation,
                         $already,
                         $successProgram,
-                        $initial_assessment_making . ' Days',
-                        $conversion_time . ' Days',
-                        round($successPercentage) . ' %',
-                        'Rp. ' . number_format($totalRevenueAdmMentoringByProgramAndMonth, '2', ',', '.')
-                    ]
-                ]
+                        $initial_assessment_making.' Days',
+                        $conversion_time.' Days',
+                        round($successPercentage).' %',
+                        'Rp. '.number_format($totalRevenueAdmMentoringByProgramAndMonth, '2', ',', '.'),
+                    ],
+                ],
             ]
         );
     }
@@ -559,10 +573,11 @@ class SalesDashboardController extends Controller
             $totalRevenueAcadTestPrepByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Academic & Test Preparation'] + $cp_filter);
         } catch (Exception $e) {
 
-            Log::error('Failed to get academic prep dashboard data ' . $e->getMessage());
+            Log::error('Failed to get academic prep dashboard data '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get academic prep data'
+                'message' => 'Failed to get academic prep data',
             ], 500);
         }
 
@@ -571,8 +586,8 @@ class SalesDashboardController extends Controller
                 'success' => true,
                 'data' => [
                     'ctx' => $academicTestPrep,
-                    'total_revenue' => 'Rp. ' . number_format($totalRevenueAcadTestPrepByMonth, '2', ',', '.')
-                ]
+                    'total_revenue' => 'Rp. '.number_format($totalRevenueAcadTestPrepByMonth, '2', ',', '.'),
+                ],
             ]
         );
     }
@@ -588,10 +603,11 @@ class SalesDashboardController extends Controller
             $totalRevenueCareerExplorationByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Experiential Learning'] + $cp_filter);
         } catch (Exception $e) {
 
-            Log::error('Failed to get career exploration dashboard data ' . $e->getMessage());
+            Log::error('Failed to get career exploration dashboard data '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get career exploration data'
+                'message' => 'Failed to get career exploration data',
             ], 500);
         }
 
@@ -600,8 +616,8 @@ class SalesDashboardController extends Controller
                 'success' => true,
                 'data' => [
                     'ctx' => $careerExploration,
-                    'total_revenue' => 'Rp. ' . number_format($totalRevenueCareerExplorationByMonth, '2', ',', '.')
-                ]
+                    'total_revenue' => 'Rp. '.number_format($totalRevenueCareerExplorationByMonth, '2', ',', '.'),
+                ],
             ]
         );
     }
@@ -639,30 +655,29 @@ class SalesDashboardController extends Controller
                     foreach ($data as $program_name => $value) {
 
                         $no = 1;
-                        $table_content = ''; # reset table content
+                        $table_content = ''; // reset table content
                         foreach ($value as $data) {
-                            
 
                             switch ($title) {
-                                case "pending":
+                                case 'pending':
                                     $style_title = 'text-warning';
                                     $date_name = 'Created At';
                                     $date_value = date('l, d M Y', strtotime($data->created_at));
                                     break;
 
-                                case "failed":
+                                case 'failed':
                                     $style_title = 'text-danger';
                                     $date_name = 'Failed Date';
                                     $date_value = date('l, d M Y', strtotime($data->failed_date));
                                     break;
 
-                                case "success":
+                                case 'success':
                                     $style_title = 'text-success';
                                     $date_name = 'Success Date';
                                     $date_value = date('l, d M Y', strtotime($data->success_date));
                                     break;
 
-                                case "refund":
+                                case 'refund':
                                     $style_title = 'text-info';
                                     $date_name = 'Refund Date';
                                     $date_value = date('l, d M Y', strtotime($data->refund_date));
@@ -673,14 +688,14 @@ class SalesDashboardController extends Controller
                             $result[$program_name][] = [
                                 'status' => $title,
                                 'full_name' => $data->client->client_name,
-                                'date' => $date_value
+                                'date' => $date_value,
                             ];
 
                             $table_content .= '
                                 <tr>
-                                    <td align="center">' . $no++ . '.</td>
-                                    <td>' . $data->client->client_name . '</td>
-                                    <td align="center">' . $date_value . '</td>
+                                    <td align="center">'.$no++.'.</td>
+                                    <td>'.$data->client->client_name.'</td>
+                                    <td align="center">'.$date_value.'</td>
                                 </tr>';
                         }
 
@@ -689,27 +704,28 @@ class SalesDashboardController extends Controller
                             <hr>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="">
-                                <label class="fw-semibold fs-6 ' . $style_title . '">' . ucfirst($title) . '</label>
+                                <label class="fw-semibold fs-6 '.$style_title.'">'.ucfirst($title).'</label>
                                 </div>
                                 <div class="bg-secondary p-1 px-3 rounded shadow text-white">
-                                <label class="">' . $prog . '</label>
+                                <label class="">'.$prog.'</label>
                                 </div>
                             </div>
                             <table class="table table-hover table-striped my-2">
                                 <tr>
                                     <th width="5%">No.</th>
                                     <th>Client Name</th>
-                                    <th style="width:150px">' . $date_name . '</th>
+                                    <th style="width:150px">'.$date_name.'</th>
                                 </tr>
-                                ' . $table_content . '
+                                '.$table_content.'
                             </table>';
                     }
                 }
             }
         } catch (Exception $e) {
 
-            Log::error('Failed to get detail ' . $type . ' detail: '. $e->getMessage() . ' | Line ' . $e->getLine());
-            return response()->json(['success' => false, 'message' => 'Failed to get detail ' . $type . ' detail'], 500);
+            Log::error('Failed to get detail '.$type.' detail: '.$e->getMessage().' | Line '.$e->getLine());
+
+            return response()->json(['success' => false, 'message' => 'Failed to get detail '.$type.' detail'], 500);
         }
 
         return response()->json([
@@ -725,8 +741,8 @@ class SalesDashboardController extends Controller
         $cp_filter['quuid'] = $request->get('user') ?? null;
 
         $dateDetails = [
-            'startDate' => $cp_filter['qdate'] . '-01',
-            'endDate' => $cp_filter['qdate'] . '-31'
+            'startDate' => $cp_filter['qdate'].'-01',
+            'endDate' => $cp_filter['qdate'].'-31',
         ];
 
         try {
@@ -746,10 +762,11 @@ class SalesDashboardController extends Controller
             }
         } catch (Exception $e) {
 
-            Log::error('Failed to get conversion lead dashboard data ' . $e->getMessage());
+            Log::error('Failed to get conversion lead dashboard data '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get conversion lead data'
+                'message' => 'Failed to get conversion lead data',
             ], 500);
         }
 
@@ -760,14 +777,14 @@ class SalesDashboardController extends Controller
                     'ctx_leadsource' => [
                         'label' => $dataset_leadsource_labels,
                         'dataset' => $dataset_leadsource,
-                        'bgcolor' => $dataset_leadsource_bgcolor
+                        'bgcolor' => $dataset_leadsource_bgcolor,
                     ],
                     'ctx_conversionlead' => [
                         'label' => $dataset_conversionlead_labels,
                         'dataset' => $dataset_conversionlead,
-                        'bgcolor' => $dataset_conversionlead_bgcolor
-                    ]
-                ]
+                        'bgcolor' => $dataset_conversionlead_bgcolor,
+                    ],
+                ],
             ]
         );
     }
@@ -780,8 +797,8 @@ class SalesDashboardController extends Controller
         $cp_filter['prog'] = 'Admissions Mentoring';
 
         $dateDetails = [
-            'startDate' => $cp_filter['qdate'] . '-01',
-            'endDate' => $cp_filter['qdate'] . '-31'
+            'startDate' => $cp_filter['qdate'].'-01',
+            'endDate' => $cp_filter['qdate'].'-31',
         ];
 
         try {
@@ -795,10 +812,11 @@ class SalesDashboardController extends Controller
             }
         } catch (Exception $e) {
 
-            Log::error('Failed to get admission mentoring lead dashboard data ' . $e->getMessage());
+            Log::error('Failed to get admission mentoring lead dashboard data '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get admission mentoring lead data'
+                'message' => 'Failed to get admission mentoring lead data',
             ], 500);
         }
 
@@ -809,9 +827,9 @@ class SalesDashboardController extends Controller
                     'ctx' => [
                         'label' => $dataset_lead_labels,
                         'dataset' => $dataset_lead,
-                        'bgcolor' => $dataset_bgcolor
-                    ]
-                ]
+                        'bgcolor' => $dataset_bgcolor,
+                    ],
+                ],
             ]
         );
     }
@@ -824,8 +842,8 @@ class SalesDashboardController extends Controller
         $cp_filter['prog'] = 'Academic & Test Preparation';
 
         $dateDetails = [
-            'startDate' => $cp_filter['qdate'] . '-01',
-            'endDate' => $cp_filter['qdate'] . '-31'
+            'startDate' => $cp_filter['qdate'].'-01',
+            'endDate' => $cp_filter['qdate'].'-31',
         ];
 
         try {
@@ -839,10 +857,11 @@ class SalesDashboardController extends Controller
             }
         } catch (Exception $e) {
 
-            Log::error('Failed to get academic prep lead dashboard data ' . $e->getMessage());
+            Log::error('Failed to get academic prep lead dashboard data '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get academic prep lead data'
+                'message' => 'Failed to get academic prep lead data',
             ], 500);
         }
 
@@ -853,9 +872,9 @@ class SalesDashboardController extends Controller
                     'ctx' => [
                         'label' => $dataset_lead_labels,
                         'dataset' => $dataset_lead,
-                        'bgcolor' => $dataset_bgcolor
-                    ]
-                ]
+                        'bgcolor' => $dataset_bgcolor,
+                    ],
+                ],
             ]
         );
     }
@@ -865,11 +884,11 @@ class SalesDashboardController extends Controller
         $dataset_lead_labels = $dataset_lead = $dataset_bgcolor = [];
         $cp_filter['qdate'] = $request->get('month');
         $cp_filter['quuid'] = $request->get('user') ?? null;
-        $cp_filter['prog'] = 'Experiential Learning'; # new
+        $cp_filter['prog'] = 'Experiential Learning'; // new
 
         $dateDetails = [
-            'startDate' => $cp_filter['qdate'] . '-01',
-            'endDate' => $cp_filter['qdate'] . '-31'
+            'startDate' => $cp_filter['qdate'].'-01',
+            'endDate' => $cp_filter['qdate'].'-31',
         ];
 
         try {
@@ -883,10 +902,11 @@ class SalesDashboardController extends Controller
             }
         } catch (Exception $e) {
 
-            Log::error('Failed to get experiential learning lead dashboard data ' . $e->getMessage());
+            Log::error('Failed to get experiential learning lead dashboard data '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get career exploration lead data'
+                'message' => 'Failed to get career exploration lead data',
             ], 500);
         }
 
@@ -897,9 +917,9 @@ class SalesDashboardController extends Controller
                     'ctx' => [
                         'label' => $dataset_lead_labels,
                         'dataset' => $dataset_lead,
-                        'bgcolor' => $dataset_bgcolor
-                    ]
-                ]
+                        'bgcolor' => $dataset_bgcolor,
+                    ],
+                ],
             ]
         );
     }
@@ -910,7 +930,7 @@ class SalesDashboardController extends Controller
         $cp_filter['qdate'] = $request->get('month');
         $cp_filter['quuid'] = $request->get('user') ?? null;
 
-        $programId = null; # means all programs
+        $programId = null; // means all programs
 
         try {
             $salesTarget = $this->salesTargetRepository->getMonthlySalesTarget($programId, $cp_filter);
@@ -921,7 +941,6 @@ class SalesDashboardController extends Controller
             $participant_actual = isset($salesActual['total_participant']) ? $salesActual['total_participant'] : 0;
             $revenue_target = isset($salesTarget->total_target) ? $salesTarget->total_target : 0;
             $revenue_actual = isset($salesActual['total_target']) ? $salesActual['total_target'] : 0;
-
 
             $dataset_participant = [$participant_target, $participant_actual];
             $dataset_revenue = [$revenue_target, $revenue_actual];
@@ -938,17 +957,17 @@ class SalesDashboardController extends Controller
                 $target_student = $detail['total_target_participant'] ??= 0;
 
                 $html .= '<tr class="text-center">
-                        <td>' . $no++ . '</td>
-                        <td>' . (isset($detail['prog_id']) ? $detail['prog_id'] : '-') . '</td>
-                        <td class="text-start">' . $detail['program_name_sales'] . '</td>
-                        <td>' . $target_student . '</td>
-                        <td>' . number_format($detail['total_target'], '2', ',', '.') . '</td>
-                        <td>' . $detail['total_actual_participant'] . '</td>
-                        <td>' . number_format($detail['total_actual_amount'], '2', ',', '.') . '</td>
-                        <td>' . $percentage_participant . '%</td>
-                        <td>' . $percentage_revenue . '%</td>
+                        <td>'.$no++.'</td>
+                        <td>'.(isset($detail['prog_id']) ? $detail['prog_id'] : '-').'</td>
+                        <td class="text-start">'.$detail['program_name_sales'].'</td>
+                        <td>'.$target_student.'</td>
+                        <td>'.number_format($detail['total_target'], '2', ',', '.').'</td>
+                        <td>'.$detail['total_actual_participant'].'</td>
+                        <td>'.number_format($detail['total_actual_amount'], '2', ',', '.').'</td>
+                        <td>'.$percentage_participant.'%</td>
+                        <td>'.$percentage_revenue.'%</td>
                     </tr>';
-                
+
                 $data[] = [
                     'prog_id' => (isset($detail['prog_id']) ? $detail['prog_id'] : '-'),
                     'program_name' => $detail['program_name_sales'],
@@ -963,27 +982,27 @@ class SalesDashboardController extends Controller
                     'sales_percentage' => [
                         'student' => $percentage_participant,
                         'total_amount' => $percentage_revenue,
-                    ]
+                    ],
                 ];
             }
 
             $html .= '<tr class="text-center">
                         <th colspan="3">Total</th>
-                        <td><b>' . $salesDetail->sum('total_target_participant') . '</b></td>
-                        <td><b>' . number_format($salesDetail->sum('total_target'), '2', ',', '.') . '</b></td>
-                        <td><b>' . $salesDetail->sum('total_actual_participant') . '</b></td>
-                        <td><b>' . number_format($salesDetail->sum('total_actual_amount'), '2', ',', '.') . '</b></td>
-                        <td><b>' . ($salesDetail->sum('total_target_participant') != 0 ?  round(($salesDetail->sum('total_actual_participant') / $salesDetail->sum('total_target_participant')) * 100, 2) : 0) . '%</b></td>
-                        <td><b>' . ($salesDetail->sum('total_target') != 0 ? ($salesDetail->sum('total_actual_amount') / $salesDetail->sum('total_target')) * 100 : 0) . '%</b></td>
+                        <td><b>'.$salesDetail->sum('total_target_participant').'</b></td>
+                        <td><b>'.number_format($salesDetail->sum('total_target'), '2', ',', '.').'</b></td>
+                        <td><b>'.$salesDetail->sum('total_actual_participant').'</b></td>
+                        <td><b>'.number_format($salesDetail->sum('total_actual_amount'), '2', ',', '.').'</b></td>
+                        <td><b>'.($salesDetail->sum('total_target_participant') != 0 ? round(($salesDetail->sum('total_actual_participant') / $salesDetail->sum('total_target_participant')) * 100, 2) : 0).'%</b></td>
+                        <td><b>'.($salesDetail->sum('total_target') != 0 ? ($salesDetail->sum('total_actual_amount') / $salesDetail->sum('total_target')) * 100 : 0).'%</b></td>
                     </tr>';
         } catch (Exception $e) {
-            Log::error('Failed to get sales target dashboard data ' . $e->getMessage() . ' | Line: ' . $e->getLine());
+            Log::error('Failed to get sales target dashboard data '.$e->getMessage().' | Line: '.$e->getLine());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get sales target dashboard data'
+                'message' => 'Failed to get sales target dashboard data',
             ], 500);
         }
-        
 
         return response()->json(
             [
@@ -993,8 +1012,8 @@ class SalesDashboardController extends Controller
                         'participant' => $dataset_participant,
                         'revenue' => $dataset_revenue,
                     ],
-                    'data' => $data
-                ]
+                    'data' => $data,
+                ],
             ]
         );
     }
@@ -1007,57 +1026,57 @@ class SalesDashboardController extends Controller
 
         $html = '';
         $clientEventPercentage = [];
-        
+
         try {
-            if (!$events = $this->eventRepository->getEventsWithParticipants($filter)) {
+            if (! $events = $this->eventRepository->getEventsWithParticipants($filter)) {
 
                 $html = '<tr><td colspan="2">There\'s no data</td></tr>';
                 $dataset_participant[] = $dataset_target[] = $dataset_labels[] = 0;
             } else {
-    
+
                 foreach ($events as $event) {
                     $dataset_participants[] = $event->participants;
                     $dataset_target[] = $event->event_target == null ? 0 : $event->event_target;
                     $dataset_labels[] = $event->event_title;
-    
+
                     $percentage = $event->participants != 0 && $event->event_target != null ? ($event->participants / $event->event_target) * 100 : 0;
-    
+
                     $html .= '<tr>
-                                <td>' . $event->event_title . '</td>
-                                <td class="text-end">' . $percentage . '%</td>
+                                <td>'.$event->event_title.'</td>
+                                <td class="text-end">'.$percentage.'%</td>
                             </tr>';
-    
+
                     $clientEventPercentage[] = [
                         'event_name' => $event->event_title,
-                        'percentage' => $percentage
+                        'percentage' => $percentage,
                     ];
                 }
             }
-    
+
             $filter['eventId'] = count($events) > 0 ? $events[0]->event_id : null;
-    
-            if (!$conversion_lead_of_event = $this->clientEventRepository->getConversionLead($filter)) {
-    
+
+            if (! $conversion_lead_of_event = $this->clientEventRepository->getConversionLead($filter)) {
+
                 $dataset_lead_labels[] = $dataset_lead_total[] = 0;
             } else {
-    
+
                 foreach ($conversion_lead_of_event->pluck('conversion_lead')->toArray() as $key => $value) {
                     $dataset_lead_labels[] = $value;
                 }
-    
+
                 foreach ($conversion_lead_of_event->pluck('count_conversionLead')->toArray() as $key => $value) {
                     $dataset_lead_total[] = $value == null || $value == '' ? 0 : $value;
                 }
             }
-    
+
         } catch (Exception $e) {
-            Log::error('Failed to get client event sales dashboard ' . $e->getMessage() . ' | Line: ' . $e->getLine());
+            Log::error('Failed to get client event sales dashboard '.$e->getMessage().' | Line: '.$e->getLine());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get client event sales dashboard'
+                'message' => 'Failed to get client event sales dashboard',
             ], 500);
         }
-       
 
         return response()->json(
             [
@@ -1072,16 +1091,16 @@ class SalesDashboardController extends Controller
                     'lead' => [
                         'labels' => $dataset_lead_labels,
                         'total' => $dataset_lead_total,
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
     }
 
-    # 
+    //
     public function compare_program(Request $request)
     {
-        # retrieve the data from view
+        // retrieve the data from view
         $queries = $request->only([
             'prog',
             'query_month',
@@ -1089,7 +1108,7 @@ class SalesDashboardController extends Controller
             'second_year',
             'first_monthyear',
             'second_monthyear',
-            'uuid', # user uuid
+            'uuid', // user uuid
         ]);
 
         $cp_filter = [
@@ -1105,10 +1124,11 @@ class SalesDashboardController extends Controller
         try {
 
             $comparisons = $this->clientProgramRepository->getComparisonBetweenYears($cp_filter);
-            
+
         } catch (Exception $e) {
 
             Log::error('Failed to get comparison program on sales dashboard. Error : '.$e->getMessage().' on line '.$e->getLine());
+
             return response()->json(['success' => false, 'message' => 'Failed to get comparison program on sales dashboard.'], 500);
         }
 
@@ -1117,7 +1137,7 @@ class SalesDashboardController extends Controller
 
     public function exportClient()
     {
-        return Excel::download(new DataClient(), 'data-client.xlsx');
+        return Excel::download(new DataClient, 'data-client.xlsx');
     }
 
     public function getDetailInitialConsultByMonth(Request $request)
@@ -1145,26 +1165,25 @@ class SalesDashboardController extends Controller
             }
 
             ${'table_content_'.$name} = null;
-            
+
             if (count($data[$i]) == 0) {
                 ${'table_content_'.$name} .= '<tr><td class="text-center" colspan="3">No data</td></tr>';
                 $i++;
+
                 continue;
             }
-
 
             foreach ($data[$i] as $detail) {
 
                 ${'table_content_'.$name} .= '<tr>
-                            <td>'. $no++ .'</td>
-                            <td>'. $detail->client->full_name .'</td>
-                            <td>'. date('d F Y', strtotime($detail->initconsult_date)) .'</td>
+                            <td>'.$no++.'</td>
+                            <td>'.$detail->client->full_name.'</td>
+                            <td>'.date('d F Y', strtotime($detail->initconsult_date)).'</td>
                         </tr>';
             }
 
             $i++;
         }
-
 
         $html = '<hr>
             <div class="d-flex justify-content-between align-items-center">
@@ -1178,7 +1197,7 @@ class SalesDashboardController extends Controller
                     <th>Client Name</th>
                     <th style="width:150px">IC Date</th>
                 </tr>
-                ' . $table_content_soon . '
+                '.$table_content_soon.'
             </table>
             <hr>
             <div class="d-flex justify-content-between align-items-center">
@@ -1192,7 +1211,7 @@ class SalesDashboardController extends Controller
                     <th>Client Name</th>
                     <th style="width:150px">IC Date</th>
                 </tr>
-                ' . $table_content_already . '
+                '.$table_content_already.'
             </table>
             <hr>
             <div class="d-flex justify-content-between align-items-center">
@@ -1206,16 +1225,15 @@ class SalesDashboardController extends Controller
                     <th>Client Name</th>
                     <th style="width:150px">IC Date</th>
                 </tr>
-                ' . $table_content_success . '
+                '.$table_content_success.'
             </table>';
 
         return response()->json([
             'success' => true,
             'data' => [
-                'ctx' => $html
-            ] 
+                'ctx' => $html,
+            ],
         ]);
 
     }
-
 }

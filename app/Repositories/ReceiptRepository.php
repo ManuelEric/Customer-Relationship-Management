@@ -3,17 +3,14 @@
 namespace App\Repositories;
 
 use App\Interfaces\ReceiptRepositoryInterface;
-use App\Models\Invb2b;
 use App\Models\Receipt;
 use App\Models\v1\Receipt as V1Receipt;
-use App\Models\Refund;
 use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
 class ReceiptRepository implements ReceiptRepositoryInterface
 {
-
     public function getAllReceiptSchDataTables()
     {
         return Datatables::eloquent(
@@ -38,7 +35,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                     'tbl_receipt.receipt_amount_idr as total_price_idr',
                 )
                 ->where('tbl_receipt.receipt_status', 1)
-                // ->orderBy('tbl_receipt.created_at', 'DESC')
+            // ->orderBy('tbl_receipt.created_at', 'DESC')
         )->make(true);
     }
 
@@ -55,7 +52,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 ->select(
                     'tbl_receipt.id as increment_receipt',
                     // 'tbl_corp.corp_name',
-                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null
                                 THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -71,9 +68,9 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                     'tbl_receipt.receipt_amount_idr as total_price_idr',
                 )
                 ->where('tbl_receipt.receipt_status', 1)
-                // ->orderBy('tbl_receipt.created_at', 'DESC')
+            // ->orderBy('tbl_receipt.created_at', 'DESC')
         )->filterColumn('partnership_name', function ($query, $keyword) {
-            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
+            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null
                         THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                         ELSE tbl_corp.corp_name
                     END) like ?';
@@ -90,7 +87,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
                 ->select(
                     'tbl_receipt.id as increment_receipt',
-                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null
                                 THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -106,9 +103,9 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 )
                 ->where('tbl_receipt.receipt_status', 1)
                 ->where('tbl_referral.referral_type', 'Out')
-                // ->orderBy('tbl_receipt.created_at', 'DESC')
+            // ->orderBy('tbl_receipt.created_at', 'DESC')
         )->filterColumn('partnership_name', function ($query, $keyword) {
-            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
+            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null
                         THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                         ELSE tbl_corp.corp_name
                     END) like ?';
@@ -123,53 +120,52 @@ class ReceiptRepository implements ReceiptRepositoryInterface
 
     public function getReceiptByInvoiceId($invoiceId, $paymentMethod, $installmentId = null)
     {
-        return Receipt::where('inv_id', $invoiceId)->when($paymentMethod == "Installment", function ($query) use ($installmentId) {
+        return Receipt::where('inv_id', $invoiceId)->when($paymentMethod == 'Installment', function ($query) use ($installmentId) {
             $query->where('invdtl_id', $installmentId);
         })->first();
     }
 
-
-    public function getAllReceiptByStatusDataTables($status = null) # client program
+    public function getAllReceiptByStatusDataTables($status = null) // client program
     {
-        if($status){
+        if ($status) {
             $fColumns = [
                 'relation' => ['invoiceProgram', 'invoiceProgram.bundling.first_detail.client_program.client', 'invoiceProgram.bundling.first_detail.client_program.program'],
                 'columns' => ['created_at', 'client_fullname', 'program_name'],
-                'realColumns' => ['created_at', DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'prog_program']
+                'realColumns' => ['created_at', DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'prog_program'],
             ];
             $query = Receipt::where('receipt_status', 1)
-                            ->whereNotNull('inv_id')
-                            ->whereRelation('invoiceProgram', 'bundling_id', '!=', null)
-                            ->select([
-                                'id',
-                                'receipt_id',
-                                'inv_id',
-                                'receipt_method',
-                                'receipt_amount_idr',
-                            ]);
-            
+                ->whereNotNull('inv_id')
+                ->whereRelation('invoiceProgram', 'bundling_id', '!=', null)
+                ->select([
+                    'id',
+                    'receipt_id',
+                    'inv_id',
+                    'receipt_method',
+                    'receipt_amount_idr',
+                ]);
+
             $datatable = DataTables::eloquent($query)
-            ->addColumn('created_at', function($query){
-                return $query->invoiceProgram->created_at;
-            })
-            ->addColumn('bundling_id', function($query){
-                return $query->invoiceProgram->bundling_id;
-            })
-            ->addColumn('client_fullname', function($query){
-                return $query->invoiceProgram->bundling->details->first()->client_program->client->full_name;
-            })
-            ->addColumn('program_name', function($query){
-                return $query->invoiceProgram->bundling->details->first()->client_program->program->program_name;
-            });
+                ->addColumn('created_at', function ($query) {
+                    return $query->invoiceProgram->created_at;
+                })
+                ->addColumn('bundling_id', function ($query) {
+                    return $query->invoiceProgram->bundling_id;
+                })
+                ->addColumn('client_fullname', function ($query) {
+                    return $query->invoiceProgram->bundling->details->first()->client_program->client->full_name;
+                })
+                ->addColumn('program_name', function ($query) {
+                    return $query->invoiceProgram->bundling->details->first()->client_program->program->program_name;
+                });
 
             foreach ($fColumns['columns'] as $key => $column) {
-                $datatable->filterColumn($column, function ($query, $keyword) use($fColumns, $key) {
+                $datatable->filterColumn($column, function ($query, $keyword) use ($fColumns, $key) {
                     $query->whereRelation($fColumns['relation'][$key], $fColumns['realColumns'][$key], 'like', "%{$keyword}%");
                 });
-               
+
             }
 
-            return $datatable->make(true);;
+            return $datatable->make(true);
 
         }
 
@@ -196,10 +192,10 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 'tbl_inv.created_at',
                 'tbl_inv.inv_duedate',
                 'tbl_receipt.receipt_amount_idr',
-                DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
+                DB::raw('DATEDIFF(inv_duedate, now()) as date_difference'),
             ]);
-            
-            // ->orderBy('tbl_receipt.created_at', 'DESC');
+
+        // ->orderBy('tbl_receipt.created_at', 'DESC');
 
         return DataTables::eloquent($query)
             ->addColumn('is_bundle', function ($query) {
@@ -217,11 +213,11 @@ class ReceiptRepository implements ReceiptRepositoryInterface
 
     public function getReceiptByInvoiceIdentifier($invoiceType, $identifier)
     {
-        return Receipt::when($invoiceType == "Program", function ($query) use ($identifier) {
+        return Receipt::when($invoiceType == 'Program', function ($query) use ($identifier) {
             $query->where('inv_id', $identifier);
-        })->when($invoiceType == "Installment", function ($query) use ($identifier) {
+        })->when($invoiceType == 'Installment', function ($query) use ($identifier) {
             $query->where('invdtl_id', $identifier);
-        })->when($invoiceType == "B2B", function ($query) use ($identifier) {
+        })->when($invoiceType == 'B2B', function ($query) use ($identifier) {
             $query->where('invb2b_id', $identifier);
         })->first();
     }
@@ -257,11 +253,11 @@ class ReceiptRepository implements ReceiptRepositoryInterface
 
     public function updateReceiptByInvoiceIdentifier($invoiceType, $identifier, array $newDetails)
     {
-        return Receipt::when($invoiceType == "Program", function ($query) use ($identifier, $newDetails) {
+        return Receipt::when($invoiceType == 'Program', function ($query) use ($identifier, $newDetails) {
             $query->where('inv_id', $identifier)->update($newDetails);
-        })->when($invoiceType == "Installment", function ($query) use ($identifier, $newDetails) {
+        })->when($invoiceType == 'Installment', function ($query) use ($identifier, $newDetails) {
             $query->where('invdtl_id', $identifier)->update($newDetails);
-        })->when($invoiceType == "B2B", function ($query) use ($identifier, $newDetails) {
+        })->when($invoiceType == 'B2B', function ($query) use ($identifier, $newDetails) {
             $query->where('invb2b_id', $identifier)->update($newDetails);
         });
     }
@@ -295,23 +291,23 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 'tbl_receipt.receipt_amount',
                 DB::raw('(CASE
                             WHEN tbl_receipt.invb2b_id is not null THEN tbl_receipt.invb2b_id
-                            WHEN tbl_receipt.invdtl_id is not null THEN 
+                            WHEN tbl_receipt.invdtl_id is not null THEN
                                 (CASE
                                     WHEN tbl_invdtl.invb2b_id is not null THEN tbl_invdtl.invb2b_id
                                 END)
                             END) as invb2b_id'),
                 DB::raw('(CASE
                             WHEN tbl_receipt.inv_id is not null THEN tbl_receipt.inv_id
-                            WHEN tbl_receipt.invdtl_id is not null THEN 
+                            WHEN tbl_receipt.invdtl_id is not null THEN
                                 (CASE
                                     WHEN tbl_invdtl.inv_id is not null THEN tbl_invdtl.inv_id
                                 END)
                             END) as inv_id'),
                 DB::raw('(CASE
-                            WHEN tbl_receipt.invdtl_id is not null THEN 
+                            WHEN tbl_receipt.invdtl_id is not null THEN
                             (CASE
-                                WHEN tbl_invdtl.invb2b_id is not null THEN  
-                                    (CASE 
+                                WHEN tbl_invdtl.invb2b_id is not null THEN
+                                    (CASE
                                         WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
                                         WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
                                     END)
@@ -322,10 +318,10 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                             WHEN tbl_invb2b.partnerprog_id is not null THEN tbl_partner_prog.status
                     END) as status_where'),
                 DB::raw('(CASE
-                            WHEN tbl_receipt.invdtl_id is not null THEN 
+                            WHEN tbl_receipt.invdtl_id is not null THEN
                             (CASE
-                                WHEN tbl_invdtl.invb2b_id is not null THEN  
-                                    (CASE 
+                                WHEN tbl_invdtl.invb2b_id is not null THEN
+                                    (CASE
                                         WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type
                                     END)
                             END)
@@ -340,10 +336,10 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             $queryReceipt->whereDate('tbl_receipt.created_at', '>=', $start_date)
                 ->whereDate('tbl_receipt.created_at', '<=', $end_date)
                 ->get();
-        } else if (isset($start_date) && !isset($end_date)) {
+        } elseif (isset($start_date) && ! isset($end_date)) {
             $queryReceipt->whereDate('tbl_receipt.created_at', '>=', $start_date)
                 ->get();
-        } else if (!isset($start_date) && isset($end_date)) {
+        } elseif (! isset($start_date) && isset($end_date)) {
             $queryReceipt->whereDate('tbl_receipt.created_at', '<=', $end_date)
                 ->get();
         } else {
@@ -371,10 +367,10 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             ->whereMonth('tbl_receipt.created_at', '=', $month)
             ->where(
                 DB::raw('(CASE
-                            WHEN tbl_receipt.invdtl_id is not null THEN 
+                            WHEN tbl_receipt.invdtl_id is not null THEN
                             (CASE
-                                WHEN tbl_invdtl.invb2b_id is not null THEN  
-                                    (CASE 
+                                WHEN tbl_invdtl.invb2b_id is not null THEN
+                                    (CASE
                                         WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
                                         WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
                                         WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type
@@ -404,7 +400,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
         return Datatables::eloquent($model)->make(true);
     }
 
-    # signature
+    // signature
     public function getReceiptsNeedToBeSigned($asDatatables = false)
     {
         $response = Receipt::with(['receiptAttachment'])->
@@ -430,13 +426,13 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 'tbl_receipt.receipt_date as due_date',
                 'tbl_receipt.receipt_amount_idr as total_price_idr',
                 'tbl_receipt.receipt_amount as total_price',
-                DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
+                DB::raw('DATEDIFF(inv_duedate, now()) as date_difference'),
             ]);
-            
+
         return $asDatatables === true ? $response : $response->get();
     }
 
-    # CRM
+    // CRM
     public function getAllReceiptFromCRM()
     {
         return V1Receipt::all();

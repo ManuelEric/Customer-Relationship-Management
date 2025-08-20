@@ -15,9 +15,8 @@ class DeleteVendorAction
 
     public function execute(
         $vendor_id
-    )
-    {
-        # delete vendor
+    ) {
+        // delete vendor
         $deleted_vendor = $this->vendorRepository->deleteVendor($vendor_id);
 
         return $deleted_vendor;

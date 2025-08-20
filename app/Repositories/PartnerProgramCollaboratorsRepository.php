@@ -10,10 +10,11 @@ use App\Models\University;
 
 class PartnerProgramCollaboratorsRepository implements PartnerProgramCollaboratorsRepositoryInterface
 {
-    # school
+    // school
     public function getSchoolCollaboratorsByPartnerProgId(string $partnerprogId)
     {
         $partner_program = PartnerProg::find($partnerprogId);
+
         return $partner_program->schoolCollaborators;
     }
 
@@ -21,8 +22,8 @@ class PartnerProgramCollaboratorsRepository implements PartnerProgramCollaborato
     {
         $partner_program = PartnerProg::find($partnerprogId);
         $partner_program->schoolCollaborators()->attach($schoolId);
-        
-        # return school master
+
+        // return school master
         return School::whereSchoolId($schoolId);
     }
 
@@ -31,14 +32,15 @@ class PartnerProgramCollaboratorsRepository implements PartnerProgramCollaborato
         $partner_program = PartnerProg::find($partnerprogId);
         $partner_program->schoolCollaborators()->detach($schoolId);
 
-        # return school master
+        // return school master
         return School::whereSchoolId($schoolId);
     }
 
-    # university
+    // university
     public function getUnivCollaboratorsByPartnerProgId(string $partnerprogId)
     {
         $partner_program = PartnerProg::find($partnerprogId);
+
         return $partner_program->univCollaborators;
     }
 
@@ -46,8 +48,8 @@ class PartnerProgramCollaboratorsRepository implements PartnerProgramCollaborato
     {
         $partner_program = PartnerProg::find($partnerprogId);
         $partner_program->univCollaborators()->attach($univId);
-        
-        # return university master
+
+        // return university master
         return University::whereUniversityId($univId);
     }
 
@@ -56,23 +58,24 @@ class PartnerProgramCollaboratorsRepository implements PartnerProgramCollaborato
         $partner_program = PartnerProg::find($partnerprogId);
         $partner_program->univCollaborators()->detach($univId);
 
-        # return university master
+        // return university master
         return University::whereUniversityId($univId);
     }
 
-    # partner
+    // partner
     public function getPartnerCollaboratorsByPartnerProgId(string $partnerprogId)
     {
         $partner_program = PartnerProg::find($partnerprogId);
+
         return $partner_program->partnerCollaborators;
-    }   
+    }
 
     public function storePartnerCollaborators($partnerprogId, $corpId)
     {
         $partner_program = PartnerProg::find($partnerprogId);
         $partner_program->partnerCollaborators()->attach($corpId);
-        
-        # return corporate / partner master
+
+        // return corporate / partner master
         return Corporate::whereCorpId($corpId);
     }
 
@@ -80,8 +83,8 @@ class PartnerProgramCollaboratorsRepository implements PartnerProgramCollaborato
     {
         $partner_program = PartnerProg::find($partnerprogId);
         $partner_program->partnerCollaborators()->detach($corpId);
-        
-        # return corporate / partner master
+
+        // return corporate / partner master
         return Corporate::whereCorpId($corpId);
     }
 }

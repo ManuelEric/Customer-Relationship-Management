@@ -20,9 +20,10 @@ class ExtSalesTrackingController extends Controller
     {
         $params = $request->only('leadId', 'leadName', 'startDate', 'endDate', 'subLead', 'mainProgId', 'progId', 'picUUID');
 
-        if (!$lead_source_detail = $this->clientProgramRepository->getLeadSourceDetails($params))
+        if (! $lead_source_detail = $this->clientProgramRepository->getLeadSourceDetails($params)) {
             return response()->json(['success' => false, 'data' => 'No data found.']);
-        
+        }
+
         try {
 
             $html = '<thead>
@@ -34,7 +35,7 @@ class ExtSalesTrackingController extends Controller
                     </thead>';
             $no = 1;
             foreach ($lead_source_detail as $data) {
-    
+
                 $html .= '<tr>
                             <td>'.$no++.'.</td>
                             <td>'.$data->first_name.' '.$data->last_name.'</td>
@@ -48,9 +49,9 @@ class ExtSalesTrackingController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                    'title' => 'Detail of Lead Source \''.$params['leadName'].'\'',
-                    'context' => $html
-                ]
+                'title' => 'Detail of Lead Source \''.$params['leadName'].'\'',
+                'context' => $html,
+            ],
         ]);
     }
 
@@ -58,9 +59,10 @@ class ExtSalesTrackingController extends Controller
     {
         $params = $request->only('leadId', 'leadName', 'startDate', 'endDate', 'subLead', 'mainProgId', 'progId', 'picUUID');
 
-        if (!$conversionLeadDetail = $this->clientProgramRepository->getConversionLeadDetails($params))
+        if (! $conversionLeadDetail = $this->clientProgramRepository->getConversionLeadDetails($params)) {
             return response()->json(['success' => false, 'data' => 'No data found.']);
-        
+        }
+
         try {
 
             $html = '<thead>
@@ -73,7 +75,7 @@ class ExtSalesTrackingController extends Controller
                     </thead>';
             $no = 1;
             foreach ($conversionLeadDetail as $data) {
-    
+
                 $html .= '<tr>
                             <td>'.$no++.'.</td>
                             <td>'.$data->first_name.' '.$data->last_name.'</td>
@@ -88,9 +90,9 @@ class ExtSalesTrackingController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                    'title' => 'Detail of Conversion Lead \''.$params['leadName'].'\'',
-                    'context' => $html
-                ]
+                'title' => 'Detail of Conversion Lead \''.$params['leadName'].'\'',
+                'context' => $html,
+            ],
         ]);
     }
 }

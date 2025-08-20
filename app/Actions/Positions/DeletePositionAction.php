@@ -15,9 +15,8 @@ class DeletePositionAction
 
     public function execute(
         $position_id
-    )
-    {
-        # delete position
+    ) {
+        // delete position
         $deleted_position = $this->positionRepository->deletePosition($position_id);
 
         return $deleted_position;

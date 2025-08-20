@@ -168,7 +168,7 @@
                         render: function(data, type, row, meta) {
                             if (data != null)
                                 return row.prog_scope.charAt(0).toUpperCase() + row.prog_scope.slice(1);
-                            
+
                             return data;
                         }
                     },

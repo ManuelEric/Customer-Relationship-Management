@@ -18,8 +18,8 @@
                 <div class="row g-2 installment mb-3">
                     <div class="col-md-3">
                         <label for="">Name</label>
-                        <input type="text" name="invdtl_installment[]" class="form-control form-control-sm installment-name" 
-                            value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_installment : old('invdtl_installment')[$i] }}" 
+                        <input type="text" name="invdtl_installment[]" class="form-control form-control-sm installment-name"
+                            value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_installment : old('invdtl_installment')[$i] }}"
                                     {{ empty($invoicePartner->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
                          @error('invdtl_installment.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -27,8 +27,8 @@
                     </div>
                     <div class="col-md-3">
                         <label for="">Due Date</label>
-                        <input type="date" name="invdtl_duedate[]" class="form-control form-control-sm" 
-                            value="{{ isset($invoicePartner->inv_detail) ? date('Y-m-d', strtotime($invoicePartner->inv_detail[$i]->invdtl_duedate)) : old('invdtl_duedate')[$i] }}" 
+                        <input type="date" name="invdtl_duedate[]" class="form-control form-control-sm"
+                            value="{{ isset($invoicePartner->inv_detail) ? date('Y-m-d', strtotime($invoicePartner->inv_detail[$i]->invdtl_duedate)) : old('invdtl_duedate')[$i] }}"
                                     {{ empty($invoicePartner->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
                         @error('invdtl_duedate.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -37,7 +37,7 @@
                     <div class="col-md-2">
                         <label for="">Percentage (%)</label>
                         <input type="text" name="invdtl_percentage[]" id="percentage_{{ $i }}" class="form-control form-control-sm percentage"
-                            onchange="checkPercentage('{{ $i }}')" value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_percentage : old('invdtl_percentage')[$i] }}" 
+                            onchange="checkPercentage('{{ $i }}')" value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_percentage : old('invdtl_percentage')[$i] }}"
                                     {{ empty($invoicePartner->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
                         @error('invdtl_percentage.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -58,7 +58,7 @@
                             <span class="input-group-text" id="basic-addon1">
                                 Rp
                             </span>
-                            <input type="number" name="invdtl_amountidr[]" class="form-control amount" 
+                            <input type="number" name="invdtl_amountidr[]" class="form-control amount"
                                 id="amount_{{ $i }}" onchange="checkAmount('{{ $i }}')" value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_amountidr : old('invdtl_amountidr')[$i] }}" {{ empty($invoicePartner->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
                             @error('invdtl_amountidr.'.$i)
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -162,9 +162,9 @@
 
         $(".installment").first().clone().attr('id', 'installment_' + id).appendTo("#installment_content");
 
-        // value 
+        // value
         $('#installment_' + id).find('input').val('')
-        
+
 
         $('#installment_' + id).find('.installment-name').val('Installment ' + parseInt(id+1))
         $('#installment_' + id).find('.percentage').attr('id', 'percentage_' + id)
@@ -180,11 +180,11 @@
         }
         $('#installment_' + id).remove()
     }
-    
+
     function triggerInstallment()
     {
         $(".percentage").each(function() {
-            
+
             var each_element = $(this)
             var element_id = each_element.attr('id')
             const arrayElement = element_id.split("_")

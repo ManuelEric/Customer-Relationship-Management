@@ -339,7 +339,7 @@
 <script>
     const digitalLeadsTarget = document.getElementById('leadsTarget');
 
-    // const options = 
+    // const options =
     let dataset_leadsTarget = new Array();
     let dataset_leadsActual = new Array();
     let lbl_dataLeads = new Array();
@@ -449,7 +449,7 @@
         // console.log(result)
         var html = '';
         var no = 1;
-        
+
         var divisi = ['sales', 'referral', 'digital'];
         var typeLead = ['lead_needed', 'hot_lead', 'ic', 'contribution']
 
@@ -574,7 +574,7 @@
 
                 $("#listDataLeads .detail").each(function(){
                     var link = "{{url('/')}}/client/student/" + $(this).data('clientid')
-                    
+
                     $(this).click(function() {
                         window.open(link, '_blank')
                     })
@@ -606,7 +606,7 @@
         XLSX.utils.book_append_sheet(workbook, ws[i], sheetName[i]);
     })
 
-   
+
 
     XLSX.writeFile(workbook, "data-leads.xlsx");
 

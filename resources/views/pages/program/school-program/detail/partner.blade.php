@@ -20,7 +20,7 @@
                         <div class="">
                             {{ $partner->corp_name }}
                         </div>
-                        <div class="btn-delete-school" style="cursor:pointer" 
+                        <div class="btn-delete-school" style="cursor:pointer"
                             onclick="confirmDelete('program/school/{{ $schId }}/detail/{{ $sch_ProgId }}/collaborators/partner', '{{ $partner->corp_id }}')">
                             <i class="bi bi-trash2 text-danger"></i>
                         </div>
@@ -39,7 +39,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <span>
-                    Partner 
+                    Partner
                 </span>
                 <i class="bi bi-pencil-square"></i>
             </div>

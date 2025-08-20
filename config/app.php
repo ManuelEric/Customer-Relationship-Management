@@ -182,7 +182,6 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
-
         /*
          * Package Service Providers...
          */
@@ -209,12 +208,12 @@ return [
         Barryvdh\DomPDF\ServiceProvider::class,
 
         /*
-         * Excel Service Providers... 
+         * Excel Service Providers...
          */
         Maatwebsite\Excel\ExcelServiceProvider::class,
 
         /*
-         * Terbilang Service Providers... 
+         * Terbilang Service Providers...
          */
         Riskihajar\Terbilang\TerbilangServiceProvider::class,
 
@@ -249,7 +248,7 @@ return [
         'Indonesia' => Laravolt\Indonesia\Facade::class,
         'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
         'Pusher' => Pusher\Pusher::class,
-        
+
     ])->toArray(),
 
 ];

@@ -5,7 +5,6 @@ namespace App\Jobs\RawClient;
 use App\Interfaces\ClientRepositoryInterface;
 use Exception;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -20,7 +19,9 @@ class ProcessVerifyClient implements ShouldQueue
     use IsMonitored;
 
     protected ClientRepositoryInterface $clientRepository;
+
     protected $clientIds;
+
     protected $is_many_request;
 
     /**
@@ -42,48 +43,48 @@ class ProcessVerifyClient implements ShouldQueue
     public function handle(ClientRepositoryInterface $clientRepository)
     {
         $clients = $clientRepository->getClientsById($this->clientIds);
-        
+
         DB::beginTransaction();
         try {
 
-            # declare default variables
+            // declare default variables
             $updatedClients = [];
 
             foreach ($clients as $student) {
 
-                ## Update to verified
+                // # Update to verified
 
-                # declare default variables
+                // declare default variables
                 $isVerified = false;
 
-                # Case 1: have joined the program with success status
+                // Case 1: have joined the program with success status
                 $model = $student->clientProgram()->whereIn('status', [0, 1])->exists();
-                if ($model)
+                if ($model) {
                     $isVerified = true;
+                }
 
-                # Case 2: Email, phone, and fullname are valid && school verified
-                if($student->mail != null && $student->phone != null && isset($student->school) && !preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/iu', $student->full_name)){
-                    if($student->school->is_verified == 'Y'){
+                // Case 2: Email, phone, and fullname are valid && school verified
+                if ($student->mail != null && $student->phone != null && isset($student->school) && ! preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/iu', $student->full_name)) {
+                    if ($student->school->is_verified == 'Y') {
                         $isVerified = true;
                     }
                 }
-                
-                
+
                 if ($isVerified === true) {
 
                     $clientRepository->updateClient($student->id, ['is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
 
-                    # push into an array updatedClients
+                    // push into an array updatedClients
                     array_push($updatedClients, $student->id);
                 }
 
             }
             DB::commit();
-            
+
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::info('Failed to verified client from school : ' . $e->getMessage() . ' on line ' . $e->getLine());
+            Log::info('Failed to verified client from school : '.$e->getMessage().' on line '.$e->getLine());
 
         }
 

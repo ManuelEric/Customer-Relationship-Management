@@ -8,7 +8,7 @@
 @endsection
 
 @section('content')
-    
+
 <style>
    .quote {
     margin: 0;
@@ -34,7 +34,7 @@
 @endif
 
 <div class="alert alert-primary text-black mt-3" role="alert">
-    Create your <a href="#" id="liveToastBtn" class="alert-link">own dashboard</a> or go to <a href="{{ url('/dashboard') }}" class="alert-link">general dashboard</a> 
+    Create your <a href="#" id="liveToastBtn" class="alert-link">own dashboard</a> or go to <a href="{{ url('/dashboard') }}" class="alert-link">general dashboard</a>
 </div>
 
 

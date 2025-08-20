@@ -23,7 +23,7 @@ class DownloadUserDocumentRequest extends FormRequest
     {
         return [
             'user' => 'required|exists:users,id',
-            'filetype' => 'required|in:CV,ID,TX,HI,EI'
+            'filetype' => 'required|in:CV,ID,TX,HI,EI',
         ];
     }
 
@@ -34,5 +34,4 @@ class DownloadUserDocumentRequest extends FormRequest
             'filetype' => $this->route('filetype'),
         ]);
     }
-
 }

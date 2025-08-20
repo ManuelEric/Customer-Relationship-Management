@@ -141,7 +141,7 @@
                 <table class="table table-hover table-striped">
                     <thead>
                         <tr id="thead-digital-lead">
-                            
+
                         </tr>
                     </thead>
                     <tbody id="tbody-digital-lead">
@@ -198,7 +198,7 @@
         var prog_id = $('#prog_id_digital').val()
 
         Swal.showLoading()
-        axios.get('{{ url('api/v1/dashboard/digital/detail') }}/' + month + '/lead-source/' + lead + '/' + prog_id) 
+        axios.get('{{ url('api/v1/dashboard/digital/detail') }}/' + month + '/lead-source/' + lead + '/' + prog_id)
             .then((response) => {
                 var result = response.data
 
@@ -211,8 +211,8 @@
             })
 
 
-        $('#modalLeadDetail').modal('show') 
-        $('#titleLeadDetail').html('Lead Source') 
+        $('#modalLeadDetail').modal('show')
+        $('#titleLeadDetail').html('Lead Source')
         var thead = $("#thead-digital-lead");
         thead.empty()
         thead.html(theadLead)
@@ -236,8 +236,8 @@
                 swal.close()
             })
 
-        $('#modalLeadDetail').modal('show') 
-        $('#titleLeadDetail').html('Conversion Lead') 
+        $('#modalLeadDetail').modal('show')
+        $('#titleLeadDetail').html('Conversion Lead')
         var thead = $("#thead-digital-lead");
         thead.empty()
         thead.html(theadLead)
@@ -270,7 +270,7 @@
 
                 // $('#avg-follow-up').html(icon + Math.round(avgFollowUpTime) + ' Days');
                 $('#avg-conversion').html(icon + Math.round(avgConversionTime) + ' Days');
-    
+
                 // Lead Source
                 html = '';
                 $('#list-lead-source').empty()

@@ -6,6 +6,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * @property int $id
+ * @property string $mainmenu_name
+ * @property int $order_no
+ * @property string $icon
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Menu> $submenu
+ * @property-read int|null $submenu_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MainMenus newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MainMenus newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MainMenus query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MainMenus whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MainMenus whereIcon($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MainMenus whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MainMenus whereMainmenuName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MainMenus whereOrderNo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MainMenus whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class MainMenus extends Model
 {
     use HasFactory;
@@ -15,7 +37,7 @@ class MainMenus extends Model
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'mainmenu_name',
@@ -23,7 +45,7 @@ class MainMenus extends Model
         'icon',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model

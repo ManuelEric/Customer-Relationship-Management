@@ -10,17 +10,71 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 #[ObservedBy(ClientEventObserver::class)]
+/**
+ * @property int $clientevent_id
+ * @property string|null $ticket_id can be used as identifier
+ * @property string $client_id
+ * @property string|null $child_id is used when client_id is a parent / they registered as a parent
+ * @property string|null $parent_id is used when client_id is a student / they registered as a student
+ * @property string|null $event_id
+ * @property string $lead_id
+ * @property int|null $eduf_id
+ * @property string|null $partner_id
+ * @property string $registration_type PR : Pra Registration, OTS : On The Spot
+ * @property int $number_of_attend How many people are joined the event
+ * @property string|null $notes
+ * @property string|null $referral_code Referral code is a unique code from client data
+ * @property int $status
+ * @property string|null $joined_date
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Client|null $children
+ * @property-read \App\Models\Client $client
+ * @property-read \App\Models\UserClient $clientMaster
+ * @property-read \App\Models\ClientProgram|null $clientProgram
+ * @property-read \App\Models\EdufLead|null $edufLead
+ * @property-read \App\Models\Event|null $event
+ * @property-read \App\Models\Lead $lead
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientEventLogMail> $logMail
+ * @property-read int|null $log_mail_count
+ * @property-read \App\Models\Client|null $parent
+ * @property-read \App\Models\Corporate|null $partner
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereChildId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereClienteventId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereEdufId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereEventId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereJoinedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereLeadId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereNumberOfAttend($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereParentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent wherePartnerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereReferralCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereRegistrationType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereTicketId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientEvent whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class ClientEvent extends Model
 {
     use HasFactory;
 
     protected $table = 'tbl_client_event';
+
     protected $primaryKey = 'clientevent_id';
 
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'client_id',
@@ -39,7 +93,7 @@ class ClientEvent extends Model
         'joined_date',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -59,10 +113,9 @@ class ClientEvent extends Model
 
         $updated = parent::update($attributes);
 
-        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
-        {
+        if (isset($attributes['is_many_request']) && $attributes['is_many_request']) {
             unset($attributes['is_many_request']);
-        }else{
+        } else {
             // Custom logic after update
             // Send to pusher
             event(new MessageSent('rt_client_event', 'channel_datatable'));
@@ -77,14 +130,14 @@ class ClientEvent extends Model
 
         $model = static::query()->create($attributes);
 
-        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
-        {
+        if (isset($attributes['is_many_request']) && $attributes['is_many_request']) {
             unset($attributes['is_many_request']);
-        }else{
+        } else {
             // Custom logic after create
             // Send to pusher
             event(new MessageSent('rt_client_event', 'channel_datatable'));
         }
+
         return $model;
     }
 

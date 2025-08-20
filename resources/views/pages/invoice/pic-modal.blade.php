@@ -32,7 +32,7 @@
                             Download</button>
                     </div>
                 </form>
-                
+
             </div>
         </div>
     </div>
@@ -71,7 +71,7 @@
                         <i class="bi bi-save2 me-1"></i>
                         Send</button>
                 </div>
-                
+
             </div>
         </div>
     </div>

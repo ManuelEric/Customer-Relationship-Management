@@ -1,5 +1,5 @@
 <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
-    @env(['local', 'production'])
+    @env(['local', 'development', 'production'])
         @if ($isSalesAdmin || $isSuperAdmin)
             <li class="nav-item">
                 <a @class([

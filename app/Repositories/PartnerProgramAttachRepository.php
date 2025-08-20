@@ -4,12 +4,9 @@ namespace App\Repositories;
 
 use App\Interfaces\PartnerProgramAttachRepositoryInterface;
 use App\Models\PartnerProgAttach;
-use DataTables;
 
 class PartnerProgramAttachRepository implements PartnerProgramAttachRepositoryInterface
 {
-
-
     public function getAllPartnerProgramAttachsByPartnerProgId($partnerProgramId)
     {
         return PartnerProgAttach::where('partner_prog_id', $partnerProgramId)->orderBy('id', 'asc')->get();

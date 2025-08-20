@@ -29,22 +29,20 @@ class GenerateLinkRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'payment_method' => 'required|in:CC,VA',
+            'payment_method' => 'required|in:CC,VA,QR',
             'bank' => 'required_if:payment_method,VA|in:BCA,BRI,NIAGA,MANDIRI',
             'installment' => 'required|boolean',
-            'id' => 'required'
+            'id' => 'required',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            
+
             'payment_method' => 'Payment Method',
             'bank' => 'Bank Name',
             'id' => 'Identifier',
         ];
     }
-
-
 }

@@ -15,9 +15,8 @@ class DeleteEventSpeakerAction
 
     public function execute(
         $agenda_id
-    )
-    {
-        # Delete event speaker
+    ) {
+        // Delete event speaker
         $deleted_event_speaker = $this->agendaSpeakerRepository->deleteAgendaSpeaker($agenda_id);
 
         return $deleted_event_speaker;

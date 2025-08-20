@@ -16,7 +16,6 @@ class UpdateUserAccessRequest extends FormRequest
         return true;
     }
 
-   
     /**
      * Get the validation rules that apply to the request.
      *
@@ -31,9 +30,7 @@ class UpdateUserAccessRequest extends FormRequest
             'copy_data' => 'required|boolean',
             'export_data' => 'required|boolean',
             'param' => 'required|in:menu,copy,export',
-            'user' => 'required|exists:users,id'
+            'user' => 'required|exists:users,id',
         ];
     }
-
-   
 }

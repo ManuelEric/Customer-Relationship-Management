@@ -14,7 +14,7 @@
      </div>
      <div class="card-body">
          <div class="list-group">
-             @forelse ($speakers as $speaker)  
+             @forelse ($speakers as $speaker)
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                         <div class="">
                             @switch($speaker->speaker_type)
@@ -29,7 +29,7 @@
                                 @break
                             @endswitch
                                 <small>{{ date("M d, Y H.i", strtotime($speaker->start_time)) }} - {{ date("M d, Y H.i", strtotime($speaker->end_time)) }}</small>
-                              
+
                         </div>
                         <div class="text-end d-flex align-items-center">
                             <select name="status_speaker" class="select w-100 status-form" onchange="checkStatusSpeaker('{{ $speaker->agenda_id }}')"
@@ -67,7 +67,7 @@
                  <i class="bi bi-pencil-square"></i>
              </div>
              <div class="modal-body w-100 text-start">
-                 <form 
+                 <form
                     action="{{ url('program/corporate/' . strtolower($partner->corp_id) . '/detail/' . $partnerProgram->id . '/speaker') }}" method="POST" id="formPosition">
                      @csrf
                      <div class="put"></div>
@@ -127,7 +127,7 @@
                                 @error('partner_speaker')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
-                            </div> 
+                            </div>
 
                             <div class="speaker mb-2 d-none" id="school">
                                 <label for="">
@@ -155,7 +155,7 @@
                                 <select name="" class="speaker-select w-100" id="speaker_pic">
                                     <option data-placeholder="true"></option>
                                 </select>
-                               
+
                             </div>
                          </div>
 
@@ -259,31 +259,26 @@
         });
         $('#reasonModal').modal('hide')
     }
-   
+
  </script>
 
-    @if($errors->has('speaker_type') || 
-        $errors->has('allin_speaker') || 
+    @if($errors->has('speaker_type') ||
+        $errors->has('allin_speaker') ||
         $errors->has('partner_speaker') ||
         $errors->has('start_time') ||
         $errors->has('end_time')
         )
-        
+
         @php
             $old = old('speaker_type');
         @endphp
 
         <script>
             $(document).ready(function(){
-                $('#speaker').modal('show'); 
+                $('#speaker').modal('show');
                 $('#speaker_type').val('{{$old}}').trigger('change')
             })
 
         </script>
 
     @endif
-
-
-   
-
-

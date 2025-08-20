@@ -15,9 +15,8 @@ class DeleteSubjectAction
 
     public function execute(
         $subject_id
-    )
-    {
-        # delete subject
+    ) {
+        // delete subject
         $deleted_subject = $this->subjectRepository->deleteSubject($subject_id);
 
         return $deleted_subject;

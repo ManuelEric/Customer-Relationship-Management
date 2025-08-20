@@ -4,34 +4,30 @@ namespace App\Http\Traits;
 
 use App\Models\Major;
 use App\Models\Program;
-use App\Models\Role;
 use App\Models\School;
 use App\Models\Tag;
 use App\Models\UserClient;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 trait SyncClientTrait
 {
-    use SplitNameTrait;
     use CheckExistingClientImport;
     use CreateCustomPrimaryKeyTrait;
+    use SplitNameTrait;
 
     public function syncInterestProgram($interestPrograms, $client, $joinedDate)
     {
-        $programDetails = []; # default
+        $programDetails = []; // default
         $programs = explode(', ', $interestPrograms);
         foreach ($programs as $program) {
 
             $programFromDB = Program::all();
 
             $mapProgram = $programFromDB->map(
-                function ($item, int $key) {
+                function (Program $program) {
                     return [
-                        'prog_id' => $item->prog_id,
-                        'program_name' => $item->programName,
+                        'prog_id' => $program->prog_id,
+                        'program_name' => $program->program_name,
                     ];
                 }
             );
@@ -46,39 +42,41 @@ trait SyncClientTrait
             }
         }
 
-        isset($programDetails) ? $client->interestPrograms()->syncWithoutDetaching($programDetails) : null;
+        if (! empty($programDetails)) {
+            $client->interestPrograms()->syncWithoutDetaching($programDetails);
+        }
 
     }
 
     public function syncDestinationCountry($destinationCountry, $client)
     {
-        $countryName = $arrayCountry = []; # default
-        $destinationCountryDetails = $destinationCountryMerge = $currentDestinationCountry = new Collection();
-        
-        $arrayCountry = explode(", ", $destinationCountry);
+        $countryName = $arrayCountry = []; // default
+        $destinationCountryDetails = $destinationCountryMerge = $currentDestinationCountry = new Collection;
+
+        $arrayCountry = explode(', ', $destinationCountry);
 
         $destinationCountryDetails = $this->checkCountry($arrayCountry);
-        if(isset($client->destinationCountries)){
+        if (isset($client->destinationCountries)) {
             foreach ($client->destinationCountries as $country) {
                 $countryName[] = $country->name;
             }
 
             $currentDestinationCountry = $this->checkCountry($countryName);
-            
+
             $destinationCountryMerge = $destinationCountryDetails->merge($currentDestinationCountry)->unique();
-           
-        }else{
+
+        } else {
             $destinationCountryMerge = $destinationCountryDetails;
         }
-        
+
         isset($destinationCountryMerge) ? $client->destinationCountries()->sync($destinationCountryMerge->toArray()) : null;
 
     }
 
     private function checkCountry($arrayCountry)
     {
-        $destinationCountryDetails = new Collection();
-     
+        $destinationCountryDetails = new Collection;
+
         foreach ($arrayCountry as $key => $value) {
 
             $countryName = $value;
@@ -86,37 +84,37 @@ trait SyncClientTrait
             switch ($countryName) {
 
                 case preg_match('/australia/i', $countryName) == 1:
-                    $regionName = "Australia";
+                    $regionName = 'Australia';
                     break;
 
-                case preg_match("/United State|State|US/i", $countryName) == 1:
-                    $regionName = "US";
+                case preg_match('/United State|State|US/i', $countryName) == 1:
+                    $regionName = 'US';
                     break;
 
                 case preg_match('/United Kingdom|Kingdom|UK/i', $countryName) == 1:
-                    $regionName = "UK";
+                    $regionName = 'UK';
                     break;
 
                 case preg_match('/canada/i', $countryName) == 1:
-                    $regionName = "Canada";
+                    $regionName = 'Canada';
                     break;
 
                 case preg_match('/asia/i', $countryName) == 1:
-                    $regionName = "Asia";
+                    $regionName = 'Asia';
                     break;
 
                 default:
-                    $regionName = "Other";
+                    $regionName = 'Other';
             }
 
             $tagFromDB = Tag::where('name', $regionName)->first();
             if (isset($tagFromDB)) {
-                
+
                 $destinationCountryDetails->push([
                     'country_id' => $tagFromDB->id,
                     // 'country_name' => $countryName,
                 ]);
-    
+
             } else {
                 // $newCountry = Tag::create(['name' => $regionName]);
                 $destinationCountryDetails->push([
@@ -131,26 +129,25 @@ trait SyncClientTrait
 
     public function syncInterestMajor($interestMajors, $client)
     {
-        $majorName = $arrayMajor = []; # default
-        $currentInterestMajor = $interestMajorDetails = $interestMajorMerge = new Collection();
+        $majorName = $arrayMajor = []; // default
+        $currentInterestMajor = $interestMajorDetails = $interestMajorMerge = new Collection;
 
-        $arrayMajor = explode(", ", $interestMajors);
+        $arrayMajor = explode(', ', $interestMajors);
 
         $interestMajorDetails = $this->checkMajor($arrayMajor);
 
-        if(isset($client->interestMajor)){
+        if (isset($client->interestMajor)) {
             foreach ($client->interestMajor as $major) {
                 $majorName[] = $major->name;
             }
 
             $currentInterestMajor = $this->checkMajor($majorName);
-            
+
             $interestMajorMerge = $interestMajorDetails->merge($currentInterestMajor)->unique();
-           
-        }else{
+
+        } else {
             $interestMajorMerge = $interestMajorDetails;
         }
-
 
         isset($interestMajorMerge) ? $client->interestMajor()->sync($interestMajorMerge->toArray()) : null;
 
@@ -158,7 +155,7 @@ trait SyncClientTrait
 
     private function checkMajor($arrayMajor)
     {
-        $majorDetails = new Collection(); # default
+        $majorDetails = new Collection; // default
 
         foreach ($arrayMajor as $major) {
             $majorFromDB = Major::where('name', $major)->first();
@@ -179,20 +176,20 @@ trait SyncClientTrait
 
     public function checkExistClientRelation($type, $mainClient, $secondClient)
     {
-        # type (parent) = Sync from parent to student
-        # type (student) = Sync from student to parent
+        // type (parent) = Sync from parent to student
+        // type (student) = Sync from student to parent
 
         $secondClientDetails = [
             'isExist' => true,
-            'client' => null
+            'client' => null,
         ];
         // $isExist = true;
 
         switch ($type) {
-            case 'parent':            
-                # Check existing children
-                # If parent have children
-                if(isset($mainClient->childrens)){
+            case 'parent':
+                // Check existing children
+                // If parent have children
+                if (isset($mainClient->childrens)) {
                     $mapChildren = $mainClient->childrens->map(
                         function ($item, int $key) {
                             return [
@@ -202,30 +199,29 @@ trait SyncClientTrait
                             ];
                         }
                     );
-            
+
                     $existChildren = $mapChildren->where('full_name', strtolower($secondClient))->first();
 
-                    # if children not existing from this parent
-                    if(!isset($existChildren)){
+                    // if children not existing from this parent
+                    if (! isset($existChildren)) {
                         $secondClientDetails['isExist'] = false;
-                    }else{
+                    } else {
                         $children = UserClient::withTrashed()->where('id', $existChildren['id'])->first();
                         $secondClientDetails['isExist'] = true;
                         $secondClientDetails['client'] = $children;
                     }
 
-                # Parent no have children
-                }else{
+                    // Parent no have children
+                } else {
                     $secondClientDetails['isExist'] = false;
                 }
                 break;
 
-
             case 'student':
 
-                # Check existing parent
-                # If child have parent
-                if(isset($mainClient->parents)){
+                // Check existing parent
+                // If child have parent
+                if (isset($mainClient->parents)) {
                     $mapParent = $mainClient->parents->map(
                         function ($item, int $key) {
                             return [
@@ -235,21 +231,20 @@ trait SyncClientTrait
                             ];
                         }
                     );
-                    
-            
+
                     $existParent = $mapParent->where('full_name', strtolower($secondClient))->first();
-                 
-                    # if parent not existing from this child
-                    if(!isset($existParent)){
+
+                    // if parent not existing from this child
+                    if (! isset($existParent)) {
                         $secondClientDetails['isExist'] = false;
-                    }else{
+                    } else {
                         $children = UserClient::withTrashed()->where('id', $existParent['id'])->first();
                         $secondClientDetails['isExist'] = true;
                         $secondClientDetails['client'] = $children;
                     }
 
-                # Child no have parent
-                }else{
+                    // Child no have parent
+                } else {
                     $secondClientDetails['isExist'] = false;
                 }
 
@@ -259,19 +254,19 @@ trait SyncClientTrait
 
         return $secondClientDetails;
 
-        
     }
 
-    private function createSchoolIfNotExists($sch_name, $is_many_request = false)
+    private function createSchoolIfNotExists($sch_name, ?bool $is_many_request = false)
     {
         $last_id = School::withTrashed()->max('sch_id');
         $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-        $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+        $school_id_with_label = 'SCH-'.$this->add_digit($school_id_without_label + 1, 4);
 
         $school_detail = ['sch_id' => $school_id_with_label, 'sch_name' => $sch_name];
-        if ($is_many_request === true )
+        if ($is_many_request === true) {
             $school_detail['is_many_request'] = true;
-    
+        }
+
         $newSchool = School::create($school_detail);
 
         return $newSchool;
@@ -288,12 +283,11 @@ trait SyncClientTrait
         if ($limit > 1) {
             $data['lastname'] = $fullname[$limit - 1];
             unset($fullname[$limit - 1]);
-            $data['firstname'] = implode(" ", $fullname);
+            $data['firstname'] = implode(' ', $fullname);
         } else {
-            $data['firstname'] = implode(" ", $fullname);
+            $data['firstname'] = implode(' ', $fullname);
         }
 
         return $data;
     }
-    
 }

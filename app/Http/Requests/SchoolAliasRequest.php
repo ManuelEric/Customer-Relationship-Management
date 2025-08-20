@@ -31,8 +31,8 @@ class SchoolAliasRequest extends FormRequest
                 'required',
                 Rule::unique('tbl_sch_aliases', 'alias', function ($query) use ($schoolId) {
                     return $query->where('sch_id', $schoolId);
-                })  
-            ]
+                }),
+            ],
         ];
     }
 }

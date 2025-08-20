@@ -65,7 +65,7 @@
             </div>
         </div>
     </div>
-    
+
 <script src="{{ asset('assets/package/dist/pspdfkit.js') }}"></script>
     <script>
         PSPDFKit.load({

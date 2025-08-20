@@ -3,7 +3,7 @@
 @section('title', 'Recycle - Schools')
 
 @section('content')
-    
+
     <div class="card bg-secondary mb-1 p-2">
         <div class="d-flex align-items-center justify-content-between">
             <h5 class="text-white m-0">

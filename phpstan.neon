@@ -1,0 +1,26 @@
+# phpstan.neon
+includes:
+  - ./vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+  level: 5
+  paths:
+    - app
+    - routes
+  excludePaths:
+    - app/Models/Invb2b.php
+    - database/factories/EventFactory.php
+    - database/factories/ProgramFactory.php
+    - app/Models/Phase.php
+    - app/Repositories/MenuRepository.php
+    - app/Http/Requests/StoreSchoolVisitRequest.php
+    - app/Http/Requests/StorePurchaseReqRequest.php
+    - app/Http/Controllers/PaymentGatewayController.php
+    - app/Http/Controllers/Api/v1/ExtCorporateController.php
+    - app/Http/Controllers/PartnerController.php
+
+  checkModelProperties: true
+  inferPrivatePropertyTypeFromConstructor: true
+
+  ignoreErrors:
+    - '#Call to an undefined method#'

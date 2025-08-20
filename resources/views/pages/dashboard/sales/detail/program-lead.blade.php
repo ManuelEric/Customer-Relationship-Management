@@ -44,13 +44,13 @@
 
 @push('scripts')
 <script>
-    // Background Custom 
+    // Background Custom
     let background = []
     let jmlColor = 50
     for (let index = 0; index < jmlColor; index++) {
         background.push('#'+Math.floor(Math.random()*16777215).toString(16))
     }
-    
+
 
     var lead_source_chart, conversion_lead_chart, admission_lead_chart, academic_prep_chart, career_exp_chart = null;
 
@@ -160,7 +160,7 @@
     }
 </script>
 <script>
-    // percentage 
+    // percentage
     let lbl_prog_lead = [{
         formatter: (value, ctx) => {
             let datasets = ctx.chart.data.datasets;
@@ -188,7 +188,7 @@
     }]
 
 
-    // Overall Lead 
+    // Overall Lead
     const lead = document.getElementById('leadSource');
 
     const dataset_leadsource_label = [];
@@ -238,7 +238,7 @@
     const progLead = document.getElementById('programLead');
 
     const dataset_conversion_label = [];
-    const dataset_conversion = []; 
+    const dataset_conversion = [];
     const bgset_conversion = [];
     @foreach ($conversion_leads as $source)
         bgset_conversion.push('{{ $source->color_code }}')
@@ -282,7 +282,7 @@
         }
     });
 
-    // Admissions Program 
+    // Admissions Program
     const admLead = document.getElementById('admissionsLead');
 
     const dataset_admconversion_label = [];
@@ -321,7 +321,7 @@
         }
     });
 
-    // Academic Program 
+    // Academic Program
     const acadLead = document.getElementById('academicLead');
 
     const dataset_acaconversion_label = [];
@@ -360,7 +360,7 @@
         }
     });
 
-    // Career Program 
+    // Career Program
     const careerLead = document.getElementById('careerLead');
 
     const dataset_carconversion_label = [];

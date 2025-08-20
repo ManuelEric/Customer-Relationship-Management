@@ -4,7 +4,7 @@ namespace App\Actions\EdufLeads\Review;
 
 use App\Interfaces\EdufReviewRepositoryInterface;
 
-Class CreateEdufLeadReviewAction
+class CreateEdufLeadReviewAction
 {
     private EdufReviewRepositoryInterface $edufReviewRepository;
 
@@ -15,13 +15,11 @@ Class CreateEdufLeadReviewAction
 
     public function execute(
         $eduf_lead_id,
-        Array $new_review_details
-    )
-    {
+        array $new_review_details
+    ) {
 
-        # store new eduf review  
+        // store new eduf review
         $new_eduf_review = $this->edufReviewRepository->createEdufairReview($eduf_lead_id, $new_review_details);
-
 
         return $new_eduf_review;
     }

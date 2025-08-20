@@ -5,13 +5,13 @@ namespace App\Http\Requests;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Hash;
 
 class StoreUserAgreementRequest extends FormRequest
 {
     use StandardizePhoneNumberTrait;
 
     private UserRepositoryInterface $userRepository;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,6 +26,7 @@ class StoreUserAgreementRequest extends FormRequest
     {
         $this->userRepository = $userRepository;
     }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -38,18 +39,15 @@ class StoreUserAgreementRequest extends FormRequest
 
         $rules = [];
 
-        if ( !$user->roles->where('id', $this->input('role'))->first() )
-        {
-            $rules += ["agreement" => 'required|mimes:pdf|max:5000'];
+        if (! $user->roles->where('id', $this->input('role'))->first()) {
+            $rules += ['agreement' => 'required|mimes:pdf|max:5000'];
         }
 
         $user_role_id = $this->role_agreement;
-        if ( $user_subject = $this->userRepository->rnGetUserSubjectById($user_role_id) )
-        {
-            if ( $user_subject->agreement !== NULL )
-            {
+        if ($user_subject = $this->userRepository->rnGetUserSubjectById($user_role_id)) {
+            if ($user_subject->agreement !== null) {
                 $rules += [
-                    "agreement" => 'nullable',
+                    'agreement' => 'nullable',
                 ];
             }
         }
@@ -58,7 +56,8 @@ class StoreUserAgreementRequest extends FormRequest
             'role_agreement' => 'required',
             'subject_id' => 'required',
             'year' => 'required',
-            'grade.*' => 'required_if:role,4|nullable',
+            // 'grade.*' => 'required_if:role,4|nullable',
+            'grade.*' => 'nullable',
             'fee_individual.*' => 'required',
             'fee_group.*' => 'nullable',
             'additional_fee.*' => 'nullable',
@@ -67,5 +66,4 @@ class StoreUserAgreementRequest extends FormRequest
 
         return $rules;
     }
-
 }

@@ -22,7 +22,7 @@
         <div class="col-md-4">
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
-                  
+
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $clientProg->client->full_name }}</h4>
 
@@ -335,7 +335,7 @@
                         </h6>
                         <h6 class="mt-2 mb-0 p-0">
                             <i class="bi bi-calendar-week me-2"></i>
-                            {{ isset($invoice) ? 'Date : ' . $invoice->created_at : '' }} 
+                            {{ isset($invoice) ? 'Date : ' . $invoice->created_at : '' }}
                         </h6>
                     </div>
                     <div class="">
@@ -423,7 +423,7 @@
                                 @enderror
                             </div>
 
-                            
+
                             {{-- NOT SESSION  --}}
                             <div class="col-md-12 session-detail not-session mb-3">
                                 {{-- IDR  --}}
@@ -753,7 +753,7 @@
                     $("#client_id").val('{{ $clientProg->client->parents->count() > 0 ? $clientProg->client->parents[0]->id : null}}')
                     $("#mail").val('{{ $clientProg->client->parents->count() > 0 ? $clientProg->client->parents[0]->mail : null }}')
                     break;
-                    
+
                 case 'Client':
                     $("#client_id").val('{{ $clientProg->client->id }}')
                     $("#mail").val('{{ $clientProg->client->mail }}')
@@ -862,7 +862,7 @@
 
             @if (isset($invoice))
 
-                // change the currency-icon 
+                // change the currency-icon
                 var detail = "{{ $invoice->currency }}"
                 $('.currency-icon').html(currencySymbol(detail))
 
@@ -955,7 +955,7 @@
         function checkCurrency() {
             checkPayment()
             let cur = $('#currency').val()
-      
+
 
             if (cur == 'other') {
                 $('.currency-detail').removeClass('d-none')
@@ -964,7 +964,7 @@
             }
 
                 checkSession()
-            
+
         }
 
         // $("#current_rate").on('keyup', function() {
@@ -979,7 +979,7 @@
             }
         }
 
-        
+
         function checkSession() {
             let session = $('#session').val()
             let cur = $('#currency').val()
@@ -987,7 +987,7 @@
             $('.invoice').removeClass('d-none')
             $('.session-detail').addClass('d-none')
 
-           
+
                 $('.not-session').removeClass('d-none')
                 $('.not-session-currency').addClass('d-none')
                 if (cur == 'idr') {
@@ -995,7 +995,7 @@
                 } else {
                     $('.not-session-other').removeClass('d-none')
                 }
-            
+
         }
 
         function checkPayment() {
@@ -1040,36 +1040,36 @@
             cur = "'" + curr + "'";
 
             const url = "{{ url('/') }}/invoice/client-program/bundle/{{ $bundle->uuid }}/preview/" + curr
-            
+
             $("#previewForm").attr('action', url)
         });
 
         $(document).on('change', '#previewForm input[name=preview_pic_sign]', function() {
             const pickedDir = $(this).val();
-            
+
             var form_action = $("#previewForm").attr('action');
-            
+
             var action = new URL(form_action);
             const find = new URLSearchParams(action.search);
             if (find.has('dir')) {
 
                 action.searchParams.set('dir', pickedDir);
                 action = action.toString();
-                
+
             } else {
-                
+
                 const queryParams = new URLSearchParams({
                     key: 'dashboard',
                     dir: pickedDir
                 });
-    
+
                 action += `?${queryParams.toString()}`;
             }
 
             $(".download-preview").attr('onclick', `downloadFilePreview('${action}')`);
 
             $("#previewForm").attr('action', action);
-            
+
 
         })
 
@@ -1160,7 +1160,7 @@
                     notification('success', 'Sign has been requested')
                     $(".step-one").addClass('active')
                     $("#requestSignModal").modal('hide');
-                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box   
+                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box
                 })
                 .catch(error => {
                     console.log(error)

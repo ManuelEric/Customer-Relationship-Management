@@ -9,17 +9,17 @@
         h4 {
             font-size: 25px !important;
         }
-        
+
         h6 {
             font-size: 15px !important;
         }
-        
+
         .pdf {
             font-size: 12px !important;
             font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
             margin: 0 20px;
         }
-        
+
         .box {
             float: right;
             border: 1px solid #000;
@@ -29,24 +29,24 @@
             margin-top: 20px;
             background: #efefef;
         }
-        
+
         .box small {
             font-size: 10px !important;
         }
-        
+
         .box b {
             font-size: 15px !important;
         }
-        
+
         table {
             border-collapse: collapse;
         }
-        
+
         table tr td,
         th {
             padding: 4px 0px;
         }
-        
+
         .table-detail td,
         th {
             border: 1px solid #dedede;
@@ -134,7 +134,7 @@
                 </th>
             </tr>
         </table>
-    
+
         <br><br>
         <table border=0 width="100%">
             <tr>

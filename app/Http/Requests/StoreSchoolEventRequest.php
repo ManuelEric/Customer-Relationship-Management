@@ -36,13 +36,14 @@ class StoreSchoolEventRequest extends FormRequest
 
         return [
             'sch_id' => [
-                'required', 
+                'required',
                 'exists:tbl_sch,sch_id',
                 function ($attribute, $value, $fail) use ($eventId) {
                     $event = Event::whereEventId($eventId);
-                    if (in_array($value, $event->school()->pluck('tbl_sch_event.sch_id')->toArray()))
+                    if (in_array($value, $event->school()->pluck('tbl_sch_event.sch_id')->toArray())) {
                         $fail('The school has been added');
-                }
+                    }
+                },
             ],
         ];
     }

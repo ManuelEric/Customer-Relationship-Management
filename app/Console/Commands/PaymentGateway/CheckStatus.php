@@ -29,22 +29,20 @@ class CheckStatus extends Command
      */
     public function handle(
         PrismaLinkCheckStatusAction $check_status
-    )
-    {
-        $transactions = Transaction::whereNot('payment_status', 'SETLD')->get();
-        foreach ($transactions as $trx)
-        {
+    ) {
+        $transactions = Transaction::whereNotIn('payment_status', ['SETLD', 'CANCL', 'REJEC'])->get();
+        foreach ($transactions as $trx) {
             $request = [
                 'plink_ref_no' => $trx->plink_ref_no,
-                'merchant_ref_no' => $trx->merchant_ref_no
+                'merchant_ref_no' => $trx->merchant_ref_no,
             ];
 
             try {
-                $this->info('Plink_ref_no : ' . $request['plink_ref_no'] . ' and merchant_ref_no : ' . $request['merchant_ref_no']);
+                $this->info('Plink_ref_no : '.$request['plink_ref_no'].' and merchant_ref_no : '.$request['merchant_ref_no']);
                 [$response, $result, $message] = $check_status->execute($request);
-                $this->info('Result : ' . json_encode($result));
+                $this->info('Result : '.json_encode($result));
             } catch (Exception $e) {
-                Log::error('Check status : ' . $e->getMessage(). ' on line ' . $e->getLine() . ' and file ' . $e->getFile() );    
+                Log::error('Check status : '.$e->getMessage().' on line '.$e->getLine().' and file '.$e->getFile());
                 $this->error($e->getCode(), $e->getMessage());
             }
         }

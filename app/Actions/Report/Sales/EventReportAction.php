@@ -10,25 +10,25 @@ use Illuminate\Support\Collection;
 class EventReportAction
 {
     private EventRepositoryInterface $eventRepository;
+
     private ClientEventRepositoryInterface $clientEventRepository;
+
     private SchoolRepositoryInterface $schoolRepository;
 
     public function __construct(
         EventRepositoryInterface $eventRepository,
         ClientEventRepositoryInterface $clientEventRepository,
         SchoolRepositoryInterface $schoolRepository,
-        )
-    {
+    ) {
         $this->eventRepository = $eventRepository;
         $this->clientEventRepository = $clientEventRepository;
         $this->schoolRepository = $schoolRepository;
     }
 
-    public function execute(String $event_name = null): Array
+    public function execute(?string $event_name = null): array
     {
         $choosen_event = $event_id = null;
-        if ($event_name !== null)
-        {
+        if ($event_name !== null) {
             $choosen_event = $this->eventRepository->getEventByName($event_name);
             $event_id = isset($choosen_event) ? $choosen_event->event_id : null;
         }
@@ -36,18 +36,18 @@ class EventReportAction
         $clients = $this->clientEventRepository->getReportClientEventsGroupByRoles($event_id);
         $conversion_leads = $this->clientEventRepository->getConversionLead(['eventId' => $event_id]);
 
-        # new get feeder data
+        // new get feeder data
         $feeder = $this->schoolRepository->getFeederSchools($event_id);
 
-        # query existing mentee from client event
+        // query existing mentee from client event
         $existing_mentee = $this->clientEventRepository->getExistingMenteeFromClientEvent($event_id);
         $id_mentee = $existing_mentee->pluck('client_id')->toArray();
 
-        # query existing non mentee from client event
+        // query existing non mentee from client event
         $existing_non_mentee = $this->clientEventRepository->getExistingNonMenteeFromClientEvent($event_id);
         $id_nonMentee = $existing_non_mentee->pluck('client_id')->toArray();
 
-        # to be displayed
+        // to be displayed
         $undefined_clients = $clients->whereNotIn('client_id', $id_nonMentee)->whereNotIn('client_id', $id_mentee)->unique('client_id');
         $check_client = $this->checkExistingOrNewClientEvent($undefined_clients);
         $id_non_client = $this->getIdClient($check_client->where('type', 'ExistNonClient'));
@@ -61,28 +61,29 @@ class EventReportAction
     protected function checkExistingOrNewClientEvent($undefinedClients)
     {
 
-        $dataClient =  new Collection();
+        $dataClient = new Collection;
 
         foreach ($undefinedClients as $undefinedClient) {
 
             if ($undefinedClient->main_prog_id != null && $undefinedClient->main_prog_id != 1) {
-                $dataClient->push((object)[
+                $dataClient->push((object) [
                     'type' => 'ExistNonClient',
                     'client_id' => $undefinedClient->client_id,
                 ]);
             } else {
-                $dataClient->push((object)[
+                $dataClient->push((object) [
                     'type' => 'New',
                     'client_id' => $undefinedClient->client_id,
                 ]);
             }
         }
+
         return $dataClient;
     }
 
     protected function getIdClient($data)
     {
-        $id_client = array();
+        $id_client = [];
 
         $i = 0;
         foreach ($data as $d) {

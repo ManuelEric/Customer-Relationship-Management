@@ -14,9 +14,9 @@
      </div>
      <div class="card-body">
          <div class="list-group">
-                @forelse ($speakers as $speaker)   
+                @forelse ($speakers as $speaker)
                     <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class="">  
+                        <div class="">
                                 <div class="">{{ $speaker->internal_pic }}</div>
                                 <small>{{ date("M d, Y H.i", strtotime($speaker->start_time)) }} - {{ date("M d, Y H.i", strtotime($speaker->end_time)) }}</small>
                         </div>
@@ -95,7 +95,7 @@
                                  <select name="" class="speaker-select w-100" id="speaker_pic">
                                      <option data-placeholder="true"></option>
                                  </select>
-                             
+
                              </div> --}}
                          </div>
 
@@ -189,7 +189,7 @@
                         '{{ url('') }}/master/edufair/{{ $edufair->id }}/speaker/' +
                         agendaId
                     console.log(link)
-                @endif 
+                @endif
                 let data = new Array()
 
                 $('#reasonForm').attr('action', link)
@@ -206,7 +206,7 @@
                 }
             }
 
-     
+
 
      function cancelModal() {
         let id = $('#agenda_id').val();
@@ -218,23 +218,20 @@
         $('#reasonModal').modal('hide')
     }
 
-   
-   
+
+
  </script>
 
-    @if($errors->has('speaker') || 
+    @if($errors->has('speaker') ||
         $errors->has('start_time') ||
         $errors->has('end_time')
         )
-            
-    
+
+
         <script>
             $(document).ready(function(){
-                $('#speaker').modal('show'); 
+                $('#speaker').modal('show');
             })
 
         </script>
     @endif
-
-
-

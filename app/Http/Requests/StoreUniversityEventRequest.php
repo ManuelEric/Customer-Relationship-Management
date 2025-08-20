@@ -33,16 +33,17 @@ class StoreUniversityEventRequest extends FormRequest
     public function rules()
     {
         $eventId = $this->route('event');
-        
+
         return [
             'univ_id' => [
                 'required',
                 'exists:tbl_univ,univ_id',
                 function ($attribute, $value, $fail) use ($eventId) {
                     $event = Event::whereEventId($eventId);
-                    if (in_array($value, $event->university()->pluck('tbl_univ_event.univ_id')->toArray()))
+                    if (in_array($value, $event->university()->pluck('tbl_univ_event.univ_id')->toArray())) {
                         $fail('The university has been added');
-                }
+                    }
+                },
             ],
         ];
     }

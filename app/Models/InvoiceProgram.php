@@ -7,17 +7,107 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $inv_id
+ * @property int|null $clientprog_id
+ * @property string|null $bundling_id
+ * @property int|null $ref_id
+ * @property string|null $inv_category
+ * @property int|null $inv_price
+ * @property int $inv_earlybird
+ * @property int $inv_discount
+ * @property int $inv_totalprice
+ * @property string|null $inv_words
+ * @property int|null $inv_price_idr
+ * @property int|null $inv_earlybird_idr
+ * @property int|null $inv_discount_idr
+ * @property int $inv_totalprice_idr
+ * @property string|null $inv_words_idr
+ * @property int $session
+ * @property int $duration
+ * @property string $inv_paymentmethod
+ * @property string|null $invoice_date
+ * @property string|null $inv_duedate
+ * @property string|null $inv_notes
+ * @property string|null $inv_tnc
+ * @property int $inv_status 1: success, 2: refund
+ * @property int $curs_rate
+ * @property string|null $currency
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $send_to_client
+ * @property int $reminded jumlah reminder terkirim
+ * @property-read \App\Models\Bundling|null $bundling
+ * @property-read \App\Models\ClientProgram|null $clientprog
+ * @property-read \App\Models\Receipt|null $firstReceipt
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceAttachment> $invoiceAttachment
+ * @property-read int|null $invoice_attachment_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvDetail> $invoiceDetail
+ * @property-read int|null $invoice_detail_count
+ * @property-read mixed $invoice_discount
+ * @property-read mixed $invoice_discount_idr
+ * @property-read mixed $invoice_earlybird
+ * @property-read mixed $invoice_earlybird_idr
+ * @property-read mixed $invoice_price
+ * @property-read mixed $invoice_price_idr
+ * @property-read mixed $invoice_totalprice
+ * @property-read mixed $invoice_totalprice_idr
+ * @property-read mixed $rate
+ * @property-read \App\Models\Receipt|null $receipt
+ * @property-read \App\Models\Referral|null $referral
+ * @property-read \App\Models\Refund|null $refund
+ * @property-read mixed $total_refund
+ * @property-read mixed $total_refund_str
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereBundlingId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereClientprogId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereCursRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereDuration($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvCategory($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvDiscountIdr($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvDuedate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvEarlybird($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvEarlybirdIdr($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvPaymentmethod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvPriceIdr($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvTnc($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvTotalprice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvTotalpriceIdr($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvWords($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvWordsIdr($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereInvoiceDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereRefId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereReminded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereSendToClient($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereSession($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceProgram whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class InvoiceProgram extends Model
 {
     use HasFactory;
 
     protected $table = 'tbl_inv';
+
     protected $appends = ['total_refund', 'total_refund_str'];
 
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'inv_id',
@@ -48,10 +138,10 @@ class InvoiceProgram extends Model
         'send_to_client',
         'reminded',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
-    # Modify methods Model
+    // Modify methods Model
     public function delete()
     {
         // Custom logic before deleting the model
@@ -103,20 +193,20 @@ class InvoiceProgram extends Model
     {
         switch ($this->currency) {
 
-            case "usd":
+            case 'usd':
             default:
                 $unit = '$';
                 break;
 
-            case "sgd":
+            case 'sgd':
                 $unit = 'S$';
                 break;
 
-            case "gbp":
+            case 'gbp':
                 $unit = '£';
                 break;
 
-            case "aud":
+            case 'aud':
                 $unit = 'A$';
                 break;
         }
@@ -127,63 +217,63 @@ class InvoiceProgram extends Model
     protected function invoicePrice(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->inv_price
+            get: fn ($value) => $this->getCurrencyUnit().' '.$this->inv_price
         );
     }
 
     protected function invoiceEarlybird(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->inv_earlybird
+            get: fn ($value) => $this->getCurrencyUnit().' '.$this->inv_earlybird
         );
     }
 
     protected function invoiceDiscount(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->inv_discount
+            get: fn ($value) => $this->getCurrencyUnit().' '.$this->inv_discount
         );
     }
 
     protected function invoiceTotalprice(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->inv_totalprice
+            get: fn ($value) => $this->getCurrencyUnit().' '.$this->inv_totalprice
         );
     }
 
     protected function rate(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->curs_rate)
+            get: fn ($value) => 'Rp. '.number_format($this->curs_rate)
         );
     }
 
     protected function invoicePriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->inv_price_idr)
+            get: fn ($value) => 'Rp. '.number_format($this->inv_price_idr)
         );
     }
 
     protected function invoiceEarlybirdIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->inv_earlybird_idr)
+            get: fn ($value) => 'Rp. '.number_format($this->inv_earlybird_idr)
         );
     }
 
     protected function invoiceDiscountIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->inv_discount_idr)
+            get: fn ($value) => 'Rp. '.number_format($this->inv_discount_idr)
         );
     }
 
     protected function invoiceTotalpriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->inv_totalprice_idr)
+            get: fn ($value) => 'Rp. '.number_format($this->inv_totalprice_idr)
         );
     }
 
@@ -198,7 +288,7 @@ class InvoiceProgram extends Model
     {
 
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->totalRefund)
+            get: fn ($value) => 'Rp. '.number_format($this->totalRefund)
         );
     }
 
@@ -227,7 +317,6 @@ class InvoiceProgram extends Model
         return $this->hasOne(Receipt::class, 'inv_id', 'inv_id')->oldestOfMany();
     }
 
-
     public function refund()
     {
         return $this->hasOne(Refund::class, 'inv_id', 'inv_id');
@@ -239,9 +328,7 @@ class InvoiceProgram extends Model
     }
 
     /**
-     * 
      * Get the bundling for the invoice
-     * 
      */
     public function bundling()
     {

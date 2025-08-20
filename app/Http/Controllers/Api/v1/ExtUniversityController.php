@@ -17,30 +17,47 @@ class ExtUniversityController extends Controller
 
     public function getUniversities(Request $request)
     {
-        $universities = $this->universityRepository->getAllUniversities();
-        if (!$universities) {
+        $terms = $request->get('terms');
+        $search = compact('terms');
+        $universities = $this->universityRepository->getAllUniversities($search);
+        if (! $universities) {
             return response()->json([
                 'success' => true,
-                'message' => 'No universities found.'
+                'message' => 'No universities found.',
             ]);
         }
 
-        # map the data that being shown to the user
+        // map the data that being shown to the user
         $mappedUniversities = $universities->map(function ($value) {
             return [
                 'univ_id' => $value->univ_id,
                 'univ_name' => $value->univ_name,
-                'univ_country' => $value->univ_country,
-                'univ_country_name' => $value->country->name,
+                'univ_country' => $value->tags->name ?? null,
                 'univ_email' => $value->univ_email,
                 'univ_phone' => $value->univ_phone,
             ];
         });
 
         return response()->json([
-            'success' => true,
             'message' => 'There are universities found.',
-            'data' => $mappedUniversities
+            'data' => $mappedUniversities,
+        ]);
+    }
+
+    public function fnUpcomingApplicationDeadline(Request $request)
+    {
+        $terms = $request->get('terms');
+        $search = compact('terms');
+        $upcoming = $this->universityRepository->getUpcomingApplicationDeadline($search);
+        if ($upcoming->count() == 0) {
+            return response()->json([
+                'message' => 'No upcoming application deadline found.',
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'There are upcoming application deadline found.',
+            'data' => $upcoming,
         ]);
     }
 }

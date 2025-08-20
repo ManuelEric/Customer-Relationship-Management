@@ -14,10 +14,9 @@ class DeleteAssetAction
     }
 
     public function execute(
-        String $asset_id
-    )
-    {
-        # Update asset
+        string $asset_id
+    ) {
+        // Update asset
         $deleted_asset = $this->assetRepository->deleteAsset($asset_id);
 
         return $deleted_asset;

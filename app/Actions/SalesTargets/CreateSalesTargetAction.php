@@ -15,15 +15,14 @@ class CreateSalesTargetAction
     }
 
     public function execute(
-        Array $new_sales_target_details
-    )
-    {
+        array $new_sales_target_details
+    ) {
         $new_sales_target_details['month_year'] .= '-01';
 
-        # store new sales target
+        // store new sales target
         $new_sales_target = $this->salesTargetRepository->createSalesTarget($new_sales_target_details);
-       
-        # running command insert target tracking
+
+        // running command insert target tracking
         Artisan::call('insert:target_tracking_monthly');
 
         return $new_sales_target;

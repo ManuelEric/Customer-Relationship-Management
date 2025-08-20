@@ -2,7 +2,7 @@
 
 @section('title', 'Seasonal Program')
 
-@section('content')    
+@section('content')
     <div class="card bg-secondary mb-1 p-2">
         <div class="d-flex align-items-center justify-content-between">
             <h5 class="text-white m-0">
@@ -212,7 +212,7 @@
         });
 
         function resetForm() {
-            
+
             $('#prog_id').val(null).trigger('change')
             $("#start_program_date").val(null);
             $("#end_program_date").val(null);

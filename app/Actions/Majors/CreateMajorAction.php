@@ -14,10 +14,9 @@ class CreateMajorAction
     }
 
     public function execute(
-        Array $new_major_details
-    )
-    {
-        # store new lead
+        array $new_major_details
+    ) {
+        // store new lead
         $new_major = $this->majorRepository->createMajor($new_major_details);
 
         return $new_major;

@@ -49,7 +49,7 @@ class StorePurchaseReqRequest extends FormRequest
             'requested_by' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::whereHas('roles', function ($q) {
+                    if (! User::whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The requested by is invalid');
@@ -75,7 +75,7 @@ class StorePurchaseReqRequest extends FormRequest
             'requested_by' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if (!User::whereHas('roles', function ($q) {
+                    if (! User::whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
                     })->find($value)) {
                         $fail('The requested by is invalid');
