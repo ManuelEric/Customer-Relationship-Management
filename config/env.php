@@ -6,7 +6,9 @@ return [
     'HR_CC' => env('HR_CC', 'lawrence.benning@edu-all.com'),
     'CRM_AUTHORIZATION_KEY' => env('CRM_AUTHORIZATION_KEY', 'A3bsc21SjAS43AS33skS012CddFg'),
     'GOOGLE_SHEET_KEY_IMPORT' => env('GOOGLE_SHEET_KEY_IMPORT', '1xam159C7dirHCH9txq1g9xp98mDbktCBvg_clc4hgxI'),
+    'CEO_CC' => env('CEO_CC', 'devi.kasih@edu-all.com'),
     'FINANCE_CC' => env('FINANCE_CC', 'emilia@edu-all.com'),
+    'FINANCE_NAME' => env('FINANCE_NAME', 'Emilia'),
     'STUDENT_SUCCESS_CC' => env('STUDENT_SUCCESS_CC', 'nizzah.amalia@edu-all.com'),
     'HEAD_MENTOR_CC' => env('HEAD_MENTOR_CC', 'debora.wibianne@edu-all.com'),
 

@@ -198,7 +198,8 @@ class InvoiceProgramController extends Controller
                 'inv_tnc' => $request->inv_tnc,
             ];
             $param = 'other';
-        } elseif (in_array('other', $raw_currency) && $request->is_session == 'yes') {
+            // } elseif (in_array('other', $raw_currency) && $request->is_session == 'yes') {
+        } else {
 
             $invoice_details = [
                 'clientprog_id' => $request->clientprog_id,
@@ -287,24 +288,31 @@ class InvoiceProgramController extends Controller
 
             if ($invoice_details['inv_paymentmethod'] == 'Installment') {
 
-                // and using param to fetch data based on rupiah or other currency
-                $limit = $param == 'idr' ? count($request->invdtl_installment) : count($request->invdtl_installment_other);
+                $is_idr = $param == 'idr';
+                $installments = $is_idr ? $request->invdtl_installment : $request->invdtl_installment_other;
+
+                if (! is_array($installments)) {
+                    throw new Exception('Installment data is invalid or missing.');
+                }
+
+                $limit = count($installments);
+                $installment_details = [];
 
                 for ($i = 0; $i < $limit; $i++) {
 
                     $installment_details[$i] = [
                         'inv_id' => $inv_id,
-                        'invdtl_installment' => $param == 'idr' ? $request->invdtl_installment[$i] : $request->invdtl_installment_other[$i],
-                        'invdtl_duedate' => $param == 'idr' ? $request->invdtl_duedate[$i] : $request->invdtl_duedate_other[$i],
-                        'invdtl_percentage' => $param == 'idr' ? $request->invdtl_percentage[$i] : $request->invdtl_percentage_other[$i],
-                        'invdtl_amountidr' => $param == 'idr' ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr_other[$i],
-                        'invdtl_cursrate' => $param == 'other' ? $invoice_details['curs_rate'] : null,
+                        'invdtl_installment' => $is_idr ? $request->invdtl_installment[$i] : $request->invdtl_installment_other[$i],
+                        'invdtl_duedate' => $is_idr ? $request->invdtl_duedate[$i] : $request->invdtl_duedate_other[$i],
+                        'invdtl_percentage' => $is_idr ? $request->invdtl_percentage[$i] : $request->invdtl_percentage_other[$i],
+                        'invdtl_amountidr' => $is_idr ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr_other[$i],
+                        'invdtl_cursrate' => ! $is_idr ? $invoice_details['curs_rate'] : null,
                         'invdtl_currency' => $invoice_details['currency'],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
                     ];
 
-                    if ($param == 'other') {
+                    if (! $is_idr) {
                         $installment_details[$i]['invdtl_amount'] = $request->invdtl_amount_other[$i];
                     }
                 }
@@ -362,8 +370,9 @@ class InvoiceProgramController extends Controller
         // $currency = null;
         $currency = $request->currency;
         $is_session = $request->is_session;
+        $invoice_details = [];
 
-        switch ($request->currency) {
+        switch ($currency) {
 
             case 'idr':
                 if ($is_session == 'no') {
@@ -384,7 +393,6 @@ class InvoiceProgramController extends Controller
                         'inv_notes',
                         'inv_tnc',
                     ]);
-                    $param = 'idr';
                 } elseif ($is_session == 'yes') {
 
                     $invoice_details = [
@@ -405,8 +413,10 @@ class InvoiceProgramController extends Controller
                         'inv_notes' => $request->inv_notes,
                         'inv_tnc' => $request->inv_tnc,
                     ];
-                    $param = 'idr';
+                } else {
+                    throw new Exception('Invalid session value for IDR currency.');
                 }
+                $param = 'idr';
                 break;
 
             case 'other':
@@ -434,7 +444,6 @@ class InvoiceProgramController extends Controller
                         'inv_notes' => $request->inv_notes,
                         'inv_tnc' => $request->inv_tnc,
                     ];
-                    $param = 'other';
                 } elseif ($is_session == 'yes') {
 
                     $invoice_details = [
@@ -461,16 +470,37 @@ class InvoiceProgramController extends Controller
                         'inv_notes' => $request->inv_notes,
                         'inv_tnc' => $request->inv_tnc,
                     ];
-                    $param = 'other';
+                } else {
+                    throw new Exception('Invalid session value for OTHER currency.');
                 }
+                $param = 'other';
 
                 break;
+
+            default:
+                throw new Exception("Unsupported currency type: $currency");
         }
 
-        $invoice_details['inv_category'] = $invoice_details['is_session'] == 'yes' ? 'session' : $invoice_details['currency'];
-        $invoice_details['session'] = isset($invoice_details['session']) && $invoice_details['session'] != 0 ? $invoice_details['session'] : 0;
-        $invoice_details['currency'] = $currency == 'other' ? $invoice_details['currency_detail'] : $currency;
-        $invoice_details['inv_paymentmethod'] = $invoice_details['inv_paymentmethod'] == 'full' ? 'Full Payment' : 'Installment';
+        if (empty($invoice_details)) {
+            throw new Exception('Unable to generate invoice details. Invalid currency or session value.');
+        }
+
+        $invoice_details['inv_category'] = $invoice_details['is_session'] === 'yes'
+            ? 'session'
+            : $invoice_details['currency'];
+
+        $invoice_details['session'] = isset($invoice_details['session']) && $invoice_details['session'] != 0
+            ? $invoice_details['session']
+            : 0;
+
+        $invoice_details['currency'] = $currency === 'other'
+            ? $invoice_details['currency_detail']
+            : $currency;
+
+        $invoice_details['inv_paymentmethod'] = $invoice_details['inv_paymentmethod'] === 'full'
+            ? 'Full Payment'
+            : 'Installment';
+
         unset($invoice_details['currency_detail']);
 
         $invoice_details['created_at'] = Carbon::parse($invoice_details['invoice_date'].' '.date('H:i:s'));
@@ -489,12 +519,17 @@ class InvoiceProgramController extends Controller
 
                 $new_inv_id = $inv_id;
                 $invoice_details['inv_id'] = $inv_id;
-                if (date('m', strtotime($invoice->created_at) != Carbon::parse($invoice_details['created_at'])->format('m'))) {
-                    // $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
-                    $last_id = InvoiceProgram::whereMonth('created_at', Carbon::parse($invoice_details['created_at'])->format('m'))->whereYear('created_at', Carbon::parse($invoice_details['created_at'])->format('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
+                $createdMonth = date('m', strtotime($invoice->created_at));
+                $detailsMonth = Carbon::parse($invoice_details['created_at'])->format('m');
+
+                if ($createdMonth != $detailsMonth) {
+                    $last_id = InvoiceProgram::whereMonth('created_at', $detailsMonth)
+                        ->whereYear('created_at', Carbon::parse($invoice_details['created_at'])->format('Y'))
+                        ->max(DB::raw('substr(inv_id, 1, 4)'));
 
                     // Use Trait Create Invoice Id
                     $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoice_details['invoice_date']);
+
                     $invoice_details['inv_id'] = substr($inv_id, 0, 4) == $last_id ? $inv_id : $new_inv_id;
                 }
 
@@ -545,30 +580,36 @@ class InvoiceProgramController extends Controller
             // either idr or other currency
             if ($invoice_details['inv_paymentmethod'] == 'Installment') {
 
-                // and using param to fetch data based on rupiah or other currency
-                $limit = $param == 'idr' ? count($request->invdtl_installment) : count($request->invdtl_installment_other);
+                $is_idr = $param == 'idr';
+                $installments = $is_idr ? $request->invdtl_installment : $request->invdtl_installment_other;
+
+                if (! is_array($installments)) {
+                    throw new Exception('Installment data is invalid or missing.');
+                }
+
+                $limit = count($installments);
+                $installment_details = [];
 
                 for ($i = 0; $i < $limit; $i++) {
 
                     $installment_details[$i] = [
-                        'inv_id' => $new_inv_id ?? $inv_id,
-                        'invdtl_installment' => $param == 'idr' ? $request->invdtl_installment[$i] : $request->invdtl_installment_other[$i],
-                        'invdtl_duedate' => $param == 'idr' ? $request->invdtl_duedate[$i] : $request->invdtl_duedate_other[$i],
-                        'invdtl_percentage' => $param == 'idr' ? $request->invdtl_percentage[$i] : $request->invdtl_percentage_other[$i],
-                        'invdtl_amountidr' => $param == 'idr' ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr_other[$i],
-                        'invdtl_cursrate' => $param == 'other' ? $invoice_details['curs_rate'] : null,
+                        'inv_id' => $inv_id,
+                        'invdtl_installment' => $is_idr ? $request->invdtl_installment[$i] : $request->invdtl_installment_other[$i],
+                        'invdtl_duedate' => $is_idr ? $request->invdtl_duedate[$i] : $request->invdtl_duedate_other[$i],
+                        'invdtl_percentage' => $is_idr ? $request->invdtl_percentage[$i] : $request->invdtl_percentage_other[$i],
+                        'invdtl_amountidr' => $is_idr ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr_other[$i],
+                        'invdtl_cursrate' => ! $is_idr ? $invoice_details['curs_rate'] : null,
                         'invdtl_currency' => $invoice_details['currency'],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
                     ];
 
-                    if ($param == 'other') {
+                    if (! $is_idr) {
                         $installment_details[$i]['invdtl_amount'] = $request->invdtl_amount_other[$i];
                     }
                 }
 
-                $this->invoiceDetailRepository->updateInvoiceDetailByInvId($inv_id, $installment_details);
-
+                $this->invoiceDetailRepository->createInvoiceDetail($installment_details);
             }
 
             DB::commit();
@@ -631,7 +672,7 @@ class InvoiceProgramController extends Controller
         $clientprog_id = $request->route('client_program');
         $client_prog = $this->clientProgramRepository->getClientProgramById($clientprog_id);
 
-        if (! $invoice = $client_prog?->invoice ?? null) {
+        if (! $invoice = $client_prog?->invoice) {
             throw new HttpResponseException(
                 response()->json([
                     'error' => 'Invalid invoice.',
@@ -649,10 +690,26 @@ class InvoiceProgramController extends Controller
 
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice->inv_id, $currency);
 
-        if (Storage::disk('s3')->exists('project/crm/invoice/client/'.$attachment->attachment)) {
-            // Generate a temporary URL valid for 5 minutes
-            $url = Storage::disk('s3')->temporaryUrl('project/crm/invoice/client/'.$attachment->attachment, now()->addMinutes(60));
+        try {
+            $filePath = 'project/crm/invoice/client/'.$attachment->attachment;
+
+            if (! Storage::disk('s3')->exists($filePath)) {
+                throw new HttpResponseException(
+                    response()->json([
+                        'error' => 'File not found.',
+                    ], JsonResponse::HTTP_NOT_FOUND)
+                );
+            }
+        } catch (\Throwable $e) {
+            throw new HttpResponseException(
+                response()->json([
+                    'error' => 'S3 check failed: '.$e->getMessage(),
+                ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR)
+            );
         }
+
+        // Generate a temporary URL valid for 5 minutes
+        $url = Storage::disk('s3')->temporaryUrl('project/crm/invoice/client/'.$attachment->attachment, now()->addMinutes(60));
 
         return view('pages.invoice.view-pdf')->with(
             [
@@ -681,10 +738,10 @@ class InvoiceProgramController extends Controller
         }
 
         $company_detail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY'),
+            'name' => config('env.ALLIN_COMPANY'),
+            'address' => config('env.ALLIN_ADDRESS'),
+            'address_dtl' => config('env.ALLIN_ADDRESS_DTL'),
+            'city' => config('env.ALLIN_CITY'),
         ];
 
         $data['email'] = $to;
@@ -737,7 +794,7 @@ class InvoiceProgramController extends Controller
 
         } catch (Exception $e) {
 
-            $log_service->createErrorLog(LogModule::REQUEST_SIGN_INVOICE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $attachment_details);
+            $log_service->createErrorLog(LogModule::REQUEST_SIGN_INVOICE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile());
 
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
@@ -783,8 +840,8 @@ class InvoiceProgramController extends Controller
         }
 
         $data['cc'] = [
-            env('CEO_CC'),
-            env('FINANCE_CC'),
+            config('env.CEO_CC'),
+            config('env.FINANCE_CC'),
             $pic_mail,
         ];
         $data['param'] = [
@@ -843,7 +900,7 @@ class InvoiceProgramController extends Controller
 
             // send mail when document has been signed
             Mail::send('pages.invoice.client-program.mail.signed', $data, function ($message) use ($data, $file_name) {
-                $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                $message->to(config('env.FINANCE_CC'), config('env.FINANCE_NAME'))
                     ->subject($data['title'])
                     ->attach(Storage::url('invoice/client/'.$file_name));
             });
@@ -874,10 +931,10 @@ class InvoiceProgramController extends Controller
         }
 
         $company_detail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY'),
+            'name' => config('env.ALLIN_COMPANY'),
+            'address' => config('env.ALLIN_ADDRESS'),
+            'address_dtl' => config('env.ALLIN_ADDRESS_DTL'),
+            'city' => config('env.ALLIN_CITY'),
         ];
 
         $pdf = PDF::loadView($view, ['clientProg' => $client_prog, 'companyDetail' => $company_detail, 'director' => $director]);
@@ -968,7 +1025,7 @@ class InvoiceProgramController extends Controller
         try {
             Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                 $message->to($params['parent_mail'], $params['parent_fullname'])
-                    ->cc([env('FINANCE_CC')])
+                    ->cc([config('env.FINANCE_CC')])
                     ->subject($subject);
             });
         } catch (Exception $e) {
@@ -999,6 +1056,9 @@ class InvoiceProgramController extends Controller
                 $client = $this->clientRepository->getClientById($request->client_id); // client id means child id
                 break;
 
+            default:
+                return response()->json(['message' => 'Invalid recipient type.'], JsonResponse::HTTP_BAD_REQUEST);
+
         }
 
         // get the data from blade
@@ -1016,7 +1076,7 @@ class InvoiceProgramController extends Controller
         $joined_program_name = ucwords(strtolower($request->program_name));
         $joined_program_name = str_replace('&', '%26', $joined_program_name);
         $invoice_duedate = date('d/m/Y', strtotime($request->invoice_duedate));
-        $total_payment = 'Rp. '.number_format($request->total_payment, '2', ',', '.');
+        $total_payment = 'Rp. '.number_format($request->total_payment, 2, ',', '.');
 
         $datetime_1 = new DateTime($request->invoice_duedate);
         $datetime_2 = new DateTime(date('Y-m-d'));
@@ -1070,7 +1130,14 @@ class InvoiceProgramController extends Controller
             'invdtl_id' => $request->invdtl_id_hold,
         ];
         try {
-            ProcessEmailHoldProgramJob::dispatch($this->clientProgramRepository, $this->clientRepository, $this->invoiceProgramRepository, $this->invoiceDetailRepository, $data, $request->clientprog_id_hold)->onQueue('send-hold-program');
+            ProcessEmailHoldProgramJob::dispatch(
+                $this->clientProgramRepository,
+                $this->clientRepository,
+                $this->invoiceProgramRepository,
+                $this->invoiceDetailRepository,
+                $data,
+                $request->clientprog_id_hold
+            )->onQueue('send-hold-program');
         } catch (Exception $e) {
             Log::error('Failed to dispatch job send email hold mentoring '.$e->getMessage());
         }

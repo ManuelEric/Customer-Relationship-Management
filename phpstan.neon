@@ -18,6 +18,7 @@ parameters:
     - app/Http/Controllers/PaymentGatewayController.php
     - app/Http/Controllers/Api/v1/ExtCorporateController.php
     - app/Http/Controllers/PartnerController.php
+    - app/Http/Controllers/InvoiceProgramController.php
 
   checkModelProperties: true
   inferPrivatePropertyTypeFromConstructor: true

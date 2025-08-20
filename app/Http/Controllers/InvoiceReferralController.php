@@ -19,6 +19,7 @@ use App\Models\Invb2b;
 use App\Services\Log\LogService;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -74,7 +75,10 @@ class InvoiceReferralController extends InvoiceB2BBaseController
                 case 'reminder':
                     $datatables = $this->invoiceB2bRepository->getAllInvoiceReferralDataTables($status);
                     break;
+                default:
+                    return response()->json(['error' => 'Invalid status'], JsonResponse::HTTP_BAD_REQUEST);
             }
+
             return $datatables;
         }
 

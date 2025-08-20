@@ -46,7 +46,12 @@ class ProcessEmailHoldProgramJob implements ShouldBeUniqueUntilProcessing, Shoul
      *
      * @return void
      */
-    public function __construct(ClientProgramRepositoryInterface $clientProgramRepository, ClientRepositoryInterface $clientRepository, InvoiceProgramRepository $invoiceProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, array $data, $clientProgId)
+    public function __construct(
+        ClientProgramRepositoryInterface $clientProgramRepository,
+        ClientRepositoryInterface $clientRepository,
+        InvoiceProgramRepository $invoiceProgramRepository,
+        InvoiceDetailRepositoryInterface $invoiceDetailRepository,
+        array $data, $clientProgId)
     {
         $this->clientProgramRepository = $clientProgramRepository;
         $this->clientRepository = $clientRepository;
