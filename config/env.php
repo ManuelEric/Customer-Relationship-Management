@@ -31,4 +31,13 @@ return [
     'ALLIN_ADDRESS' => env('ALLIN_ADDRESS', 'Jl Jeruk Kembar Blok Q9 No. 15'),
     'ALLIN_ADDRESS_DTL' => env('ALLIN_ADDRESS_DTL', 'Srengseng, Kembangan'),
     'ALLIN_CITY' => env('ALLIN_CITY', 'DKI Jakarta'),
+
+    /**
+     * 
+     */
+    'DIRECTOR_EMAIL' => env('DIRECTOR_EMAIL', "n.hendra@edu-all.com"),
+    'DIRECTOR_NAME' => env('DIRECTOR_NAME', "Nicholas"),
+    'OWNER_EMAIL' => env('OWNER_EMAIL', "devi.kasih@edu-all.com"),
+    'OWNER_NAME' => env('OWNER_NAME', 'Devi Kasih'),
+    'REGISTRATION_URL' => env('REGISTRATION_URL', 'https://registration.edu-all.com/form/event'),
 ];

@@ -44,7 +44,7 @@ class AuthController extends Controller
 
         try {
 
-            $user = Auth::user()->load(['roles', 'department']);
+            $user = Auth::user()->load(['roles', 'departments']);
             $userId = $user->id;
             $authorizationService->checkPermissionFromUserType($userId);
             $scopes = $authorizationService->checkUserRole($user);
