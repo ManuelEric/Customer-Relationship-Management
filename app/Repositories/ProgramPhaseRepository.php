@@ -84,7 +84,7 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
     {
         // \Illuminate\Support\Facades\Log::debug('Get use quota', $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first()->toArray());
         // prevent to decrement if the value is already at 0
-        if ($clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first()->pivot->use > 0) {
+        if ($clientprogram->phase_details()->wherePivot('phase_detail_id', $phase_detail_id)->first()->pivot->use > 0) {
             DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->decrement('use', $use, ['updated_at' => Carbon::now()]);
         }
 
@@ -107,9 +107,9 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
 
             return $clientprog->phase_library()->wherePivot('phase_lib_id', $phase_lib_id)->first();
         }
-        $clientprog->phase_detail()->updateExistingPivot($phase_detail_id, ['quota' => $quota]);
+        $clientprog->phase_details()->updateExistingPivot($phase_detail_id, ['quota' => $quota]);
 
-        return $clientprog->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first();
+        return $clientprog->phase_details()->wherePivot('phase_detail_id', $phase_detail_id)->first();
     }
 
     public function rnStoreProgramPhase(array $program_phase_details)

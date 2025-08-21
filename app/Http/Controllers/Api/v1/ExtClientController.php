@@ -2420,7 +2420,7 @@ class ExtClientController extends Controller
 
                     switch ($type) {
                         case 'all':
-                            $mapped_phase_detail = $item->phase_detail->map(function ($item) use ($clientprog) {
+                            $mapped_phase_detail = $item->phase_details->map(function ($item) use ($clientprog) {
                                 return [
                                     'clientprog_id' => $clientprog->clientprog_id,
                                     'phase_detail_id' => $item->id,
@@ -2432,7 +2432,7 @@ class ExtClientController extends Controller
                             break;
 
                         case 'manual':
-                            $mapped_phase_detail = $item->phase_detail->where('type', 'manual')->map(function ($item) use ($clientprog) {
+                            $mapped_phase_detail = $item->phase_details->where('type', 'manual')->map(function ($item) use ($clientprog) {
                                 return [
                                     'clientprog_id' => $clientprog->clientprog_id,
                                     'phase_detail_id' => $item->id,
