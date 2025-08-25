@@ -78,7 +78,7 @@ class EventController extends Controller
     {
         $event_id = $request->route('event');
         $event = $this->eventRepository->getEventById($event_id);
-        $event_pic = $event->eventPic->pluck('id')->toArray();
+        $event_pic = $event?->eventPic?->pluck('id')?->toArray();
         $employees = $this->userRepository->rnGetAllUsersByRole('employee');
         // universities
         $universities = $this->universityRepository->getAllUniversities();
