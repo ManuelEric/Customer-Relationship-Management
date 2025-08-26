@@ -161,6 +161,7 @@
         </div>
     </div>
     <div id="sat-act" v-if="main_prog==4 && (prog_id=='SATPREP' || prog_id=='SATCORE' || prog_id=='SATINT' || prog_id=='SATPRO') && status==1">
+
         <div class="row mb-3">
             <div class="col-md-3">
                 <label for="">
@@ -182,7 +183,7 @@
                                     }
                                 @endphp
                                 <option value="{{ $tutor->id }}" @selected(old('tutor_1') == $tutor->id)
-                                    @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->first())->id == $tutor->id)>
+                                    @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->orderBy('updated_at', 'desc')->get())[0]->id == $tutor->id)>
                                     {{ $tutor->first_name . ' ' . $tutor->last_name . (count($subjects) > 0 ? ' - ' . json_encode($subjects) : '') }}
                                 </option>
                             @endforeach
@@ -223,7 +224,7 @@
                                     }
                                 @endphp
                                 <option value="{{ $tutor->id }}" @selected(old('tutor_2') == $tutor->id)
-                                    @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->latest('number')->first())->id == $tutor->id && $clientProgram->clientMentor()->count() > 1)>
+                                    @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->orderBy('updated_at', 'desc')->get())[1]->id == $tutor->id && $clientProgram->clientMentor()->count() > 1)>
                                     {{ $tutor->first_name . ' ' . $tutor->last_name . (count($subjects) > 0 ? ' - ' . json_encode($subjects) : '') }}
                                 </option>
                             @endforeach
