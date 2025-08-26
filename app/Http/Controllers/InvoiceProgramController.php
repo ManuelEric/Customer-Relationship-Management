@@ -711,6 +711,8 @@ class InvoiceProgramController extends Controller
         // Generate a temporary URL valid for 5 minutes
         $url = Storage::disk('s3')->temporaryUrl('project/crm/invoice/client/'.$attachment->attachment, now()->addMinutes(60));
 
+        dd($url);
+
         return view('pages.invoice.view-pdf')->with(
             [
                 'invoice' => $invoice,
