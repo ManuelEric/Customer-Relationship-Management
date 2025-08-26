@@ -168,6 +168,16 @@
                     Tutor 1<sup class="text-danger">*</sup>
                 </label>
             </div>
+            @php
+                $mentors = $clientProgram->clientMentor()
+                    ->wherePivot('status', 1)
+                    ->where('type', 5)
+                    ->orderBy('updated_at', 'desc')
+                    ->get();
+
+                $latestMentor = $mentors->first(); // most recent
+                $oldestMentor = $mentors->last();  // oldest
+            @endphp
             <div class="col-md">
                 <div class="row">
                     <div class="col-md-6">
@@ -183,7 +193,7 @@
                                     }
                                 @endphp
                                 <option value="{{ $tutor->id }}" @selected(old('tutor_1') == $tutor->id)
-                                    @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->orderBy('updated_at', 'desc')->get()[0])->id == $tutor->id)>
+                                    @selected(isset($clientProgram->clientMentor) && optional($latestMentor)->id == $tutor->id)>
                                     {{ $tutor->first_name . ' ' . $tutor->last_name . (count($subjects) > 0 ? ' - ' . json_encode($subjects) : '') }}
                                 </option>
                             @endforeach
@@ -224,7 +234,7 @@
                                     }
                                 @endphp
                                 <option value="{{ $tutor->id }}" @selected(old('tutor_2') == $tutor->id)
-                                    @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->orderBy('updated_at', 'desc')->get()[1])->id == $tutor->id && $clientProgram->clientMentor()->count() > 1)>
+                                    @selected(isset($clientProgram->clientMentor) && optional($oldestMentor)->id == $tutor->id && $clientProgram->clientMentor()->count() > 1)>
                                     {{ $tutor->first_name . ' ' . $tutor->last_name . (count($subjects) > 0 ? ' - ' . json_encode($subjects) : '') }}
                                 </option>
                             @endforeach
