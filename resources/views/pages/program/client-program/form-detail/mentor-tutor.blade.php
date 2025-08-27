@@ -169,6 +169,9 @@
                 </label>
             </div>
             @php
+            $latestMentor = $oldestMentor = null;
+            if (isset($clientProgram))
+            {
                 $mentors = $clientProgram->clientMentor()
                     ->wherePivot('status', 1)
                     ->where('type', 5)
@@ -177,6 +180,7 @@
 
                 $latestMentor = $mentors->first(); // most recent
                 $oldestMentor = $mentors->last();  // oldest
+            }
             @endphp
             <div class="col-md">
                 <div class="row">
