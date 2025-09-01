@@ -157,7 +157,7 @@
                                     <option data-placeholder="true"></option>
                                     <option value="9-12">All</option> <!-- why All? because it's for youth only, and because youth only cover grade 9-12 instead of 9-10 and 11-12 -->
                                     <option value="1-6">1-6</option>
-                                    <option value="7-8">1-6</option>
+                                    <option value="7-8">7-8</option>
                                     <option value="9-10">9-10</option>
                                     <option value="11-12">11-12</option>
                                 </select>
