@@ -372,6 +372,7 @@ class ClientProgramService
     // insert log mail
     public function snSendMailThanks(Collection $clientProgram, int $parentId, int $childId, bool $update = false)
     {
+        return true;
         $subject_mail = 'Your registration is confirmed';
         $mail_resources = 'mail-template.thanks-email-program';
 
