@@ -157,7 +157,9 @@ class PaymentGatewayController extends Controller
                     orderBy('created_at', 'asc')->
                     get();
 
-        if ($transactions->count() > 0) {
+        //! note that this condition below has potential to make every transactions turns into REJEC
+        //! as for now, we are commenting this out by giving condition that not able to be executed
+        if ($transactions->count() > 9999) {
             // ! this is the idea : since every time we hit their check-status endpoint
             // ! for payment method = "CC", they are going to be rejected
             // basically the idea was

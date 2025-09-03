@@ -32,3 +32,4 @@ docker-compose.yml
 .env.production
 .pre-commit-config.yaml
 phpstan.neon
+/.github/workflows/larastan.yml
