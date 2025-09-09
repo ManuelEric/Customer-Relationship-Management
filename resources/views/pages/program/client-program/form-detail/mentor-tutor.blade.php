@@ -122,7 +122,7 @@
 </section>
 <section id="available-tutor" class="mentor-tutor">
     <div id="tutoring"
-        v-if="(main_prog==4 || main_prog==7 || main_prog==8 || main_prog==9) && status==1 && (prog_id!='SATPREP' && prog_id!='SATCORE' && prog_id!='SATINT' && prog_id!='SATPRO')">
+        v-if="(main_prog==4 || main_prog==7 || main_prog==8 || main_prog==9 || main_prog==10) && status==1 && (prog_id!='SATPREP' && prog_id!='SATCORE' && prog_id!='SATINT' && prog_id!='SATPRO')">
         <div class="row mb-3">
             <div class="col-md-3">
                 <label for="">
