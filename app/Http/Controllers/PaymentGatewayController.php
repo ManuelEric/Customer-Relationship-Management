@@ -59,7 +59,14 @@ class PaymentGatewayController extends Controller
         // $this->admin_fee_cc = 2500; // not include 2.8%
 
         /* PKS w/ Prismalink */
-        $this->admin_fee_cc = 1500; // not include 2.5%
+        // $this->admin_fee_cc = 1500; // not include 2.5%
+        /**
+         * 
+         *  as per September 2025 => admin fee cc turns to 2500
+         *  see the price list fees here: https://prismalink.co.id/harga-promo-payment-gateway/
+         * 
+         * */ 
+        $this->admin_fee_cc = 2500; 
     }
 
     public function renderPage(Request $request)
