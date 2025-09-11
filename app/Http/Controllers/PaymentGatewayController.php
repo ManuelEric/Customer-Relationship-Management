@@ -44,6 +44,7 @@ class PaymentGatewayController extends Controller
     protected $admin_fee_va;
 
     protected $admin_fee_cc;
+    protected $bank_fee_cc;
 
     public function __construct(
         LogService $log_service,
@@ -57,16 +58,12 @@ class PaymentGatewayController extends Controller
         /* From website Prismalink */
         // $this->admin_fee_va = 4000;
         // $this->admin_fee_cc = 2500; // not include 2.8%
+        // $this->bank_fee_cc = 2.8;
 
         /* PKS w/ Prismalink */
-        // $this->admin_fee_cc = 1500; // not include 2.5%
-        /**
-         * 
-         *  as per September 2025 => admin fee cc turns to 2500
-         *  see the price list fees here: https://prismalink.co.id/harga-promo-payment-gateway/
-         * 
-         * */ 
-        $this->admin_fee_cc = 2500; 
+        $this->admin_fee_va = 4000;
+        $this->admin_fee_cc = 1500; // not include 2.5%
+        $this->bank_fee_cc = 2.5;
     }
 
     public function renderPage(Request $request)
@@ -373,9 +370,9 @@ class PaymentGatewayController extends Controller
 
             $transaction_amount = $request->transaction_amount;
             if ($transaction->payment_method == 'VA') {
-                $transaction_amount -= $this->admin_fee_va;
+                $base_amount = $transaction_amount - $this->admin_fee_va;
             } else {
-                $transaction_amount -= (int) $transaction->trx_amount * (2.8 / 100) + (int) $this->admin_fee_cc;
+                $base_amount = ((int) $transaction->trx_amount - (int) $this->admin_fee_cc) / (1 + ($this->bank_fee_cc / 100));
             }
 
             $is_child_program_bundle = $client_prog->bundlingDetail()->count();
@@ -385,7 +382,7 @@ class PaymentGatewayController extends Controller
                 'invdtl_id' => $transaction->installment_id,
                 'rec_currency' => 'IDR', // by default it would be IDR
                 'receipt_amount' => null,
-                'receipt_amount_idr' => $transaction_amount,
+                'receipt_amount_idr' => $base_amount,
                 'receipt_date' => $request->payment_date,
                 'receipt_words' => null,
                 'receipt_words_idr' => ucfirst(str_replace(',', '', Terbilang::make($transaction_amount))).' Rupiah',
