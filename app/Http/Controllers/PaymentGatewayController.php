@@ -373,6 +373,7 @@ class PaymentGatewayController extends Controller
                 $base_amount = $transaction_amount - $this->admin_fee_va;
             } else {
                 $base_amount = ((int) $transaction->trx_amount - (int) $this->admin_fee_cc) / (1 + ($this->bank_fee_cc / 100));
+                Log::debug('BASE AMOUNT : '. $base_amount, ['trx' => $transaction->trx_amount, 'admin_fee' => $this->admin_fee_cc, 'tax' => (1 + ($this->bank_fee_cc / 100))]);
             }
 
             $is_child_program_bundle = $client_prog->bundlingDetail()->count();

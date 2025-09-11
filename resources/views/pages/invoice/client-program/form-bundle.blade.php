@@ -1170,6 +1170,34 @@
                 })
         }
 
+        $(".btn-generate-payment").each(function () {
+            $(this).click(function () {
+
+                showLoading();
+                const payment_method = $(this).data('pmethod');
+                const bank_name = $(this).data('bname');
+                const installment = $(this).parents().eq(1).data('installment');
+                const id = $(this).parents().eq(1).data('index');
+
+                const target_uri = "{{ url('/') }}/api/v1/generate/payment/link/" + payment_method;
+                axios.post(target_uri, {
+                    payment_method : payment_method,
+                    bank : bank_name,
+                    installment : installment,
+                    id : id
+                })
+                .then(function (response) {
+                    Swal.close();
+                    $("#payment-ga-container-link").modal('show');
+                    $("#payment-ga-link").val(response.data.payment_link)
+                })
+                .catch(function (error) {
+                    Swal.close()
+                    notification('error', error?.response?.data?.error)
+                })
+            })
+        });
+
         $(document).ready(function() {
             $('.invoice').removeClass('d-none')
 
