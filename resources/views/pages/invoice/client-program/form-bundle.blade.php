@@ -719,6 +719,27 @@
 
     @include('pages.invoice.pic-modal')
 
+    <!-- Modal -->
+    <div class="modal fade" id="payment-ga-container-link" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Generated Payment Link</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="">
+                    Payment Link
+                </label>
+                <div class="input-group flex-nowrap">
+                    <input type="text" class="form-control form-control-sm" id="payment-ga-link" readonly>
+                    <span class="input-group-text" id="copy-clipboard"><i class="bi bi-clipboard"></i></span>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
     <script>
         $(document).ready(function() {
             @if (

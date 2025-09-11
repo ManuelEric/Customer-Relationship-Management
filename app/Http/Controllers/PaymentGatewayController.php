@@ -12,9 +12,12 @@ use App\Http\Traits\RupiahFormatterTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
+use App\Models\BundlingDetail;
+use App\Models\ClientProgram;
 use App\Models\InvDetail;
 use App\Models\InvoiceProgram;
 use App\Models\Transaction;
+use App\Models\UserClient;
 use App\Services\Log\LogService;
 use App\Services\Receipt\ReceiptService;
 use Exception;
@@ -124,10 +127,36 @@ class PaymentGatewayController extends Controller
             $invoice = InvDetail::find($identifier);
             $invoice_dtl_id = $invoice->invdtl_id;
             $trx_amount = $invoice->invdtl_amountidr;
-            $clientprog_id = $invoice->invoiceProgram->clientprog->clientprog_id;
-            $product_name = $invoice->invoiceProgram->clientprog->invoice_program_name;
-            $client = $invoice->invoiceProgram->clientprog->client;
-            $remarks = $invoice->invoiceProgram->clientprog->invoice_program_name;
+            if ($invoice->invoiceProgram->bundling_id)
+            {
+                if ($bundling = BundlingDetail::where('bundling_id', $invoice->invoiceProgram->bundling_id)->get())
+                {
+                    foreach ($bundling as $item)
+                    {
+                        $client_program = ClientProgram::where('clientprog_id', $item->clientprog_id)->first();
+                        $products[] = $client_program->invoice_program_name;
+                        $client = UserClient::find($client_program->client_id);
+
+                        $parent_number = $client->parents->count() > 0 ? $client->parents[0]->secondary_id : $client->secondary_id;
+                        $parent_name = $client->parents->count() > 0 ? $client->parents[0]->full_name : $client->full_name;
+                        $parent_email = $client->parents->count() > 0 ? $client->parents[0]->mail : $client->mail;
+                        $parent_phone = $client->parents->count() > 0 ? $client->parents[0]->phone : $client->phone;
+                        $parent_id = $client->parents->count() > 0 ? $client->parents[0]->id : $client->id;
+                        $parent_address = $client->parents->count() > 0 ? $client->parents[0]->address : $client->address;
+                    }
+                    $product_name = $remarks = "Bundling Program";
+                } else {
+                    throw new Exception("No bundling data");
+                }
+
+            } else {
+                $clientprog_id = $invoice->invoiceProgram->clientprog->clientprog_id;
+                $product_name = $invoice->invoiceProgram->clientprog->invoice_program_name;
+                $client = $invoice->invoiceProgram->clientprog->client;
+                $remarks = $invoice->invoiceProgram->clientprog->invoice_program_name;
+            }
+
+            
         } else {
             $invoice = InvoiceProgram::find($identifier);
             $invoice_id = $invoice->id;
@@ -141,12 +170,12 @@ class PaymentGatewayController extends Controller
         $fees = $this->calculateFee($payment_method, $bank_va_fee, $trx_amount);
 
         $invoice_number = $invoice->inv_id;
-        $parent_number = $client->parents->count() > 0 ? $client->parents[0]->secondary_id : $client->secondary_id;
-        $parent_name = $client->parents->count() > 0 ? $client->parents[0]->full_name : $client->full_name;
-        $parent_email = $client->parents->count() > 0 ? $client->parents[0]->mail : $client->mail;
-        $parent_phone = $client->parents->count() > 0 ? $client->parents[0]->phone : $client->phone;
-        $parent_id = $client->parents->count() > 0 ? $client->parents[0]->id : $client->id;
-        $parent_address = $client->parents->count() > 0 ? $client->parents[0]->address : $client->address;
+        // $parent_number = $client->parents->count() > 0 ? $client->parents[0]->secondary_id : $client->secondary_id;
+        // $parent_name = $client->parents->count() > 0 ? $client->parents[0]->full_name : $client->full_name;
+        // $parent_email = $client->parents->count() > 0 ? $client->parents[0]->mail : $client->mail;
+        // $parent_phone = $client->parents->count() > 0 ? $client->parents[0]->phone : $client->phone;
+        // $parent_id = $client->parents->count() > 0 ? $client->parents[0]->id : $client->id;
+        // $parent_address = $client->parents->count() > 0 ? $client->parents[0]->address : $client->address;
 
         $trx_id = $this->tnRandomDigit();
         $merchant_ref_no = (string) $parent_number.$trx_id;
