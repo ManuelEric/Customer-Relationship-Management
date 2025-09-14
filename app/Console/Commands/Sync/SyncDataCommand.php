@@ -264,7 +264,7 @@ class SyncDataCommand extends Command
             case 'sales':
                 $query = User::whereHas('roles', function ($query) {
                     $query->where('role_name', 'like', '%Employee%');
-                })->whereHas('department', function ($query) {
+                })->whereHas('departments', function ($query) {
                     $query->where('dept_name', 'like', '%Client Management%');
                 })->where('active', 1)->orderBy('first_name', 'asc')->orderBy('last_name', 'asc');
 
@@ -300,7 +300,7 @@ class SyncDataCommand extends Command
                 break;
 
             case 'employee':
-                $query = User::with('department')->whereHas('roles', function ($query) {
+                $query = User::with('departments')->whereHas('roles', function ($query) {
                     $query->where('role_name', 'like', '%Employee%');
                 })->where('active', 1)->orderBy('first_name', 'asc')->orderBy('last_name', 'asc');
 

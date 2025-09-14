@@ -117,12 +117,12 @@ class AppServiceProvider extends ServiceProvider
                 // invoice & receipt PIC
                 $invRecPics = [
                     [
-                        'name' => env('DIRECTOR_NAME'),
-                        'email' => env('DIRECTOR_EMAIL'),
+                        'name' => config('env.DIRECTOR_NAME'),
+                        'email' => config('env.DIRECTOR_EMAIL'),
                     ],
                     [
-                        'name' => env('OWNER_NAME'),
-                        'email' => env('OWNER_EMAIL'),
+                        'name' => config('env.OWNER_NAME'),
+                        'email' => config('env.OWNER_EMAIL'),
                     ],
                 ];
 
@@ -139,7 +139,7 @@ class AppServiceProvider extends ServiceProvider
                             'followUp' => $followUp ?? Cache::get('followUp'),
                             'birthDay' => $birthDay ?? Cache::get('birthDay'),
                             'invRecPics' => $invRecPics,
-                            'registrationUrl' => env('REGISTRATION_URL'),
+                            'registrationUrl' => config('env.REGISTRATION_URL'),
                         ]
                 );
             }
@@ -161,7 +161,7 @@ class AppServiceProvider extends ServiceProvider
         // get department ID
         // its used to insert department_id when creating lead source
         // $deptId = $department !== null ? Department::where('dept_name', $department)->first()->id : null;
-        $deptId = $user->department()->first()->id ?? null;
+        $deptId = $user->departments()->first()->id ?? null;
 
         $grouped = $collection->sortBy(['order_no', 'order_no_submenu'])->values()->mapToGroups(function (array $item, int $key) {
             return [
@@ -233,7 +233,7 @@ class AppServiceProvider extends ServiceProvider
         while ($index < count($entries)) {
 
             // if user logged in user is from the department
-            if ($user->department()->where('dept_name', $entries[$index]['department'])->wherePivot('status', 1)->count() > 0) {
+            if ($user->departments()->where('dept_name', $entries[$index]['department'])->wherePivot('status', 1)->count() > 0) {
 
                 $entries[$index]['status'] = true;
 

@@ -51,13 +51,22 @@ class AddedPackageBoughtForAdmissionMentee extends Command
 
         DB::beginTransaction();
         foreach ($active_mentees as $mentee) {
+
+            // if ($mentee->id != 'd49a025f-9a44-11ee-9948-acc8e5260ac1')
+            //     continue;
+
             $full_name = $mentee->full_name;
             $grade = $mentee->grade_now;
 
             foreach ($mentee->clientProgram as $client_program) {
+
+                // if ($client_program->clientprog_id != 3608)
+                //     continue;
+
                 $clientprog_id = $client_program->clientprog_id;
                 $client_program_details = [];
                 foreach ($packages as $package) {
+
                     // check if exists
                     if (ClientProgramDetail::where('clientprog_id', $clientprog_id)->where('phase_detail_id', $package->id)->exists()) {
                         continue;
@@ -85,7 +94,7 @@ class AddedPackageBoughtForAdmissionMentee extends Command
                 DB::commit();
             } catch (\Exception $err) {
                 DB::rollBack();
-                $this->error('Failed to store client program details '.$err->getMessage());
+                $this->error('Failed to store client program details '.$err->getMessage().' on line '.$err->getLine());
                 break;
             }
         }

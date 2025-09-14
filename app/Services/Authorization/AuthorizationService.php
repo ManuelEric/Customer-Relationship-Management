@@ -55,7 +55,7 @@ class AuthorizationService
             $roleName = str($role->role_name)->lower()->replace(' ', '-')->toString();
 
             if (in_array($roleName, ['employee', 'super-admin', 'admin'])) {
-                $scopes = ($roleName === 'admin' && $user->department()->where('dept_name', 'Client Management')->exists())
+                $scopes = ($roleName === 'admin' && $user->departments()->where('dept_name', 'Client Management')->exists())
                     ? ['sales-admin']
                     : [$roleName];
             }
@@ -67,18 +67,17 @@ class AuthorizationService
 
     public function authorize(User $user, $scopes)
     {
-        $userFullname = $user->first_name.' '.$user->last_name;
         // just in case both of the condition above to check user type was passed by
         // validate the scopes
         if (empty($scopes)) {
-            Log::error("{$userFullname} was trying to log-in but failed because he/she doesn't have an acceptable role.");
+            Log::error("{$user->full_name} was trying to log-in but failed because he/she doesn't have an acceptable role.");
             throw new Exception('Something went wrong. Please contact our administrator to help you login.');
         }
 
         // create access token
         // in order to access api with data session
         if (! $generatedToken = $user->createToken('Grant User Access', $scopes)->accessToken) {
-            Log::error("{$userFullname} was trying to log-in but failed to generate token.");
+            Log::error("{$user->full_name} was trying to log-in but failed to generate token.");
         }
 
         // by default user role will follow the scopes

@@ -93,7 +93,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function rnGetAllUsersByRole($role)
     {
-        return User::with('department')->role($role)->active()->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
+        return User::with('departments')->role($role)->active()->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
 
     public function rnGetAllUsersByDepartmentAndRole($role, $department)

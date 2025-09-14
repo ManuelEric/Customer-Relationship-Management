@@ -550,9 +550,10 @@ class ReceiptController extends Controller
                 if ($isBundle) {
                     $data['email'] = $receipt->invoiceProgram->bundling->first_detail->client_program->client->mail;
                     $data['recipient'] = $receipt->invoiceProgram->bundling->first_detail->client_program->client->full_name;
+                } else {
+                    $data['email'] = $receipt->invoiceProgram->clientprog->client->mail;
+                    $data['recipient'] = $receipt->invoiceProgram->clientprog->client->full_name;
                 }
-                $data['email'] = $receipt->invoiceProgram->clientprog->client->mail;
-                $data['recipient'] = $receipt->invoiceProgram->clientprog->client->full_name;
                 break;
         }
 

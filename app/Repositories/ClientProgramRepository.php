@@ -591,7 +591,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
         return User::whereHas('roles', function ($query) use ($role) {
             $query->where('role_name', 'like', '%'.$role);
-        })->whereHas('department', function ($query) use ($department) {
+        })->whereHas('departments', function ($query) use ($department) {
             $query->where('dept_name', 'like', '%'.$department.'%');
         })->where('active', 1)
             ->select(DB::raw('id as empl_id'), DB::raw('CONCAT(users.first_name, " ", COALESCE(users.last_name, "")) as pic_name'), 'id')
@@ -926,6 +926,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $clientProgram->clientMentor()->detach($mentorsId);
         }
 
+
         // when supervising_mentor and profile_building_mentor is filled which is not null
         // then assumed the user want to input "admission mentoring" program
         // do attach main mentor and backup mentor as client mentor
@@ -934,7 +935,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
             // if program end date was less than today
             // then put status into 0 else 1
-            $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; // status mentoring [0: inactive, 1: active]
+            // $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; // status mentoring [0: inactive, 1: active]
+            $status = 1;
             if (array_key_exists('supervising_mentor', $additionalDetails)) {
                 $mentorInfo[] = [
                     'user_id' => $additionalDetails['supervising_mentor'],

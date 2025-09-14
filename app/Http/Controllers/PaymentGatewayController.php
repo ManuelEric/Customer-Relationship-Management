@@ -12,9 +12,12 @@ use App\Http\Traits\RupiahFormatterTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
+use App\Models\BundlingDetail;
+use App\Models\ClientProgram;
 use App\Models\InvDetail;
 use App\Models\InvoiceProgram;
 use App\Models\Transaction;
+use App\Models\UserClient;
 use App\Services\Log\LogService;
 use App\Services\Receipt\ReceiptService;
 use Exception;
@@ -44,6 +47,7 @@ class PaymentGatewayController extends Controller
     protected $admin_fee_va;
 
     protected $admin_fee_cc;
+    protected $bank_fee_cc;
 
     public function __construct(
         LogService $log_service,
@@ -57,9 +61,12 @@ class PaymentGatewayController extends Controller
         /* From website Prismalink */
         // $this->admin_fee_va = 4000;
         // $this->admin_fee_cc = 2500; // not include 2.8%
+        // $this->bank_fee_cc = 2.8;
 
         /* PKS w/ Prismalink */
+        $this->admin_fee_va = 4000;
         $this->admin_fee_cc = 1500; // not include 2.5%
+        $this->bank_fee_cc = 2.5;
     }
 
     public function renderPage(Request $request)
@@ -157,7 +164,266 @@ class PaymentGatewayController extends Controller
                     orderBy('created_at', 'asc')->
                     get();
 
-        if ($transactions->count() > 0) {
+        //! note that this condition below has potential to make every transactions turns into REJEC
+        //! as for now, we are commenting this out by giving condition that not able to be executed
+        if ($transactions->count() > 9999) {
+            // ! this is the idea : since every time we hit their check-status endpoint
+            // ! for payment method = "CC", they are going to be rejected
+            // basically the idea was
+            // to fetch entire data transaction based on invoice_id, installment_id, and invoice_number
+            // that makes $response will be overwritten.
+            // in the end, the newest entry on transaction is going to filled in $response
+            // which means, $response is going to have the latest value of the transaction
+            foreach ($transactions as $transaction) {
+                // before submit-trx
+                // check if the transaction has been cancelled or not
+                [$response, $result, $message] = $prismaLinkCheckStatusAction->execute([
+                    'plink_ref_no' => $transaction->plink_ref_no,
+                    'merchant_ref_no' => $transaction->merchant_ref_no,
+                ]);
+
+                // check if the status inside was cancel or reject
+                if (! in_array($response['transaction_status'], ['CANCL', 'REJEC'])) {
+                    $trx_id = $transaction->trx_id;
+                    $merchant_ref_no = $transaction->merchant_ref_no;
+                }
+            }
+
+        }
+
+        $total_transaction_with_fee = round($trx_amount + $fees);
+
+        // create request body
+        $request_body = [
+            'merchant_key_id' => config('env.MERCHANT_KEY_ID'),
+            'merchant_id' => config('env.MERCHANT_ID'),
+            'merchant_ref_no' => $merchant_ref_no,
+            'backend_callback_url' => config('env.PAYMENT_BACKEND_CALLBACK_URI'),
+            'frontend_callback_url' => config('env.PAYMENT_FRONTEND_CALLBACK_URI'),
+            'transaction_date_time' => Carbon::now()->format('Y-m-d H:i:s.v O'),
+            'transmission_date_time' => Carbon::now()->format('Y-m-d H:i:s.v O'),
+            'transaction_currency' => $trx_currency,
+            'transaction_amount' => $total_transaction_with_fee,
+            'product_details' => json_encode([[
+                'item_code' => $trx_id,
+                'item_title' => $product_name,
+                'quantity' => 1,
+                'total' => $trx_amount,
+                'currency' => $trx_currency,
+            ]]),
+            'va_name' => ucwords($parent_name),
+            'user_name' => ucwords($parent_name),
+            'user_email' => $parent_email,
+            'user_phone_number' => $this->tnNormalizePhoneNumber($parent_phone),
+            'user_id' => $parent_id,
+            'remarks' => $remarks,
+            'user_device_id' => Browser::browserName(),
+            'user_ip_address' => $request->ip(),
+            'shipping_details' => json_encode([
+                'address' => $parent_address ?? '',
+                'telephoneNumber' => $this->tnNormalizePhoneNumber($parent_phone),
+                'handphoneNumber' => $this->tnNormalizePhoneNumber($parent_phone),
+            ]),
+            'invoice_number' => $invoice_number,
+            'integration_type' => '01',
+            'payment_method' => $payment_method,
+            // 'bank_id' => null,
+            'bank_id' => $bank_id,
+            // 'validity' => Carbon::now()->addMinutes(10)->format('Y-m-d H:i:s.v O'),
+            'external_id' => (string) $trx_id,
+            'other_bills' => json_encode([[
+                'title' => 'Admin fee',
+                'value' => $this->formatRupiah(round($fees)),
+            ]]),
+        ];
+
+        Log::debug('Request to Prismalink', $request_body);
+
+        $response = Http::withHeaders([
+            'mac' => hash_hmac('sha256', json_encode($request_body), config('env.PAYMENT_SECRET_KEY')),
+        ])->
+        post(config('env.PAYMENT_API_URI').'/payment/integration/transaction/api/submit-trx', $request_body)->
+        throw(function (Response $response, RequestException $err) use ($request_body) {
+            $this->log_service->createErrorLog(LogModule::CREATE_PAYMENT_LINK, $err->getMessage(), $err->getLine(), $err->getFile(), $request_body);
+            throw new HttpResponseException(
+                response()->json($err->getMessage(), JsonResponse::HTTP_BAD_REQUEST)
+            );
+        })->json();
+
+        Log::debug('Response from Prismalink', $response);
+
+        if ($response['response_code'] != 'PL000') {
+            // in order to return error but display message to user
+            // so we have to put the error into HTTP_OK
+            // here's some condition only for duplicate transaction
+            // other than that will using exception Error
+            if ($response['response_code'] == 'PL032') {
+                throw new HttpResponseException(
+                    response()->json(['error' => 'Transaction Exists. Please refresh the page'], JsonResponse::HTTP_BAD_REQUEST)
+                );
+            }
+
+            throw new HttpResponseException(
+                response()->json($response['response_message'], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
+
+        $trx_detail_to_store = [
+            'trx_id' => $trx_id,
+            'invoice_id' => $invoice_id,
+            'installment_id' => $invoice_dtl_id,
+            'invoice_number' => $invoice_number,
+            'trx_currency' => $trx_currency,
+            'trx_amount' => $trx_amount,
+            'item_title' => $product_name,
+            'payment_method' => $payment_method,
+            'bank_id' => null,
+            'bank_name' => null,
+            'payment_page_url' => $response['payment_page_url'],
+            'va_number' => null,
+            'merchant_ref_no' => $merchant_ref_no,
+            'plink_ref_no' => $response['plink_ref_no'],
+            'validity' => Carbon::parse($response['validity']),
+            'payment_status' => $response['transaction_status'],
+        ];
+
+        if ($payment_method == 'VA') {
+            $va_number_list = json_decode($response['va_number_list'])[0];
+            $trx_detail_to_store['bank_id'] = $va_number_list->bank_id;
+            $trx_detail_to_store['bank_name'] = $va_number_list->bank;
+            $trx_detail_to_store['va_number'] = $va_number_list->va;
+        }
+
+        DB::beginTransaction();
+        try {
+            $trx = Transaction::updateOrCreate([
+                'trx_id' => $trx_id,
+                'merchant_ref_no' => $merchant_ref_no,
+            ], $trx_detail_to_store);
+            DB::commit();
+        } catch (Exception $err) {
+            DB::rollBack();
+            $this->log_service->createErrorLog(LogModule::CREATE_PAYMENT_LINK, $err->getMessage(), $err->getLine(), $err->getFile(), $trx_detail_to_store);
+
+            return response()->json([
+                'response_description' => 'ERR',
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $this->log_service->createSuccessLog(LogModule::CREATE_PAYMENT_LINK, 'Payment link created successfully', $trx->toArray());
+
+        $payment_page_url = $response['payment_page_url'];
+        $request = Request::create($payment_page_url);
+        $query_params_from_request = $request->query();
+        $route = route('payment-web.render-page', $query_params_from_request);
+
+        return response()->json([
+            'response_description' => 'SUCCESS',
+            // 'payment_link' => env('APP_URL').$response['payment_page_url']
+            'payment_link' => $route,
+        ]);
+    }
+
+    public function generateLinkForBundling(
+        GenerateLinkRequest $request,
+        PrismaLinkCheckStatusAction $prismaLinkCheckStatusAction
+    ) {
+        $validated = $request->safe()->only(['payment_method', 'bank', 'installment', 'id']);
+        $payment_method = $validated['payment_method'];
+        $bank_name = $validated['bank'] ?? null;
+        [$bank_id, $bank_va_fee] = $bank_name ? $this->getCodeBank($bank_name) : null;
+        $installment = $validated['installment'];
+        $identifier = $validated['id'];
+        $trx_currency = 'IDR';
+
+        // ! need validation to prevent payment link generated twice if the bills has already paid
+        if ($existing_trx = Transaction::whereIdentifier($installment, $identifier)->whereBankName($bank_name)->available()->first()) {
+            response()->json([
+                'error' => "You've been created the payment link.",
+                'payment_link' => config('env.PAYMENT_WEB_URI').$existing_trx->payment_page_url,
+            ], JsonResponse::HTTP_OK);
+        }
+
+        if ($existing_trx = Transaction::whereIdentifier($installment, $identifier)->whereBankName($bank_name)->paid()->first()) {
+            throw new HttpResponseException(
+                response()->json(['error' => "There's a problem. The transaction is done, but the receipt is missing. Please reach out to our administrator."], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
+
+        $invoice_id = $invoice_dtl_id = null;
+        if ($installment == 1) {
+            $invoice = InvDetail::find($identifier);
+            $invoice_dtl_id = $invoice->invdtl_id;
+            $trx_amount = $invoice->invdtl_amountidr;
+
+            $invoice_program = $invoice->invoiceProgram;
+            $bundling_id = $invoice_program->bundling_id;
+
+            if ($bundling_id)
+            {
+                $bundling_items = BundlingDetail::where('bundling_id', $bundling_id)->get();
+                if ($bundling_items->isEmpty()) {
+                    throw new Exception("No bundling data");
+                }
+
+                $products = [];
+                foreach ($bundling_items as $item)
+                {
+                    $client_program = ClientProgram::find($item->clientprog_id);
+                    $products[] = $client_program->invoice_program_name;
+                    $client = UserClient::find($client_program->client_id);
+                }
+                $product_name = $remarks = "Bundling Program";
+            } else {
+                $client_program = $invoice_program->clientprog;
+                $clientprog_id = $client_program->clientprog_id;
+                $product_name = $remarks = $client_program->invoice_program_name;
+                $client = $client_program->client;
+            }            
+        } else {
+            $invoice = InvoiceProgram::find($identifier);
+            $invoice_id = $invoice->id;
+            $trx_amount = $invoice->inv_totalprice_idr;
+
+            $client_program = $invoice->clientprog;
+            $clientprog_id = $client_program->clientprog_id;
+            $product_name = $client_program->program->program_name;
+            $remarks = $client_program->invoice_program_name;
+            $client = $client_program->client;
+        }
+
+        // Calculate transaction fee
+        $fees = $this->calculateFee($payment_method, $bank_va_fee, $trx_amount);
+
+        // Set invoice number
+        $invoice_number = $invoice->inv_id;
+
+        // Get parent info (if any)
+        $parent = $client->parents->first() ?? $client;
+
+        $parent_number  = $parent->secondary_id;
+        $parent_name    = $parent->full_name;
+        $parent_email   = $parent->mail;
+        $parent_phone   = $parent->phone;
+        $parent_id      = $parent->id;
+        $parent_address = $parent->address;
+
+        $trx_id = $this->tnRandomDigit();
+        $merchant_ref_no = (string) $parent_number.$trx_id;
+
+        // prevent transaction generated more than once by
+        // checking the transaction table using invoice_id, installment_id, and invoice_number
+        // if by those data transaction could be found, then use the transaction ID of existing data
+        $transactions = Transaction::where('invoice_id', $invoice_id)->
+                    where('installment_id', $invoice_dtl_id)->
+                    where('invoice_number', $invoice_number)->
+                    whereNot('trx_id', $trx_id)->
+                    orderBy('created_at', 'asc')->
+                    get();
+
+        //! note that this condition below has potential to make every transactions turns into REJEC
+        //! as for now, we are commenting this out by giving condition that not able to be executed
+        if ($transactions->count() > 9999) {
             // ! this is the idea : since every time we hit their check-status endpoint
             // ! for payment method = "CC", they are going to be rejected
             // basically the idea was
@@ -364,9 +630,11 @@ class PaymentGatewayController extends Controller
 
             $transaction_amount = $request->transaction_amount;
             if ($transaction->payment_method == 'VA') {
-                $transaction_amount -= $this->admin_fee_va;
+                $base_amount = $transaction_amount - $this->admin_fee_va;
             } else {
-                $transaction_amount -= (int) $transaction->trx_amount * (2.8 / 100) + (int) $this->admin_fee_cc;
+                // $base_amount = ((int) $transaction->trx_amount - (int) $this->admin_fee_cc) / (1 + ($this->bank_fee_cc / 100));
+                // Log::debug('BASE AMOUNT : '. $base_amount, ['trx' => $transaction->trx_amount, 'admin_fee' => $this->admin_fee_cc, 'tax' => (1 + ($this->bank_fee_cc / 100))]);
+                $base_amount = $transaction->trx_amount;
             }
 
             $is_child_program_bundle = $client_prog->bundlingDetail()->count();
@@ -376,7 +644,7 @@ class PaymentGatewayController extends Controller
                 'invdtl_id' => $transaction->installment_id,
                 'rec_currency' => 'IDR', // by default it would be IDR
                 'receipt_amount' => null,
-                'receipt_amount_idr' => $transaction_amount,
+                'receipt_amount_idr' => $base_amount,
                 'receipt_date' => $request->payment_date,
                 'receipt_words' => null,
                 'receipt_words_idr' => ucfirst(str_replace(',', '', Terbilang::make($transaction_amount))).' Rupiah',

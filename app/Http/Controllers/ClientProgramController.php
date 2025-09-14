@@ -265,10 +265,9 @@ class ClientProgramController extends Controller
 
     public function show(Request $request)
     {
-
-        if ($request->route('student') !== null) {
+        if ($request->route('student') !== null ) {
             $student_id = $request->route('student');
-        } elseif ($request->route('client') !== null) {
+        } elseif ($request->route('client') !== null ) {
             $student_id = $request->route('client');
         }
 

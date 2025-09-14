@@ -181,10 +181,16 @@ class ClientProgramService
                         'assessmentsent_date' => $request->assessmentsent_date,
                         'mentor_ic' => $request->mentor_ic,
                     ];
-                } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->competition_list) || in_array($request->prog_id, $this->skillset_tutoring)) { // set additional attributes for tutoring and competition program
+                } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->skillset_tutoring)) { // set additional attributes for tutoring and competition program
 
                     $clientProgramDetails += [
                         'package' => $request->package,
+                        'trial_date' => $request->trial_date,
+                    ];
+                } elseif (in_array($request->prog_id, $this->competition_list)) {
+                    $clientProgramDetails += [
+                        'package' => $request->package,
+                        'curriculum' => 'Competition', //* because we need to get curriculum value for competition in timesheet, so we set it here
                         'trial_date' => $request->trial_date,
                     ];
                 } elseif (in_array($request->prog_id, $this->subject_tutoring_list)) {
@@ -264,7 +270,7 @@ class ClientProgramService
 
                     }
 
-                } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->skillset_tutoring) || in_array($request->prog_id, $this->competition_list)) {
+                } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->skillset_tutoring)) {
 
                     // add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
@@ -276,6 +282,18 @@ class ClientProgramService
                     // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
                     $clientProgramDetails['package'] = $request->package;
+                } elseif (in_array($request->prog_id, $this->competition_list)) {
+                    // add additional values
+                    $clientProgramDetails['success_date'] = $request->success_date;
+                    $clientProgramDetails['trial_date'] = $request->trial_date;
+                    // $clientProgramDetails['first_class'] = $request->first_class;
+                    $clientProgramDetails['prog_start_date'] = $request->prog_start_date;
+                    $clientProgramDetails['prog_end_date'] = $request->prog_end_date;
+                    $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
+                    // $clientProgramDetails['tutor_id'] = $request->tutor_id;
+                    $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
+                    $clientProgramDetails['package'] = $request->package;
+                    $clientProgramDetails['curriculum'] = 'Competition'; //* because we need to get curriculum value for competition in timesheet, so we set it here
                 } elseif (in_array($request->prog_id, $this->subject_tutoring_list)) {
 
                     // add additional values
@@ -372,6 +390,7 @@ class ClientProgramService
     // insert log mail
     public function snSendMailThanks(Collection $clientProgram, int $parentId, int $childId, bool $update = false)
     {
+        return true;
         $subject_mail = 'Your registration is confirmed';
         $mail_resources = 'mail-template.thanks-email-program';
 

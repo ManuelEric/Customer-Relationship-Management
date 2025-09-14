@@ -163,7 +163,7 @@ class Program extends Model
     {
         return Attribute::make(
             get: fn () => $this->sub_prog && $this->main_prog->prog_name !== $this->sub_prog->sub_prog_name
-                ? $this->main_prog->prog_name.' / '.$this->sub_prog->sub_prog_name.': '.$this->prog_program
+                ? $this->main_prog->prog_name.' - '.$this->sub_prog->sub_prog_name.': '.$this->prog_program
                 : $this->main_prog->prog_name.': '.$this->prog_program,
         );
 

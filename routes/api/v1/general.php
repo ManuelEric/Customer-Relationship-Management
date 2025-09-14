@@ -204,6 +204,7 @@ Route::middleware(['throttle:2500,1'])->group(function () {
     // payment gateway
     Route::get('generate/payment/link/{payment_method}', [PaymentGatewayController::class, 'redirectPayment'])->name('redirect.payment.link');
     Route::post('generate/payment/link/{payment_method}', [PaymentGatewayController::class, 'generateLink'])->name('generate.payment.link');
+    Route::post('generate/payment/link/bundle/{payment_method}', [PaymentGatewayController::class, 'generateLinkForBundling'])->name('generate.payment.link.bundle');
     Route::post('payment/callback', [PaymentGatewayController::class, 'callback']);
 
     // Temporary without middleware until Implemented SSO for all platform

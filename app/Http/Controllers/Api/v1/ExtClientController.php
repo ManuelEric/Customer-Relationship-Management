@@ -961,6 +961,7 @@ class ExtClientController extends Controller
 
     public function sendEmailPublicRegistration($template, $passedData, $subject, $recipient)
     {
+        return true;
         Mail::send(
             $template,
             $passedData,
@@ -2031,17 +2032,22 @@ class ExtClientController extends Controller
 
         $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone', 'npwp', 'active')->with([
             'roles',
-        ])->whereHas('roles', function ($query) use ($role) {
+        ])->
+        whereHas('roles', function ($query) use ($role) {
             $query->when($role, function ($sub) use ($role) {
                 $sub->where('role_name', $role);
             }, function ($sub) {
                 $sub->whereIn('role_name', ['Mentor', 'External Mentor', 'Tutor']);
             });
-        })->when($keyword, function ($query) use ($keyword) {
+        })->
+        when($keyword, function ($query) use ($keyword) {
             $query->where(function ($sub) use ($keyword) {
                 $sub->whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%'.$keyword.'%'])->orWhereRaw('email like ?', ['%'.$keyword.'%'])->orWhereRaw('phone like ?', ['%'.$keyword.'%']);
             });
-        })->whereNotNull('email')->isActive()->get();
+        })->
+        whereNotNull('email')->
+        isActive()->
+        get();
 
         $mappedUser = $user->map(function ($data) {
 
@@ -2420,7 +2426,7 @@ class ExtClientController extends Controller
 
                     switch ($type) {
                         case 'all':
-                            $mapped_phase_detail = $item->phase_detail->map(function ($item) use ($clientprog) {
+                            $mapped_phase_detail = $item->phase_details->map(function ($item) use ($clientprog) {
                                 return [
                                     'clientprog_id' => $clientprog->clientprog_id,
                                     'phase_detail_id' => $item->id,
@@ -2432,7 +2438,7 @@ class ExtClientController extends Controller
                             break;
 
                         case 'manual':
-                            $mapped_phase_detail = $item->phase_detail->where('type', 'manual')->map(function ($item) use ($clientprog) {
+                            $mapped_phase_detail = $item->phase_details->where('type', 'manual')->map(function ($item) use ($clientprog) {
                                 return [
                                     'clientprog_id' => $clientprog->clientprog_id,
                                     'phase_detail_id' => $item->id,

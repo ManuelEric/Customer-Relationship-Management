@@ -122,7 +122,7 @@
 </section>
 <section id="available-tutor" class="mentor-tutor">
     <div id="tutoring"
-        v-if="(main_prog==4 || main_prog==7 || main_prog==8 || main_prog==9) && status==1 && (prog_id!='SATPREP' && prog_id!='SATCORE' && prog_id!='SATINT' && prog_id!='SATPRO')">
+        v-if="(main_prog==4 || main_prog==7 || main_prog==8 || main_prog==9 || main_prog==10) && status==1 && (prog_id!='SATPREP' && prog_id!='SATCORE' && prog_id!='SATINT' && prog_id!='SATPRO')">
         <div class="row mb-3">
             <div class="col-md-3">
                 <label for="">
@@ -161,12 +161,27 @@
         </div>
     </div>
     <div id="sat-act" v-if="main_prog==4 && (prog_id=='SATPREP' || prog_id=='SATCORE' || prog_id=='SATINT' || prog_id=='SATPRO') && status==1">
+
         <div class="row mb-3">
             <div class="col-md-3">
                 <label for="">
                     Tutor 1<sup class="text-danger">*</sup>
                 </label>
             </div>
+            @php
+            $latestMentor = $oldestMentor = null;
+            if (isset($clientProgram))
+            {
+                $mentors = $clientProgram->clientMentor()
+                    ->wherePivot('status', 1)
+                    ->where('type', 5)
+                    ->orderBy('updated_at', 'desc')
+                    ->get();
+
+                $latestMentor = $mentors->first(); // most recent
+                $oldestMentor = $mentors->last();  // oldest
+            }
+            @endphp
             <div class="col-md">
                 <div class="row">
                     <div class="col-md-6">
@@ -182,7 +197,7 @@
                                     }
                                 @endphp
                                 <option value="{{ $tutor->id }}" @selected(old('tutor_1') == $tutor->id)
-                                    @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->first())->id == $tutor->id)>
+                                    @selected(isset($clientProgram->clientMentor) && optional($latestMentor)->id == $tutor->id)>
                                     {{ $tutor->first_name . ' ' . $tutor->last_name . (count($subjects) > 0 ? ' - ' . json_encode($subjects) : '') }}
                                 </option>
                             @endforeach
@@ -223,7 +238,7 @@
                                     }
                                 @endphp
                                 <option value="{{ $tutor->id }}" @selected(old('tutor_2') == $tutor->id)
-                                    @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->latest('number')->first())->id == $tutor->id && $clientProgram->clientMentor()->count() > 1)>
+                                    @selected(isset($clientProgram->clientMentor) && optional($oldestMentor)->id == $tutor->id && $clientProgram->clientMentor()->count() > 1)>
                                     {{ $tutor->first_name . ' ' . $tutor->last_name . (count($subjects) > 0 ? ' - ' . json_encode($subjects) : '') }}
                                 </option>
                             @endforeach

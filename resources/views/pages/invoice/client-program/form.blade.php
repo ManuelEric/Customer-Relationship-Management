@@ -1357,6 +1357,7 @@
                 })
                 .catch(function (error) {
                     Swal.close()
+                    console.log(error)
                     notification('error', error?.response?.data?.error)
                 })
             })

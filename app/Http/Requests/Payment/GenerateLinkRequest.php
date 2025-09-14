@@ -39,7 +39,6 @@ class GenerateLinkRequest extends FormRequest
     public function attributes(): array
     {
         return [
-
             'payment_method' => 'Payment Method',
             'bank' => 'Bank Name',
             'id' => 'Identifier',

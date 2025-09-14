@@ -323,7 +323,7 @@ class User extends Authenticatable
 
     public function scopeDepartment(Builder $query, string $department): void
     {
-        $query->whereHas('department', function ($sub) use ($department) {
+        $query->whereHas('departments', function ($sub) use ($department) {
             $sub->where('dept_name', 'like', '%'.$department.'%');
         });
     }
@@ -384,7 +384,7 @@ class User extends Authenticatable
     {
         return $query->whereHas('roles', function ($subQuery) {
             $subQuery->where('role_name', 'Admin');
-        })->whereHas('department', function ($subQuery) {
+        })->whereHas('departments', function ($subQuery) {
             $subQuery->where('dept_name', 'Client Management')->where('tbl_user_type_detail.status', 1);
         })->count() > 0 ? true : false;
     }
@@ -393,14 +393,14 @@ class User extends Authenticatable
     {
         return $query->whereDoesntHave('roles', function ($subQuery) {
             $subQuery->where('role_name', 'Admin');
-        })->whereHas('department', function ($subQuery) {
+        })->whereHas('departments', function ($subQuery) {
             $subQuery->where('dept_name', 'Client Management')->where('tbl_user_type_detail.status', 1);
         })->get();
     }
 
     public function scopeIsSales($query)
     {
-        return $query->whereHas('department', function ($subQuery) {
+        return $query->whereHas('departments', function ($subQuery) {
             $subQuery->where('dept_name', 'Client Management')->where('tbl_user_type_detail.status', 1);
         });
     }

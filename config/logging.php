@@ -129,12 +129,8 @@ return [
         ],
 
         'logstash' => [
-            'driver' => 'monolog',
-            // 'handler' => Monolog\Handler\SocketHandler::class,
-            // 'with' => [
-            //     'connectionString' => 'tcp://localhost:5044',
-            // ],
-            // 'formatter' => Monolog\Formatter\JsonFormatter::class,
+            'driver' => 'custom',
+            'via' => App\Logging\LogstashHttpLogger::class,
         ],
     ],
 
